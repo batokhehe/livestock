@@ -35,10 +35,35 @@ class AppTypography {
     color: AppColors.black,
   );
 
-
   static const mediumBoldWhite = TextStyle(
     fontSize: 16,
     color: AppColors.white,
     fontWeight: FontWeight.bold,
+  );
+  static const mediumNormalWhite = TextStyle(
+    fontSize: 16,
+    color: AppColors.white,
+  );
+  static const smallNormalWhite = TextStyle(
+    fontSize: 14,
+    color: AppColors.white,
+  );
+  static const hint = TextStyle(fontSize: 14, color: AppColors.hint);
+
+  static const smallNormalGrey = TextStyle(fontSize: 14, color: AppColors.grey);
+
+  static const xSmallNormalPrimary = TextStyle(
+    fontSize: 12,
+    color: AppColors.primary,
+  );
+
+  static const xSmallBoldGreen = TextStyle(
+    fontSize: 12,
+    color: AppColors.success,
+    fontWeight: FontWeight.bold,
+  );
+  static const xSmallNormalGreen = TextStyle(
+    fontSize: 12,
+    color: AppColors.success,
   );
 }

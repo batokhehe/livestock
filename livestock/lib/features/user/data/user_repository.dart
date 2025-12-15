@@ -1,11 +1,9 @@
 import 'dart:convert';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:livestock/features/user/data/user_api.dart';
 
 import '../../../core/errors/error_parser.dart';
-import '../../auth/data/auth_api.dart';
 import '../domain/user_model.dart';
 
 class UserRepository {

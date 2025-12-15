@@ -144,18 +144,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             _boxField(
               controller: _email,
               hint: "username@email.com",
-              icon: Icons.comment,
               textInputAction: TextInputAction.next,
               onSubmitted: (_) {
                 FocusScope.of(context).requestFocus(_passFocus);
               },
+              suffix: IconButton(icon: Icon(Icons.message), onPressed: () {}),
             ),
             const SizedBox(height: 16),
             _label("Kata sandi"),
             _boxField(
               controller: _pass,
               hint: "Tulis kata sandi akun",
-              icon: Icons.lock_outline,
               obscure: _obscure,
               suffix: IconButton(
                 icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),
@@ -169,10 +168,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => context.go("/login"),
+                onPressed: () =>
+                    ref.read(authStateProvider.notifier).state = true,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -209,46 +209,40 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget _boxField({
     required TextEditingController controller,
     required String hint,
-    required IconData icon,
     bool obscure = false,
     Widget? suffix,
     FocusNode? focusNode,
     TextInputAction? textInputAction,
     Function(String)? onSubmitted,
+    TextInputType? keyboardType,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.fieldBorder),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscure,
-        focusNode: focusNode,
-        textInputAction: textInputAction,
-        onSubmitted: onSubmitted,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: AppColors.fieldBorder),
-          border: InputBorder.none,
-          prefixIcon: Icon(icon),
-          suffixIcon: suffix,
+    return TextField(
+      controller: controller,
+      obscureText: obscure,
+      focusNode: focusNode,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      onSubmitted: onSubmitted,
+      style: AppTypography.smallNormalBlack,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: AppTypography.hint,
+        filled: true,
+        fillColor: AppColors.white,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.fieldBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.fieldBorder),
+        ),
+        suffixIcon: suffix,
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16,
+          horizontal: 16,
         ),
       ),
-    );
-  }
-
-  BoxDecoration _boxDecoration() {
-    return const BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(28),
-        topRight: Radius.circular(28),
-      ),
-      boxShadow: [
-        BoxShadow(color: Colors.black12, blurRadius: 12, offset: Offset(0, -2)),
-      ],
     );
   }
 }
