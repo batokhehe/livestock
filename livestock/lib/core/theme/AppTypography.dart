@@ -66,4 +66,8 @@ class AppTypography {
     fontSize: 12,
     color: AppColors.success,
   );
+  static const xSmallNormalGrey = TextStyle(
+    fontSize: 12,
+    color: AppColors.grey,
+  );
 }

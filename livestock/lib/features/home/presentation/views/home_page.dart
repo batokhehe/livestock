@@ -1,65 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:livestock/core/theme/AppColors.dart';
+import 'package:livestock/features/home/presentation/widgets/header_card.dart';
+import 'package:livestock/features/home/presentation/widgets/product_card.dart';
+import 'package:livestock/features/home/presentation/widgets/swipe_indicator.dart';
 
-import 'dashboard_page.dart';
+import '../widgets/other_menu_card.dart';
+import '../widgets/quick_menu_card.dart';
+import '../widgets/stock_card.dart';
+import '../widgets/summary_card.dart';
 
-class HomePage extends StatefulWidget {
-  final bool showFinishSnackBar;
-
-  const HomePage({super.key, this.showFinishSnackBar = false});
-
-  @override
-  State<HomePage> createState() => HomePageState();
-}
-
-class HomePageState extends State<HomePage> {
-  int currentIndex = 0;
-
-  late final List<Widget> pages;
-
-  @override
-  void initState() {
-    super.initState();
-
-    pages = [
-      const DashboardPage(),
-      const Placeholder(),
-      const Placeholder(),
-      const Placeholder(),
-    ];
-  }
-
-  void changeTab(int index) {
-    setState(() => currentIndex = index);
-  }
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: pages[currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: changeTab,
-        selectedItemColor: Colors.orange,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage('assets/icons/ic_home.png')),
-            label: 'Home',
+      backgroundColor: AppColors.greyBg,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              HeaderCard(),
+              SizedBox(height: 16),
+              Padding(
+                padding: EdgeInsetsGeometry.all(16),
+                child: Column(
+                  children: [
+                    SummaryCard(),
+                    SizedBox(height: 16),
+                    ProductCard(),
+                    SizedBox(height: 8),
+                    SwipeIndicator(),
+                    SizedBox(height: 16),
+                    StockCard(),
+                    SizedBox(height: 20),
+                    QuickMenu(),
+                    SizedBox(height: 20),
+                    OtherMenu(),
+                  ],
+                ),
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage('assets/icons/ic_receipt.png')),
-            label: 'Tugas',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage('assets/icons/ic_notification.png')),
-            label: 'Notif',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage('assets/icons/ic_profile.png')),
-            label: 'Profile',
-          ),
-        ],
+        ),
       ),
     );
   }
