@@ -16,9 +16,10 @@ class ProductPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tab = ref.watch(productTabProvider);
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7F9),
+      backgroundColor: AppColors.greyBg,
       appBar: AppBar(
-        title: const Text("Hewan"),
+        backgroundColor: AppColors.white,
+        title: const Text("Hewan", style: AppTypography.largeBoldBlack),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),

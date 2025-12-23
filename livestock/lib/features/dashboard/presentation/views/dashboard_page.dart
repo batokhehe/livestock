@@ -20,8 +20,12 @@ class DashboardPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedTab = ref.watch(dashboardTabProvider);
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7F9),
-      appBar: AppBar(title: const Text("Dashboard"), centerTitle: false),
+      backgroundColor: AppColors.greyBg,
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+        title: const Text("Dashboard", style: AppTypography.largeBoldBlack),
+        leading: const BackButton(),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

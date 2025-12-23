@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:livestock/features/dashboard/presentation/views/dashboard_page.dart';
+import 'package:livestock/features/notification/presentation/views/notification_page.dart';
 import 'package:livestock/features/product/presentation/views/product_page.dart';
+import 'package:livestock/features/profile/presentation/views/profile_page.dart';
 
 import 'home_page.dart';
 
@@ -26,8 +28,8 @@ class MainPageState extends State<MainPage> {
       HomePage(),
       DashboardPage(),
       ProductPage(),
-      Placeholder(), // Notif
-      Placeholder(), // Profile
+      NotificationPage(),
+      ProfilePage(),
     ];
   }
 

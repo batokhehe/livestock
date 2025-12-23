@@ -6,6 +6,7 @@ class AppImages {
   static const product = "$imagesUrl/product.png";
 
   static const icHome = "$iconsUrl/ic_home.png";
+  static const icField = "$iconsUrl/ic_field.png";
   static const icAnimal = "$iconsUrl/ic_animal.png";
   static const icUserTick = "$iconsUrl/ic_user_tick.png";
   static const icWalletCheck = "$iconsUrl/ic_wallet_check.png";
@@ -29,4 +30,16 @@ class AppImages {
 
   static const icProduct = "$iconsUrl/ic_product.png";
   static const icMoneys = "$iconsUrl/ic_moneys.png";
+  static const icUserTag = "$iconsUrl/ic_user_tag.png";
+  static const icMan = "$iconsUrl/ic_man.png";
+  static const icStatus = "$iconsUrl/ic_status.png";
+  static const icHomeHashTag = "$iconsUrl/ic_home_hashtag.png";
+  static const icMap = "$iconsUrl/ic_map.png";
+
+  static const icCalling = "$iconsUrl/ic_call_calling.png";
+  static const icLock = "$iconsUrl/ic_lock.png";
+  static const icMessageTick = "$iconsUrl/ic_message_tick.png";
+  static const icUserEdit = "$iconsUrl/ic_user_edit.png";
+  static const icConfirmation = "$iconsUrl/ic_confirmation.png";
+  static const icLogoutConfirmation = "$iconsUrl/ic_logout_confirmation.png";
 }

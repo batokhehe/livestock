@@ -3,6 +3,7 @@ import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../widgets/filter_dropdown.dart';
 import '../widgets/product_grade_card.dart';
+import '../widgets/product_group_bottom_sheet.dart';
 
 class ProductGradeView extends StatelessWidget {
   const ProductGradeView({super.key});
@@ -18,15 +19,31 @@ class ProductGradeView extends StatelessWidget {
 
         ...List.generate(
           5,
-          (index) => const ProductGradeCard(
-            grade: "Kelas A",
-            weightRange: "200–250kg",
-            total: "300 Sapi",
-            available: "150",
-            sold: "150",
-          ),
+              (index) =>
+              InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () {
+                  _openProductGroupSheet(context);
+                },
+                child: const ProductGradeCard(
+                  grade: "Kelas A",
+                  weightRange: "200–250kg",
+                  total: "300 Sapi",
+                  available: "150",
+                  sold: "150",
+                ),
+              ),
         ),
       ],
+    );
+  }
+
+  void _openProductGroupSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const ProductGroupBottomSheet(),
     );
   }
 

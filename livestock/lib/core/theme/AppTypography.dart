@@ -48,12 +48,27 @@ class AppTypography {
     fontSize: 14,
     color: AppColors.white,
   );
+  static const smallBoldWhite = TextStyle(
+    fontSize: 14,
+    color: AppColors.white,
+    fontWeight: FontWeight.bold,
+  );
   static const hint = TextStyle(fontSize: 14, color: AppColors.hint);
 
   static const smallNormalGrey = TextStyle(fontSize: 14, color: AppColors.grey);
+  static const smallBoldGrey = TextStyle(
+    fontSize: 14,
+    color: AppColors.grey,
+    fontWeight: FontWeight.bold,
+  );
 
   static const xSmallNormalPrimary = TextStyle(
     fontSize: 12,
+    color: AppColors.primary,
+  );
+
+  static const smallNormalPrimary = TextStyle(
+    fontSize: 14,
     color: AppColors.primary,
   );
 

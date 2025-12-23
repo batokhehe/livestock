@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
@@ -189,7 +190,7 @@ class _LocationInfoCard extends StatelessWidget {
       child: _header(
         "Sapi Agri Banten",
         "Area brown field",
-        AppImages.icHome,
+        AppImages.icField,
         false,
       ),
     );
@@ -231,7 +232,7 @@ class _AnotherInfoCard extends StatelessWidget {
           _header(
             "H. Imron  Sigit Purawa",
             "Nama Pelanggan",
-            AppImages.icMoneys,
+            AppImages.icUserTag,
             false,
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
@@ -269,7 +270,7 @@ class _CardWrapper extends StatelessWidget {
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.greyBg,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.fieldBorder),
             ),
@@ -329,7 +330,9 @@ class _UpdateButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        onPressed: () {},
+        onPressed: () {
+          context.push("/product-update");
+        },
         child: const Text("Perbarui Data"),
       ),
     );

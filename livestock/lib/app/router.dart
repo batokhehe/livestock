@@ -6,11 +6,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/features/dashboard/presentation/views/dashboard_page.dart';
 import 'package:livestock/features/product/presentation/views/product_detail_page.dart';
+import 'package:livestock/features/product/presentation/views/update_product_page.dart';
+import 'package:livestock/features/receiving/presentation/views/add_receiving_confirmation_page.dart';
+import 'package:livestock/features/receiving/presentation/views/receiving_detail_page.dart';
 import 'package:livestock/features/welcome_page.dart';
 
 import '../features/auth/presentation/views/login_page.dart';
 import '../features/auth/providers/auth_provider.dart';
 import '../features/home/presentation/views/main_page.dart';
+import '../features/receiving/data/receiving_model.dart';
+import '../features/receiving/presentation/views/add_receiving_page.dart';
+import '../features/receiving/presentation/views/add_receiving_step_2_page.dart';
+import '../features/receiving/presentation/views/receiving_page.dart';
 import '../features/splash_page.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -74,6 +81,33 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return ProductDetailPage(productId: id);
+        },
+      ),
+      GoRoute(
+        path: "/product-update",
+        builder: (_, __) => const UpdateProductPage(),
+      ),
+      GoRoute(
+        path: '/receiving',
+        builder: (context, state) => const ReceivingPage(),
+      ),
+      GoRoute(
+        path: '/receiving/add',
+        builder: (context, state) => const AddReceivingPage(),
+      ),
+      GoRoute(
+        path: '/receiving/add/step-2',
+        builder: (context, state) => const AddReceivingStep2Page(),
+      ),
+      GoRoute(
+        path: '/receiving/add/confirmation',
+        builder: (context, state) => const AddReceivingConfirmationPage(),
+      ),
+      GoRoute(
+        path: '/receiving/detail',
+        builder: (context, state) {
+          final receiving = state.extra as Receiving;
+          return ReceivingDetailPage(receiving: receiving);
         },
       ),
     ],
