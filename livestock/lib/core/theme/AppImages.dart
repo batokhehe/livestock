@@ -42,4 +42,5 @@ class AppImages {
   static const icUserEdit = "$iconsUrl/ic_user_edit.png";
   static const icConfirmation = "$iconsUrl/ic_confirmation.png";
   static const icLogoutConfirmation = "$iconsUrl/ic_logout_confirmation.png";
+  static const icFilterSearch = "$iconsUrl/ic_filter_search.png";
 }

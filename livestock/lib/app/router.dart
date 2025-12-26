@@ -14,6 +14,7 @@ import 'package:livestock/features/welcome_page.dart';
 import '../features/auth/presentation/views/login_page.dart';
 import '../features/auth/providers/auth_provider.dart';
 import '../features/home/presentation/views/main_page.dart';
+import '../features/monitoring/presentation/views/monitoring_page.dart';
 import '../features/receiving/data/receiving_model.dart';
 import '../features/receiving/presentation/views/add_receiving_page.dart';
 import '../features/receiving/presentation/views/add_receiving_step_2_page.dart';
@@ -90,6 +91,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/receiving',
         builder: (context, state) => const ReceivingPage(),
+      ),
+      GoRoute(
+        path: '/monitoring',
+        builder: (context, state) => const MonitoringPage(),
       ),
       GoRoute(
         path: '/receiving/add',

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:livestock/features/receiving/presentation/widgets/receiving_filter_bottom_sheet.dart';
+import 'package:livestock/core/theme/AppColors.dart';
+import 'package:livestock/core/theme/AppImages.dart';
+import 'package:livestock/core/widgets/filter_bottom_sheet.dart';
+
+import '../theme/AppTypography.dart';
 
 class SearchBarCard extends ConsumerWidget {
   const SearchBarCard({super.key});
@@ -17,11 +21,12 @@ class SearchBarCard extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
+                border: Border.all(color: AppColors.fieldBorder),
               ),
               child: const TextField(
                 decoration: InputDecoration(
                   hintText: "Cari Apapun",
+                  hintStyle: AppTypography.hint,
                   border: InputBorder.none,
                   icon: Icon(Icons.search),
                 ),
@@ -44,10 +49,10 @@ class SearchBarCard extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.orange,
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.qr_code_scanner, color: Colors.white),
+                child: Image.asset(AppImages.icFilterSearch, width: 24),
               ),
             ),
           ),

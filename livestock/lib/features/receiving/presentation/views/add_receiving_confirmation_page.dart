@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:livestock/core/theme/AppColors.dart';
+import 'package:livestock/core/widgets/text_field_disabled.dart';
+import 'package:livestock/features/receiving/presentation/widgets/poh_item_card.dart';
+import 'package:livestock/features/receiving/receiving_provider.dart';
 
 import '../../../../core/theme/AppTypography.dart';
+import '../../../../core/widgets/border_card.dart';
+import '../../receiving_provider.dart' as receiving;
 import '../widgets/confirmation_bottom_sheet.dart';
+import '../widgets/receiving_detail_card.dart';
+import '../widgets/receiving_item_double_card.dart';
+import '../widgets/step_info_card.dart';
+import '../widgets/upload_file_card.dart';
 
 class AddReceivingConfirmationPage extends StatelessWidget {
   const AddReceivingConfirmationPage({super.key});
@@ -26,18 +35,23 @@ class AddReceivingConfirmationPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _stepCard(),
+                const StepInfoCard(
+                  title: "Tinjau Penerimaan",
+                  step: 3,
+                  totalStep: 3,
+                ),
                 const SizedBox(height: 12),
-                _infoPenerimaan(),
+                _infoReceiving(),
                 const SizedBox(height: 12),
-                _pohInfo(),
+                PohItemCard(item: dummyItem),
                 const SizedBox(height: 12),
-                _itemInfo(),
+                _infoItem(),
+                const SizedBox(height: 12),
+                UploadFileCard(onTap: () {}),
               ],
             ),
           ),
 
-          /// BOTTOM BUTTON
           Positioned(
             left: 16,
             right: 16,
@@ -59,9 +73,9 @@ class AddReceivingConfirmationPage extends StatelessWidget {
                     builder: (_) => const ConfirmationBottomSheet(),
                   );
                 },
-                child: const Text(
+                child: Text(
                   "Konfirmasi Penerimaan",
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  style: AppTypography.mediumBoldWhite,
                 ),
               ),
             ),
@@ -97,125 +111,31 @@ class AddReceivingConfirmationPage extends StatelessWidget {
     );
   }
 
-  /// INFORMASI PENERIMAAN
-  Widget _infoPenerimaan() {
-    return _card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
-            "Informasi Penerimaan",
-            style: TextStyle(fontWeight: FontWeight.w700),
-          ),
-          SizedBox(height: 12),
-          Text("14 Nov 2025"),
-          SizedBox(height: 4),
-          Text("-", style: TextStyle(color: Colors.grey)),
-        ],
-      ),
-    );
-  }
-
-  /// POH INFO
-  Widget _pohInfo() {
-    return _card(
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                "POH-2511-0009",
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
-              _StatusChip(label: "Dikonfirmasi", color: Colors.green),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: const [
-              Text(
-                "2 hewan • ",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              Text(
-                "Lunas",
-                style: TextStyle(fontSize: 12, color: Colors.green),
-              ),
-              Spacer(),
-              Text(
-                "0 Diterima",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ],
-          ),
-          const Divider(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Ahmad Umar",
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    "Nama Pemasok",
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    "30 Okt 2025",
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    "Tanggal Pembelian",
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// INFORMASI ITEM
-  Widget _itemInfo() {
-    return _card(
+  Widget _infoReceiving() {
+    return BorderCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "Informasi Item",
-            style: TextStyle(fontWeight: FontWeight.w700),
+            "Informasi Penerimaan",
+            style: AppTypography.mediumNormalBlack,
           ),
           const SizedBox(height: 12),
+          TextFieldDisabled(value: "14 Nov 2025"),
+        ],
+      ),
+    );
+  }
 
-          _itemCard(
-            kode: "00001",
-            berat: "315 kg",
-            umur: "14 Bulan",
-            potong: "31.5 kg",
-            harga: "Rp 23.000.000",
-            vaksin: "Vaksin 12/",
-          ),
-
+  Widget _infoItem() {
+    return BorderCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Informasi Item", style: AppTypography.mediumNormalBlack),
           const SizedBox(height: 12),
-
-          _itemCard(
-            kode: "00002",
-            berat: "10 kg",
-            umur: "14 Bulan",
-            potong: "10 kg",
-            harga: "Rp 8.000.000",
-          ),
+          ReceivingItemDoubleCard(item: dummyItem),
+          ...receiving.items.map((e) => ReceivingDetailCard(item: e)),
         ],
       ),
     );

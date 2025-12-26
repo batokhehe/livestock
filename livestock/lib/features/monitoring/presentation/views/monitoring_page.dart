@@ -2,28 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppColors.dart';
-import 'package:livestock/core/widgets/search_bar_card.dart';
+import 'package:livestock/features/monitoring/presentation/widgets/monitoring_date_group_card.dart';
 
 import '../../../../core/constant/enum.dart';
 import '../../../../core/data/model/filter_chip_item_model.dart';
 import '../../../../core/theme/AppTypography.dart';
-import '../../data/receiving_model.dart';
-import '../../receiving_provider.dart';
 import '../../../../core/widgets/filter_chips.dart';
-import '../widgets/receiving_date_group_card.dart';
+import '../../../../core/widgets/search_bar_card.dart';
+import '../../data/monitoring_model.dart';
+import '../../monitoring_provider.dart';
 
-class ReceivingPage extends ConsumerWidget {
-  const ReceivingPage({super.key});
+class MonitoringPage extends ConsumerWidget {
+  const MonitoringPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dataAsync = ref.watch(filteredReceivingProvider);
+    final dataAsync = ref.watch(filteredMonitoringProvider);
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
         backgroundColor: AppColors.white,
-        title: const Text("Penerimaan", style: AppTypography.largeBoldBlack),
+        title: const Text("Pemantauan", style: AppTypography.largeBoldBlack),
         leading: const BackButton(),
       ),
       body: Column(
@@ -31,16 +31,17 @@ class ReceivingPage extends ConsumerWidget {
           SearchBarCard(),
           FilterChips(
             items: [
-              FilterChipItem('Hewan', ItemFilter.product),
-              FilterChipItem('Pakan & Obat', ItemFilter.feed),
-              FilterChipItem('Peralatan', ItemFilter.tools),
+              FilterChipItem('Pakan', ItemFilter.feed),
+              FilterChipItem('Obat', ItemFilter.medicine),
+              FilterChipItem('Bobot', ItemFilter.weight),
+              FilterChipItem('Kesehatan', ItemFilter.health),
             ],
           ),
           Expanded(
             child: dataAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (_, __) => const Center(child: Text("Gagal memuat data")),
-              data: (list) => _ReceivingList(list),
+              data: (list) => _MonitoringList(list),
             ),
           ),
           _BottomButton(),
@@ -50,10 +51,10 @@ class ReceivingPage extends ConsumerWidget {
   }
 }
 
-class _ReceivingList extends StatelessWidget {
-  final List<Receiving> list;
+class _MonitoringList extends StatelessWidget {
+  final List<Monitoring> list;
 
-  const _ReceivingList(this.list);
+  const _MonitoringList(this.list);
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +62,7 @@ class _ReceivingList extends StatelessWidget {
       return const Center(child: Text("Data kosong"));
     }
 
-    final Map<String, List<Receiving>> grouped = {};
+    final Map<String, List<Monitoring>> grouped = {};
 
     for (final item in list) {
       final key = item.dateLabel;
@@ -71,7 +72,10 @@ class _ReceivingList extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: grouped.entries.map((entry) {
-        return ReceivingDateGroupCard(dateLabel: entry.key, items: entry.value);
+        return MonitoringDateGroupCard(
+          dateLabel: entry.key,
+          items: entry.value,
+        );
       }).toList(),
     );
   }
@@ -94,7 +98,7 @@ class _BottomButton extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              context.push('/receiving/add');
+              context.push('/Monitoring/add');
             },
             child: const Text(
               "Terima Item",

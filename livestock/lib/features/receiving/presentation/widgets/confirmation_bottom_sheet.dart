@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:livestock/core/theme/AppImages.dart';
+import 'package:livestock/core/theme/AppTypography.dart';
+
+import '../../../../core/theme/AppColors.dart';
 
 class ConfirmationBottomSheet extends StatelessWidget {
   const ConfirmationBottomSheet({super.key});
@@ -14,13 +18,12 @@ class ConfirmationBottomSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          /// HEADER
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 "Konfirmasi Penerimaan",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                style: AppTypography.largeBoldBlack,
               ),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
@@ -28,87 +31,54 @@ class ConfirmationBottomSheet extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 24),
-
-          /// ICON
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.orange.withOpacity(0.1),
-            ),
-            child: const Center(
-              child: Text(
-                "?",
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.orange,
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          /// TITLE
-          const Text(
+          Image.asset(AppImages.icConfirmation),
+          const SizedBox(height: 24),
+          Text(
             "Lanjutkan Penerimaan Item?",
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+            style: AppTypography.mediumBoldBlack,
             textAlign: TextAlign.center,
           ),
-
           const SizedBox(height: 8),
-
-          /// DESCRIPTION
           const Text(
             "Tindakan ini akan menandai penerimaan sebagai "
             "dikonfirmasi dan tidak dapat dibatalkan",
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+            style: AppTypography.hint,
             textAlign: TextAlign.center,
           ),
-
           const SizedBox(height: 24),
-
-          /// ACTION BUTTONS
           Row(
             children: [
               Expanded(
                 child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.orange,
-                    side: BorderSide(color: Colors.orange.withOpacity(0.4)),
+                    backgroundColor: AppColors.primaryShade,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    side: BorderSide(color: AppColors.primaryShade),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Batal"),
+                  child: const Text(
+                    "Batal",
+                    style: AppTypography.smallNormalPrimary,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.pop(context);
-
-                    /// TODO:
-                    /// - call API
-                    /// - context.go('/next-page');
-                  },
-                  child: const Text(
+                  onPressed: () {},
+                  child: Text(
                     "Simpan Penerimaan",
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                    style: AppTypography.smallNormalWhite,
                   ),
                 ),
               ),

@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:livestock/core/theme/AppColors.dart';
+import 'package:livestock/core/theme/AppTypography.dart';
+import 'package:livestock/features/receiving/presentation/widgets/poh_item_card.dart';
+import 'package:livestock/features/receiving/presentation/widgets/receiving_item_double_card.dart';
+import 'package:livestock/features/receiving/receiving_provider.dart';
+
+import '../../data/receiving_item_model.dart';
+import '../../data/receiving_model.dart';
 
 class SelectReceivingItemSheet extends StatelessWidget {
-  const SelectReceivingItemSheet({super.key});
+  SelectReceivingItemSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,21 +21,20 @@ class SelectReceivingItemSheet extends StatelessWidget {
         top: 16,
         bottom: MediaQuery.of(context).padding.bottom + 16,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.greyBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// HEADER
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 "Pilih Item Penerimaan",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                style: AppTypography.mediumBoldBlack,
               ),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
@@ -35,96 +42,33 @@ class SelectReceivingItemSheet extends StatelessWidget {
               ),
             ],
           ),
-
-          const SizedBox(height: 12),
-
-          /// SEARCH
+          const SizedBox(height: 24),
           TextField(
             decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
               hintText: "Cari item penerimaan",
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColors.fieldBorder),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColors.fieldBorder),
               ),
             ),
+            style: AppTypography.smallNormalBlack,
           ),
-
           const SizedBox(height: 12),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.5,
             child: ListView.builder(
               itemCount: 10,
-              itemBuilder: (_, i) => const _POHItemCard(),
+              itemBuilder: (_, i) => PohItemCard(item: dummyItem),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _POHItemCard extends StatelessWidget {
-  const _POHItemCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () {
-        context.push('/receiving/add/step-2');
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.blue.withOpacity(0.2)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            /// LEFT
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  "POH-2511-0009",
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  "2 hewan • Lunas",
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  "Ahmad Umar",
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ],
-            ),
-
-            /// RIGHT
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: const [
-                Text(
-                  "Dikonfirmasi",
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.green,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  "30 Okt 2025",
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }

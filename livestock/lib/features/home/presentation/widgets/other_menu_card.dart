@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:livestock/features/home/presentation/widgets/other_menu_button_card.dart';
 
 import '../../../../core/theme/AppColors.dart';
@@ -25,14 +26,23 @@ class OtherMenu extends StatelessWidget {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: const [
-                OtherMenuButton(AppImages.icClipboard, "Pemantauan"),
-                SizedBox(width: 12),
-                OtherMenuButton(AppImages.icShare, "Pemindahan"),
-                SizedBox(width: 12),
-                OtherMenuButton(AppImages.icTruckFast, "Pengiriman"),
-                SizedBox(width: 12),
-                OtherMenuButton(AppImages.icCalendarSearch, "Absensi Pekerja"),
+              children: [
+                OtherMenuButton(
+                  AppImages.icClipboard,
+                  "Pemantauan",
+                  onTap: () {
+                    context.push('/monitoring');
+                  },
+                ),
+                const SizedBox(width: 12),
+                const OtherMenuButton(AppImages.icShare, "Pemindahan"),
+                const SizedBox(width: 12),
+                const OtherMenuButton(AppImages.icTruckFast, "Pengiriman"),
+                const SizedBox(width: 12),
+                const OtherMenuButton(
+                  AppImages.icCalendarSearch,
+                  "Absensi Pekerja",
+                ),
               ],
             ),
           ),

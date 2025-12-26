@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:livestock/core/theme/AppImages.dart';
+import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
+import 'package:livestock/features/receiving/presentation/widgets/step_info_card.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
@@ -11,7 +13,7 @@ class AddReceivingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.greyBg,
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
@@ -26,7 +28,11 @@ class AddReceivingPage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: const [
-                _StepHeader(),
+                StepInfoCard(
+                  title: "Informasi Penerimaan",
+                  step: 1,
+                  totalStep: 3,
+                ),
                 SizedBox(height: 12),
                 _ReceivingInfoSection(),
                 SizedBox(height: 12),
@@ -35,46 +41,6 @@ class AddReceivingPage extends StatelessWidget {
             ),
           ),
           const _NextButton(),
-        ],
-      ),
-    );
-  }
-}
-
-class _StepHeader extends StatelessWidget {
-  const _StepHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.blue.withOpacity(0.2)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: const [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Informasi Penerimaan",
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
-              SizedBox(height: 4),
-              Text(
-                "Langkah 1/3",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.orange,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          Icon(Icons.chevron_right),
         ],
       ),
     );
@@ -92,10 +58,15 @@ class _ReceivingInfoSection extends StatelessWidget {
         _SelectField(
           label: "Tanggal penerimaan",
           hint: "Pilih tanggal",
-          icon: Icons.calendar_today,
+          icon: AppImages.icCalendarSearch,
         ),
         SizedBox(height: 12),
-        _TextAreaField(label: "Catatan (Opsional)", hint: "Masukkan catatan"),
+        TextFieldWithInnerCounter(
+          label: "Catatan",
+          subLabel: "(Optional)",
+          hint: "Masukkan catatan",
+          maxLength: 80,
+        ),
       ],
     );
   }
@@ -112,13 +83,13 @@ class _FarmInfoSection extends StatelessWidget {
         _SelectField(
           label: "Lokasi peternakan",
           hint: "Pilih lokasi",
-          icon: Icons.location_on,
+          icon: AppImages.icHomeHashTag,
         ),
         SizedBox(height: 12),
         _SelectField(
           label: "Area peternakan",
           hint: "Pilih area",
-          icon: Icons.map,
+          icon: AppImages.icMap,
         ),
       ],
     );
@@ -136,17 +107,14 @@ class _SectionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.blue.withOpacity(0.2)),
+        border: Border.all(color: AppColors.fieldBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          ),
+          Text(title, style: AppTypography.smallNormalBlack),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -158,7 +126,7 @@ class _SectionCard extends StatelessWidget {
 class _SelectField extends StatelessWidget {
   final String label;
   final String hint;
-  final IconData icon;
+  final String icon;
 
   const _SelectField({
     required this.label,
@@ -171,59 +139,26 @@ class _SelectField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        ),
+        Text(label, style: AppTypography.smallBoldBlack),
         const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: AppColors.fieldBorder),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  Icon(icon, size: 18, color: Colors.orange),
+                  Image.asset(icon, width: 20, color: AppColors.primary),
                   const SizedBox(width: 8),
-                  Text(hint, style: TextStyle(color: Colors.grey.shade600)),
+                  Text(hint, style: AppTypography.hint),
                 ],
               ),
               const Icon(Icons.chevron_right),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _TextAreaField extends StatelessWidget {
-  final String label;
-  final String hint;
-
-  const _TextAreaField({required this.label, required this.hint});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 6),
-        TextField(
-          maxLength: 80,
-          maxLines: 3,
-          decoration: InputDecoration(
-            hintText: hint,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            counterText: '',
           ),
         ),
       ],
@@ -254,13 +189,10 @@ class _NextButton extends StatelessWidget {
                 context: context,
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
-                builder: (_) => const SelectReceivingItemSheet(),
+                builder: (_) => SelectReceivingItemSheet(),
               );
             },
-            child: const Text(
-              "Selanjutnya",
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
+            child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
           ),
         ),
       ),

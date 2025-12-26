@@ -2,9 +2,9 @@ import 'dart:ui';
 
 import 'package:livestock/core/theme/AppColors.dart';
 
-enum ReceivingItemStatus { pending, checked, received }
+enum MonitoringItemStatus { pending, checked, received }
 
-class ReceivingItem {
+class MonitoringItem {
   final String id;
   final String code;
   final String subtitle;
@@ -14,9 +14,9 @@ class ReceivingItem {
   final int price;
   final String? vaccine;
   final String? note;
-  final ReceivingItemStatus status;
+  final MonitoringItemStatus status;
 
-  const ReceivingItem({
+  const MonitoringItem({
     required this.id,
     required this.code,
     required this.subtitle,
@@ -29,28 +29,28 @@ class ReceivingItem {
     required this.status,
   });
 
-  bool get isChecked => status == ReceivingItemStatus.checked;
+  bool get isChecked => status == MonitoringItemStatus.checked;
 
-  bool get isReceived => status == ReceivingItemStatus.received;
+  bool get isReceived => status == MonitoringItemStatus.received;
 
   String get statusText {
     switch (status) {
-      case ReceivingItemStatus.checked:
+      case MonitoringItemStatus.checked:
         return 'Diperiksa';
-      case ReceivingItemStatus.received:
+      case MonitoringItemStatus.received:
         return 'Diterima';
-      case ReceivingItemStatus.pending:
+      case MonitoringItemStatus.pending:
         return 'Menunggu';
     }
   }
 
   Color get statusColor {
     switch (status) {
-      case ReceivingItemStatus.checked:
+      case MonitoringItemStatus.checked:
         return AppColors.success;
-      case ReceivingItemStatus.received:
+      case MonitoringItemStatus.received:
         return AppColors.success;
-      case ReceivingItemStatus.pending:
+      case MonitoringItemStatus.pending:
         return AppColors.primaryShade;
     }
   }

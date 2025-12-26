@@ -91,7 +91,7 @@ class _ConfirmUpdateBottomSheet extends StatelessWidget {
                   onPressed: () {},
                   child: Text(
                     "Simpan Perubahan",
-                    style: AppTypography.smallNormalWhite,
+                    style: AppTypography.mediumBoldWhite,
                   ),
                 ),
               ),

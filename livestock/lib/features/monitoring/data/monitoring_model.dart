@@ -1,18 +1,20 @@
-import 'package:livestock/features/receiving/data/receiving_item_model.dart';
+import 'monitoring_item_model.dart';
 
-import '../../../core/constant/enum.dart';
+enum MonitoringStatus { received, confirmed, waiting }
 
-class Receiving {
+enum MonitoringFilter { product, feed, tools }
+
+class Monitoring {
   final String code;
   final String? title;
   final String? location;
   final String? description;
   final String subtitle;
-  final ItemStatus status;
+  final MonitoringStatus status;
   final int total;
   final int? count;
   final DateTime? date;
-  final List<ReceivingItem> items;
+  final List<MonitoringItem> items;
 
   String get dateLabel =>
       date != null ? '${date!.day} ${_month(date!.month)} ${date!.year}' : '';
@@ -35,7 +37,7 @@ class Receiving {
     return months[m - 1];
   }
 
-  Receiving({
+  Monitoring({
     required this.code,
     required this.subtitle,
     required this.status,

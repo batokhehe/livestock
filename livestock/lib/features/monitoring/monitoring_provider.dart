@@ -1,18 +1,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:livestock/core/constant/enum.dart';
-import 'package:livestock/features/receiving/data/receiving_model.dart';
 
-import '../../app/providers.dart';
-import 'data/receiving_item_model.dart';
+import 'data/monitoring_item_model.dart';
+import 'data/monitoring_model.dart';
 
-final receivingSearchProvider = StateProvider<String>((ref) => '');
 
-final dummyItem = Receiving(
+final monitoringFilterProvider = StateProvider<MonitoringFilter>((ref) {
+  return MonitoringFilter.product;
+});
+
+final monitoringSearchProvider = StateProvider<String>((ref) => '');
+
+final dummyItem = Monitoring(
   code: 'POH-2511-0009',
   count: 2,
   subtitle: 'Lunas',
   total: 2,
-  status: ItemStatus.confirmed,
+  status: MonitoringStatus.confirmed,
   date: DateTime.now(),
   title: 'Ahmad Umar',
   location: 'Nama Pemasok',
@@ -21,7 +24,7 @@ final dummyItem = Receiving(
 );
 
 final items = [
-  ReceivingItem(
+  MonitoringItem(
     id: '1',
     code: 'BLK-0891',
     subtitle: 'Limosin • Jantan • Sapi Besar',
@@ -31,9 +34,9 @@ final items = [
     price: 23000000,
     vaccine: 'Vaksin 12/',
     note: 'Ini adalah baris catatan',
-    status: ReceivingItemStatus.checked,
+    status: MonitoringItemStatus.checked,
   ),
-  ReceivingItem(
+  MonitoringItem(
     id: '2',
     code: 'KBG-0892',
     subtitle: 'Limosin • Jantan • Sapi Besar',
@@ -42,55 +45,53 @@ final items = [
     cutWeight: '10 kg',
     price: 8000000,
     note: 'Ini adalah baris catatan',
-    status: ReceivingItemStatus.checked,
+    status: MonitoringItemStatus.checked,
   ),
 ];
 
-final receivingListProvider = FutureProvider<List<Receiving>>((ref) async {
+final monitoringListProvider = FutureProvider<List<Monitoring>>((ref) async {
   await Future.delayed(const Duration(milliseconds: 500));
 
   return [
-    // ================= 14 NOV 2025 =================
-    Receiving(
+    Monitoring(
       code: "RECV-2511-0018",
       subtitle: "2 hewan • Sapi Jawara",
-      status: ItemStatus.received,
+      status: MonitoringStatus.received,
       total: 2,
       date: DateTime(2025, 11, 14),
       items: items,
     ),
-    Receiving(
+    Monitoring(
       code: "RECV-2511-0017",
       subtitle: "1 hewan • Sapi Jawara",
-      status: ItemStatus.received,
+      status: MonitoringStatus.received,
       total: 1,
       date: DateTime(2025, 11, 14),
       items: items,
     ),
 
     // ================= 13 NOV 2025 =================
-    Receiving(
+    Monitoring(
       code: "RECV-2511-0016",
       subtitle: "1 hewan • Sapi Jawara",
-      status: ItemStatus.waiting,
+      status: MonitoringStatus.waiting,
       total: 1,
       date: DateTime(2025, 11, 13),
       items: items,
     ),
-    Receiving(
+    Monitoring(
       code: "RECV-2511-0015",
       subtitle: "1 hewan • Sapi Jawara",
-      status: ItemStatus.received,
+      status: MonitoringStatus.received,
       total: 1,
       date: DateTime(2025, 11, 13),
       items: items,
     ),
 
-    // ================= 12 NOV 2025 =================
-    Receiving(
+    Monitoring(
       code: "RECV-2511-0014",
       subtitle: "1 hewan • Sapi Jawara",
-      status: ItemStatus.received,
+      status: MonitoringStatus.received,
       total: 1,
       date: DateTime(2025, 11, 12),
       items: items,
@@ -98,10 +99,10 @@ final receivingListProvider = FutureProvider<List<Receiving>>((ref) async {
   ];
 });
 
-final filteredReceivingProvider = Provider<AsyncValue<List<Receiving>>>((ref) {
-  final filter = ref.watch(itemFilterProvider);
-  final keyword = ref.watch(receivingSearchProvider);
-  final listAsync = ref.watch(receivingListProvider);
+final filteredMonitoringProvider = Provider<AsyncValue<List<Monitoring>>>((ref) {
+  final filter = ref.watch(monitoringFilterProvider);
+  final keyword = ref.watch(monitoringSearchProvider);
+  final listAsync = ref.watch(monitoringListProvider);
 
   return listAsync.whenData((list) {
     return list.where((item) {
@@ -109,7 +110,7 @@ final filteredReceivingProvider = Provider<AsyncValue<List<Receiving>>>((ref) {
         keyword.toLowerCase(),
       );
 
-      final matchFilter = filter == ItemFilter.product;
+      final matchFilter = filter == MonitoringFilter.product;
 
       return matchSearch && matchFilter;
     }).toList();

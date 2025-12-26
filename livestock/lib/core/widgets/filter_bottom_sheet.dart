@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
-import 'filter_chips.dart';
+import 'package:livestock/core/theme/AppColors.dart';
+import 'package:livestock/core/theme/AppTypography.dart';
 
 class ReceivingFilterBottomSheet extends StatelessWidget {
   const ReceivingFilterBottomSheet({super.key});
@@ -14,33 +14,25 @@ class ReceivingFilterBottomSheet extends StatelessWidget {
         top: 16,
         bottom: MediaQuery.of(context).padding.bottom + 16,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// HEADER
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "Filter Data",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-              ),
+              Text("Filter Data", style: AppTypography.largeBoldBlack),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: const Icon(Icons.close),
               ),
             ],
           ),
-
           const SizedBox(height: 16),
-
-          /// KATEGORI
-          _SectionTitle("Kategori"),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -51,12 +43,7 @@ class ReceivingFilterBottomSheet extends StatelessWidget {
               _FilterChip(label: "Peralatan"),
             ],
           ),
-
           const SizedBox(height: 16),
-
-          /// STATUS
-          _SectionTitle("Status"),
-          const SizedBox(height: 8),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -66,12 +53,7 @@ class ReceivingFilterBottomSheet extends StatelessWidget {
               _FilterChip(label: "Menunggu"),
             ],
           ),
-
           const SizedBox(height: 16),
-
-          /// TANGGAL
-          _SectionTitle("Tanggal"),
-          const SizedBox(height: 8),
           const _DateOption(label: "Hari ini"),
           const _DateOption(label: "Minggu ini"),
           const _DateOption(label: "Bulan ini"),
@@ -79,24 +61,20 @@ class ReceivingFilterBottomSheet extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          /// BUTTON
           SizedBox(
             width: double.infinity,
             height: 48,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+                backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onPressed: () {
-                Navigator.pop(context);
-                // nanti trigger provider filter di sini
-              },
-              child: const Text(
-                "Terapkan filter",
-                style: TextStyle(fontWeight: FontWeight.w700),
+              onPressed: () {},
+              child: Text(
+                "Simpan Perubahan",
+                style: AppTypography.mediumBoldWhite,
               ),
             ),
           ),
@@ -117,37 +95,17 @@ class _FilterChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: selected ? Colors.orange.withOpacity(0.1) : Colors.white,
+        color: selected ? AppColors.primaryShade : AppColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: selected ? Colors.orange : Colors.grey.shade300,
+          color: selected ? AppColors.primary : AppColors.fieldBorder,
         ),
       ),
       child: Text(
         label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
+        style: AppTypography.xSmallNormalBlack.copyWith(
           color: selected ? Colors.orange : Colors.black87,
         ),
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  final String text;
-
-  const _SectionTitle(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: Colors.black54,
       ),
     );
   }
@@ -162,20 +120,20 @@ class _DateOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
+        color: highlighted ? AppColors.primaryShade : AppColors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: highlighted ? Colors.orange : Colors.grey.shade300,
+          color: highlighted ? AppColors.primary : AppColors.hint,
         ),
       ),
       child: Text(
         label,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: highlighted ? Colors.orange : Colors.black87,
+        style: AppTypography.smallBoldBlack.copyWith(
+          color: highlighted ? AppColors.primary : AppColors.black,
         ),
       ),
     );

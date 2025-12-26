@@ -3,6 +3,8 @@ import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 
+import '../../../../core/widgets/text_field_with_inner_counter.dart';
+
 class UpdateProductPage extends StatelessWidget {
   const UpdateProductPage({super.key});
 
@@ -139,19 +141,11 @@ class UpdateProductPage extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 16),
-
-                    _Section(
-                      title: "Informasi Lainnya",
-                      child: Column(
-                        children: const [
-                          _TextField(
-                            label: "Catatan (Opsional)",
-                            hint: "Masukkan catatan",
-                            maxLines: 3,
-                            showCounter: true,
-                          ),
-                        ],
-                      ),
+                    TextFieldWithInnerCounter(
+                      label: 'Catatan',
+                      subLabel: '(Opsional)',
+                      hint: 'Masukkan catatan',
+                      maxLength: 80,
                     ),
                   ],
                 ),

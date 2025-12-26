@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 
-import '../../../../core/constant/enum.dart';
 import '../../../../core/theme/AppColors.dart';
-import '../../data/receiving_model.dart';
+import '../../data/monitoring_model.dart';
 
-class ReceivingItemCard extends StatelessWidget {
-  final Receiving item;
+class MonitoringItemCard extends StatelessWidget {
+  final Monitoring item;
 
-  const ReceivingItemCard({super.key, required this.item});
+  const MonitoringItemCard({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
-    final bool isReceived = item.status == ItemStatus.received;
+    final bool isReceived = item.status == MonitoringStatus.received;
 
     final Color statusColor = isReceived
         ? AppColors.success

@@ -24,7 +24,7 @@ class MyApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Livestock',
       routerConfig: router,
-      theme: ThemeData(useMaterial3: true),
+      theme: ThemeData(useMaterial3: true, fontFamily: 'Manrope'),
     );
   }
 }

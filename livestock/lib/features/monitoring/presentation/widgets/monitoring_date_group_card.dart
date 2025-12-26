@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
-import 'package:livestock/features/receiving/presentation/widgets/receiving_item_card.dart';
 
 import '../../../../core/theme/AppColors.dart';
-import '../../data/receiving_model.dart';
+import '../../data/monitoring_model.dart';
+import 'monitoring_item_card.dart';
 
-class ReceivingDateGroupCard extends StatelessWidget {
+class MonitoringDateGroupCard extends StatelessWidget {
   final String dateLabel;
-  final List<Receiving> items;
+  final List<Monitoring> items;
 
-  const ReceivingDateGroupCard({
+  const MonitoringDateGroupCard({
     super.key,
     required this.dateLabel,
     required this.items,
@@ -35,9 +35,9 @@ class ReceivingDateGroupCard extends StatelessWidget {
             (e) => InkWell(
               borderRadius: BorderRadius.circular(12),
               onTap: () {
-                context.push('/receiving/detail', extra: e);
+                context.push('/monitoring/detail', extra: e);
               },
-              child: ReceivingItemCard(item: e),
+              child: MonitoringItemCard(item: e),
             ),
           ),
         ],
