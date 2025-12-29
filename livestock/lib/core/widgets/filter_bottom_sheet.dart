@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 
-class ReceivingFilterBottomSheet extends StatelessWidget {
-  const ReceivingFilterBottomSheet({super.key});
+class FilterBottomSheet extends StatelessWidget {
+  const FilterBottomSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,6 @@ class ReceivingFilterBottomSheet extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          const SizedBox(height: 8),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -104,7 +103,7 @@ class _FilterChip extends StatelessWidget {
       child: Text(
         label,
         style: AppTypography.xSmallNormalBlack.copyWith(
-          color: selected ? Colors.orange : Colors.black87,
+          color: selected ? AppColors.primary : AppColors.black,
         ),
       ),
     );

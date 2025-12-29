@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
+import 'package:livestock/features/monitoring/presentation/widgets/monitoring_item_double_card.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../data/monitoring_model.dart';
-import 'monitoring_item_card.dart';
 
 class MonitoringDateGroupCard extends StatelessWidget {
   final String dateLabel;
@@ -37,7 +37,7 @@ class MonitoringDateGroupCard extends StatelessWidget {
               onTap: () {
                 context.push('/monitoring/detail', extra: e);
               },
-              child: MonitoringItemCard(item: e),
+              child: MonitoringItemDoubleCard(item: e),
             ),
           ),
         ],

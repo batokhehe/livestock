@@ -51,7 +51,7 @@ class ProductPage extends ConsumerWidget {
                     age: "14 Bulan",
                     weight: "315 kg",
                     price: "Rp 23.000.000",
-                    location: "Sapi Agri Banter",
+                    location: "Sapi Agri Banten",
                     status: "Aktif",
                   ),
                 ),

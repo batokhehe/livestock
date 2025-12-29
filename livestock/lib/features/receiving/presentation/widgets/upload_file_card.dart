@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:livestock/core/theme/AppColors.dart';
-import 'package:livestock/core/widgets/border_card.dart';
+import 'package:livestock/core/widgets/card_wrapper.dart';
 
 import '../../../../core/theme/AppTypography.dart';
 
@@ -11,7 +11,7 @@ class UploadFileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BorderCard(
+    return CardWrapper(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -98,10 +98,10 @@ class _BottomButton extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              context.push('/Monitoring/add');
+              context.push('/monitoring/add');
             },
             child: const Text(
-              "Terima Item",
+              "Tambah Pemantauan",
               style: AppTypography.mediumBoldWhite,
             ),
           ),

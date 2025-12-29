@@ -59,10 +59,10 @@ class StepInfoCard extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.12),
+                color: AppColors.primaryShade,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.chevron_right, color: Colors.orange),
+              child: const Icon(Icons.chevron_right, color: AppColors.primary),
             ),
           ],
         ),

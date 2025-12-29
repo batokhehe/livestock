@@ -43,7 +43,7 @@ class SearchBarCard extends ConsumerWidget {
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
-                  builder: (_) => const ReceivingFilterBottomSheet(),
+                  builder: (_) => const FilterBottomSheet(),
                 );
               },
               child: Container(

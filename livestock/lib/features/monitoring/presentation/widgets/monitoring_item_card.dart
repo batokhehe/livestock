@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livestock/core/constant/enum.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 
 import '../../../../core/theme/AppColors.dart';
@@ -11,7 +12,7 @@ class MonitoringItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isReceived = item.status == MonitoringStatus.received;
+    final bool isReceived = item.status == ItemStatus.received;
 
     final Color statusColor = isReceived
         ? AppColors.success

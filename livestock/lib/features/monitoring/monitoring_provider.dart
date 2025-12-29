@@ -1,33 +1,30 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:livestock/core/constant/enum.dart';
 
+import '../../app/providers.dart';
 import 'data/monitoring_item_model.dart';
 import 'data/monitoring_model.dart';
-
-
-final monitoringFilterProvider = StateProvider<MonitoringFilter>((ref) {
-  return MonitoringFilter.product;
-});
 
 final monitoringSearchProvider = StateProvider<String>((ref) => '');
 
 final dummyItem = Monitoring(
-  code: 'POH-2511-0009',
-  count: 2,
-  subtitle: 'Lunas',
-  total: 2,
-  status: MonitoringStatus.confirmed,
+  code: '29 Dec 2025',
+  count: 100,
+  subtitle: 'Pakan',
+  total: 0,
+  status: ItemStatus.feed,
   date: DateTime.now(),
-  title: 'Ahmad Umar',
-  location: 'Nama Pemasok',
-  description: "Tanggal Pembelian",
+  title: 'Nina Sari • 0861-2345-6789',
+  location: 'Satuan Ember',
+  description: "Satuan Ember",
   items: [],
 );
 
 final items = [
   MonitoringItem(
     id: '1',
-    code: 'BLK-0891',
-    subtitle: 'Limosin • Jantan • Sapi Besar',
+    code: 'Andre',
+    subtitle: '100 Pakan',
     age: '14 Bulan',
     weight: '315 kg',
     cutWeight: '31.5 kg',
@@ -38,8 +35,8 @@ final items = [
   ),
   MonitoringItem(
     id: '2',
-    code: 'KBG-0892',
-    subtitle: 'Limosin • Jantan • Sapi Besar',
+    code: 'Andre',
+    subtitle: '100 Pakan',
     age: '14 Bulan',
     weight: '10 kg',
     cutWeight: '10 kg',
@@ -54,17 +51,19 @@ final monitoringListProvider = FutureProvider<List<Monitoring>>((ref) async {
 
   return [
     Monitoring(
-      code: "RECV-2511-0018",
-      subtitle: "2 hewan • Sapi Jawara",
-      status: MonitoringStatus.received,
+      code: "FMON-2511-00007",
+      subtitle: "Sapi Jawara",
+      status: ItemStatus.confirmed,
+      count: 2,
       total: 2,
       date: DateTime(2025, 11, 14),
       items: items,
     ),
     Monitoring(
-      code: "RECV-2511-0017",
-      subtitle: "1 hewan • Sapi Jawara",
-      status: MonitoringStatus.received,
+      code: "FMON-2511-00006",
+      subtitle: "Sapi Jawara",
+      status: ItemStatus.confirmed,
+      count: 1,
       total: 1,
       date: DateTime(2025, 11, 14),
       items: items,
@@ -72,26 +71,29 @@ final monitoringListProvider = FutureProvider<List<Monitoring>>((ref) async {
 
     // ================= 13 NOV 2025 =================
     Monitoring(
-      code: "RECV-2511-0016",
-      subtitle: "1 hewan • Sapi Jawara",
-      status: MonitoringStatus.waiting,
+      code: "FMON-2511-00004",
+      subtitle: "Sapi Jawara",
+      status: ItemStatus.waiting,
+      count: 1,
       total: 1,
       date: DateTime(2025, 11, 13),
       items: items,
     ),
     Monitoring(
-      code: "RECV-2511-0015",
-      subtitle: "1 hewan • Sapi Jawara",
-      status: MonitoringStatus.received,
+      code: "FMON-2511-00005",
+      subtitle: "Sapi Jawara",
+      status: ItemStatus.received,
+      count: 1,
       total: 1,
       date: DateTime(2025, 11, 13),
       items: items,
     ),
 
     Monitoring(
-      code: "RECV-2511-0014",
-      subtitle: "1 hewan • Sapi Jawara",
-      status: MonitoringStatus.received,
+      code: "FMON-2511-00003",
+      subtitle: "Sapi Jawara",
+      status: ItemStatus.received,
+      count: 1,
       total: 1,
       date: DateTime(2025, 11, 12),
       items: items,
@@ -99,8 +101,10 @@ final monitoringListProvider = FutureProvider<List<Monitoring>>((ref) async {
   ];
 });
 
-final filteredMonitoringProvider = Provider<AsyncValue<List<Monitoring>>>((ref) {
-  final filter = ref.watch(monitoringFilterProvider);
+final filteredMonitoringProvider = Provider<AsyncValue<List<Monitoring>>>((
+  ref,
+) {
+  final filter = ref.watch(itemFilterProvider);
   final keyword = ref.watch(monitoringSearchProvider);
   final listAsync = ref.watch(monitoringListProvider);
 
@@ -110,7 +114,7 @@ final filteredMonitoringProvider = Provider<AsyncValue<List<Monitoring>>>((ref) 
         keyword.toLowerCase(),
       );
 
-      final matchFilter = filter == MonitoringFilter.product;
+      final matchFilter = filter == ItemFilter.feed;
 
       return matchSearch && matchFilter;
     }).toList();

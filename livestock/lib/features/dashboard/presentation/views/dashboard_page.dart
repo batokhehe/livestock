@@ -54,7 +54,7 @@ class DashboardPage extends ConsumerWidget {
                       MonitoringItem(
                         label: "Total data",
                         value: "8",
-                        valueColor: Colors.orange,
+                        valueColor: AppColors.primary,
                       ),
                       MonitoringItem(
                         label: "Total biaya",
@@ -80,12 +80,12 @@ class DashboardPage extends ConsumerWidget {
                       MonitoringItem(
                         label: "Total data",
                         value: "5",
-                        valueColor: Colors.orange,
+                        valueColor: AppColors.primary,
                       ),
                       MonitoringItem(
                         label: "Total data",
                         value: "3",
-                        valueColor: Colors.orange,
+                        valueColor: AppColors.primary,
                       ),
                       MonitoringItem(
                         label: "Ternak dimonitor",
@@ -111,7 +111,7 @@ class DashboardPage extends ConsumerWidget {
                       MonitoringItem(
                         label: "Total data",
                         value: "3",
-                        valueColor: Colors.orange,
+                        valueColor: AppColors.primary,
                       ),
                       MonitoringItem(
                         label: "Total biaya",

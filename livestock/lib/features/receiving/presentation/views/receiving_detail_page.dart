@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:livestock/core/widgets/border_card.dart';
+import 'package:livestock/core/widgets/card_wrapper.dart';
 import 'package:livestock/features/receiving/presentation/widgets/receiving_detail_card.dart';
 import 'package:livestock/features/receiving/presentation/widgets/receiving_item_double_card.dart';
 import 'package:livestock/features/receiving/receiving_provider.dart';
@@ -69,7 +69,7 @@ class ReceivingDetailPage extends StatelessWidget {
   }
 
   Widget _infoReceiving() {
-    return BorderCard(
+    return CardWrapper(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -98,7 +98,7 @@ class ReceivingDetailPage extends StatelessWidget {
   }
 
   Widget _infoItem() {
-    return BorderCard(
+    return CardWrapper(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

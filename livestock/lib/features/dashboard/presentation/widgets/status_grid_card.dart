@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppImages.dart';
-import '../../../../core/theme/AppTypography.dart';
 
 class StatusGridCard extends StatelessWidget {
   const StatusGridCard({super.key});
@@ -20,7 +19,7 @@ class StatusGridCard extends StatelessWidget {
           "1",
           "Draft Pesanan Penjualan",
           "Menunggu diproses",
-          Colors.orange,
+          AppColors.primaryShade,
           AppImages.icReceiptEdit,
         ),
         _StatusCard(
@@ -41,7 +40,7 @@ class StatusGridCard extends StatelessWidget {
           "0",
           "Faktur Belum Dibayar",
           "Menunggu pembayaran",
-          Colors.orange,
+          AppColors.primaryShade,
           AppImages.icMoneyTime,
         ),
       ],

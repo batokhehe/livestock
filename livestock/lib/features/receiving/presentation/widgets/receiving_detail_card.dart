@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 
+import '../../../../core/widgets/info_tag.dart';
 import '../../data/receiving_item_model.dart';
 
 class ReceivingDetailCard extends StatelessWidget {
@@ -52,10 +53,10 @@ class ReceivingDetailCard extends StatelessWidget {
             spacing: 6,
             runSpacing: 6,
             children: [
-              _tag('${item.age} Bulan'),
-              _tag('${item.weight} kg'),
-              _tag('Rp ${_formatPrice(item.price)}'),
-              if (item.vaccine != null) _tag(item.vaccine.toString()),
+              InfoTag(label: item.age),
+              InfoTag(label: '${item.weight} kg'),
+              InfoTag(label: 'Rp ${_formatPrice(item.price)}'),
+              if (item.vaccine != null) InfoTag(label: item.vaccine.toString()),
             ],
           ),
 
@@ -81,17 +82,6 @@ class ReceivingDetailCard extends StatelessWidget {
           const Text('Catatan', style: AppTypography.xSmallNormalGrey),
         ],
       ),
-    );
-  }
-
-  Widget _tag(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(text, style: AppTypography.xSmallNormalPrimary),
     );
   }
 

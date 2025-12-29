@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/features/dashboard/presentation/views/dashboard_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/add_monitoring_confirmation_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/add_monitoring_page.dart';
 import 'package:livestock/features/product/presentation/views/product_detail_page.dart';
 import 'package:livestock/features/product/presentation/views/update_product_page.dart';
 import 'package:livestock/features/receiving/presentation/views/add_receiving_confirmation_page.dart';
@@ -14,6 +16,7 @@ import 'package:livestock/features/welcome_page.dart';
 import '../features/auth/presentation/views/login_page.dart';
 import '../features/auth/providers/auth_provider.dart';
 import '../features/home/presentation/views/main_page.dart';
+import '../features/monitoring/presentation/views/add_monitoring_step_2_page.dart';
 import '../features/monitoring/presentation/views/monitoring_page.dart';
 import '../features/receiving/data/receiving_model.dart';
 import '../features/receiving/presentation/views/add_receiving_page.dart';
@@ -93,10 +96,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ReceivingPage(),
       ),
       GoRoute(
-        path: '/monitoring',
-        builder: (context, state) => const MonitoringPage(),
-      ),
-      GoRoute(
         path: '/receiving/add',
         builder: (context, state) => const AddReceivingPage(),
       ),
@@ -114,6 +113,23 @@ final routerProvider = Provider<GoRouter>((ref) {
           final receiving = state.extra as Receiving;
           return ReceivingDetailPage(receiving: receiving);
         },
+      ),
+
+      GoRoute(
+        path: '/monitoring',
+        builder: (context, state) => const MonitoringPage(),
+      ),
+      GoRoute(
+        path: '/monitoring/add',
+        builder: (context, state) => const AddMonitoringPage(),
+      ),
+      GoRoute(
+        path: '/monitoring/add/step-2',
+        builder: (context, state) => const AddMonitoringStep2Page(),
+      ),
+      GoRoute(
+        path: '/monitoring/add/confirmation',
+        builder: (context, state) => const AddMonitoringConfirmationPage(),
       ),
     ],
   );

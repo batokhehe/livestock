@@ -1,8 +1,6 @@
+import 'package:livestock/core/constant/enum.dart';
+
 import 'monitoring_item_model.dart';
-
-enum MonitoringStatus { received, confirmed, waiting }
-
-enum MonitoringFilter { product, feed, tools }
 
 class Monitoring {
   final String code;
@@ -10,7 +8,7 @@ class Monitoring {
   final String? location;
   final String? description;
   final String subtitle;
-  final MonitoringStatus status;
+  final ItemStatus status;
   final int total;
   final int? count;
   final DateTime? date;

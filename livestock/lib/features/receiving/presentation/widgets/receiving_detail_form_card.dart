@@ -59,7 +59,7 @@ class ReceivingDetailFormCard extends StatelessWidget {
             spacing: 6,
             runSpacing: 6,
             children: [
-              _tag('${item.age} Bulan'),
+              _tag(item.age),
               _tag('${item.weight} kg'),
               _tag('Rp ${_formatPrice(item.price)}'),
               if (item.vaccine != null) _tag(item.vaccine.toString()),

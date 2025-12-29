@@ -5,7 +5,20 @@ import 'package:livestock/core/theme/AppTypography.dart';
 import '../../../../core/theme/AppColors.dart';
 
 class ConfirmationBottomSheet extends StatelessWidget {
-  const ConfirmationBottomSheet({super.key});
+  final String header;
+  final String title;
+  final String subTitle;
+  final String saveText;
+  final VoidCallback? onTap;
+
+  const ConfirmationBottomSheet({
+    super.key,
+    required this.header,
+    required this.title,
+    required this.subTitle,
+    required this.saveText,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +34,7 @@ class ConfirmationBottomSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Konfirmasi Penerimaan",
-                style: AppTypography.largeBoldBlack,
-              ),
+              Text(header, style: AppTypography.largeBoldBlack),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: const Icon(Icons.close),
@@ -35,14 +45,13 @@ class ConfirmationBottomSheet extends StatelessWidget {
           Image.asset(AppImages.icConfirmation),
           const SizedBox(height: 24),
           Text(
-            "Lanjutkan Penerimaan Item?",
+            title,
             style: AppTypography.mediumBoldBlack,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          const Text(
-            "Tindakan ini akan menandai penerimaan sebagai "
-            "dikonfirmasi dan tidak dapat dibatalkan",
+          Text(
+            subTitle,
             style: AppTypography.hint,
             textAlign: TextAlign.center,
           ),
@@ -77,7 +86,7 @@ class ConfirmationBottomSheet extends StatelessWidget {
                   ),
                   onPressed: () {},
                   child: Text(
-                    "Simpan Penerimaan",
+                    saveText,
                     style: AppTypography.smallNormalWhite,
                   ),
                 ),

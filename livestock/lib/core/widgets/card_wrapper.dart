@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../theme/AppColors.dart';
 
-class BorderCard extends StatelessWidget {
+class CardWrapper extends StatelessWidget {
   final Widget child;
 
-  const BorderCard({super.key, required this.child});
+  const CardWrapper({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {

@@ -26,6 +26,11 @@ class AppTypography {
     color: AppColors.black,
     fontWeight: FontWeight.bold,
   );
+  static const smallBoldRed = TextStyle(
+    fontSize: 14,
+    color: AppColors.danger,
+    fontWeight: FontWeight.bold,
+  );
   static const smallNormalBlack = TextStyle(
     fontSize: 14,
     color: AppColors.black,
@@ -66,6 +71,11 @@ class AppTypography {
     color: AppColors.grey,
     fontWeight: FontWeight.bold,
   );
+  static const xSmallBoldGrey = TextStyle(
+    fontSize: 12,
+    color: AppColors.grey,
+    fontWeight: FontWeight.bold,
+  );
 
   static const xSmallNormalPrimary = TextStyle(
     fontSize: 12,
@@ -78,6 +88,16 @@ class AppTypography {
   );
   static const smallBoldPrimary = TextStyle(
     fontSize: 14,
+    color: AppColors.primary,
+    fontWeight: FontWeight.bold,
+  );
+  static const mediumBoldPrimary = TextStyle(
+    fontSize: 16,
+    color: AppColors.primary,
+    fontWeight: FontWeight.bold,
+  );
+  static const xSmallBoldPrimary = TextStyle(
+    fontSize: 12,
     color: AppColors.primary,
     fontWeight: FontWeight.bold,
   );
@@ -94,5 +114,10 @@ class AppTypography {
   static const xSmallNormalGrey = TextStyle(
     fontSize: 12,
     color: AppColors.grey,
+  );
+
+  static const xSmallNormalWhite = TextStyle(
+    fontSize: 12,
+    color: AppColors.white,
   );
 }

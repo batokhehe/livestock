@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/AppColors.dart';
-
 class OtherMenuButton extends StatelessWidget {
   final String image;
   final String label;

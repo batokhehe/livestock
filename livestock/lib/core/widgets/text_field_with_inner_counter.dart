@@ -8,6 +8,7 @@ class TextFieldWithInnerCounter extends StatefulWidget {
   final String subLabel;
   final String hint;
   final int maxLength;
+  final TextEditingController? controller;
 
   const TextFieldWithInnerCounter({
     super.key,
@@ -15,6 +16,7 @@ class TextFieldWithInnerCounter extends StatefulWidget {
     required this.subLabel,
     required this.hint,
     required this.maxLength,
+    this.controller,
   });
 
   @override
@@ -23,8 +25,6 @@ class TextFieldWithInnerCounter extends StatefulWidget {
 }
 
 class _TextFieldWithInnerCounterState extends State<TextFieldWithInnerCounter> {
-  final controller = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -45,7 +45,7 @@ class _TextFieldWithInnerCounterState extends State<TextFieldWithInnerCounter> {
         Stack(
           children: [
             TextField(
-              controller: controller,
+              controller: widget.controller,
               maxLength: widget.maxLength,
               maxLines: 3,
               style: AppTypography.xSmallNormalBlack,
@@ -69,7 +69,7 @@ class _TextFieldWithInnerCounterState extends State<TextFieldWithInnerCounter> {
               right: 12,
               bottom: 8,
               child: Text(
-                '${controller.text.length}/${widget.maxLength}',
+                '${widget.controller?.text.length}/${widget.maxLength}',
                 style: const TextStyle(fontSize: 11, color: Colors.grey),
               ),
             ),

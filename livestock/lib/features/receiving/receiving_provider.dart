@@ -29,7 +29,7 @@ final items = [
     weight: '315 kg',
     cutWeight: '31.5 kg',
     price: 23000000,
-    vaccine: 'Vaksin 12/',
+    vaccine: 'Vaksin 12/7',
     note: 'Ini adalah baris catatan',
     status: ReceivingItemStatus.checked,
   ),

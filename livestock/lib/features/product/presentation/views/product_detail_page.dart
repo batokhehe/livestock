@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
+import 'package:livestock/core/widgets/card_wrapper.dart';
+import 'package:livestock/core/widgets/product_header_card.dart';
+
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 
@@ -48,7 +51,12 @@ class _ProductInfoCard extends StatelessWidget {
       title: "Informasi Hewan",
       child: Column(
         children: [
-          _header("0001", "Black Mamba", AppImages.icProduct, true),
+          ProductHeaderCard(
+            title: "0001",
+            subtitle: "Black Mamba",
+            image: AppImages.icProduct,
+            isActive: true,
+          ),
           const SizedBox(height: 12),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           _twoColumnRow(
@@ -82,51 +90,6 @@ class _ProductInfoCard extends StatelessWidget {
       ),
     );
   }
-}
-
-Widget _header(String title, String subtitle, String image, bool isShow) {
-  return Padding(
-    padding: EdgeInsetsGeometry.all(8),
-    child: Row(
-      children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: AppColors.primaryShade,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Image.asset(image, width: 24, height: 24),
-        ),
-        const SizedBox(width: 12),
-
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: AppTypography.smallBoldBlack),
-              const SizedBox(height: 2),
-              Text(subtitle, style: AppTypography.smallNormalGrey),
-            ],
-          ),
-        ),
-
-        isShow
-            ? Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text("Aktif", style: AppTypography.xSmallNormalGreen),
-              )
-            : SizedBox.shrink(),
-      ],
-    ),
-  );
 }
 
 Widget _twoColumnRow({
@@ -187,11 +150,11 @@ class _LocationInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _CardWrapper(
       title: "Informasi Peternakan",
-      child: _header(
-        "Sapi Agri Banten",
-        "Area brown field",
-        AppImages.icField,
-        false,
+      child: ProductHeaderCard(
+        title: "Sapi Agri Banten",
+        subtitle: "Area brown field",
+        image: AppImages.icField,
+        isActive: false,
       ),
     );
   }
@@ -206,7 +169,12 @@ class _PriceInfoCard extends StatelessWidget {
       title: "Informasi Harga",
       child: Column(
         children: [
-          _header("Rp. 25.000.000", "Harga Beli", AppImages.icMoneys, false),
+          ProductHeaderCard(
+            title: "Rp. 25.000.000",
+            subtitle: "Harga Beli",
+            image: AppImages.icMoneys,
+            isActive: false,
+          ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           _twoColumnRow(
             leftValue: "Rp 401.282",
@@ -229,11 +197,11 @@ class _AnotherInfoCard extends StatelessWidget {
       title: "Informasi Lainnya",
       child: Column(
         children: [
-          _header(
-            "H. Imron  Sigit Purawa",
-            "Nama Pelanggan",
-            AppImages.icUserTag,
-            false,
+          ProductHeaderCard(
+            title: "H. Imron  Sigit Purawa",
+            subtitle: "Nama Pelanggan",
+            image: AppImages.icUserTag,
+            isActive: false,
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           _twoColumnRow(
@@ -256,13 +224,7 @@ class _CardWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.fieldBorder),
-      ),
+    return CardWrapper(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -277,35 +239,6 @@ class _CardWrapper extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [child],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RowItem extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _RowItem({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: AppTypography.smallNormalGrey),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: AppTypography.smallNormalBlack,
             ),
           ),
         ],

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/AppColors.dart';
-import '../../../../core/theme/AppImages.dart';
 import '../../../../core/theme/AppTypography.dart';
 
 class LatestTransactionCard extends StatelessWidget {

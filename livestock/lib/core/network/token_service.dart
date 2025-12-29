@@ -21,10 +21,12 @@ class TokenService {
       );
       final newAccess = resp.data['access_token'] as String?;
       final newRefresh = resp.data['refresh_token'] as String?;
-      if (newAccess != null)
+      if (newAccess != null) {
         await storage.write(key: 'access_token', value: newAccess);
-      if (newRefresh != null)
+      }
+      if (newRefresh != null) {
         await storage.write(key: 'refresh_token', value: newRefresh);
+      }
       return newAccess != null;
     } catch (e) {
       return false;

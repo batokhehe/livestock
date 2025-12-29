@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
+import 'package:livestock/core/widgets/card_wrapper.dart';
+import 'package:livestock/core/widgets/product_header_card.dart';
 import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
-import 'package:livestock/core/widgets/step_info_card.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/section_card.dart';
 import '../../../../core/widgets/select_field.dart';
-import '../widgets/select_receiving_item_sheet.dart';
+import '../../../../core/widgets/step_info_card.dart';
 
-class AddReceivingPage extends StatelessWidget {
-  const AddReceivingPage({super.key});
+class AddMonitoringPage extends StatelessWidget {
+  const AddMonitoringPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +21,7 @@ class AddReceivingPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Tambah Penerimaan",
+          "Tambah Pemantauan",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -30,13 +32,9 @@ class AddReceivingPage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: const [
-                StepInfoCard(
-                  title: "Informasi Penerimaan",
-                  step: 1,
-                  totalStep: 3,
-                ),
+                StepInfoCard(title: "Pemantauan Pakan", step: 1, totalStep: 3),
                 SizedBox(height: 12),
-                _ReceivingInfoSection(),
+                _MonitoringInfoSection(),
                 SizedBox(height: 12),
                 _FarmInfoSection(),
               ],
@@ -49,18 +47,24 @@ class AddReceivingPage extends StatelessWidget {
   }
 }
 
-class _ReceivingInfoSection extends StatelessWidget {
-  const _ReceivingInfoSection();
+class _MonitoringInfoSection extends StatelessWidget {
+  const _MonitoringInfoSection();
 
   @override
   Widget build(BuildContext context) {
     return SectionCard(
-      title: "Informasi Penerimaan",
-      children: const [
+      title: "Informasi Pemantauan",
+      children: [
         SelectField(
-          label: "Tanggal penerimaan",
+          label: "Tanggal Pemantauan",
           hint: "Pilih tanggal",
           icon: AppImages.icCalendarSearch,
+        ),
+        SizedBox(height: 12),
+        SelectField(
+          label: "Karyawan",
+          hint: "Pilih karyawan",
+          icon: AppImages.icUserTag,
         ),
         SizedBox(height: 12),
         TextFieldWithInnerCounter(
@@ -93,6 +97,14 @@ class _FarmInfoSection extends StatelessWidget {
           hint: "Pilih area",
           icon: AppImages.icMap,
         ),
+        SizedBox(height: 12),
+        CardWrapper(
+          child: ProductHeaderCard(
+            title: "3 Hewan",
+            subtitle: "Hewan Tersedia",
+            image: AppImages.icProduct,
+          ),
+        ),
       ],
     );
   }
@@ -117,12 +129,7 @@ class _NextButton extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => SelectReceivingItemSheet(),
-              );
+              context.push('/monitoring/add/step-2');
             },
             child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
           ),
