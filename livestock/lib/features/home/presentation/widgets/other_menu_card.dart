@@ -5,6 +5,7 @@ import 'package:livestock/features/home/presentation/widgets/other_menu_button_c
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppImages.dart';
 import '../../../../core/theme/AppTypography.dart';
+import 'employee_attendance_bottom_sheet.dart';
 
 class OtherMenu extends StatelessWidget {
   const OtherMenu({super.key});
@@ -39,9 +40,17 @@ class OtherMenu extends StatelessWidget {
                 const SizedBox(width: 12),
                 const OtherMenuButton(AppImages.icTruckFast, "Pengiriman"),
                 const SizedBox(width: 12),
-                const OtherMenuButton(
+                OtherMenuButton(
                   AppImages.icCalendarSearch,
                   "Absensi Pekerja",
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) => const EmployeeAttendanceBottomSheet(),
+                    );
+                  },
                 ),
               ],
             ),

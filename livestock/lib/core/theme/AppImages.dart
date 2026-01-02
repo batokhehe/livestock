@@ -45,4 +45,7 @@ class AppImages {
   static const icFilterSearch = "$iconsUrl/ic_filter_search.png";
   static const icNoItem = "$iconsUrl/ic_no_item.png";
   static const icDeleteConfirmation = "$iconsUrl/ic_delete_confirmation.png";
+  static const icMenuClipboardTick = "$iconsUrl/ic_menu_clipboard_tick.png";
+  static const icMenuUserTick = "$iconsUrl/ic_menu_user_tick.png";
+  static const icMenuTaskSquare = "$iconsUrl/ic_menu_task_square.png";
 }

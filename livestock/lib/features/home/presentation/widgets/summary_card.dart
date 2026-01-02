@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppImages.dart';
@@ -97,8 +98,8 @@ class SummaryCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const Text(
-                  "14/11/2025",
+                Text(
+                  DateFormat('dd/MM/yyyy').format(DateTime.now()),
                   style: AppTypography.xSmallNormalBlack,
                 ),
               ],

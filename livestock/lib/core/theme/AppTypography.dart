@@ -31,6 +31,10 @@ class AppTypography {
     color: AppColors.danger,
     fontWeight: FontWeight.bold,
   );
+  static const xSmallNormalRed = TextStyle(
+    fontSize: 12,
+    color: AppColors.danger,
+  );
   static const smallNormalBlack = TextStyle(
     fontSize: 14,
     color: AppColors.black,

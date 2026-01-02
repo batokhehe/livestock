@@ -1,48 +1,42 @@
-import 'package:livestock/features/user/domain/role_model.dart';
-import 'package:livestock/features/user/domain/vehicle_model.dart';
-
 class UserModel {
-  final int id;
   final String name;
   final String email;
-  final RoleModel? role;
-  final VehicleModel? vehicle;
-  final bool? isWeb;
-  final bool? isMobile;
+  final int roleId;
+  final String roleName;
+  final int? farmLocationId;
 
   UserModel({
-    required this.id,
     required this.name,
     required this.email,
-    this.role,
-    this.vehicle,
-    this.isWeb,
-    this.isMobile,
+    required this.roleId,
+    required this.roleName,
+    this.farmLocationId,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json["id"],
-      name: json["name"] ?? "",
-      email: json["email"] ?? "",
-      role: json["role"] != null ? RoleModel.fromJson(json["role"]) : null,
-      vehicle: json["vehicle"] != null
-          ? VehicleModel.fromJson(json["vehicle"])
-          : null,
-      isWeb: json["isWeb"],
-      isMobile: json["isMobile"],
+      name: (json['name'] ?? '').toString(),
+      email: (json['email'] ?? '').toString(),
+      roleId: _parseInt(json['role_id']) ?? 0,
+      roleName: (json['role_name'] ?? '').toString(),
+      farmLocationId: _parseInt(json['farm_location_id']),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "id": id,
       "name": name,
       "email": email,
-      "role": role?.toJson(),
-      "vehicle": vehicle?.toJson(),
-      "isWeb": isWeb,
-      "isMobile": isMobile,
+      "role_id": roleId,
+      "role_name": roleName,
+      "farm_location_id": farmLocationId,
     };
+  }
+
+  static int? _parseInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value);
+    return null;
   }
 }

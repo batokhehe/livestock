@@ -4,13 +4,14 @@ import '../theme/AppColors.dart';
 
 class CardWrapper extends StatelessWidget {
   final Widget child;
+  final double? padding;
 
-  const CardWrapper({super.key, required this.child});
+  const CardWrapper({super.key, required this.child, this.padding});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(padding ?? 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),

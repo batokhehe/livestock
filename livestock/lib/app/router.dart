@@ -4,6 +4,7 @@ import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:livestock/features/attendance/presentation/views/employee_attendance_page.dart';
 import 'package:livestock/features/dashboard/presentation/views/dashboard_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/add_monitoring_confirmation_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/add_monitoring_page.dart';
@@ -130,6 +131,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/monitoring/add/confirmation',
         builder: (context, state) => const AddMonitoringConfirmationPage(),
+      ),
+
+      GoRoute(
+        path: '/employee-attendance',
+        builder: (context, state) => const EmployeeAttendancePage(),
       ),
     ],
   );

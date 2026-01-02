@@ -20,20 +20,15 @@ class AuthRepository {
     try {
       final res = await api.login(email, pass);
 
-      final token = res?["token"];
-      final userJson = res?["data"];
-
-      if (token == null || userJson == null) {
-        throw AppException(message: "Data login tidak lengkap dari server.");
-      }
+      final token = res.accessToken;
+      final userData = res.user;
 
       await storage.write(key: _keyToken, value: token);
-
-      final user = UserModel.fromJson(userJson);
-      await ref.read(userRepositoryProvider).saveUser(user);
+      await ref.read(userRepositoryProvider).saveUser(userData);
 
       return true;
     } catch (e) {
+      print('error repo: $e');
       throw ErrorParser.parse(e);
     }
   }

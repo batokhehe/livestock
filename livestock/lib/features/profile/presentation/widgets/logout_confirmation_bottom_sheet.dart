@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppImages.dart';
 import '../../../../core/theme/AppTypography.dart';
+import '../../../auth/providers/auth_provider.dart';
 
-class LogoutConfirmationBottomSheet extends StatelessWidget {
+class LogoutConfirmationBottomSheet extends ConsumerWidget {
   const LogoutConfirmationBottomSheet({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -84,7 +87,13 @@ class LogoutConfirmationBottomSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () async {
+                    await ref.read(logoutProvider).call();
+
+                    if (context.mounted) {
+                      context.go('/login');
+                    }
+                  },
                   child: Text(
                     "Keluar Sekarang",
                     style: AppTypography.smallNormalWhite,
@@ -96,13 +105,5 @@ class LogoutConfirmationBottomSheet extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  void _handleLogout(BuildContext context) {
-    // TODO: hapus token / clear session
-    // contoh:
-    // context.read(authProvider.notifier).logout();
-
-    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
 }

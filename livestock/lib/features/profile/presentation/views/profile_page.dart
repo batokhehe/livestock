@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
+import '../../../user/providers/user_provider.dart';
 import '../widgets/logout_confirmation_bottom_sheet.dart';
 import '../widgets/success_banner.dart';
 import '../widgets/update_name_bottom_sheet.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userName = ref.watch(userNameProvider);
+
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
@@ -25,9 +29,9 @@ class ProfilePage extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  _profileCard(),
+                  _profileCard(userName),
                   const SizedBox(height: 16),
-                  _infoSection(context),
+                  _infoSection(context, userName),
                   const SizedBox(height: 24),
                   _logoutButton(context),
                 ],
@@ -40,7 +44,7 @@ class ProfilePage extends StatelessWidget {
   }
 
   // ================= PROFILE CARD =================
-  Widget _profileCard() {
+  Widget _profileCard(String userName) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -64,7 +68,7 @@ class ProfilePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Nina Saputri", style: AppTypography.smallBoldBlack),
+                Text(userName, style: AppTypography.smallBoldBlack),
                 const SizedBox(height: 2),
                 Text("kepala kandang", style: AppTypography.xSmallNormalGrey),
               ],
@@ -91,7 +95,7 @@ class ProfilePage extends StatelessWidget {
   }
 
   // ================= INFO SECTION =================
-  Widget _infoSection(BuildContext context) {
+  Widget _infoSection(BuildContext context, String userName) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -106,17 +110,14 @@ class ProfilePage extends StatelessWidget {
           const SizedBox(height: 12),
           _infoItem(
             icon: AppImages.icUserEdit,
-            title: "Nina Saputri",
+            title: userName,
             subtitle: "Nama Akun",
             onTap: () async {
-              showUpdateNameBottomSheet(context, currentName: "Nina Saputri");
-
               final result = await showModalBottomSheet<String>(
                 context: context,
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
-                builder: (_) =>
-                    UpdateNameBottomSheet(currentName: "Nina Saputri"),
+                builder: (_) => UpdateNameBottomSheet(currentName: userName),
               );
 
               if (result != null) {
@@ -151,14 +152,11 @@ class ProfilePage extends StatelessWidget {
             subtitle: "Ganti kata sandi?",
 
             onTap: () async {
-              showUpdateNameBottomSheet(context, currentName: "Nina Saputri");
-
               final result = await showModalBottomSheet<String>(
                 context: context,
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
-                builder: (_) =>
-                    UpdateNameBottomSheet(currentName: "Nina Saputri"),
+                builder: (_) => UpdateNameBottomSheet(currentName: userName),
               );
 
               if (result != null) {
@@ -254,17 +252,5 @@ void showLogoutBottomSheet(BuildContext context) {
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (_) => const LogoutConfirmationBottomSheet(),
-  );
-}
-
-void showUpdateNameBottomSheet(
-  BuildContext context, {
-  required String currentName,
-}) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (_) => UpdateNameBottomSheet(currentName: currentName),
   );
 }

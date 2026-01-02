@@ -7,7 +7,7 @@ import 'interceptors.dart';
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
-      baseUrl: "http://http://127.0.0.1:8000/api",
+      baseUrl: "http://72.61.214.163:6621/api",
       connectTimeout: const Duration(seconds: 5),
       receiveTimeout: const Duration(seconds: 5),
     ),
