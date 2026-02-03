@@ -5,10 +5,16 @@ import '../theme/AppColors.dart';
 import '../theme/AppTypography.dart';
 
 class BottomButton extends StatelessWidget {
-  final String route;
+  final String? route;
   final String text;
+  final VoidCallback? onPressed;
 
-  const BottomButton({super.key, required this.route, required this.text});
+  const BottomButton({
+    super.key,
+    required this.text,
+    this.route,
+    this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +31,23 @@ class BottomButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: () {
-              context.push(route);
-            },
+            onPressed: _handlePressed(context),
             child: Text(text, style: AppTypography.mediumBoldWhite),
           ),
         ),
       ),
     );
+  }
+
+  VoidCallback? _handlePressed(BuildContext context) {
+    if (onPressed != null) {
+      return onPressed;
+    }
+
+    if (route != null && route!.isNotEmpty) {
+      return () => context.push(route!);
+    }
+
+    return null; // disabled
   }
 }

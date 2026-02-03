@@ -14,6 +14,8 @@ import 'package:livestock/features/product/presentation/views/product_detail_pag
 import 'package:livestock/features/product/presentation/views/update_product_page.dart';
 import 'package:livestock/features/receiving/presentation/views/add_receiving_confirmation_page.dart';
 import 'package:livestock/features/receiving/presentation/views/receiving_detail_page.dart';
+import 'package:livestock/features/sales_order/presentation/views/add_sales_order_page.dart';
+import 'package:livestock/features/sales_order/presentation/views/sales_order_page.dart';
 import 'package:livestock/features/welcome_page.dart';
 
 import '../features/attendance/presentation/views/history_attendance_page.dart';
@@ -163,6 +165,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/employee-overnight',
         builder: (context, state) => const EmployeeOvernightPage(),
+      ),
+
+      GoRoute(
+        path: '/sales-order',
+        builder: (context, state) => const SalesOrderPage(),
+      ),
+      GoRoute(
+        path: '/sales-order/add',
+        builder: (context, state) => const AddSalesOrderPage(),
       ),
     ],
   );

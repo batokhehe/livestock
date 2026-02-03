@@ -32,12 +32,7 @@ class QuickMenu extends StatelessWidget {
         MenuButton(
           AppImages.icDocumentPrevious,
           "Penjualan",
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Coming Soon 🚧'),
-              duration: Duration(seconds: 2),
-            ),
-          ),
+          onTap: () => context.push('/sales-order'),
         ),
       ],
     );
