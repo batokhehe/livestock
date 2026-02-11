@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:livestock/core/data/model/farm_location_model.dart';
+import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
-import 'package:livestock/core/widgets/card_wrapper.dart';
-import 'package:livestock/core/widgets/product_header_card.dart';
-import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
+import 'package:livestock/core/widgets/customer_bottom_sheet.dart';
+import 'package:livestock/core/widgets/input_field_card.dart';
+import 'package:livestock/features/sales_order/data/model/sales_order_request_model.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/custom_date_picker_sheet.dart';
+import '../../../../core/widgets/farm_location_bottom_sheet.dart';
 import '../../../../core/widgets/section_card.dart';
 import '../../../../core/widgets/select_field.dart';
 import '../../../../core/widgets/step_info_card.dart';
@@ -23,8 +25,23 @@ class AddSalesOrderPage extends ConsumerStatefulWidget {
 }
 
 class _AddSalesOrderPageState extends ConsumerState<AddSalesOrderPage> {
+  late TextEditingController phoneController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    phoneController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final form = ref.watch(salesOrderFormProvider);
+
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
@@ -40,16 +57,19 @@ class _AddSalesOrderPageState extends ConsumerState<AddSalesOrderPage> {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(16),
-              children: const [
-                StepInfoCard(
+              children: [
+                const StepInfoCard(
                   title: "Informasi Pesanan Penjualan",
                   step: 1,
                   totalStep: 3,
                 ),
-                SizedBox(height: 12),
-                _SalesOrderInfoSection(),
-                SizedBox(height: 12),
-                _FarmInfoSection(),
+                const SizedBox(height: 12),
+                _SalesOrderInfoSection(
+                  form: form,
+                  phoneController: phoneController,
+                ),
+                const SizedBox(height: 12),
+                _CustomerInfoSection(form: form),
               ],
             ),
           ),
@@ -61,27 +81,26 @@ class _AddSalesOrderPageState extends ConsumerState<AddSalesOrderPage> {
 }
 
 class _SalesOrderInfoSection extends ConsumerWidget {
-  const _SalesOrderInfoSection();
+  final TextEditingController phoneController;
+  final SalesOrderRequest form;
+
+  const _SalesOrderInfoSection({
+    required this.form,
+    required this.phoneController,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final salesOrderSelectedDate = ref.watch(salesOrderDateProvider);
-    final paymentSelectedDate = ref.watch(paymentDateProvider);
-
-    final salesOrderDateText = salesOrderSelectedDate == null
-        ? 'Pilih Tanggal'
-        : DateFormat('dd MMM yyyy', 'id_ID').format(salesOrderSelectedDate);
-
-    final paymentDateText = paymentSelectedDate == null
-        ? 'Pilih Tanggal'
-        : DateFormat('dd MMM yyyy', 'id_ID').format(paymentSelectedDate);
+    if (phoneController.text != (form.customer?.contactPhone ?? "")) {
+      phoneController.text = form.customer?.contactPhone ?? "";
+    }
 
     return SectionCard(
       title: "Informasi Penjualan",
       children: [
         SelectField(
           label: "Tanggal Penjualan",
-          hint: salesOrderDateText,
+          hint: formatDateTime(form.orderDate),
           icon: AppImages.icCalendarSearch,
           onTap: () async {
             final pickedDate = await showModalBottomSheet<DateTime?>(
@@ -92,14 +111,16 @@ class _SalesOrderInfoSection extends ConsumerWidget {
             );
 
             if (pickedDate != null) {
-              ref.read(salesOrderDateProvider.notifier).state = pickedDate;
+              ref
+                  .read(salesOrderFormProvider.notifier)
+                  .setSalesOrderDate(pickedDate);
             }
           },
         ),
         SizedBox(height: 12),
         SelectField(
           label: "Tanggal Pelunasan",
-          hint: paymentDateText,
+          hint: formatDateTime(form.dueDate),
           icon: AppImages.icCalendarSearch,
           onTap: () async {
             final pickedDate = await showModalBottomSheet<DateTime?>(
@@ -110,65 +131,140 @@ class _SalesOrderInfoSection extends ConsumerWidget {
             );
 
             if (pickedDate != null) {
-              ref.read(paymentDateProvider.notifier).state = pickedDate;
+              ref.read(salesOrderFormProvider.notifier).setDueDate(pickedDate);
             }
           },
         ),
         SizedBox(height: 12),
         SelectField(
           label: "Nama Pelanggan",
-          hint: "Pilih Pelanggan",
+          hint: form.customer?.name ?? "Pilih Pelanggan",
           icon: AppImages.icUserTag,
+          onTap: () async {
+            final customer = await showModalBottomSheet(
+              context: context,
+              isScrollControlled: false,
+              backgroundColor: AppColors.greyBg,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              builder: (_) => const CustomerBottomSheet(),
+            );
+            if (customer != null) {
+              ref.read(salesOrderFormProvider.notifier).setCustomer(customer);
+            }
+          },
         ),
         SizedBox(height: 12),
-        TextFieldWithInnerCounter(
-          label: "Catatan",
-          subLabel: "(Optional)",
-          hint: "Masukkan catatan",
-          maxLength: 80,
+        TextFields(
+          label: "Nomor Pelanggan",
+          hint: "Masukkan nomor pelanggan",
+          prefixIcon: AppImages.icCalling,
+          controller: phoneController,
+        ),
+        SizedBox(height: 12),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: AppRadioGroup<String>(
+                title: 'Kategori penjualan',
+                value: form.category ?? "kg",
+                options: const ['kg', 'Kelas'],
+                labelBuilder: (v) => v,
+                onChanged: (v) =>
+                    ref.read(salesOrderFormProvider.notifier).setCategory(v),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: AppRadioGroup<bool>(
+                title: 'Gunakan Forecast',
+                value: form.useForecast ?? true,
+                options: const [true, false],
+                labelBuilder: (v) => v ? 'Ya' : 'Tidak',
+                onChanged: (v) =>
+                    ref.read(salesOrderFormProvider.notifier).setUseForecast(v),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12),
+        SelectField(
+          label: "Tanggal Forecast",
+          hint: formatDateTime(form.forecastDate),
+          icon: AppImages.icCalendarSearch,
+          onTap: () async {
+            final pickedDate = await showModalBottomSheet<DateTime?>(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) => const CustomDatePickerSheet(),
+            );
+
+            if (pickedDate != null) {
+              ref
+                  .read(salesOrderFormProvider.notifier)
+                  .setForecastDate(pickedDate);
+            }
+          },
         ),
       ],
     );
   }
 }
 
-class _FarmInfoSection extends StatelessWidget {
-  const _FarmInfoSection();
+class _CustomerInfoSection extends ConsumerWidget {
+  final SalesOrderRequest form;
+
+  const _CustomerInfoSection({required this.form});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return SectionCard(
-      title: "Informasi Peternakan",
-      children: const [
+      title: "Informasi Pengiriman",
+      children: [
         SelectField(
           label: "Lokasi peternakan",
-          hint: "Pilih lokasi",
+          hint: form.farmLocation?.name ?? "Pilih lokasi",
           icon: AppImages.icHomeHashTag,
+          onTap: () async {
+            final result = await showModalBottomSheet<FarmLocation?>(
+              context: context,
+              isScrollControlled: true,
+              builder: (_) => const FarmLocationBottomSheet(),
+            );
+
+            if (result != null) {
+              ref.read(salesOrderFormProvider.notifier).setFarmLocation(result);
+            }
+          },
         ),
         SizedBox(height: 12),
-        SelectField(
-          label: "Area peternakan",
-          hint: "Pilih area",
-          icon: AppImages.icMap,
+        TextFields(
+          label: "Nama penerima",
+          hint: "Masukkan nama penerima",
+          prefixIcon: AppImages.icUser,
         ),
         SizedBox(height: 12),
-        CardWrapper(
-          child: ProductHeaderCard(
-            title: "3 Hewan",
-            subtitle: "Hewan Tersedia",
-            image: AppImages.icProduct,
-          ),
+        TextFields(
+          label: "Nomor penerima",
+          hint: "Masukkan nomor penerima",
+          prefixIcon: AppImages.icCalling,
         ),
       ],
     );
   }
 }
 
-class _NextButton extends StatelessWidget {
+class _NextButton extends ConsumerWidget {
   const _NextButton();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final form = ref.watch(salesOrderFormProvider);
+    final isValid = form.isValid;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -177,13 +273,19 @@ class _NextButton extends StatelessWidget {
           height: 48,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
+              // backgroundColor: isValid ? AppColors.primary : AppColors.grey,
               backgroundColor: AppColors.primary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
+            // onPressed: isValid
+            //     ? () {
+            //         context.push('/sales-order/add/step-2');
+            //       }
+            //     : null,
             onPressed: () {
-              context.push('/SalesOrder/add/step-2');
+              context.push('/sales-order/add/step-2');
             },
             child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
           ),

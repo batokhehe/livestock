@@ -6,16 +6,14 @@ import '../../app/providers.dart';
 import '../theme/AppColors.dart';
 import '../theme/AppTypography.dart';
 
-class FarmLocationBottomSheet extends ConsumerStatefulWidget {
-  const FarmLocationBottomSheet({super.key});
+class VillageBottomSheet extends ConsumerStatefulWidget {
+  const VillageBottomSheet({super.key, required String param});
 
   @override
-  ConsumerState<FarmLocationBottomSheet> createState() =>
-      _FarmLocationBottomSheetState();
+  ConsumerState<VillageBottomSheet> createState() => _VillageBottomSheetState();
 }
 
-class _FarmLocationBottomSheetState
-    extends ConsumerState<FarmLocationBottomSheet> {
+class _VillageBottomSheetState extends ConsumerState<VillageBottomSheet> {
   late final TextEditingController searchCtrl;
 
   @override
@@ -23,8 +21,7 @@ class _FarmLocationBottomSheetState
     super.initState();
     searchCtrl = TextEditingController();
 
-    // 🔥 reset search setiap buka
-    ref.read(farmLocationSearchProvider.notifier).state = '';
+    ref.read(villageSearchProvider.notifier).state = '';
   }
 
   @override
@@ -35,21 +32,21 @@ class _FarmLocationBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final locationsAsync = ref.watch(farmLocationListProvider);
-    final selectedItem = ref.watch(selectedFarmLocationProvider);
-    final keyword = ref.watch(farmLocationSearchProvider);
+    final dataAsync = ref.watch(villageListProvider);
+    final selectedItem = ref.watch(selectedVillageProvider);
+    final keyword = ref.watch(villageSearchProvider);
 
-    return locationsAsync.when(
+    return dataAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => Center(
         child: Text(
-          "Gagal memuat data lokasi\n$error",
+          "Gagal memuat data kota\n$error",
           textAlign: TextAlign.center,
           style: AppTypography.smallNormalGrey,
         ),
       ),
-      data: (locations) {
-        final filtered = locations.where((e) {
+      data: (d) {
+        final filtered = d.where((e) {
           return e.name.toLowerCase().contains(keyword.toLowerCase());
         }).toList();
 
@@ -61,10 +58,7 @@ class _FarmLocationBottomSheetState
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Lokasi Peternakan",
-                    style: AppTypography.mediumBoldBlack,
-                  ),
+                  Text("Kota", style: AppTypography.mediumBoldBlack),
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
@@ -74,14 +68,14 @@ class _FarmLocationBottomSheetState
 
               // ===== SEARCH =====
               SearchBarCard(
-                hint: "Cari lokasi",
+                hint: "Cari kota",
                 controller: searchCtrl,
                 onChanged: (value) {
-                  ref.read(farmLocationSearchProvider.notifier).state = value;
+                  ref.read(villageSearchProvider.notifier).state = value;
                 },
                 onClear: () {
                   searchCtrl.clear();
-                  ref.read(farmLocationSearchProvider.notifier).state = '';
+                  ref.read(villageSearchProvider.notifier).state = '';
                 },
               ),
 
@@ -92,7 +86,7 @@ class _FarmLocationBottomSheetState
                 child: filtered.isEmpty
                     ? Center(
                         child: Text(
-                          "Lokasi tidak ditemukan",
+                          "kota tidak ditemukan",
                           style: AppTypography.smallNormalGrey,
                         ),
                       )
@@ -100,15 +94,11 @@ class _FarmLocationBottomSheetState
                         itemCount: filtered.length,
                         itemBuilder: (_, i) {
                           final e = filtered[i];
-                          final isSelected = selectedItem?.id == e.id;
+                          final isSelected = selectedItem?.code == e.code;
 
                           return GestureDetector(
                             onTap: () {
-                              ref
-                                      .read(
-                                        selectedFarmLocationProvider.notifier,
-                                      )
-                                      .state =
+                              ref.read(selectedVillageProvider.notifier).state =
                                   e;
                             },
                             child: Container(

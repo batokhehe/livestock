@@ -7,7 +7,12 @@ import '../data/auth_api.dart';
 
 class AuthRepository {
   final AuthApi api;
-  final FlutterSecureStorage storage = const FlutterSecureStorage();
+  final FlutterSecureStorage storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+      resetOnError: true, // Automatically handle encryption errors
+    ),
+  );
   final Ref ref;
 
   AuthRepository(this.api, this.ref);

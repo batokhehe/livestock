@@ -1,6 +1,13 @@
+import 'package:livestock/core/data/model/animal_profile_model.dart';
+import 'package:livestock/core/data/model/customer_model.dart';
+import 'package:livestock/core/data/model/district_model.dart';
 import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
+import 'package:livestock/core/data/model/province_model.dart';
+import 'package:livestock/core/data/model/village_model.dart';
 import 'package:livestock/core/data/repository/master_repository.dart';
+
+import '../../data/model/city_model.dart';
 
 class GetMasterDataListUseCase {
   final MasterRepository repository;
@@ -13,5 +20,29 @@ class GetMasterDataListUseCase {
 
   Future<List<FarmArea>> callFarmAreas() {
     return repository.getFarmAreas();
+  }
+
+  Future<List<Customer>> callCustomer() {
+    return repository.getCustomers();
+  }
+
+  Future<List<AnimalProfile>> callAnimals() {
+    return repository.getAnimals();
+  }
+
+  Future<List<Province>> callProvinces() {
+    return repository.getProvinces();
+  }
+
+  Future<List<City>> callCity(String param) {
+    return repository.getCities(param);
+  }
+
+  Future<List<District>> callDistrict(String param) {
+    return repository.getDistricts(param);
+  }
+
+  Future<List<Village>> callVillages(String param) {
+    return repository.getVillages(param);
   }
 }

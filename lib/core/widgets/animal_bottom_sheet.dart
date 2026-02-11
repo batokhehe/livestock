@@ -6,16 +6,14 @@ import '../../app/providers.dart';
 import '../theme/AppColors.dart';
 import '../theme/AppTypography.dart';
 
-class FarmLocationBottomSheet extends ConsumerStatefulWidget {
-  const FarmLocationBottomSheet({super.key});
+class AnimalBottomSheet extends ConsumerStatefulWidget {
+  const AnimalBottomSheet({super.key});
 
   @override
-  ConsumerState<FarmLocationBottomSheet> createState() =>
-      _FarmLocationBottomSheetState();
+  ConsumerState<AnimalBottomSheet> createState() => _AnimalBottomSheetState();
 }
 
-class _FarmLocationBottomSheetState
-    extends ConsumerState<FarmLocationBottomSheet> {
+class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
   late final TextEditingController searchCtrl;
 
   @override
@@ -24,7 +22,7 @@ class _FarmLocationBottomSheetState
     searchCtrl = TextEditingController();
 
     // 🔥 reset search setiap buka
-    ref.read(farmLocationSearchProvider.notifier).state = '';
+    ref.read(animalSearchProvider.notifier).state = '';
   }
 
   @override
@@ -35,21 +33,21 @@ class _FarmLocationBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final locationsAsync = ref.watch(farmLocationListProvider);
-    final selectedItem = ref.watch(selectedFarmLocationProvider);
-    final keyword = ref.watch(farmLocationSearchProvider);
+    final dataAsync = ref.watch(animalListProvider);
+    final selectedItem = ref.watch(selectedAnimalProvider);
+    final keyword = ref.watch(animalSearchProvider);
 
-    return locationsAsync.when(
+    return dataAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => Center(
         child: Text(
-          "Gagal memuat data lokasi\n$error",
+          "Gagal memuat data hewan\n$error",
           textAlign: TextAlign.center,
           style: AppTypography.smallNormalGrey,
         ),
       ),
-      data: (locations) {
-        final filtered = locations.where((e) {
+      data: (d) {
+        final filtered = d.where((e) {
           return e.name.toLowerCase().contains(keyword.toLowerCase());
         }).toList();
 
@@ -62,7 +60,7 @@ class _FarmLocationBottomSheetState
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Lokasi Peternakan",
+                    "Hewan",
                     style: AppTypography.mediumBoldBlack,
                   ),
                   IconButton(
@@ -74,14 +72,14 @@ class _FarmLocationBottomSheetState
 
               // ===== SEARCH =====
               SearchBarCard(
-                hint: "Cari lokasi",
+                hint: "Cari hewan",
                 controller: searchCtrl,
                 onChanged: (value) {
-                  ref.read(farmLocationSearchProvider.notifier).state = value;
+                  ref.read(animalSearchProvider.notifier).state = value;
                 },
                 onClear: () {
                   searchCtrl.clear();
-                  ref.read(farmLocationSearchProvider.notifier).state = '';
+                  ref.read(animalSearchProvider.notifier).state = '';
                 },
               ),
 
@@ -92,7 +90,7 @@ class _FarmLocationBottomSheetState
                 child: filtered.isEmpty
                     ? Center(
                         child: Text(
-                          "Lokasi tidak ditemukan",
+                          "Hewan tidak ditemukan",
                           style: AppTypography.smallNormalGrey,
                         ),
                       )
@@ -104,11 +102,7 @@ class _FarmLocationBottomSheetState
 
                           return GestureDetector(
                             onTap: () {
-                              ref
-                                      .read(
-                                        selectedFarmLocationProvider.notifier,
-                                      )
-                                      .state =
+                              ref.read(selectedAnimalProvider.notifier).state =
                                   e;
                             },
                             child: Container(

@@ -12,6 +12,8 @@ class TextFields extends StatelessWidget {
   final int maxLines;
   final bool showCounter;
   final bool enabled;
+  final String? prefixIcon;
+  final ValueChanged<String>? onChanged;
 
   const TextFields({
     super.key,
@@ -23,6 +25,8 @@ class TextFields extends StatelessWidget {
     this.maxLines = 1,
     this.showCounter = false,
     this.enabled = true,
+    this.prefixIcon,
+    this.onChanged,
   });
 
   @override
@@ -40,11 +44,15 @@ class TextFields extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           TextFormField(
-            initialValue: initial,
+            initialValue: controller == null ? initial : null,
+            controller: controller,
             enabled: enabled,
             maxLines: maxLines,
             maxLength: showCounter ? 80 : null,
-            controller: controller,
+
+            /// 🔥 INI YANG PENTING
+            onChanged: onChanged,
+
             style: enabled
                 ? AppTypography.smallBoldBlack
                 : AppTypography.smallBoldGrey,
@@ -53,6 +61,12 @@ class TextFields extends StatelessWidget {
               hintStyle: AppTypography.hint,
               counterText: showCounter ? null : "",
               suffixText: suffix,
+              prefixIcon: prefixIcon != null
+                  ? Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Image.asset(prefixIcon!, width: 18),
+                    )
+                  : null,
               filled: true,
               fillColor: enabled ? AppColors.white : AppColors.greyBg,
               contentPadding: const EdgeInsets.symmetric(
@@ -68,7 +82,7 @@ class TextFields extends StatelessWidget {
               ),
               disabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.grey2, width: 1),
+                borderSide: const BorderSide(color: AppColors.grey2, width: 1),
               ),
             ),
           ),
@@ -144,6 +158,64 @@ class Dropdowns extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AppRadioGroup<T> extends StatelessWidget {
+  final String title;
+  final T value;
+  final List<T> options;
+  final String Function(T) labelBuilder;
+  final ValueChanged<T> onChanged;
+
+  const AppRadioGroup({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.options,
+    required this.labelBuilder,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTypography.smallBoldBlack),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.fieldBorder, width: 1),
+            ),
+            child: Row(
+              children: options.map((item) {
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Radio<T>(
+                      value: item,
+                      groupValue: value,
+                      activeColor: AppColors.primary,
+                      onChanged: (val) {
+                        if (val != null) onChanged(val);
+                      },
+                    ),
+                    Text(
+                      labelBuilder(item),
+                      style: AppTypography.smallNormalBlack,
+                    ),
+                  ],
+                );
+              }).toList(),
             ),
           ),
         ],

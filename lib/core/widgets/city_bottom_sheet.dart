@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:livestock/core/widgets/search_bar_card.dart';
 
 import '../../app/providers.dart';
 import '../theme/AppColors.dart';
 import '../theme/AppTypography.dart';
+import 'search_bar_card.dart';
 
-class FarmLocationBottomSheet extends ConsumerStatefulWidget {
-  const FarmLocationBottomSheet({super.key});
+class CityBottomSheet extends ConsumerStatefulWidget {
+  const CityBottomSheet({super.key});
 
   @override
-  ConsumerState<FarmLocationBottomSheet> createState() =>
-      _FarmLocationBottomSheetState();
+  ConsumerState<CityBottomSheet> createState() => _CityBottomSheetState();
 }
 
-class _FarmLocationBottomSheetState
-    extends ConsumerState<FarmLocationBottomSheet> {
+class _CityBottomSheetState extends ConsumerState<CityBottomSheet> {
   late final TextEditingController searchCtrl;
 
   @override
@@ -23,8 +21,8 @@ class _FarmLocationBottomSheetState
     super.initState();
     searchCtrl = TextEditingController();
 
-    // 🔥 reset search setiap buka
-    ref.read(farmLocationSearchProvider.notifier).state = '';
+    ref.read(citySearchProvider.notifier).state = '';
+    ref.read(selectedCityProvider.notifier).state = null;
   }
 
   @override
@@ -35,21 +33,26 @@ class _FarmLocationBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final locationsAsync = ref.watch(farmLocationListProvider);
-    final selectedItem = ref.watch(selectedFarmLocationProvider);
-    final keyword = ref.watch(farmLocationSearchProvider);
+    final province = ref.watch(selectedProvinceProvider);
 
-    return locationsAsync.when(
+    if (province == null) {
+      return const Center(child: Text("Pilih provinsi terlebih dahulu"));
+    }
+
+    final dataAsync = ref.watch(cityListProvider);
+    final selectedItem = ref.watch(selectedCityProvider);
+    final keyword = ref.watch(citySearchProvider);
+
+    return dataAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => Center(
         child: Text(
-          "Gagal memuat data lokasi\n$error",
+          "Gagal memuat data kota\n$error",
           textAlign: TextAlign.center,
-          style: AppTypography.smallNormalGrey,
         ),
       ),
-      data: (locations) {
-        final filtered = locations.where((e) {
+      data: (d) {
+        final filtered = d.where((e) {
           return e.name.toLowerCase().contains(keyword.toLowerCase());
         }).toList();
 
@@ -57,14 +60,10 @@ class _FarmLocationBottomSheetState
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // ===== HEADER =====
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Lokasi Peternakan",
-                    style: AppTypography.mediumBoldBlack,
-                  ),
+                  Text("Kota", style: AppTypography.mediumBoldBlack),
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
@@ -72,27 +71,25 @@ class _FarmLocationBottomSheetState
                 ],
               ),
 
-              // ===== SEARCH =====
               SearchBarCard(
-                hint: "Cari lokasi",
+                hint: "Cari kota",
                 controller: searchCtrl,
                 onChanged: (value) {
-                  ref.read(farmLocationSearchProvider.notifier).state = value;
+                  ref.read(citySearchProvider.notifier).state = value;
                 },
                 onClear: () {
                   searchCtrl.clear();
-                  ref.read(farmLocationSearchProvider.notifier).state = '';
+                  ref.read(citySearchProvider.notifier).state = '';
                 },
               ),
 
               const SizedBox(height: 12),
 
-              // ===== LIST =====
               Expanded(
                 child: filtered.isEmpty
                     ? Center(
                         child: Text(
-                          "Lokasi tidak ditemukan",
+                          "Kota tidak ditemukan",
                           style: AppTypography.smallNormalGrey,
                         ),
                       )
@@ -100,16 +97,11 @@ class _FarmLocationBottomSheetState
                         itemCount: filtered.length,
                         itemBuilder: (_, i) {
                           final e = filtered[i];
-                          final isSelected = selectedItem?.id == e.id;
+                          final isSelected = selectedItem?.code == e.code;
 
                           return GestureDetector(
                             onTap: () {
-                              ref
-                                      .read(
-                                        selectedFarmLocationProvider.notifier,
-                                      )
-                                      .state =
-                                  e;
+                              ref.read(selectedCityProvider.notifier).state = e;
                             },
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 10),
@@ -139,7 +131,6 @@ class _FarmLocationBottomSheetState
 
               const SizedBox(height: 24),
 
-              // ===== BUTTON =====
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -147,9 +138,6 @@ class _FarmLocationBottomSheetState
                     backgroundColor: selectedItem != null
                         ? AppColors.primary
                         : AppColors.greyBg,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
                   ),
                   onPressed: selectedItem == null
                       ? null

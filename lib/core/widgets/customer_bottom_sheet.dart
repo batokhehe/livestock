@@ -6,16 +6,15 @@ import '../../app/providers.dart';
 import '../theme/AppColors.dart';
 import '../theme/AppTypography.dart';
 
-class FarmLocationBottomSheet extends ConsumerStatefulWidget {
-  const FarmLocationBottomSheet({super.key});
+class CustomerBottomSheet extends ConsumerStatefulWidget {
+  const CustomerBottomSheet({super.key});
 
   @override
-  ConsumerState<FarmLocationBottomSheet> createState() =>
-      _FarmLocationBottomSheetState();
+  ConsumerState<CustomerBottomSheet> createState() =>
+      _CustomerBottomSheetState();
 }
 
-class _FarmLocationBottomSheetState
-    extends ConsumerState<FarmLocationBottomSheet> {
+class _CustomerBottomSheetState extends ConsumerState<CustomerBottomSheet> {
   late final TextEditingController searchCtrl;
 
   @override
@@ -24,7 +23,7 @@ class _FarmLocationBottomSheetState
     searchCtrl = TextEditingController();
 
     // 🔥 reset search setiap buka
-    ref.read(farmLocationSearchProvider.notifier).state = '';
+    ref.read(customerSearchProvider.notifier).state = '';
   }
 
   @override
@@ -35,11 +34,11 @@ class _FarmLocationBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final locationsAsync = ref.watch(farmLocationListProvider);
-    final selectedItem = ref.watch(selectedFarmLocationProvider);
-    final keyword = ref.watch(farmLocationSearchProvider);
+    final dataAsync = ref.watch(customerListProvider);
+    final selectedItem = ref.watch(selectedCustomerProvider);
+    final keyword = ref.watch(customerSearchProvider);
 
-    return locationsAsync.when(
+    return dataAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => Center(
         child: Text(
@@ -48,8 +47,8 @@ class _FarmLocationBottomSheetState
           style: AppTypography.smallNormalGrey,
         ),
       ),
-      data: (locations) {
-        final filtered = locations.where((e) {
+      data: (d) {
+        final filtered = d.where((e) {
           return e.name.toLowerCase().contains(keyword.toLowerCase());
         }).toList();
 
@@ -74,14 +73,14 @@ class _FarmLocationBottomSheetState
 
               // ===== SEARCH =====
               SearchBarCard(
-                hint: "Cari lokasi",
+                hint: "Cari pelanggan",
                 controller: searchCtrl,
                 onChanged: (value) {
-                  ref.read(farmLocationSearchProvider.notifier).state = value;
+                  ref.read(customerSearchProvider.notifier).state = value;
                 },
                 onClear: () {
                   searchCtrl.clear();
-                  ref.read(farmLocationSearchProvider.notifier).state = '';
+                  ref.read(customerSearchProvider.notifier).state = '';
                 },
               ),
 
@@ -105,9 +104,7 @@ class _FarmLocationBottomSheetState
                           return GestureDetector(
                             onTap: () {
                               ref
-                                      .read(
-                                        selectedFarmLocationProvider.notifier,
-                                      )
+                                      .read(selectedCustomerProvider.notifier)
                                       .state =
                                   e;
                             },

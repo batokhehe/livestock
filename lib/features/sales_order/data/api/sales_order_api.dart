@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../model/sales_order_list_model.dart';
+import '../model/sales_order_request_model.dart';
 
 class SalesOrderApi {
   final Dio dio;
@@ -24,5 +25,20 @@ class SalesOrderApi {
     final List list = data['data'];
 
     return list.map((e) => SalesOrderList.fromJson(e)).toList();
+  }
+
+  Future<void> submitSalesOrder(SalesOrderRequest request) async {
+    final res = await dio.post(
+      "/transaction/sales-order",
+      data: request.toJson(),
+    );
+
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
   }
 }

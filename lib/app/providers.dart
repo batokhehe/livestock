@@ -1,7 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/core/data/api/master_api.dart';
+import 'package:livestock/core/data/model/animal_profile_model.dart';
+import 'package:livestock/core/data/model/city_model.dart';
+import 'package:livestock/core/data/model/customer_model.dart';
+import 'package:livestock/core/data/model/district_model.dart';
 import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
+import 'package:livestock/core/data/model/province_model.dart';
+import 'package:livestock/core/data/model/village_model.dart';
 import 'package:livestock/core/data/repository/master_repository.dart';
 
 import '../core/constant/enum.dart';
@@ -30,6 +36,7 @@ final getMasterDataListUseCaseProvider = Provider((ref) {
   return GetMasterDataListUseCase(ref.read(masterRepositoryProvider));
 });
 
+// FARM LOCATION
 final farmLocationListProvider = FutureProvider.autoDispose<List<FarmLocation>>(
   (ref) async {
     return ref.read(getMasterDataListUseCaseProvider).callFarmLocations();
@@ -39,17 +46,89 @@ final selectedFarmLocationProvider = StateProvider<FarmLocation?>(
   (ref) => null,
 );
 final farmLocationSearchProvider = StateProvider.autoDispose<String>(
-      (ref) => '',
+  (ref) => '',
 );
 
+// FARM AREA
 final farmAreaListProvider = FutureProvider.autoDispose<List<FarmArea>>((
   ref,
 ) async {
   return ref.read(getMasterDataListUseCaseProvider).callFarmAreas();
 });
-final selectedFarmAreaProvider = StateProvider<FarmArea?>(
+final selectedFarmAreaProvider = StateProvider<FarmArea?>((ref) => null);
+final farmAreaSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+
+// CUSTOMER
+final customerListProvider = FutureProvider.autoDispose<List<Customer>>((
+  ref,
+) async {
+  return ref.read(getMasterDataListUseCaseProvider).callCustomer();
+});
+final selectedCustomerProvider = StateProvider<Customer?>((ref) => null);
+final customerSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+
+// ANIMAL
+final animalListProvider = FutureProvider.autoDispose<List<AnimalProfile>>((
+  ref,
+) async {
+  return ref.read(getMasterDataListUseCaseProvider).callAnimals();
+});
+final selectedAnimalProvider = StateProvider<AnimalProfile?>((ref) => null);
+final animalSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+
+// PROVINCE
+final provinceListProvider = FutureProvider.autoDispose<List<Province>>((
+  ref,
+) async {
+  return ref.read(getMasterDataListUseCaseProvider).callProvinces();
+});
+final selectedProvinceProvider = StateProvider<Province?>((ref) => null);
+final provinceSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+
+// CITY
+final cityListProvider = FutureProvider.autoDispose<List<City>>((
+  ref,
+) async {
+  final selectedProvince = ref.watch(selectedProvinceProvider);
+
+  if (selectedProvince == null) return [];
+
+  return ref
+      .read(getMasterDataListUseCaseProvider)
+      .callCity(selectedProvince.code);
+});
+
+final selectedCityProvider = StateProvider.autoDispose<City?>(
   (ref) => null,
 );
-final farmAreaSearchProvider = StateProvider.autoDispose<String>(
-      (ref) => '',
+final citySearchProvider = StateProvider.autoDispose<String>((ref) => '');
+
+// District
+final districtListProvider = FutureProvider.autoDispose<List<District>>((
+  ref,
+) async {
+  final selectedCity = ref.watch(selectedCityProvider);
+  if (selectedCity == null) return [];
+  return ref
+      .read(getMasterDataListUseCaseProvider)
+      .callDistrict(selectedCity.code);
+});
+final selectedDistrictProvider = StateProvider.autoDispose<District?>(
+  (ref) => null,
 );
+final districtSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+
+// Village
+final villageListProvider = FutureProvider.autoDispose<List<Village>>((
+  ref,
+) async {
+  final selectedDistrict = ref.watch(selectedDistrictProvider);
+  if (selectedDistrict == null) return [];
+  return ref
+      .read(getMasterDataListUseCaseProvider)
+      .callVillages(selectedDistrict.code);
+});
+final selectedVillageProvider = StateProvider.autoDispose<Village?>(
+  (ref) => null,
+);
+final villageSearchProvider = StateProvider.autoDispose<String>((ref) => '');

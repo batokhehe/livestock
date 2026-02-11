@@ -1,13 +1,18 @@
+import 'package:intl/intl.dart';
+
 int countPresent(List details) =>
     details.where((e) => e['status'] == 'present').length;
 
 int countAbsent(List details) =>
     details.where((e) => e['status'] == 'absent').length;
 
-String formatDate(String iso) {
+String formatDateString(String iso) {
   final date = DateTime.parse(iso);
   return "${date.day} ${monthName(date.month)} ${date.year}";
 }
+
+String formatDateTime(DateTime? d) =>
+    d == null ? 'Pilih Tanggal' : DateFormat('dd MMM yyyy', 'id_ID').format(d);
 
 String monthName(int m) {
   const months = [

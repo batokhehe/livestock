@@ -30,7 +30,7 @@ class SalesOrderDateGroupCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(formatDate(dateLabel), style: AppTypography.smallNormalBlack),
+          Text(formatDateString(dateLabel), style: AppTypography.smallNormalBlack),
           const SizedBox(height: 8),
           ...items.map(
             (e) => InkWell(

@@ -112,7 +112,7 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
                         /// ================= TAB NGINAP =================
                         if (activeTab == AttendanceTab.overnight) {
                           return DateGroupCard(
-                            dateLabel: formatDate(date),
+                            dateLabel: formatDateString(date),
                             children: items.map<Widget>((item) {
                               final detail = item['detail'];
                               final employee = detail['employee'];
@@ -257,7 +257,7 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(formatDate(date), style: AppTypography.smallNormalBlack),
+          Text(formatDateString(date), style: AppTypography.smallNormalBlack),
           const SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.all(14),
