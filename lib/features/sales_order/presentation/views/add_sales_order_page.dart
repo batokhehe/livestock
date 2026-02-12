@@ -245,12 +245,18 @@ class _CustomerInfoSection extends ConsumerWidget {
           label: "Nama penerima",
           hint: "Masukkan nama penerima",
           prefixIcon: AppImages.icUser,
+          onChanged: (value) {
+            ref.read(salesOrderFormProvider.notifier).setRecipientName(value);
+          },
         ),
         SizedBox(height: 12),
         TextFields(
           label: "Nomor penerima",
           hint: "Masukkan nomor penerima",
           prefixIcon: AppImages.icCalling,
+          onChanged: (value) {
+            ref.read(salesOrderFormProvider.notifier).setRecipientNumber(value);
+          },
         ),
       ],
     );
@@ -279,14 +285,11 @@ class _NextButton extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            // onPressed: isValid
-            //     ? () {
-            //         context.push('/sales-order/add/step-2');
-            //       }
-            //     : null,
-            onPressed: () {
-              context.push('/sales-order/add/step-2');
-            },
+            onPressed: isValid
+                ? () {
+                    context.push('/sales-order/add/step-2');
+                  }
+                : null,
             child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
           ),
         ),

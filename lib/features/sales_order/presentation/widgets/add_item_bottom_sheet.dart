@@ -357,6 +357,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
 
                           final item = SalesOrderItemRequest(
                             animalProfile: selectedAnimal!,
+                            qty: 1,
                             unitPrice: double.tryParse(priceCtrl.text) ?? 0,
                             discount: double.tryParse(discountCtrl.text) ?? 0,
                             subtotal: double.tryParse(finalPriceCtrl.text) ?? 0,

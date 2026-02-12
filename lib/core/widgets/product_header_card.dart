@@ -5,14 +5,14 @@ import '../theme/AppTypography.dart';
 
 class ProductHeaderCard extends StatelessWidget {
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final String image;
   final bool isActive;
 
   const ProductHeaderCard({
     super.key,
     required this.title,
-    required this.subtitle,
+    this.subtitle,
     required this.image,
     this.isActive = false,
   });
@@ -41,8 +41,9 @@ class ProductHeaderCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: AppTypography.smallBoldBlack),
-                const SizedBox(height: 2),
-                Text(subtitle, style: AppTypography.smallNormalGrey),
+                if (subtitle != null) const SizedBox(height: 2),
+                if (subtitle != null)
+                  Text(subtitle!, style: AppTypography.smallNormalGrey),
               ],
             ),
           ),

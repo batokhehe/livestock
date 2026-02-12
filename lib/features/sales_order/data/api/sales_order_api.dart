@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../model/sales_order_list_model.dart';
@@ -28,6 +30,16 @@ class SalesOrderApi {
   }
 
   Future<void> submitSalesOrder(SalesOrderRequest request) async {
+    final body = request.toJson();
+
+    body.forEach((key, value) {
+      print("KEY: $key → ${value.runtimeType}");
+    });
+    for (var item in body['items']) {
+      item.forEach((key, value) {
+        print("ITEM KEY: $key → ${value.runtimeType}");
+      });
+    }
     final res = await dio.post(
       "/transaction/sales-order",
       data: request.toJson(),

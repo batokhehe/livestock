@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:livestock/core/helpers/utils.dart';
+import 'package:livestock/core/theme/AppImages.dart';
+import 'package:livestock/core/widgets/section_card.dart';
+import 'package:livestock/features/sales_order/data/model/sales_order_request_model.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/card_wrapper.dart';
+import '../../../../core/widgets/info_item_card.dart';
+import '../../../../core/widgets/product_header_card.dart';
 import '../../../../core/widgets/step_info_card.dart';
+import '../../../../core/widgets/two_column_row_card.dart';
 import '../../../receiving/presentation/widgets/confirmation_bottom_sheet.dart';
 import '../../data/model/sales_order_item_request_model.dart';
 import '../../sales_order_provider.dart';
@@ -68,11 +75,15 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
                 const SizedBox(height: 12),
 
                 ...items.asMap().entries.map(
-                  (entry) => _itemCard(
-                    index: entry.key + 1,
-                    item: entry.value,
-                    formatCurrency: formatCurrency,
+                  (entry) => _ProductInfoCard(
+                    counter: entry.key + 1,
+                    data: entry.value,
                   ),
+                  // (entry) => _itemCard(
+                  //   index: entry.key + 1,
+                  //   item: entry.value,
+                  //   formatCurrency: formatCurrency,
+                  // ),
                 ),
 
                 const SizedBox(height: 12),
@@ -162,30 +173,28 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
   /// INFORMASI PENJUALAN
   /// =========================
 
-  Widget _infoSalesOrder(dynamic form) {
+  Widget _infoSalesOrder(SalesOrderRequest form) {
     return CardWrapper(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text("Data Pemesanan", style: AppTypography.mediumNormalBlack),
           const SizedBox(height: 12),
-
-          _rowInfo("Tanggal Penjualan", form.orderDate?.toString() ?? "-"),
-          _rowInfo("Tanggal Pelunasan", form.dueDate?.toString() ?? "-"),
-          _rowInfo("Nama Pelanggan", form.customer?.name ?? "-"),
-        ],
-      ),
-    );
-  }
-
-  Widget _rowInfo(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: AppTypography.smallNormalGrey),
-          Text(value, style: AppTypography.smallBoldBlack),
+          InfoItemCard(
+            icon: AppImages.icCalendarTick,
+            title: formatDateTime(form.orderDate),
+            subtitle: form.farmLocation!.name,
+          ),
+          InfoItemCard(
+            icon: AppImages.icUserTag,
+            title: form.customer!.name,
+            subtitle: form.customer!.contactPhone.toString(),
+          ),
+          InfoItemCard(
+            icon: AppImages.icUser,
+            title: form.recipientName ?? '-',
+            subtitle: form.recipientNumber ?? '-',
+          ),
         ],
       ),
     );
@@ -257,22 +266,22 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
     required double total,
     required String Function(double) formatCurrency,
   }) {
-    return CardWrapper(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text("Ringkasan Bayar", style: AppTypography.mediumNormalBlack),
-          const SizedBox(height: 12),
-
-          _rowSummary("Jumlah Item", totalItem.toString()),
-          _rowSummary("Subtotal", formatCurrency(subtotal)),
-          _rowSummary("Diskon", formatCurrency(discount)),
-
-          const Divider(),
-
-          _rowSummary("Total Keseluruhan", formatCurrency(total), isBold: true),
-        ],
-      ),
+    return SectionCard(
+      title: 'Rincian Bayar',
+      children: [
+        SectionCard(
+          children: [
+            _rowSummary("Jumlah Item", totalItem.toString()),
+            _rowSummary("Subtotal", formatCurrency(subtotal)),
+            _rowSummary("Diskon", formatCurrency(discount)),
+            _rowSummary(
+              "Total Keseluruhan",
+              formatCurrency(total),
+              isBold: true,
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -285,8 +294,8 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
           Text(
             title,
             style: isBold
-                ? AppTypography.smallBoldBlack
-                : AppTypography.smallNormalGrey,
+                ? AppTypography.xSmallBoldBlack
+                : AppTypography.xSmallNormalBlack,
           ),
           Text(
             value,
@@ -296,6 +305,96 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ProductInfoCard extends StatelessWidget {
+  final SalesOrderItemRequest data;
+  final int counter;
+
+  const _ProductInfoCard({required this.data, required this.counter});
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionCard(
+      title: 'Item ${counter.toString()}',
+      children: [
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: data.animalProfile!.name,
+              subtitle:
+                  '${data.animalProfile!.animalCode} • ${data.animalProfile!.weight} kg',
+              image: AppImages.icProduct,
+            ),
+            const SizedBox(height: 12),
+            Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+            TwoColumnRowCard(
+              leftValue: data.unitPrice.toString(),
+              leftLabel: "Harga/kg Forecast",
+              rightValue: data.subtotal.toString(),
+              rightLabel: "Total Forecast",
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: data.subtotal.toString(),
+              subtitle: formatDateTime(data.dlvDate),
+              image: AppImages.icMoneys,
+            ),
+            Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+            TwoColumnRowCard(
+              leftValue: data.unitPrice.toString(),
+              leftLabel: "Harga jual",
+              rightValue: data.discount.toString(),
+              rightLabel: "Harga diskon",
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: 'Transaksi Forecast',
+              subtitle: 'kg • ${formatDateTime(data.dlvDate)}',
+              image: AppImages.icMoneys,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: formatDateTime(data.dlvDate),
+              subtitle: 'Tanggal Pengiriman',
+              image: AppImages.icTruckFast,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: '${data.state} • ${data.city}',
+              subtitle: '${data.district} • ${data.village}',
+              image: AppImages.icMap,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: data.deliveryAddress!,
+              image: AppImages.icMap,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -129,25 +129,30 @@ class SalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
     state = SalesOrderRequest();
   }
 
+  void setRecipientName(String value) {
+    state = state.copyWith(recipientName: value);
+  }
+
+  void setRecipientNumber(String value) {
+    state = state.copyWith(recipientNumber: value);
+  }
+
+
   /// =============================
   /// SUBMIT
   /// =============================
 
   Future<void> submitSalesOrder() async {
-    try {
-      final api = ref.read(salesOrderApiProvider);
+    final api = ref.read(salesOrderApiProvider);
 
-      if (state.customer == null) {
-        throw Exception("Customer belum dipilih");
-      }
-
-      if (state.items == null || state.items!.isEmpty) {
-        throw Exception("Item tidak boleh kosong");
-      }
-
-      await api.submitSalesOrder(state);
-    } catch (e) {
-      rethrow;
+    if (state.customer == null) {
+      throw Exception("Customer belum dipilih");
     }
+
+    if (state.items == null || state.items!.isEmpty) {
+      throw Exception("Item tidak boleh kosong");
+    }
+
+    await api.submitSalesOrder(state);
   }
 }

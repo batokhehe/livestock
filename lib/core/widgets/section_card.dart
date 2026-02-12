@@ -4,10 +4,10 @@ import '../theme/AppColors.dart';
 import '../theme/AppTypography.dart';
 
 class SectionCard extends StatelessWidget {
-  final String title;
+  final String? title;
   final List<Widget> children;
 
-  const SectionCard({super.key, required this.title, required this.children});
+  const SectionCard({super.key, this.title, required this.children});
 
   @override
   Widget build(BuildContext context) {
@@ -21,8 +21,9 @@ class SectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTypography.smallNormalBlack),
-          const SizedBox(height: 12),
+          if (title != null)
+            Text(title!, style: AppTypography.smallNormalBlack),
+          if (title != null) const SizedBox(height: 12),
           ...children,
         ],
       ),

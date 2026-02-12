@@ -27,9 +27,13 @@ class ApiInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
+    print("ERROR TYPE: ${err.type}");
+    print("ERROR MESSAGE: ${err.message}");
+    print("STATUS CODE: ${err.response?.statusCode}");
+    print("RESPONSE DATA: ${err.response?.data}");
     final appError = ErrorParser.parse(err);
     handler.reject(
-      DioException(requestOptions: err.requestOptions, error: appError),
+      DioException(requestOptions: err.requestOptions, error: appError.message),
     );
   }
 }

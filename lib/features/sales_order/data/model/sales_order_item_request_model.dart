@@ -1,5 +1,7 @@
 import 'package:livestock/core/data/model/animal_profile_model.dart';
 
+import '../../../../core/helpers/utils.dart';
+
 class SalesOrderItemRequest {
   final AnimalProfile? animalProfile;
   final int? qty;
@@ -72,7 +74,7 @@ class SalesOrderItemRequest {
       "unit_price": unitPrice,
       "subtotal": subtotal,
       "discount": discount,
-      "dlv_date": dlvDate,
+      "dlv_date": formatterJson.format(dlvDate!),
       "weight": weight,
       "shipping_cost": shippingCost,
       "state_id": stateId,

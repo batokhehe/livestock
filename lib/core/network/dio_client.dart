@@ -20,9 +20,9 @@ final dioProvider = Provider<Dio>((ref) {
           status != null && status >= 200 && status < 300,
     ),
   );
-  dio.interceptors.add(ChuckerDioInterceptor());
   dio.interceptors.add(AuthInterceptor(ref));
   dio.interceptors.add(ApiInterceptor(ref));
+  dio.interceptors.add(ChuckerDioInterceptor());
   dio.interceptors.add(
     LogInterceptor(
       request: true,

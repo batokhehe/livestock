@@ -6,6 +6,7 @@ import 'package:livestock/core/widgets/product_header_card.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
+import '../../../../core/widgets/two_column_row_card.dart';
 
 class ProductDetailPage extends StatelessWidget {
   const ProductDetailPage({super.key, required String productId});
@@ -59,28 +60,28 @@ class _ProductInfoCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          _twoColumnRow(
+          TwoColumnRowCard(
             leftValue: "Sapi Besar",
             leftLabel: "Grup hewan",
             rightValue: "POEL-001",
             rightLabel: "POEL",
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          _twoColumnRow(
+          TwoColumnRowCard(
             leftValue: "22 Sep 2025",
             leftLabel: "Tanggal Timbang",
             rightValue: "130.00 kg",
             rightLabel: "Berat",
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          _twoColumnRow(
+          TwoColumnRowCard(
             leftValue: "18 Nov 2025",
             leftLabel: "Pemantauan Akhir",
             rightValue: "160.00 kg",
             rightLabel: "Berat Hari Ini",
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          _twoColumnRow(
+          TwoColumnRowCard(
             leftValue: "14 bulan",
             leftLabel: "Umur",
             rightValue: "B 6792 CM",
@@ -88,57 +89,6 @@ class _ProductInfoCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-Widget _twoColumnRow({
-  required String leftValue,
-  required String leftLabel,
-  required String rightValue,
-  required String rightLabel,
-}) {
-  return Padding(
-    padding: const EdgeInsets.all(16),
-    child: Row(
-      children: [
-        Expanded(
-          child: _InfoItem(value: leftValue, label: leftLabel, alignEnd: false),
-        ),
-        Expanded(
-          child: _InfoItem(
-            value: rightValue,
-            label: rightLabel,
-            alignEnd: true,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-class _InfoItem extends StatelessWidget {
-  final String value;
-  final String label;
-  final bool alignEnd;
-
-  const _InfoItem({
-    required this.value,
-    required this.label,
-    this.alignEnd = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: alignEnd
-          ? CrossAxisAlignment.end
-          : CrossAxisAlignment.start,
-      children: [
-        Text(value, style: AppTypography.smallBoldBlack),
-        const SizedBox(height: 4),
-        Text(label, style: AppTypography.xSmallNormalGrey),
-      ],
     );
   }
 }
@@ -176,7 +126,7 @@ class _PriceInfoCard extends StatelessWidget {
             isActive: false,
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          _twoColumnRow(
+          TwoColumnRowCard(
             leftValue: "Rp 401.282",
             leftLabel: "Ref Harga Jual (kg)",
             rightValue: "Rp 26.083.000",
@@ -204,7 +154,7 @@ class _AnotherInfoCard extends StatelessWidget {
             isActive: false,
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          _twoColumnRow(
+          TwoColumnRowCard(
             leftValue: "Catatan",
             leftLabel: "-",
             rightValue: "",

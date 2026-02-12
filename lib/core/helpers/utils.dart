@@ -14,6 +14,8 @@ String formatDateString(String iso) {
 String formatDateTime(DateTime? d) =>
     d == null ? 'Pilih Tanggal' : DateFormat('dd MMM yyyy', 'id_ID').format(d);
 
+final formatterJson = DateFormat('yyyy-MM-dd');
+
 String monthName(int m) {
   const months = [
     "Jan",

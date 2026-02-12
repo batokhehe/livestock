@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:livestock/core/data/model/customer_model.dart';
 import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
@@ -90,8 +91,8 @@ class SalesOrderRequest {
   Map<String, dynamic> toJson() {
     return {
       "customer_id": customer?.id,
-      "order_date": orderDate != null ? formatDateTime(orderDate!) : null,
-      "due_date": dueDate != null ? formatDateTime(dueDate!) : null,
+      "order_date": formatterJson.format(orderDate!),
+      "due_date": formatterJson.format(dueDate!),
       "sales_item_type": salesItemType ?? "animal",
       "status": status ?? "draft",
       "sales_type": salesType ?? "basic",
@@ -111,6 +112,5 @@ class SalesOrderRequest {
       customer != null &&
       orderDate != null &&
       dueDate != null &&
-      farmLocation != null &&
-      farmArea != null;
+      farmLocation != null;
 }

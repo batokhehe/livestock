@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
+import 'package:livestock/core/widgets/info_item_card.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../home/presentation/views/main_page.dart';
@@ -115,7 +116,7 @@ class ProfilePage extends ConsumerWidget {
         children: [
           Text("Informasi Pekerja", style: AppTypography.smallBoldBlack),
           const SizedBox(height: 12),
-          _infoItem(
+          InfoItemCard(
             icon: AppImages.icUserEdit,
             title: userName,
             subtitle: "Nama Akun",
@@ -138,22 +139,22 @@ class ProfilePage extends ConsumerWidget {
             },
           ),
 
-          _infoItem(
+          InfoItemCard(
             icon: AppImages.icCalling,
             title: "0861-2345-6789",
             subtitle: "Nomor Telepon",
           ),
-          _infoItem(
+          InfoItemCard(
             icon: AppImages.icMessageTick,
             title: "ninaputri@gmail.com",
             subtitle: "Alamat Email",
           ),
-          _infoItem(
+          InfoItemCard(
             icon: AppImages.icField,
             title: "Sapi Agri Banten",
             subtitle: "Lokasi Peternakan",
           ),
-          _infoItem(
+          InfoItemCard(
             icon: AppImages.icLock,
             title: "Perubahan Kata sandi",
             subtitle: "Ganti kata sandi?",
@@ -177,54 +178,6 @@ class ProfilePage extends ConsumerWidget {
             },
           ),
         ],
-      ),
-    );
-  }
-
-  // ================= INFO ITEM =================
-  Widget _infoItem({
-    required String icon,
-    required String title,
-    required String subtitle,
-    bool showArrow = false,
-    VoidCallback? onTap,
-  }) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.fieldBorder),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppColors.greyBg,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Image.asset(icon, width: 24),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: AppTypography.smallBoldBlack),
-                  const SizedBox(height: 2),
-                  Text(subtitle, style: AppTypography.xSmallNormalGrey),
-                ],
-              ),
-            ),
-            if (onTap != null)
-              const Icon(Icons.chevron_right, color: Colors.grey),
-          ],
-        ),
       ),
     );
   }
