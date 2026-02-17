@@ -12,6 +12,10 @@ import 'package:livestock/features/monitoring/presentation/views/add_monitoring_
 import 'package:livestock/features/monitoring/presentation/views/add_monitoring_page.dart';
 import 'package:livestock/features/product/presentation/views/product_detail_page.dart';
 import 'package:livestock/features/product/presentation/views/update_product_page.dart';
+import 'package:livestock/features/purchase_order/presentation/views/add_purchase_order_confirmation_page.dart';
+import 'package:livestock/features/purchase_order/presentation/views/add_purchase_order_page.dart';
+import 'package:livestock/features/purchase_order/presentation/views/add_purchase_order_step_2_page.dart';
+import 'package:livestock/features/purchase_order/presentation/views/purchase_order_page.dart';
 import 'package:livestock/features/receiving/presentation/views/add_receiving_confirmation_page.dart';
 import 'package:livestock/features/receiving/presentation/views/receiving_detail_page.dart';
 import 'package:livestock/features/sales_order/presentation/views/add_sales_order_confirmation_page.dart';
@@ -187,6 +191,26 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/sales-order/add/confirmation',
         builder: (context, state) => const AddSalesOrderConfirmationPage(),
+      ),
+
+      GoRoute(
+        path: '/purchase-order',
+        builder: (context, state) => const PurchaseOrderPage(),
+      ),
+      GoRoute(
+        path: '/purchase-order/add',
+        builder: (context, state) {
+          final type = state.uri.queryParameters['type'];
+          return AddPurchaseOrderPage(type: type);
+        },
+      ),
+      GoRoute(
+        path: '/purchase-order/add/step-2',
+        builder: (context, state) => const AddPurchaseOrderStep2Page(),
+      ),
+      GoRoute(
+        path: '/purchase-order/add/confirmation',
+        builder: (context, state) => const AddPurchaseOrderConfirmationPage(),
       ),
     ],
   );

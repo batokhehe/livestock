@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/core/data/api/master_api.dart';
+import 'package:livestock/core/data/model/animal_group_model.dart';
 import 'package:livestock/core/data/model/animal_profile_model.dart';
 import 'package:livestock/core/data/model/city_model.dart';
 import 'package:livestock/core/data/model/customer_model.dart';
@@ -8,6 +9,7 @@ import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/core/data/model/feed_medicine_model.dart';
 import 'package:livestock/core/data/model/province_model.dart';
+import 'package:livestock/core/data/model/supplier_model.dart';
 import 'package:livestock/core/data/model/village_model.dart';
 import 'package:livestock/core/data/repository/master_repository.dart';
 
@@ -87,9 +89,7 @@ final selectedProvinceProvider = StateProvider<Province?>((ref) => null);
 final provinceSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
 // CITY
-final cityListProvider = FutureProvider.autoDispose<List<City>>((
-  ref,
-) async {
+final cityListProvider = FutureProvider.autoDispose<List<City>>((ref) async {
   final selectedProvince = ref.watch(selectedProvinceProvider);
 
   if (selectedProvince == null) return [];
@@ -99,9 +99,7 @@ final cityListProvider = FutureProvider.autoDispose<List<City>>((
       .callCity(selectedProvince.code);
 });
 
-final selectedCityProvider = StateProvider.autoDispose<City?>(
-  (ref) => null,
-);
+final selectedCityProvider = StateProvider.autoDispose<City?>((ref) => null);
 final citySearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
 // District
@@ -135,10 +133,34 @@ final selectedVillageProvider = StateProvider.autoDispose<Village?>(
 final villageSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
 // FEED & MEDICINE
-final feedMedicineListProvider = FutureProvider.autoDispose<List<FeedMedicine>>((
-    ref,
-    ) async {
-  return ref.read(getMasterDataListUseCaseProvider).callFeedMedicines();
+final feedMedicineListProvider = FutureProvider.autoDispose<List<FeedMedicine>>(
+  (ref) async {
+    return ref.read(getMasterDataListUseCaseProvider).callFeedMedicines();
+  },
+);
+final selectedFeedMedicineProvider = StateProvider<FeedMedicine?>(
+  (ref) => null,
+);
+final feedMedicineSearchProvider = StateProvider.autoDispose<String>(
+  (ref) => '',
+);
+
+// ANIMAL GROUP
+final animalGroupListProvider = FutureProvider.autoDispose<List<AnimalGroup>>((
+  ref,
+) async {
+  return ref.read(getMasterDataListUseCaseProvider).callAnimalGroups();
 });
-final selectedFeedMedicineProvider = StateProvider<FeedMedicine?>((ref) => null);
-final feedMedicineSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+final selectedAnimalGroupProvider = StateProvider<AnimalGroup?>((ref) => null);
+final animalGroupSearchProvider = StateProvider.autoDispose<String>(
+  (ref) => '',
+);
+
+// SUPPLIER
+final supplierListProvider = FutureProvider.autoDispose<List<Supplier>>((
+  ref,
+) async {
+  return ref.read(getMasterDataListUseCaseProvider).callSuppliers();
+});
+final selectedSupplierProvider = StateProvider<Supplier?>((ref) => null);
+final supplierSearchProvider = StateProvider.autoDispose<String>((ref) => '');

@@ -1,3 +1,4 @@
+import 'package:livestock/core/data/model/animal_group_model.dart';
 import 'package:livestock/core/data/model/animal_profile_model.dart';
 import 'package:livestock/core/data/model/customer_model.dart';
 import 'package:livestock/core/data/model/district_model.dart';
@@ -9,6 +10,7 @@ import 'package:livestock/core/data/model/village_model.dart';
 import 'package:livestock/core/data/repository/master_repository.dart';
 
 import '../../data/model/city_model.dart';
+import '../../data/model/supplier_model.dart';
 
 class GetMasterDataListUseCase {
   final MasterRepository repository;
@@ -49,5 +51,13 @@ class GetMasterDataListUseCase {
 
   Future<List<FeedMedicine>> callFeedMedicines() {
     return repository.getFeedMedicines();
+  }
+
+  Future<List<AnimalGroup>> callAnimalGroups() {
+    return repository.getAnimalGroups();
+  }
+
+  Future<List<Supplier>> callSuppliers() {
+    return repository.getSuppliers();
   }
 }

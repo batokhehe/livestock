@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:livestock/core/data/model/animal_group_model.dart';
 import 'package:livestock/core/data/model/animal_profile_model.dart';
 import 'package:livestock/core/data/model/district_model.dart';
 import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/core/data/model/feed_medicine_model.dart';
 import 'package:livestock/core/data/model/province_model.dart';
+import 'package:livestock/core/data/model/supplier_model.dart';
 import 'package:livestock/core/data/model/village_model.dart';
 
 import '../../../../core/data/model/base_response.dart';
@@ -86,7 +88,7 @@ class MasterApi {
     }
     return BaseResponse.fromJson(
       res.data,
-          (json) => FeedMedicine.fromJson(json),
+      (json) => FeedMedicine.fromJson(json),
     );
   }
 
@@ -152,5 +154,34 @@ class MasterApi {
     final List data = res.data ?? [];
 
     return data.map((e) => Village.fromJson(e)).toList();
+  }
+
+  Future<BaseResponse<AnimalGroup>> getAnimalGroups() async {
+    final res = await dio.get('/master/animal-group');
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    return BaseResponse.fromJson(
+      res.data,
+      (json) => AnimalGroup.fromJson(json),
+    );
+  }
+
+  Future<BaseResponse<Supplier>> getSuppliers() async {
+    final res = await dio.get('/master/supplier');
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    return BaseResponse.fromJson(res.data, (json) => Supplier.fromJson(json));
   }
 }

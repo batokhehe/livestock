@@ -296,8 +296,7 @@ class _NextButton extends ConsumerWidget {
           height: 48,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              // backgroundColor: isValid ? AppColors.primary : AppColors.grey,
-              backgroundColor: AppColors.primary,
+              backgroundColor: isValid ? AppColors.primary : AppColors.grey,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
