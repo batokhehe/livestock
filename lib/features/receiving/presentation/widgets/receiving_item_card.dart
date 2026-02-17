@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 
-import '../../../../core/constant/enum.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../data/model/receiving_list_model.dart';
 

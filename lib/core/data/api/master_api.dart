@@ -3,6 +3,7 @@ import 'package:livestock/core/data/model/animal_profile_model.dart';
 import 'package:livestock/core/data/model/district_model.dart';
 import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
+import 'package:livestock/core/data/model/feed_medicine_model.dart';
 import 'package:livestock/core/data/model/province_model.dart';
 import 'package:livestock/core/data/model/village_model.dart';
 
@@ -70,6 +71,22 @@ class MasterApi {
     return BaseResponse.fromJson(
       res.data,
       (json) => AnimalProfile.fromJson(json),
+    );
+  }
+
+  Future<BaseResponse<FeedMedicine>> getFeedMedicines() async {
+    final res = await dio.get('/master/feed-medicine');
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    return BaseResponse.fromJson(
+      res.data,
+          (json) => FeedMedicine.fromJson(json),
     );
   }
 

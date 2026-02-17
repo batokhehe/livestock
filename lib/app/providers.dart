@@ -6,6 +6,7 @@ import 'package:livestock/core/data/model/customer_model.dart';
 import 'package:livestock/core/data/model/district_model.dart';
 import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
+import 'package:livestock/core/data/model/feed_medicine_model.dart';
 import 'package:livestock/core/data/model/province_model.dart';
 import 'package:livestock/core/data/model/village_model.dart';
 import 'package:livestock/core/data/repository/master_repository.dart';
@@ -132,3 +133,12 @@ final selectedVillageProvider = StateProvider.autoDispose<Village?>(
   (ref) => null,
 );
 final villageSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+
+// FEED & MEDICINE
+final feedMedicineListProvider = FutureProvider.autoDispose<List<FeedMedicine>>((
+    ref,
+    ) async {
+  return ref.read(getMasterDataListUseCaseProvider).callFeedMedicines();
+});
+final selectedFeedMedicineProvider = StateProvider<FeedMedicine?>((ref) => null);
+final feedMedicineSearchProvider = StateProvider.autoDispose<String>((ref) => '');

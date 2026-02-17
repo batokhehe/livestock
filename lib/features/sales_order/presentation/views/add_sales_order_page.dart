@@ -18,7 +18,9 @@ import '../../../../core/widgets/step_info_card.dart';
 import '../../sales_order_provider.dart';
 
 class AddSalesOrderPage extends ConsumerStatefulWidget {
-  const AddSalesOrderPage({super.key});
+  final String? type;
+
+  const AddSalesOrderPage({super.key, this.type});
 
   @override
   ConsumerState<AddSalesOrderPage> createState() => _AddSalesOrderPageState();
@@ -30,6 +32,10 @@ class _AddSalesOrderPageState extends ConsumerState<AddSalesOrderPage> {
   @override
   void initState() {
     super.initState();
+
+    Future.microtask(() {
+      ref.read(salesOrderFormProvider.notifier).setSalesItemType(widget.type);
+    });
   }
 
   @override
@@ -117,24 +123,28 @@ class _SalesOrderInfoSection extends ConsumerWidget {
             }
           },
         ),
-        SizedBox(height: 12),
-        SelectField(
-          label: "Tanggal Pelunasan",
-          hint: formatDateTime(form.dueDate),
-          icon: AppImages.icCalendarSearch,
-          onTap: () async {
-            final pickedDate = await showModalBottomSheet<DateTime?>(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (_) => const CustomDatePickerSheet(),
-            );
+        if (form.salesItemType == 'animal') ...[
+          SizedBox(height: 12),
+          SelectField(
+            label: "Tanggal Pelunasan",
+            hint: formatDateTime(form.dueDate),
+            icon: AppImages.icCalendarSearch,
+            onTap: () async {
+              final pickedDate = await showModalBottomSheet<DateTime?>(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => const CustomDatePickerSheet(),
+              );
 
-            if (pickedDate != null) {
-              ref.read(salesOrderFormProvider.notifier).setDueDate(pickedDate);
-            }
-          },
-        ),
+              if (pickedDate != null) {
+                ref
+                    .read(salesOrderFormProvider.notifier)
+                    .setDueDate(pickedDate);
+              }
+            },
+          ),
+        ],
         SizedBox(height: 12),
         SelectField(
           label: "Nama Pelanggan",
@@ -162,53 +172,56 @@ class _SalesOrderInfoSection extends ConsumerWidget {
           prefixIcon: AppImages.icCalling,
           controller: phoneController,
         ),
-        SizedBox(height: 12),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: AppRadioGroup<String>(
-                title: 'Kategori penjualan',
-                value: form.category ?? "kg",
-                options: const ['kg', 'Kelas'],
-                labelBuilder: (v) => v,
-                onChanged: (v) =>
-                    ref.read(salesOrderFormProvider.notifier).setCategory(v),
+        if (form.salesItemType == 'animal') ...[
+          SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: AppRadioGroup<String>(
+                  title: 'Kategori penjualan',
+                  value: form.category ?? "kg",
+                  options: const ['kg', 'Kelas'],
+                  labelBuilder: (v) => v,
+                  onChanged: (v) =>
+                      ref.read(salesOrderFormProvider.notifier).setCategory(v),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: AppRadioGroup<bool>(
-                title: 'Gunakan Forecast',
-                value: form.useForecast ?? true,
-                options: const [true, false],
-                labelBuilder: (v) => v ? 'Ya' : 'Tidak',
-                onChanged: (v) =>
-                    ref.read(salesOrderFormProvider.notifier).setUseForecast(v),
+              const SizedBox(width: 12),
+              Expanded(
+                child: AppRadioGroup<bool>(
+                  title: 'Gunakan Forecast',
+                  value: form.useForecast ?? true,
+                  options: const [true, false],
+                  labelBuilder: (v) => v ? 'Ya' : 'Tidak',
+                  onChanged: (v) => ref
+                      .read(salesOrderFormProvider.notifier)
+                      .setUseForecast(v),
+                ),
               ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12),
-        SelectField(
-          label: "Tanggal Forecast",
-          hint: formatDateTime(form.forecastDate),
-          icon: AppImages.icCalendarSearch,
-          onTap: () async {
-            final pickedDate = await showModalBottomSheet<DateTime?>(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (_) => const CustomDatePickerSheet(),
-            );
+            ],
+          ),
+          SizedBox(height: 12),
+          SelectField(
+            label: "Tanggal Forecast",
+            hint: formatDateTime(form.forecastDate),
+            icon: AppImages.icCalendarSearch,
+            onTap: () async {
+              final pickedDate = await showModalBottomSheet<DateTime?>(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => const CustomDatePickerSheet(),
+              );
 
-            if (pickedDate != null) {
-              ref
-                  .read(salesOrderFormProvider.notifier)
-                  .setForecastDate(pickedDate);
-            }
-          },
-        ),
+              if (pickedDate != null) {
+                ref
+                    .read(salesOrderFormProvider.notifier)
+                    .setForecastDate(pickedDate);
+              }
+            },
+          ),
+        ],
       ],
     );
   }
@@ -240,24 +253,28 @@ class _CustomerInfoSection extends ConsumerWidget {
             }
           },
         ),
-        SizedBox(height: 12),
-        TextFields(
-          label: "Nama penerima",
-          hint: "Masukkan nama penerima",
-          prefixIcon: AppImages.icUser,
-          onChanged: (value) {
-            ref.read(salesOrderFormProvider.notifier).setRecipientName(value);
-          },
-        ),
-        SizedBox(height: 12),
-        TextFields(
-          label: "Nomor penerima",
-          hint: "Masukkan nomor penerima",
-          prefixIcon: AppImages.icCalling,
-          onChanged: (value) {
-            ref.read(salesOrderFormProvider.notifier).setRecipientNumber(value);
-          },
-        ),
+        if (form.salesItemType == 'animal') ...[
+          SizedBox(height: 12),
+          TextFields(
+            label: "Nama penerima",
+            hint: "Masukkan nama penerima",
+            prefixIcon: AppImages.icUser,
+            onChanged: (value) {
+              ref.read(salesOrderFormProvider.notifier).setRecipientName(value);
+            },
+          ),
+          SizedBox(height: 12),
+          TextFields(
+            label: "Nomor penerima",
+            hint: "Masukkan nomor penerima",
+            prefixIcon: AppImages.icCalling,
+            onChanged: (value) {
+              ref
+                  .read(salesOrderFormProvider.notifier)
+                  .setRecipientNumber(value);
+            },
+          ),
+        ],
       ],
     );
   }

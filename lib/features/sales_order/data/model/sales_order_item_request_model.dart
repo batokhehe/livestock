@@ -1,10 +1,13 @@
 import 'package:livestock/core/data/model/animal_profile_model.dart';
+import 'package:livestock/core/data/model/feed_medicine_model.dart';
 
 import '../../../../core/helpers/utils.dart';
 
 class SalesOrderItemRequest {
   final AnimalProfile? animalProfile;
+  final FeedMedicine? feedMedicine;
   final int? qty;
+  final String? uom;
   final double? unitPrice;
   final double? subtotal;
   final double? discount;
@@ -25,7 +28,9 @@ class SalesOrderItemRequest {
 
   SalesOrderItemRequest({
     this.animalProfile,
+    this.feedMedicine,
     this.qty,
+    this.uom,
     this.unitPrice,
     this.subtotal,
     this.discount,
@@ -47,7 +52,9 @@ class SalesOrderItemRequest {
   factory SalesOrderItemRequest.fromJson(Map<String, dynamic> json) {
     return SalesOrderItemRequest(
       animalProfile: json['animal_profile'],
+      feedMedicine: json['feed_medicine'],
       qty: json['qty'],
+      uom: json['uom'],
       unitPrice: (json['unit_price'] as num).toDouble(),
       subtotal: (json['subtotal'] as num).toDouble(),
       discount: (json['discount'] as num).toDouble(),
@@ -70,11 +77,13 @@ class SalesOrderItemRequest {
   Map<String, dynamic> toJson() {
     return {
       "animal_profile_id": animalProfile?.id,
+      "feed_medicine_id": feedMedicine?.id,
       "qty": qty,
+      "uom": uom,
       "unit_price": unitPrice,
       "subtotal": subtotal,
       "discount": discount,
-      "dlv_date": formatterJson.format(dlvDate!),
+      if (dlvDate != null) "dlv_date": formatterJson.format(dlvDate!),
       "weight": weight,
       "shipping_cost": shippingCost,
       "state_id": stateId,

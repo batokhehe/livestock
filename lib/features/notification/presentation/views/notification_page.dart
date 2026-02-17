@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
-import '../../../home/presentation/views/main_page.dart';
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});

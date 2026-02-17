@@ -3,6 +3,7 @@ import 'package:livestock/core/data/model/customer_model.dart';
 import 'package:livestock/core/data/model/district_model.dart';
 import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
+import 'package:livestock/core/data/model/feed_medicine_model.dart';
 import 'package:livestock/core/data/model/province_model.dart';
 import 'package:livestock/core/data/model/village_model.dart';
 import 'package:livestock/core/data/repository/master_repository.dart';
@@ -44,5 +45,9 @@ class GetMasterDataListUseCase {
 
   Future<List<Village>> callVillages(String param) {
     return repository.getVillages(param);
+  }
+
+  Future<List<FeedMedicine>> callFeedMedicines() {
+    return repository.getFeedMedicines();
   }
 }

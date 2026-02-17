@@ -11,7 +11,6 @@ import 'package:livestock/features/dashboard/presentation/widgets/status_grid_ca
 import 'package:livestock/features/dashboard/presentation/widgets/summary_card.dart';
 import 'package:livestock/features/dashboard/presentation/widgets/tab_menu_card.dart';
 
-import '../../../home/presentation/views/main_page.dart';
 import '../../data/dashboard_tab.dart';
 import '../../data/monitoring_item.dart';
 

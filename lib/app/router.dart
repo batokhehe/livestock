@@ -175,7 +175,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/sales-order/add',
-        builder: (context, state) => const AddSalesOrderPage(),
+        builder: (context, state) {
+          final type = state.uri.queryParameters['type'];
+          return AddSalesOrderPage(type: type);
+        },
       ),
       GoRoute(
         path: '/sales-order/add/step-2',

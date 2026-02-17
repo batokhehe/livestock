@@ -186,7 +186,7 @@ class _FarmInfoSection extends ConsumerWidget {
 class _NextButton extends StatelessWidget {
   final ReceivingTab type;
 
-  const _NextButton(this.type, {super.key});
+  const _NextButton(this.type);
 
   @override
   Widget build(BuildContext context) {

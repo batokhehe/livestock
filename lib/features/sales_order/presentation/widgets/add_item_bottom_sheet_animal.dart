@@ -22,14 +22,14 @@ import '../../../../core/widgets/section_card.dart';
 import '../../../../core/widgets/select_field.dart';
 import '../../../../core/widgets/village_bottom_sheet.dart';
 
-class AddItemBottomSheet extends ConsumerStatefulWidget {
-  const AddItemBottomSheet({super.key});
+class AddItemBottomSheetAnimal extends ConsumerStatefulWidget {
+  const AddItemBottomSheetAnimal({super.key});
 
   @override
-  ConsumerState<AddItemBottomSheet> createState() => _AddItemBottomSheetState();
+  ConsumerState<AddItemBottomSheetAnimal> createState() => _AddItemBottomSheetState();
 }
 
-class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
+class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
   final priceCtrl = TextEditingController();
   final discountCtrl = TextEditingController();
   final finalPriceCtrl = TextEditingController();

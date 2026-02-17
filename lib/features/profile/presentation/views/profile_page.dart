@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/info_item_card.dart';
+
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
-import '../../../home/presentation/views/main_page.dart';
 import '../../../user/providers/user_provider.dart';
 import '../widgets/logout_confirmation_bottom_sheet.dart';
 import '../widgets/success_banner.dart';

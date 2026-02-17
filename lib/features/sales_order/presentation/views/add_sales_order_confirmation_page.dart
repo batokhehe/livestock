@@ -130,7 +130,7 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
                             saveText: "Simpan Penjualan",
                           ),
                         );
-
+                        print('test');
                         if (result == true) {
                           try {
                             await ref
@@ -201,61 +201,6 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
   }
 
   /// =========================
-  /// ITEM CARD
-  /// =========================
-
-  Widget _itemCard({
-    required int index,
-    required SalesOrderItemRequest item,
-    required String Function(double) formatCurrency,
-  }) {
-    return CardWrapper(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Item $index", style: AppTypography.smallNormalGrey),
-          const SizedBox(height: 8),
-
-          Text(
-            item.animalProfile?.name ?? "-",
-            style: AppTypography.mediumBoldBlack,
-          ),
-
-          const SizedBox(height: 8),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                formatCurrency(item.unitPrice ?? 0),
-                style: AppTypography.smallBoldBlack,
-              ),
-              Text(
-                formatCurrency(item.subtotal ?? 0),
-                style: AppTypography.smallBoldBlack,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 8),
-
-          Text(
-            "Pengiriman: ${item.dlvDate?.toString() ?? "-"}",
-            style: AppTypography.xSmallNormalGrey,
-          ),
-
-          const SizedBox(height: 6),
-
-          Text(
-            "${item.state ?? "-"}, ${item.city ?? "-"}",
-            style: AppTypography.xSmallNormalGrey,
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// =========================
   /// SUMMARY CARD
   /// =========================
 
@@ -317,15 +262,24 @@ class _ProductInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isAnimal = data.animalProfile != null;
+
+    final code = isAnimal
+        ? data.animalProfile!.animalCode
+        : data.feedMedicine!.code;
+
+    final secondValue = isAnimal
+        ? "${data.animalProfile!.weight} Kg"
+        : data.feedMedicine!.feedType;
+
     return SectionCard(
       title: 'Item ${counter.toString()}',
       children: [
         SectionCard(
           children: [
             ProductHeaderCard(
-              title: data.animalProfile!.name,
-              subtitle:
-                  '${data.animalProfile!.animalCode} • ${data.animalProfile!.weight} kg',
+              title: data.animalProfile?.name ?? data.feedMedicine!.name,
+              subtitle: '$code • $secondValue',
               image: AppImages.icProduct,
             ),
             const SizedBox(height: 12),
@@ -338,62 +292,64 @@ class _ProductInfoCard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        SectionCard(
-          children: [
-            ProductHeaderCard(
-              title: data.subtotal.toString(),
-              subtitle: formatDateTime(data.dlvDate),
-              image: AppImages.icMoneys,
-            ),
-            Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-            TwoColumnRowCard(
-              leftValue: data.unitPrice.toString(),
-              leftLabel: "Harga jual",
-              rightValue: data.discount.toString(),
-              rightLabel: "Harga diskon",
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        SectionCard(
-          children: [
-            ProductHeaderCard(
-              title: 'Transaksi Forecast',
-              subtitle: 'kg • ${formatDateTime(data.dlvDate)}',
-              image: AppImages.icMoneys,
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        SectionCard(
-          children: [
-            ProductHeaderCard(
-              title: formatDateTime(data.dlvDate),
-              subtitle: 'Tanggal Pengiriman',
-              image: AppImages.icTruckFast,
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        SectionCard(
-          children: [
-            ProductHeaderCard(
-              title: '${data.state} • ${data.city}',
-              subtitle: '${data.district} • ${data.village}',
-              image: AppImages.icMap,
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        SectionCard(
-          children: [
-            ProductHeaderCard(
-              title: data.deliveryAddress!,
-              image: AppImages.icMap,
-            ),
-          ],
-        ),
+        if (isAnimal) ...[
+          const SizedBox(height: 12),
+          SectionCard(
+            children: [
+              ProductHeaderCard(
+                title: data.subtotal.toString(),
+                subtitle: formatDateTime(data.dlvDate),
+                image: AppImages.icMoneys,
+              ),
+              Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+              TwoColumnRowCard(
+                leftValue: data.unitPrice.toString(),
+                leftLabel: "Harga jual",
+                rightValue: data.discount.toString(),
+                rightLabel: "Harga diskon",
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SectionCard(
+            children: [
+              ProductHeaderCard(
+                title: 'Transaksi Forecast',
+                subtitle: 'kg • ${formatDateTime(data.dlvDate)}',
+                image: AppImages.icMoneys,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SectionCard(
+            children: [
+              ProductHeaderCard(
+                title: formatDateTime(data.dlvDate),
+                subtitle: 'Tanggal Pengiriman',
+                image: AppImages.icTruckFast,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SectionCard(
+            children: [
+              ProductHeaderCard(
+                title: '${data.state} • ${data.city}',
+                subtitle: '${data.district} • ${data.village}',
+                image: AppImages.icMap,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SectionCard(
+            children: [
+              ProductHeaderCard(
+                title: data.deliveryAddress!,
+                image: AppImages.icMap,
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }

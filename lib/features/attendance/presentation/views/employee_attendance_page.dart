@@ -12,7 +12,6 @@ import 'package:livestock/features/user/providers/user_provider.dart';
 import '../../../../core/theme/AppImages.dart';
 import '../../../../core/widgets/input_field_card.dart';
 import '../../../receiving/presentation/widgets/confirmation_bottom_sheet.dart';
-import '../../data/model/attendance_detail.dart';
 import '../../data/model/employee_model.dart';
 import '../../providers/attendance_provider.dart';
 

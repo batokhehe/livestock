@@ -9,7 +9,8 @@ import '../../../../core/widgets/card_wrapper.dart';
 import '../../../../core/widgets/step_info_card.dart';
 import '../../data/model/sales_order_item_request_model.dart';
 import '../../sales_order_provider.dart';
-import '../widgets/add_item_bottom_sheet.dart';
+import '../widgets/add_item_bottom_sheet_animal.dart';
+import '../widgets/add_item_bottom_sheet_feed.dart';
 
 class AddSalesOrderStep2Page extends ConsumerStatefulWidget {
   const AddSalesOrderStep2Page({super.key});
@@ -22,11 +23,22 @@ class AddSalesOrderStep2Page extends ConsumerStatefulWidget {
 class _AddSalesOrderStep2PageState
     extends ConsumerState<AddSalesOrderStep2Page> {
   void _openAddItemSheet() async {
+    final form = ref.read(salesOrderFormProvider);
+    final type = form.salesItemType;
+
+    Widget sheet;
+
+    if (type == 'animal') {
+      sheet = const AddItemBottomSheetAnimal();
+    } else {
+      sheet = const AddItemBottomSheetFeed();
+    }
+
     final result = await showModalBottomSheet<SalesOrderItemRequest>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const AddItemBottomSheet(),
+      builder: (_) => sheet,
     );
 
     if (result != null) {
@@ -98,6 +110,15 @@ class _AddSalesOrderStep2PageState
   }
 
   Widget _itemCard(SalesOrderItemRequest item) {
+    final isAnimal = item.animalProfile != null;
+
+    final code = isAnimal
+        ? item.animalProfile!.animalCode
+        : item.feedMedicine!.code;
+
+    final secondValue = isAnimal
+        ? "${item.animalProfile!.weight} Kg"
+        : item.feedMedicine!.feedType;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -116,11 +137,11 @@ class _AddSalesOrderStep2PageState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item.animalProfile!.name,
+                      item.animalProfile?.name ?? item.feedMedicine!.name,
                       style: AppTypography.smallBoldBlack,
                     ),
                     Text(
-                      "${item.animalProfile!.animalCode} • ${item.animalProfile!.weight} Kg",
+                      "$code • $secondValue",
                       style: AppTypography.smallNormalGrey,
                     ),
                   ],

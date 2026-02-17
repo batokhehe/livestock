@@ -110,6 +110,10 @@ class SalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
     state = state.copyWith(useForecast: value);
   }
 
+  void setSalesItemType(String? value) {
+    state = state.copyWith(salesItemType: value);
+  }
+
   void setItems(List<SalesOrderItemRequest> items) {
     state = state.copyWith(items: items);
   }
@@ -137,14 +141,13 @@ class SalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
     state = state.copyWith(recipientNumber: value);
   }
 
-
   /// =============================
   /// SUBMIT
   /// =============================
 
   Future<void> submitSalesOrder() async {
     final api = ref.read(salesOrderApiProvider);
-
+    print(state.toJson());
     if (state.customer == null) {
       throw Exception("Customer belum dipilih");
     }

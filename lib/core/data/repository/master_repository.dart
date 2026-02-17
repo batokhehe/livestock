@@ -4,6 +4,7 @@ import 'package:livestock/core/data/model/customer_model.dart';
 import 'package:livestock/core/data/model/district_model.dart';
 import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
+import 'package:livestock/core/data/model/feed_medicine_model.dart';
 import 'package:livestock/core/data/model/province_model.dart';
 
 import '../api/master_api.dart';
@@ -48,5 +49,10 @@ class MasterRepository {
 
   Future<List<Village>> getVillages(String param) async {
     return await api.getVillages(param);
+  }
+
+  Future<List<FeedMedicine>> getFeedMedicines() async {
+    final res = await api.getFeedMedicines();
+    return res.data;
   }
 }

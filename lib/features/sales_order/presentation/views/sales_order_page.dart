@@ -60,7 +60,7 @@ class SalesOrderPage extends ConsumerWidget {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
-                ref.invalidate(salesOrderListProvider);
+                await ref.refresh(salesOrderListProvider.future);
               },
               child: dataAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
