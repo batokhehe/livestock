@@ -98,7 +98,8 @@ class SalesOrderItemDoubleCard extends StatelessWidget {
                 ),
                 InfoTag(
                   label: item.items.isNotEmpty
-                      ? (item.items.first.animalProfile?.animalGroupName ?? '-')
+                      ? (item.items.first.animalProfile?.animalGroup?.name ??
+                            '-')
                       : '-',
                 ),
               ],

@@ -10,6 +10,7 @@ import 'package:livestock/core/data/model/supplier_model.dart';
 import 'package:livestock/core/data/model/village_model.dart';
 
 import '../../../../core/data/model/base_response.dart';
+import '../model/base_response_single.dart';
 import '../model/city_model.dart';
 import '../model/customer_model.dart';
 
@@ -183,5 +184,22 @@ class MasterApi {
       );
     }
     return BaseResponse.fromJson(res.data, (json) => Supplier.fromJson(json));
+  }
+
+  Future<BaseResponseSingle<AnimalProfile>> getAnimalDetail(String id) async {
+    final res = await dio.get('/master/animal-profile/$id');
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+
+    return BaseResponseSingle.fromJson(
+      res.data,
+      (json) => AnimalProfile.fromJson(json),
+    );
   }
 }

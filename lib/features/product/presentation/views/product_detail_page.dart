@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/card_wrapper.dart';
 import 'package:livestock/core/widgets/product_header_card.dart';
 
+import '../../../../app/providers.dart';
+import '../../../../core/data/model/animal_profile_model.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/two_column_row_card.dart';
 
-class ProductDetailPage extends StatelessWidget {
-  const ProductDetailPage({super.key, required String productId});
+class ProductDetailPage extends ConsumerWidget {
+  final String productId;
+
+  const ProductDetailPage({super.key, required this.productId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detailAsync = ref.watch(animalDetailProvider(productId));
+
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
@@ -23,28 +30,36 @@ class ProductDetailPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: const [
-            _ProductInfoCard(),
-            SizedBox(height: 12),
-            _LocationInfoCard(),
-            SizedBox(height: 12),
-            _PriceInfoCard(),
-            SizedBox(height: 12),
-            _AnotherInfoCard(),
-            SizedBox(height: 24),
-            _UpdateButton(),
-          ],
-        ),
+      body: detailAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text("Error: $e")),
+        data: (animal) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                _ProductInfoCard(data: animal),
+                const SizedBox(height: 12),
+                _LocationInfoCard(data: animal),
+                const SizedBox(height: 12),
+                _PriceInfoCard(data: animal),
+                const SizedBox(height: 12),
+                _AnotherInfoCard(data: animal),
+                const SizedBox(height: 24),
+                const _UpdateButton(),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 }
 
 class _ProductInfoCard extends StatelessWidget {
-  const _ProductInfoCard();
+  final AnimalProfile data;
+
+  const _ProductInfoCard({required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -53,39 +68,25 @@ class _ProductInfoCard extends StatelessWidget {
       child: Column(
         children: [
           ProductHeaderCard(
-            title: "0001",
-            subtitle: "Black Mamba",
+            title: data.animalCode ?? "-",
+            subtitle: data.name ?? "-",
             image: AppImages.icProduct,
-            isActive: true,
+            isActive: data.status == "active",
           ),
           const SizedBox(height: 12),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           TwoColumnRowCard(
-            leftValue: "Sapi Besar",
+            leftValue: data.animalGroup?.name ?? "-",
             leftLabel: "Grup hewan",
-            rightValue: "POEL-001",
+            rightValue: data.poel ?? "-",
             rightLabel: "POEL",
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           TwoColumnRowCard(
-            leftValue: "22 Sep 2025",
-            leftLabel: "Tanggal Timbang",
-            rightValue: "130.00 kg",
-            rightLabel: "Berat",
-          ),
-          Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          TwoColumnRowCard(
-            leftValue: "18 Nov 2025",
-            leftLabel: "Pemantauan Akhir",
-            rightValue: "160.00 kg",
-            rightLabel: "Berat Hari Ini",
-          ),
-          Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          TwoColumnRowCard(
-            leftValue: "14 bulan",
+            leftValue: data.age.toString(),
             leftLabel: "Umur",
-            rightValue: "B 6792 CM",
-            rightLabel: "Nomor Kendaraan",
+            rightValue: "${data.weight} kg",
+            rightLabel: "Berat",
           ),
         ],
       ),
@@ -94,15 +95,17 @@ class _ProductInfoCard extends StatelessWidget {
 }
 
 class _LocationInfoCard extends StatelessWidget {
-  const _LocationInfoCard();
+  final AnimalProfile data;
+
+  const _LocationInfoCard({required this.data});
 
   @override
   Widget build(BuildContext context) {
     return _CardWrapper(
       title: "Informasi Peternakan",
       child: ProductHeaderCard(
-        title: "Sapi Agri Banten",
-        subtitle: "Area brown field",
+        title: data.farmLocation?.name ?? "-",
+        subtitle: data.farmArea?.name ?? "-",
         image: AppImages.icField,
         isActive: false,
       ),
@@ -111,7 +114,9 @@ class _LocationInfoCard extends StatelessWidget {
 }
 
 class _PriceInfoCard extends StatelessWidget {
-  const _PriceInfoCard();
+  final AnimalProfile data;
+
+  const _PriceInfoCard({required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -120,16 +125,16 @@ class _PriceInfoCard extends StatelessWidget {
       child: Column(
         children: [
           ProductHeaderCard(
-            title: "Rp. 25.000.000",
+            title: 'Rp ${data.purchPrice.toString()}',
             subtitle: "Harga Beli",
             image: AppImages.icMoneys,
             isActive: false,
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           TwoColumnRowCard(
-            leftValue: "Rp 401.282",
+            leftValue: 'Rp ${data.refSalesPrice.toString()}',
             leftLabel: "Ref Harga Jual (kg)",
-            rightValue: "Rp 26.083.000",
+            rightValue: 'Rp ${data.refSalesPriceTotal.toString()}',
             rightLabel: "Harga Beli",
           ),
         ],
@@ -139,7 +144,9 @@ class _PriceInfoCard extends StatelessWidget {
 }
 
 class _AnotherInfoCard extends StatelessWidget {
-  const _AnotherInfoCard();
+  final AnimalProfile data;
+
+  const _AnotherInfoCard({required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +155,7 @@ class _AnotherInfoCard extends StatelessWidget {
       child: Column(
         children: [
           ProductHeaderCard(
-            title: "H. Imron  Sigit Purawa",
+            title: data.salesOrderCustomerName,
             subtitle: "Nama Pelanggan",
             image: AppImages.icUserTag,
             isActive: false,
@@ -156,7 +163,7 @@ class _AnotherInfoCard extends StatelessWidget {
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           TwoColumnRowCard(
             leftValue: "Catatan",
-            leftLabel: "-",
+            leftLabel: data.notes ?? "-",
             rightValue: "",
             rightLabel: "",
           ),

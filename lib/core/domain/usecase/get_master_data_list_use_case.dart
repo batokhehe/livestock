@@ -60,4 +60,8 @@ class GetMasterDataListUseCase {
   Future<List<Supplier>> callSuppliers() {
     return repository.getSuppliers();
   }
+
+  Future<AnimalProfile> callAnimalDetail(String id) {
+    return repository.getAnimalDetail(id);
+  }
 }

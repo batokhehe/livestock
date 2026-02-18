@@ -67,4 +67,9 @@ class MasterRepository {
     final res = await api.getSuppliers();
     return res.data;
   }
+
+  Future<AnimalProfile> getAnimalDetail(String id) async {
+    final res = await api.getAnimalDetail(id);
+    return res.data;
+  }
 }

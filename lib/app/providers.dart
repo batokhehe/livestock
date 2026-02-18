@@ -78,6 +78,10 @@ final animalListProvider = FutureProvider.autoDispose<List<AnimalProfile>>((
 });
 final selectedAnimalProvider = StateProvider<AnimalProfile?>((ref) => null);
 final animalSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+final animalDetailProvider = FutureProvider.autoDispose
+    .family<AnimalProfile, String>((ref, id) async {
+      return ref.read(getMasterDataListUseCaseProvider).callAnimalDetail(id);
+    });
 
 // PROVINCE
 final provinceListProvider = FutureProvider.autoDispose<List<Province>>((
