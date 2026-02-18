@@ -1,12 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
+import 'package:livestock/features/sales_order/data/model/calculate_forecast_model.dart';
 
 import '../../core/data/model/customer_model.dart';
 import '../../core/network/dio_client.dart';
 import 'data/api/sales_order_api.dart';
+import 'data/model/calculate_forecast_request.dart';
 import 'data/model/sales_order_item_request_model.dart';
 import 'data/model/sales_order_list_model.dart';
 import 'data/model/sales_order_request_model.dart';
+import 'data/repository/sales_order_repository.dart';
 
 enum SalesOrderTab { all, sell, confirmed, closed }
 
@@ -158,4 +161,29 @@ class SalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
 
     await api.submitSalesOrder(state);
   }
+
+  Future<CalculateForecast> calculateForecastForItem({
+    required int animalGroupId,
+  }) async {
+    final repo = ref.read(salesOrderRepositoryProvider);
+
+    final forecastDate = state.forecastDate;
+
+    if (forecastDate == null) {
+      throw Exception("Forecast date belum dipilih");
+    }
+
+    return await repo.calculateForecast(
+      animalGroupId: animalGroupId,
+      forecastDate:
+          "${forecastDate.year.toString().padLeft(4, '0')}-"
+          "${forecastDate.month.toString().padLeft(2, '0')}-"
+          "${forecastDate.day.toString().padLeft(2, '0')}",
+    );
+  }
 }
+
+final salesOrderRepositoryProvider = Provider<SalesOrderRepository>((ref) {
+  final api = ref.read(salesOrderApiProvider);
+  return SalesOrderRepository(api);
+});

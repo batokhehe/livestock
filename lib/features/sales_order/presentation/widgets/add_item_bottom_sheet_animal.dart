@@ -21,12 +21,14 @@ import '../../../../core/widgets/input_field_card.dart';
 import '../../../../core/widgets/section_card.dart';
 import '../../../../core/widgets/select_field.dart';
 import '../../../../core/widgets/village_bottom_sheet.dart';
+import '../../sales_order_provider.dart';
 
 class AddItemBottomSheetAnimal extends ConsumerStatefulWidget {
   const AddItemBottomSheetAnimal({super.key});
 
   @override
-  ConsumerState<AddItemBottomSheetAnimal> createState() => _AddItemBottomSheetState();
+  ConsumerState<AddItemBottomSheetAnimal> createState() =>
+      _AddItemBottomSheetState();
 }
 
 class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
@@ -124,6 +126,21 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                       setState(() {
                         selectedAnimal = result;
                       });
+
+                      if (result.animalGroup != null) {
+                        final forecast = await ref
+                            .read(salesOrderFormProvider.notifier)
+                            .calculateForecastForItem(
+                              animalGroupId: result.animalGroup!.id,
+                            );
+
+                        priceCtrl.text = forecast.forecastPrice.toStringAsFixed(
+                          0,
+                        );
+                        discountCtrl.text = '0';
+                        finalPriceCtrl.text = forecast.targetPriceForecast
+                            .toStringAsFixed(0);
+                      }
                     }
                   },
                 ),

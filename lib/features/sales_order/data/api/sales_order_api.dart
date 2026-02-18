@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:livestock/core/data/model/base_response_single.dart';
+import 'package:livestock/features/sales_order/data/model/calculate_forecast_model.dart';
 
 import '../model/sales_order_list_model.dart';
 import '../model/sales_order_request_model.dart';
@@ -50,5 +52,28 @@ class SalesOrderApi {
         type: DioExceptionType.badResponse,
       );
     }
+  }
+
+  Future<BaseResponseSingle<CalculateForecast>> calculateForecast({
+    required int animalGroupId,
+    required String forecastDate,
+  }) async {
+    final res = await dio.post(
+      '/transaction/sales-order/calculate-forecast',
+      data: {"animal_group_id": animalGroupId, "forecast_date": forecastDate},
+    );
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+
+    return BaseResponseSingle.fromJson(
+      res.data,
+      (json) => CalculateForecast.fromJson(json),
+    );
   }
 }
