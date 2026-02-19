@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/features/product/data/product_tab.dart';
-import 'package:livestock/features/product/presentation/views/product_grade_view.dart';
 import 'package:livestock/features/product/presentation/widgets/product_card.dart';
+import 'package:livestock/features/product/presentation/widgets/product_grade_card.dart';
 
 import '../../../../app/providers.dart';
+import '../../../../core/data/model/animal_class_model.dart';
+import '../../../../core/data/model/animal_profile_model.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../data/product_provider_tab.dart';
 import '../widgets/filter_dropdown.dart';
+import '../widgets/product_group_bottom_sheet.dart';
 
 class ProductPage extends ConsumerStatefulWidget {
   const ProductPage({super.key});
@@ -37,7 +40,7 @@ class _ProductPage extends ConsumerState<ProductPage> {
   @override
   Widget build(BuildContext context) {
     final tab = ref.watch(productTabProvider);
-    final dataAsync = ref.watch(animalListProvider);
+    final dataAsync = ref.watch(productDataProvider);
     final keyword = ref.watch(animalSearchProvider);
 
     return Scaffold(
@@ -52,23 +55,8 @@ class _ProductPage extends ConsumerState<ProductPage> {
       ),
       body: dataAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(
-          child: Text(
-            "Gagal memuat data hewan\n$error",
-            textAlign: TextAlign.center,
-            style: AppTypography.smallNormalGrey,
-          ),
-        ),
-        data: (d) {
-          final filtered = keyword.trim().isEmpty
-              ? d
-              : d.where((e) {
-                  return e.name.toLowerCase().contains(keyword.toLowerCase()) ||
-                      e.animalCode.toLowerCase().contains(
-                        keyword.toLowerCase(),
-                      );
-                }).toList();
-
+        error: (error, _) => Center(child: Text("Error $error")),
+        data: (data) {
           return Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -78,61 +66,11 @@ class _ProductPage extends ConsumerState<ProductPage> {
                 _tabMenu(ref, tab),
                 const SizedBox(height: 12),
 
-                /// ============================
-                /// PRODUCT TAB
-                /// ============================
-                if (tab == ProductTab.product) ...[
-                  _filterRow(),
-                  const SizedBox(height: 16),
-
-                  if (filtered.isEmpty)
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          "Data tidak ditemukan",
-                          style: AppTypography.smallNormalGrey,
-                        ),
-                      ),
-                    )
-                  else
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: filtered.length,
-                        itemBuilder: (_, i) {
-                          final e = filtered[i];
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
-                              onTap: () {
-                                context.push('/product/${e.id}');
-                              },
-                              child: ProductCard(
-                                code: e.animalCode,
-                                name: e.name,
-                                gender: e.gender,
-                                grade: e.animalGroup?.name ?? "-",
-                                age: '${e.age.toString()} bulan',
-                                weight: '${e.weight.toString()} kg',
-                                price: 'Rp ${e.salesPrice.toString()}',
-                                location: e.farmLocation?.name ?? "-",
-                                status:
-                                    e.status[0].toUpperCase() +
-                                    e.status.substring(1),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                ]
-                /// ============================
-                /// GRADE TAB
-                /// ============================
-                else ...[
-                  const Expanded(child: ProductGradeView()),
-                ],
+                Expanded(
+                  child: tab == ProductTab.product
+                      ? _buildAnimalList(data as List<AnimalProfile>)
+                      : _buildAnimalClassList(data as List<AnimalClass>),
+                ),
               ],
             ),
           );
@@ -187,6 +125,88 @@ class _ProductPage extends ConsumerState<ProductPage> {
         SizedBox(width: 8),
         FilterDropdown(label: "Lokasi"),
       ],
+    );
+  }
+
+  Widget _buildAnimalList(List<AnimalProfile> animals) {
+    return Column(
+      children: [
+        _filterRow(),
+        const SizedBox(height: 12),
+
+        Expanded(
+          child: ListView.builder(
+            itemCount: animals.length,
+            itemBuilder: (_, i) {
+              final e = animals[i];
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: ProductCard(
+                  code: e.animalCode,
+                  name: e.name,
+                  gender: e.gender,
+                  grade: e.animalGroup?.name ?? "-",
+                  age: '${e.age} bulan',
+                  weight: '${e.weight} kg',
+                  price: 'Rp ${e.salesPrice}',
+                  location: e.farmLocation?.name ?? "-",
+                  status: e.status,
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAnimalClassList(List<AnimalClass> classes) {
+    return Column(
+      children: [
+        _filterGrade(),
+        const SizedBox(height: 12),
+
+        Expanded(
+          child: ListView.builder(
+            itemCount: classes.length,
+            itemBuilder: (_, i) {
+              final e = classes[i];
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () {
+                    _openProductGroupSheet(context, e.id);
+                  },
+                  child: ProductGradeCard(
+                    grade: e.animalGroup.name,
+                    weightRange: e.className,
+                    total: '300 Sapi',
+                    available: '300',
+                    sold: '200',
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _filterGrade() {
+    return Row(children: const [FilterDropdown(label: "Semua Kelas")]);
+  }
+
+  void _openProductGroupSheet(BuildContext context, int id) {
+    ref.read(selectedAnimalClassPriceIdProvider.notifier).state = id;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => ProductGroupBottomSheet(),
     );
   }
 }

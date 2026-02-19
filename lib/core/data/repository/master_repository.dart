@@ -1,3 +1,4 @@
+import 'package:livestock/core/data/model/animal_class_model.dart';
 import 'package:livestock/core/data/model/animal_group_model.dart';
 import 'package:livestock/core/data/model/animal_profile_model.dart';
 import 'package:livestock/core/data/model/city_model.dart';
@@ -32,8 +33,8 @@ class MasterRepository {
     return res.data;
   }
 
-  Future<List<AnimalProfile>> getAnimals() async {
-    final res = await api.getAnimals();
+  Future<List<AnimalProfile>> getAnimals(int? animalClassPriceId) async {
+    final res = await api.getAnimals(animalClassPriceId);
     return res.data;
   }
 
@@ -70,6 +71,11 @@ class MasterRepository {
 
   Future<AnimalProfile> getAnimalDetail(String id) async {
     final res = await api.getAnimalDetail(id);
+    return res.data;
+  }
+
+  Future<List<AnimalClass>> getAnimalClass() async {
+    final res = await api.getAnimalClasses();
     return res.data;
   }
 }

@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/features/product/presentation/widgets/product_card.dart';
 
+import '../../../../app/providers.dart';
 import '../../../../core/theme/AppColors.dart';
 
-class ProductGroupBottomSheet extends StatelessWidget {
+class ProductGroupBottomSheet extends ConsumerWidget {
   const ProductGroupBottomSheet({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dataAsync = ref.watch(animalListByClassProvider);
+
     return DraggableScrollableSheet(
       initialChildSize: 0.9,
       minChildSize: 0.5,
@@ -26,14 +30,14 @@ class ProductGroupBottomSheet extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: Colors.grey,
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
 
               const SizedBox(height: 12),
 
-              // HEADER
+              /// HEADER
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -54,58 +58,41 @@ class ProductGroupBottomSheet extends StatelessWidget {
                 ),
               ),
 
-              // SEARCH
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: "Cari Hewan",
-                    prefixIcon: const Icon(Icons.search),
-                    filled: true,
-                    fillColor: AppColors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-              ),
-
               const SizedBox(height: 12),
 
-              // FILTER CHIP
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: const [
-                    _StatusChip(text: "Semua Status", selected: true),
-                    SizedBox(width: 8),
-                    _StatusChip(text: "Tersedia"),
-                    SizedBox(width: 8),
-                    _StatusChip(text: "Terjual"),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              // LIST
+              /// LIST DATA
               Expanded(
-                child: ListView.builder(
-                  controller: scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: 5,
-                  itemBuilder: (_, i) {
-                    return ProductCard(
-                      code: "0001",
-                      name: "Black Mamba",
-                      gender: "Jantan",
-                      grade: "Kelas A",
-                      age: "14 Bulan",
-                      weight: "315 kg",
-                      price: "Rp 23.000.000",
-                      location: "Sapi Agri Banten",
-                      status: "Aktif",
+                child: dataAsync.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Center(child: Text("Error: $e")),
+                  data: (animals) {
+                    if (animals.isEmpty) {
+                      return const Center(child: Text("Data tidak ditemukan"));
+                    }
+
+                    return ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: animals.length,
+                      itemBuilder: (_, i) {
+                        final e = animals[i];
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: ProductCard(
+                            code: e.animalCode,
+                            name: e.name,
+                            gender: e.gender,
+                            grade: e.animalGroup?.name ?? "-",
+                            age: '${e.age} bulan',
+                            weight: '${e.weight} kg',
+                            price: 'Rp ${e.salesPrice}',
+                            location: e.farmLocation?.name ?? "-",
+                            status: e.status,
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
@@ -140,7 +127,6 @@ class _StatusChip extends StatelessWidget {
         style: TextStyle(
           fontSize: 12,
           color: selected ? AppColors.primary : AppColors.black,
-
         ),
       ),
     );

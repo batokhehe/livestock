@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:livestock/core/data/model/animal_class_model.dart';
 import 'package:livestock/core/data/model/animal_group_model.dart';
 import 'package:livestock/core/data/model/animal_profile_model.dart';
 import 'package:livestock/core/data/model/district_model.dart';
@@ -61,8 +62,16 @@ class MasterApi {
     return BaseResponse.fromJson(res.data, (json) => Customer.fromJson(json));
   }
 
-  Future<BaseResponse<AnimalProfile>> getAnimals() async {
-    final res = await dio.get('/master/animal-profile');
+  Future<BaseResponse<AnimalProfile>> getAnimals(
+    int? animalClassPriceId,
+  ) async {
+    final res = await dio.get(
+      '/master/animal-profile',
+      queryParameters: {
+        if (animalClassPriceId != null)
+          'animal_class_price_id': animalClassPriceId,
+      },
+    );
 
     if (res.statusCode != 200) {
       throw DioException(
@@ -200,6 +209,22 @@ class MasterApi {
     return BaseResponseSingle.fromJson(
       res.data,
       (json) => AnimalProfile.fromJson(json),
+    );
+  }
+
+  Future<BaseResponse<AnimalClass>> getAnimalClasses() async {
+    final res = await dio.get('/master/animal-class-price');
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    return BaseResponse.fromJson(
+      res.data,
+      (json) => AnimalClass.fromJson(json),
     );
   }
 }

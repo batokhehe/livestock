@@ -1,3 +1,4 @@
+import 'package:livestock/core/data/model/animal_class_model.dart';
 import 'package:livestock/core/data/model/animal_group_model.dart';
 import 'package:livestock/core/data/model/animal_profile_model.dart';
 import 'package:livestock/core/data/model/customer_model.dart';
@@ -29,8 +30,8 @@ class GetMasterDataListUseCase {
     return repository.getCustomers();
   }
 
-  Future<List<AnimalProfile>> callAnimals() {
-    return repository.getAnimals();
+  Future<List<AnimalProfile>> callAnimals(int? animalClassPriceId) {
+    return repository.getAnimals(animalClassPriceId);
   }
 
   Future<List<Province>> callProvinces() {
@@ -63,5 +64,9 @@ class GetMasterDataListUseCase {
 
   Future<AnimalProfile> callAnimalDetail(String id) {
     return repository.getAnimalDetail(id);
+  }
+
+  Future<List<AnimalClass>> callAnimalClass() {
+    return repository.getAnimalClass();
   }
 }

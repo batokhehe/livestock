@@ -14,9 +14,12 @@ import 'package:livestock/core/data/model/village_model.dart';
 import 'package:livestock/core/data/repository/master_repository.dart';
 
 import '../core/constant/enum.dart';
+import '../core/data/model/animal_class_model.dart';
 import '../core/domain/usecase/get_master_data_list_use_case.dart';
 import '../core/errors/unauthorized_exception.dart';
 import '../core/network/dio_client.dart';
+import '../features/product/data/product_provider_tab.dart';
+import '../features/product/data/product_tab.dart';
 
 export '../features/auth/data/auth_repository.dart';
 export '../features/auth/providers/auth_provider.dart';
@@ -74,7 +77,7 @@ final customerSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 final animalListProvider = FutureProvider.autoDispose<List<AnimalProfile>>((
   ref,
 ) async {
-  return ref.read(getMasterDataListUseCaseProvider).callAnimals();
+  return ref.read(getMasterDataListUseCaseProvider).callAnimals(null);
 });
 final selectedAnimalProvider = StateProvider<AnimalProfile?>((ref) => null);
 final animalSearchProvider = StateProvider.autoDispose<String>((ref) => '');
@@ -168,3 +171,35 @@ final supplierListProvider = FutureProvider.autoDispose<List<Supplier>>((
 });
 final selectedSupplierProvider = StateProvider<Supplier?>((ref) => null);
 final supplierSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+
+// ANIMAL CLASS
+final animalClassListProvider = FutureProvider.autoDispose<List<AnimalClass>>((
+  ref,
+) async {
+  return ref.read(getMasterDataListUseCaseProvider).callAnimalClass();
+});
+final selectedAnimalClassProvider = StateProvider<AnimalClass?>((ref) => null);
+final animalClassSearchProvider = StateProvider.autoDispose<String>(
+  (ref) => '',
+);
+
+final productDataProvider = FutureProvider.autoDispose((ref) async {
+  final tab = ref.watch(productTabProvider);
+  final useCase = ref.read(getMasterDataListUseCaseProvider);
+
+  if (tab == ProductTab.product) {
+    return await useCase.callAnimals(null);
+  } else {
+    return await useCase.callAnimalClass();
+  }
+});
+
+final selectedAnimalClassPriceIdProvider = StateProvider<int?>((ref) => null);
+final animalListByClassProvider =
+    FutureProvider.autoDispose<List<AnimalProfile>>((ref) async {
+      final animalClassPriceId = ref.watch(selectedAnimalClassPriceIdProvider);
+
+      return ref
+          .read(getMasterDataListUseCaseProvider)
+          .callAnimals(animalClassPriceId);
+    });
