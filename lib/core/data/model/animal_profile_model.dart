@@ -23,11 +23,11 @@ class AnimalProfile {
 
   final double purchPrice;
   final double salesPrice;
-  final double refSalesPrice;
-  final double refSalesPriceTotal;
+  final int refSalesPrice;
+  final int refSalesPriceTotal;
 
   final String? currentClassName;
-  final double currentClassPrice;
+  final int? currentClassPrice;
 
   final String? dispatchStatus;
   final String? vehicleNumber;
@@ -53,7 +53,7 @@ class AnimalProfile {
     required this.refSalesPrice,
     required this.refSalesPriceTotal,
     this.currentClassName,
-    required this.currentClassPrice,
+    this.currentClassPrice,
     this.dispatchStatus,
     this.vehicleNumber,
     this.settlementStatus,
@@ -85,15 +85,21 @@ class AnimalProfile {
       available: json['available'] ?? '',
 
       age: json['age'] ?? 0,
-      weight: (json['weight'] ?? 0).toDouble(),
+      weight: (json['weight'] is num)
+          ? (json['weight'] as num).toDouble()
+          : double.tryParse(json['weight']?.toString() ?? '0') ?? 0.0,
 
-      purchPrice: (json['purch_price'] ?? 0).toDouble(),
-      salesPrice: (json['sales_price'] ?? 0).toDouble(),
-      refSalesPrice: (json['ref_sales_price'] ?? 0).toDouble(),
-      refSalesPriceTotal: (json['ref_sales_price_total'] ?? 0).toDouble(),
+      purchPrice: (json['purch_price'] is num)
+          ? (json['purch_price'] as num).toDouble()
+          : double.tryParse(json['purch_price']?.toString() ?? '0') ?? 0.0,
+      salesPrice: (json['sales_price'] is num)
+          ? (json['sales_price'] as num).toDouble()
+          : double.tryParse(json['sales_price']?.toString() ?? '0') ?? 0.0,
+      refSalesPrice: json['ref_sales_price'] ?? 0,
+      refSalesPriceTotal: json['ref_sales_price_total'] ?? 0,
 
       currentClassName: json['current_class_name'],
-      currentClassPrice: (json['current_class_price'] ?? 0).toDouble(),
+      currentClassPrice: json['current_class_price'] ?? 0,
 
       dispatchStatus: json['dispatch_status'],
       vehicleNumber: json['vehicle_number'],
