@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:livestock/features/attendance/presentation/views/employee_attendance_page.dart';
 import 'package:livestock/features/attendance/presentation/views/employee_overnight_page.dart';
 import 'package:livestock/features/dashboard/presentation/views/dashboard_page.dart';
+import 'package:livestock/features/dispatch/presentation/views/add_dispatch_page.dart';
+import 'package:livestock/features/dispatch/presentation/views/dispatch_page.dart';
 import 'package:livestock/features/home/presentation/views/home_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/add_monitoring_confirmation_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/add_monitoring_page.dart';
@@ -28,6 +30,8 @@ import '../features/attendance/presentation/views/history_attendance_page.dart';
 import '../features/attendance/presentation/views/history_detail_attendance_page.dart';
 import '../features/auth/presentation/views/login_page.dart';
 import '../features/auth/providers/auth_provider.dart';
+import '../features/dispatch/presentation/views/add_dispatch_confirmation_page.dart';
+import '../features/dispatch/presentation/views/add_dispatch_step_2_page.dart';
 import '../features/home/presentation/views/main_page.dart';
 import '../features/monitoring/presentation/views/add_monitoring_step_2_page.dart';
 import '../features/monitoring/presentation/views/monitoring_page.dart';
@@ -211,6 +215,26 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/purchase-order/add/confirmation',
         builder: (context, state) => const AddPurchaseOrderConfirmationPage(),
+      ),
+
+      GoRoute(
+        path: '/dispatch',
+        builder: (context, state) => const DispatchPage(),
+      ),
+      GoRoute(
+        path: '/dispatch/add',
+        builder: (context, state) {
+          final type = state.uri.queryParameters['type'];
+          return AddDispatchPage(type: type);
+        },
+      ),
+      GoRoute(
+        path: '/dispatch/add/step-2',
+        builder: (context, state) => const AddDispatchStep2Page(),
+      ),
+      GoRoute(
+        path: '/dispatch/add/confirmation',
+        builder: (context, state) => const AddDispatchConfirmationPage(),
       ),
     ],
   );

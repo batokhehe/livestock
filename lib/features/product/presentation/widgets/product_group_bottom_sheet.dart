@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:livestock/features/product/presentation/widgets/product_card.dart';
 
 import '../../../../app/providers.dart';
@@ -80,16 +81,21 @@ class ProductGroupBottomSheet extends ConsumerWidget {
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
-                          child: ProductCard(
-                            code: e.animalCode,
-                            name: e.name,
-                            gender: e.gender,
-                            grade: e.animalGroup?.name ?? "-",
-                            age: '${e.age} bulan',
-                            weight: '${e.weight} kg',
-                            price: 'Rp ${e.salesPrice}',
-                            location: e.farmLocation?.name ?? "-",
-                            status: e.status,
+                          child: InkWell(
+                            onTap: () {
+                              context.push('/product/${e.id}');
+                            },
+                            child: ProductCard(
+                              code: e.animalCode,
+                              name: e.name,
+                              gender: e.gender,
+                              grade: e.animalGroup?.name ?? "-",
+                              age: '${e.age} bulan',
+                              weight: '${e.weight} kg',
+                              price: 'Rp ${e.salesPrice}',
+                              location: e.farmLocation?.name ?? "-",
+                              status: e.status,
+                            ),
                           ),
                         );
                       },

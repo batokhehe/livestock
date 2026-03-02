@@ -142,16 +142,21 @@ class _ProductPage extends ConsumerState<ProductPage> {
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: ProductCard(
-                  code: e.animalCode,
-                  name: e.name,
-                  gender: e.gender,
-                  grade: e.animalGroup?.name ?? "-",
-                  age: '${e.age} bulan',
-                  weight: '${e.weight} kg',
-                  price: 'Rp ${e.salesPrice}',
-                  location: e.farmLocation?.name ?? "-",
-                  status: e.status,
+                child: InkWell(
+                  onTap: () {
+                    context.push('/product/${e.id}');
+                  },
+                  child: ProductCard(
+                    code: e.animalCode,
+                    name: e.name,
+                    gender: e.gender,
+                    grade: e.animalGroup?.name ?? "-",
+                    age: '${e.age} bulan',
+                    weight: '${e.weight} kg',
+                    price: 'Rp ${e.salesPrice}',
+                    location: e.farmLocation?.name ?? "-",
+                    status: e.status,
+                  ),
                 ),
               );
             },

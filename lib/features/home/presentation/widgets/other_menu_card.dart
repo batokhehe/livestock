@@ -38,7 +38,13 @@ class OtherMenu extends StatelessWidget {
                 const SizedBox(width: 12),
                 const OtherMenuButton(AppImages.icShare, "Pemindahan"),
                 const SizedBox(width: 12),
-                const OtherMenuButton(AppImages.icTruckFast, "Pengiriman"),
+                OtherMenuButton(
+                  AppImages.icTruckFast,
+                  "Pengiriman",
+                  onTap: () {
+                    context.push('/dispatch');
+                  },
+                ),
                 const SizedBox(width: 12),
                 OtherMenuButton(
                   AppImages.icCalendarSearch,
