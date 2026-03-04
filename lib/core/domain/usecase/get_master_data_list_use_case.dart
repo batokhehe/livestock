@@ -30,8 +30,20 @@ class GetMasterDataListUseCase {
     return repository.getCustomers();
   }
 
-  Future<List<AnimalProfile>> callAnimals(int? animalClassPriceId) {
-    return repository.getAnimals(animalClassPriceId);
+  Future<List<AnimalProfile>> callAnimals(
+    int? animalClassPriceId, {
+    String? search,
+    String? status,
+    int? farmLocationId,
+    int? farmAreaId,
+  }) {
+    return repository.getAnimals(
+      animalClassPriceId,
+      search: search,
+      status: status,
+      farmLocationId: farmLocationId,
+      farmAreaId: farmAreaId,
+    );
   }
 
   Future<List<Province>> callProvinces() {
@@ -66,7 +78,7 @@ class GetMasterDataListUseCase {
     return repository.getAnimalDetail(id);
   }
 
-  Future<List<AnimalClass>> callAnimalClass() {
-    return repository.getAnimalClass();
+  Future<List<AnimalClass>> callAnimalClass({String? search}) {
+    return repository.getAnimalClass(search: search);
   }
 }
