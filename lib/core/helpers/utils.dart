@@ -34,9 +34,13 @@ String monthName(int m) {
   return months[m - 1];
 }
 
-String formatPrice(int value) {
-  return value.toString().replaceAllMapped(
-    RegExp(r'\B(?=(\d{3})+(?!\d))'),
-    (match) => '.',
-  );
+String formatPrice(num value) {
+  final str = value == value.toInt()
+      ? value.toInt().toString()
+      : value.toStringAsFixed(0);
+  return str.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.');
+}
+
+bool equalsIgnoreCase(String? string1, String? string2) {
+  return string1?.toLowerCase() == string2?.toLowerCase();
 }
