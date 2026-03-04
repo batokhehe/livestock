@@ -43,11 +43,11 @@ final getMasterDataListUseCaseProvider = Provider((ref) {
 });
 
 // FARM LOCATION
-final farmLocationListProvider = FutureProvider.autoDispose<List<FarmLocation>>(
-  (ref) async {
-    return ref.read(getMasterDataListUseCaseProvider).callFarmLocations();
-  },
-);
+final farmLocationListProvider = FutureProvider<List<FarmLocation>>((
+  ref,
+) async {
+  return ref.read(getMasterDataListUseCaseProvider).callFarmLocations();
+});
 final selectedFarmLocationProvider = StateProvider<FarmLocation?>(
   (ref) => null,
 );
@@ -56,9 +56,7 @@ final farmLocationSearchProvider = StateProvider.autoDispose<String>(
 );
 
 // FARM AREA
-final farmAreaListProvider = FutureProvider.autoDispose<List<FarmArea>>((
-  ref,
-) async {
+final farmAreaListProvider = FutureProvider<List<FarmArea>>((ref) async {
   return ref.read(getMasterDataListUseCaseProvider).callFarmAreas();
 });
 final selectedFarmAreaProvider = StateProvider<FarmArea?>((ref) => null);
@@ -81,6 +79,11 @@ final animalListProvider = FutureProvider.autoDispose<List<AnimalProfile>>((
 });
 final selectedAnimalProvider = StateProvider<AnimalProfile?>((ref) => null);
 final animalSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+final animalStatusProvider = StateProvider.autoDispose<String>((ref) => '');
+final animalFarmLocationIdProvider = StateProvider.autoDispose<int?>(
+  (ref) => null,
+);
+final animalFarmAreaIdProvider = StateProvider.autoDispose<int?>((ref) => null);
 final animalDetailProvider = FutureProvider.autoDispose
     .family<AnimalProfile, String>((ref, id) async {
       return ref.read(getMasterDataListUseCaseProvider).callAnimalDetail(id);
@@ -186,11 +189,24 @@ final animalClassSearchProvider = StateProvider.autoDispose<String>(
 final productDataProvider = FutureProvider.autoDispose((ref) async {
   final tab = ref.watch(productTabProvider);
   final useCase = ref.read(getMasterDataListUseCaseProvider);
+  final keyword = ref.watch(animalSearchProvider);
+  final status = ref.watch(animalStatusProvider);
+  final farmLocationId = ref.watch(animalFarmLocationIdProvider);
+  final farmAreaId = ref.watch(animalFarmAreaIdProvider);
 
   if (tab == ProductTab.product) {
-    return await useCase.callAnimals(null);
+    final search = keyword.length >= 2 ? keyword : null;
+    final statusFilter = status.isNotEmpty ? status : null;
+    return await useCase.callAnimals(
+      null,
+      search: search,
+      status: statusFilter,
+      farmLocationId: farmLocationId,
+      farmAreaId: farmAreaId,
+    );
   } else {
-    return await useCase.callAnimalClass();
+    final search = keyword.length >= 2 ? keyword : null;
+    return await useCase.callAnimalClass(search: search);
   }
 });
 
