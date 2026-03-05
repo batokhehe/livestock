@@ -5,6 +5,7 @@ import 'package:livestock/features/product/presentation/widgets/product_card.dar
 
 import '../../../../app/providers.dart';
 import '../../../../core/theme/AppColors.dart';
+import '../../../../core/helpers/utils.dart';
 
 class ProductGroupBottomSheet extends ConsumerWidget {
   const ProductGroupBottomSheet({super.key});
@@ -82,9 +83,8 @@ class ProductGroupBottomSheet extends ConsumerWidget {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: InkWell(
-                            onTap: () {
-                              context.push('/product/${e.id}');
-                            },
+                            borderRadius: BorderRadius.circular(16),
+                            onTap: () => context.push('/product/${e.id}'),
                             child: ProductCard(
                               code: e.animalCode,
                               name: e.name,
@@ -93,8 +93,10 @@ class ProductGroupBottomSheet extends ConsumerWidget {
                               age: '${e.age} bulan',
                               weight: '${e.weight} kg',
                               price: 'Rp ${e.salesPrice}',
+                              refSalesPriceTotal: "Rp ${formatPrice(e.refSalesPriceTotal)}",
                               location: e.farmLocation?.name ?? "-",
                               status: e.status,
+                              farmArea: e.farmArea,
                             ),
                           ),
                         );

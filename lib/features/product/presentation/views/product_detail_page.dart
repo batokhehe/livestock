@@ -9,6 +9,7 @@ import '../../../../app/providers.dart';
 import '../../../../core/data/model/animal_profile_model.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
+import '../../../../core/helpers/utils.dart';
 import '../../../../core/widgets/two_column_row_card.dart';
 
 class ProductDetailPage extends ConsumerWidget {
@@ -125,16 +126,16 @@ class _PriceInfoCard extends StatelessWidget {
       child: Column(
         children: [
           ProductHeaderCard(
-            title: 'Rp ${data.purchPrice.toString()}',
+            title: 'Rp ${formatPrice(data.purchPrice)}',
             subtitle: "Harga Beli",
             image: AppImages.icMoneys,
             isActive: false,
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           TwoColumnRowCard(
-            leftValue: 'Rp ${data.refSalesPrice.toString()}',
+            leftValue: 'Rp ${formatPrice(data.refSalesPrice)}',
             leftLabel: "Ref Harga Jual (kg)",
-            rightValue: 'Rp ${data.refSalesPriceTotal.toString()}',
+            rightValue: 'Rp ${formatPrice(data.refSalesPriceTotal)}',
             rightLabel: "Harga Beli",
           ),
         ],
@@ -150,25 +151,39 @@ class _AnotherInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasNoData =
+        data.salesOrderCustomerName.isEmpty ||
+        equalsIgnoreCase(data.salesOrderCustomerName, '-');
+
     return _CardWrapper(
       title: "Informasi Lainnya",
-      child: Column(
-        children: [
-          ProductHeaderCard(
-            title: data.salesOrderCustomerName,
-            subtitle: "Nama Pelanggan",
-            image: AppImages.icUserTag,
-            isActive: false,
-          ),
-          Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          TwoColumnRowCard(
-            leftValue: "Catatan",
-            leftLabel: data.notes ?? "-",
-            rightValue: "",
-            rightLabel: "",
-          ),
-        ],
-      ),
+      child: hasNoData
+          ? const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text(
+                  "Belum ada data",
+                  style: AppTypography.xSmallBoldGrey,
+                ),
+              ),
+            )
+          : Column(
+              children: [
+                ProductHeaderCard(
+                  title: data.salesOrderCustomerName,
+                  subtitle: "Nama Pelanggan",
+                  image: AppImages.icUserTag,
+                  isActive: false,
+                ),
+                Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+                TwoColumnRowCard(
+                  leftValue: "Catatan",
+                  leftLabel: data.notes ?? "-",
+                  rightValue: "",
+                  rightLabel: "",
+                ),
+              ],
+            ),
     );
   }
 }

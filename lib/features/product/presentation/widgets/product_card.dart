@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/data/model/farm_area_model.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 
@@ -11,8 +12,10 @@ class ProductCard extends StatelessWidget {
   final String age;
   final String weight;
   final String price;
+  final String refSalesPriceTotal;
   final String location;
   final String status;
+  final FarmArea? farmArea;
 
   const ProductCard({
     super.key,
@@ -23,12 +26,15 @@ class ProductCard extends StatelessWidget {
     required this.age,
     required this.weight,
     required this.price,
+    required this.refSalesPriceTotal,
     required this.location,
     required this.status,
+    this.farmArea,
   });
 
   @override
   Widget build(BuildContext context) {
+    final genderLabel = gender == 'male' ? 'Jantan' : 'Betina';
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -40,7 +46,6 @@ class ProductCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // HEADER
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -50,12 +55,12 @@ class ProductCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            "$name • $gender • $grade",
+            "$name • $genderLabel • $grade",
             style: AppTypography.smallNormalGrey,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 10),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          const SizedBox(height: 6),
+          const SizedBox(height: 10),
           // INFO TAGS
           Wrap(
             spacing: 8,
@@ -63,8 +68,9 @@ class ProductCard extends StatelessWidget {
             children: [
               _infoChip(age),
               _infoChip(weight),
-              _infoChip(price),
+              _infoChip(refSalesPriceTotal),
               _infoChip(location),
+              if (farmArea != null) _infoChip(farmArea!.name),
             ],
           ),
         ],
@@ -73,13 +79,22 @@ class ProductCard extends StatelessWidget {
   }
 
   Widget _statusBadge(String status) {
+    final isActive = status == 'active';
+    final label = isActive ? 'Aktif' : 'Nonaktif';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.success.withOpacity(0.08),
+        color: isActive
+            ? AppColors.success.withOpacity(0.08)
+            : Colors.red.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(status, style: AppTypography.xSmallNormalGreen),
+      child: Text(
+        label,
+        style: isActive
+            ? AppTypography.xSmallNormalGreen
+            : AppTypography.xSmallNormalGreen.copyWith(color: Colors.red),
+      ),
     );
   }
 

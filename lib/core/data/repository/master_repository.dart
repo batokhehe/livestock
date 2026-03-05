@@ -33,8 +33,20 @@ class MasterRepository {
     return res.data;
   }
 
-  Future<List<AnimalProfile>> getAnimals(int? animalClassPriceId) async {
-    final res = await api.getAnimals(animalClassPriceId);
+  Future<List<AnimalProfile>> getAnimals(
+    int? animalClassPriceId, {
+    String? search,
+    String? status,
+    int? farmLocationId,
+    int? farmAreaId,
+  }) async {
+    final res = await api.getAnimals(
+      animalClassPriceId,
+      search: search,
+      status: status,
+      farmLocationId: farmLocationId,
+      farmAreaId: farmAreaId,
+    );
     return res.data;
   }
 
@@ -74,8 +86,8 @@ class MasterRepository {
     return res.data;
   }
 
-  Future<List<AnimalClass>> getAnimalClass() async {
-    final res = await api.getAnimalClasses();
+  Future<List<AnimalClass>> getAnimalClass({String? search}) async {
+    final res = await api.getAnimalClasses(search: search);
     return res.data;
   }
 }
