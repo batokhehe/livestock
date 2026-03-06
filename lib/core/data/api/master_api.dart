@@ -64,13 +64,21 @@ class MasterApi {
   }
 
   Future<BaseResponse<AnimalProfile>> getAnimals(
-    int? animalClassPriceId,
-  ) async {
+    int? animalClassPriceId, {
+    String? search,
+    String? status,
+    int? farmLocationId,
+    int? farmAreaId,
+  }) async {
     final res = await dio.get(
       '/master/animal-profile',
       queryParameters: {
         if (animalClassPriceId != null)
           'animal_class_price_id': animalClassPriceId,
+        if (search != null && search.isNotEmpty) 'search': search,
+        if (status != null && status.isNotEmpty) 'status': status,
+        if (farmLocationId != null) 'farm_location_id': farmLocationId,
+        if (farmAreaId != null) 'farm_area_id': farmAreaId,
       },
     );
 
@@ -213,8 +221,13 @@ class MasterApi {
     );
   }
 
-  Future<BaseResponse<AnimalClass>> getAnimalClasses() async {
-    final res = await dio.get('/master/animal-class-price');
+  Future<BaseResponse<AnimalClass>> getAnimalClasses({String? search}) async {
+    final res = await dio.get(
+      '/master/animal-class-price',
+      queryParameters: {
+        if (search != null && search.isNotEmpty) 'search': search,
+      },
+    );
 
     if (res.statusCode != 200) {
       throw DioException(
