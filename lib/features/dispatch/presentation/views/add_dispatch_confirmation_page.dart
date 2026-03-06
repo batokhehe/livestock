@@ -5,13 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/section_card.dart';
-import 'package:livestock/features/sales_order/data/model/sales_order_request_model.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/card_wrapper.dart';
 import '../../../../core/widgets/info_item_card.dart';
-import '../../../../core/widgets/product_header_card.dart';
 import '../../../../core/widgets/step_info_card.dart';
 import '../../../../core/widgets/two_column_row_card.dart';
 import '../../../receiving/presentation/widgets/confirmation_bottom_sheet.dart';
@@ -35,18 +33,6 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final form = ref.watch(dispatchFormProvider);
     final items = form.items ?? [];
-
-    final subtotal = items.fold<double>(
-      0,
-      (sum, item) => sum + (item.subtotal ?? 0),
-    );
-
-    final discount = items.fold<double>(
-      0,
-      (sum, item) => sum + (item.discount ?? 0),
-    );
-
-    final total = subtotal - discount;
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
@@ -75,26 +61,16 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
                 _infoDispatch(form),
                 const SizedBox(height: 12),
 
-                ...items.asMap().entries.map(
-                  (entry) => _ProductInfoCard(
-                    counter: entry.key + 1,
-                    data: entry.value,
-                  ),
-                  // (entry) => _itemCard(
-                  //   index: entry.key + 1,
-                  //   item: entry.value,
-                  //   formatCurrency: formatCurrency,
-                  // ),
-                ),
-
+                _infoItem(form.items!),
                 const SizedBox(height: 12),
 
                 _summaryCard(
                   totalItem: items.length,
-                  subtotal: subtotal,
-                  discount: discount,
-                  total: total,
                   formatCurrency: formatCurrency,
+                  deliveryFee: form.shippingCostTotal!.toDouble(),
+                  downPayment: form.downPayment!.toDouble(),
+                  additionalFee: form.additionalCost!.toDouble(),
+                  total: form.remainingPayment.toDouble(),
                 ),
               ],
             ),
@@ -170,6 +146,107 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
     );
   }
 
+  Widget _infoItem(List<DispatchItemRequest> items) {
+    return CardWrapper(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Informasi Item",
+                style: AppTypography.mediumNormalBlack,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ListView.builder(
+            itemCount: items.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (_, i) => _itemCard(items[i]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _itemCard(DispatchItemRequest item) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.fieldBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                // ICON
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryShade,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      AppImages.icProduct,
+                      width: 24,
+                      height: 24,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.animalProfileName,
+                        style: AppTypography.smallBoldBlack,
+                      ),
+                      Text(item.orderId, style: AppTypography.smallNormalGrey),
+                    ],
+                  ),
+                ),
+                // _iconAction(
+                //   icon: Icons.delete,
+                //   color: AppColors.danger,
+                //   backColor: AppColors.danger.withOpacity(0.08),
+                //   onTap: () => _showDeleteConfirmSheet(item),
+                // ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+          TwoColumnRowCard(
+            leftValue: item.city,
+            leftLabel: "Kota Tujuan",
+            rightValue: item.dlvDate,
+            rightLabel: "Tanggal Kirim",
+          ),
+          Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+          TwoColumnRowCard(
+            leftValue: "",
+            leftLabel: "Biaya kirim",
+            rightValue: "",
+            rightLabel: item.shippingCost.toString(),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// =========================
   /// INFORMASI Pengiriman
   /// =========================
@@ -179,22 +256,20 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Data Pemesanan", style: AppTypography.mediumNormalBlack),
+          const Text(
+            "Informasi Pengiriman",
+            style: AppTypography.smallNormalBlack,
+          ),
           const SizedBox(height: 12),
           InfoItemCard(
             icon: AppImages.icCalendarTick,
-            title: formatDateTime(form.orderDate),
-            subtitle: form.farmLocation!.name,
+            title: formatDateTime(form.dispatchDate),
+            subtitle: "Tanggal Pengiriman",
           ),
           InfoItemCard(
-            icon: AppImages.icUserTag,
-            title: form.customer!.name,
-            subtitle: form.customer!.contactPhone.toString(),
-          ),
-          InfoItemCard(
-            icon: AppImages.icUser,
-            title: form.recipientName ?? '-',
-            subtitle: form.recipientNumber ?? '-',
+            icon: AppImages.icCar,
+            title: form.vehicleNumber ?? '-',
+            subtitle: form.driverName ?? '-',
           ),
         ],
       ),
@@ -207,8 +282,9 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
 
   Widget _summaryCard({
     required int totalItem,
-    required double subtotal,
-    required double discount,
+    required double deliveryFee,
+    required double downPayment,
+    required double additionalFee,
     required double total,
     required String Function(double) formatCurrency,
   }) {
@@ -218,10 +294,11 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
         SectionCard(
           children: [
             _rowSummary("Jumlah Item", totalItem.toString()),
-            _rowSummary("Subtotal", formatCurrency(subtotal)),
-            _rowSummary("Diskon", formatCurrency(discount)),
+            _rowSummary("Total Biaya Kirim", formatCurrency(deliveryFee)),
+            _rowSummary("Uang Muka Pengiriman", formatCurrency(downPayment)),
+            _rowSummary("Biaya Tambahan", formatCurrency(additionalFee)),
             _rowSummary(
-              "Total Keseluruhan",
+              "Total Sisa Pembayaran",
               formatCurrency(total),
               isBold: true,
             ),
@@ -251,107 +328,6 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ProductInfoCard extends StatelessWidget {
-  final DispatchItemRequest data;
-  final int counter;
-
-  const _ProductInfoCard({required this.data, required this.counter});
-
-  @override
-  Widget build(BuildContext context) {
-    final isAnimal = data.animalProfile != null;
-
-    final code = isAnimal
-        ? data.animalProfile!.animalCode
-        : data.feedMedicine!.code;
-
-    final secondValue = isAnimal
-        ? "${data.animalProfile!.weight} Kg"
-        : data.feedMedicine!.feedType;
-
-    return SectionCard(
-      title: 'Item ${counter.toString()}',
-      children: [
-        SectionCard(
-          children: [
-            ProductHeaderCard(
-              title: data.animalProfile?.name ?? data.feedMedicine!.name,
-              subtitle: '$code • $secondValue',
-              image: AppImages.icProduct,
-            ),
-            const SizedBox(height: 12),
-            Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-            TwoColumnRowCard(
-              leftValue: data.unitPrice.toString(),
-              leftLabel: "Harga/kg Forecast",
-              rightValue: data.subtotal.toString(),
-              rightLabel: "Total Forecast",
-            ),
-          ],
-        ),
-        if (isAnimal) ...[
-          const SizedBox(height: 12),
-          SectionCard(
-            children: [
-              ProductHeaderCard(
-                title: data.subtotal.toString(),
-                subtitle: formatDateTime(data.dlvDate),
-                image: AppImages.icMoneys,
-              ),
-              Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-              TwoColumnRowCard(
-                leftValue: data.unitPrice.toString(),
-                leftLabel: "Harga jual",
-                rightValue: data.discount.toString(),
-                rightLabel: "Harga diskon",
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SectionCard(
-            children: [
-              ProductHeaderCard(
-                title: 'Transaksi Forecast',
-                subtitle: 'kg • ${formatDateTime(data.dlvDate)}',
-                image: AppImages.icMoneys,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SectionCard(
-            children: [
-              ProductHeaderCard(
-                title: formatDateTime(data.dlvDate),
-                subtitle: 'Tanggal Pengiriman',
-                image: AppImages.icTruckFast,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SectionCard(
-            children: [
-              ProductHeaderCard(
-                title: '${data.state} • ${data.city}',
-                subtitle: '${data.district} • ${data.village}',
-                image: AppImages.icMap,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SectionCard(
-            children: [
-              ProductHeaderCard(
-                title: data.deliveryAddress!,
-                image: AppImages.icMap,
-              ),
-            ],
-          ),
-        ],
-      ],
     );
   }
 }

@@ -10,6 +10,7 @@ import 'package:livestock/core/data/model/province_model.dart';
 import 'package:livestock/core/data/model/village_model.dart';
 import 'package:livestock/core/data/repository/master_repository.dart';
 
+import '../../../features/dispatch/data/model/sales_order_dispatch_model.dart';
 import '../../data/model/city_model.dart';
 import '../../data/model/supplier_model.dart';
 
@@ -68,5 +69,9 @@ class GetMasterDataListUseCase {
 
   Future<List<AnimalClass>> callAnimalClass() {
     return repository.getAnimalClass();
+  }
+
+  Future<List<SalesOrderDispatch>> callSoDispatch() {
+    return repository.getSoDispatch();
   }
 }

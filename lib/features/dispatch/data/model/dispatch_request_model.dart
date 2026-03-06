@@ -1,116 +1,72 @@
-import 'package:livestock/core/data/model/customer_model.dart';
-import 'package:livestock/core/data/model/farm_area_model.dart';
-import 'package:livestock/core/data/model/farm_location_model.dart';
-import 'package:livestock/core/helpers/utils.dart';
-
-import 'dispatch_item_request_model.dart';
+import 'package:livestock/features/dispatch/data/model/dispatch_item_request_model.dart';
 
 class DispatchRequest {
-  final Customer? customer;
-  final String? category;
-  final DateTime? forecastDate;
-  final bool? useForecast;
-  final DateTime? orderDate;
-  final DateTime? dueDate;
-  final String? dispatchItemType;
-  final String? status;
-  final String? dispatchType;
-  final FarmLocation? farmLocation;
-  final FarmArea? farmArea;
-  final String? deliveryAddress;
-  final String? recipientName;
-  final String? recipientNumber;
-  final double? shippingCost;
-  final double? discountTotal;
-  final String? notes;
+  final DateTime? dispatchDate;
+  final String? vehicleNumber;
+  final String? driverName;
+  final int? farmLocationId;
+  final int? downPayment;
+  final int? additionalCost;
+  final int? shippingCostTotal;
   final List<DispatchItemRequest>? items;
 
   DispatchRequest({
-    this.customer,
-    this.category,
-    this.forecastDate,
-    this.useForecast,
-    this.orderDate,
-    this.dueDate,
-    this.dispatchItemType,
-    this.status,
-    this.dispatchType,
-    this.farmLocation,
-    this.farmArea,
-    this.deliveryAddress,
-    this.recipientName,
-    this.recipientNumber,
-    this.shippingCost,
-    this.discountTotal,
-    this.notes,
+    this.dispatchDate,
+    this.vehicleNumber,
+    this.driverName,
+    this.farmLocationId,
+    this.downPayment,
+    this.additionalCost,
+    this.shippingCostTotal,
     this.items,
   });
 
   DispatchRequest copyWith({
-    Customer? customer,
-    String? category,
-    DateTime? forecastDate,
-    bool? useForecast,
-    DateTime? orderDate,
-    DateTime? dueDate,
-    String? dispatchItemType,
-    String? status,
-    String? dispatchType,
-    FarmLocation? farmLocation,
-    FarmArea? farmArea,
-    String? deliveryAddress,
-    String? recipientName,
-    String? recipientNumber,
-    double? shippingCost,
-    double? discountTotal,
-    String? notes,
+    DateTime? dispatchDate,
+    String? vehicleNumber,
+    String? driverName,
+    int? farmLocationId,
+    int? downPayment,
+    int? additionalCost,
+    int? shippingCostTotal,
     List<DispatchItemRequest>? items,
   }) {
     return DispatchRequest(
-      customer: customer ?? this.customer,
-      category: category ?? this.category,
-      forecastDate: forecastDate ?? this.forecastDate,
-      useForecast: useForecast ?? this.useForecast,
-      orderDate: orderDate ?? this.orderDate,
-      dueDate: dueDate ?? this.dueDate,
-      dispatchItemType: dispatchItemType ?? this.dispatchItemType,
-      status: status ?? this.status,
-      dispatchType: dispatchType ?? this.dispatchType,
-      farmLocation: farmLocation ?? this.farmLocation,
-      farmArea: farmArea ?? this.farmArea,
-      deliveryAddress: deliveryAddress ?? this.deliveryAddress,
-      recipientName: recipientName ?? this.recipientName,
-      recipientNumber: recipientNumber ?? this.recipientNumber,
-      shippingCost: shippingCost ?? this.shippingCost,
-      discountTotal: discountTotal ?? this.discountTotal,
-      notes: notes ?? this.notes,
+      dispatchDate: dispatchDate ?? this.dispatchDate,
+      vehicleNumber: vehicleNumber ?? this.vehicleNumber,
+      driverName: driverName ?? this.driverName,
+      farmLocationId: farmLocationId ?? this.farmLocationId,
+      downPayment: downPayment ?? this.downPayment,
+      additionalCost: additionalCost ?? this.additionalCost,
+      shippingCostTotal: shippingCostTotal ?? this.shippingCostTotal,
       items: items ?? this.items,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "customer_id": customer?.id,
-      if (orderDate != null) "order_date": formatterJson.format(orderDate!),
-      if (dueDate != null) "due_date": formatterJson.format(dueDate!),
-      "dispatch_item_type": dispatchItemType ?? "animal",
-      "status": status ?? "draft",
-      "dispatch_type": dispatchType ?? "basic",
-      "farm_location_id": farmLocation?.id ?? 0,
-      "farm_area_id": farmArea?.id ?? 0,
-      "delivery_address": deliveryAddress ?? '-',
-      "recipient_name": recipientName,
-      "recipient_number": recipientNumber,
-      "shipping_cost": shippingCost ?? 0,
-      "discount_total": discountTotal ?? 0,
-      "notes": notes,
-      "items": items?.map((e) => e.toJson()).toList() ?? [],
+      "dispatch_date": dispatchDate,
+      "vehicle_number": vehicleNumber,
+      "driver_name": driverName,
+      "farm_location_id": 1, //farmLocationId,
+      "shipping_cost_total": shippingCostTotal, // ambil total items
+      "additional_cost": additionalCost,
+      "down_payment": downPayment,
+      "dispatch_status": "ready", // ready , in_transit , delivered
+      "remarks": "test created",
+      "items": items?.map((e) => e.toJson()).toList(),
     };
   }
 
-  bool get isValid =>
-      customer != null &&
-      orderDate != null &&
-      farmLocation != null &&
-      (dispatchItemType != 'animal' || dueDate != null);
+  int get totalShipping {
+    return items?.fold(0, (sum, e) => sum! + e.shippingCost) ?? 0;
+  }
+
+  int get remainingPayment {
+    final shipping = totalShipping;
+    final dp = downPayment ?? 0;
+    final additional = additionalCost ?? 0;
+
+    return shipping + additional - dp;
+  }
 }

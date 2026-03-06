@@ -9,6 +9,7 @@ import 'package:livestock/core/data/model/feed_medicine_model.dart';
 import 'package:livestock/core/data/model/province_model.dart';
 import 'package:livestock/core/data/model/supplier_model.dart';
 import 'package:livestock/core/data/model/village_model.dart';
+import 'package:livestock/features/dispatch/data/model/sales_order_dispatch_model.dart';
 
 import '../../../../core/data/model/base_response.dart';
 import '../model/base_response_single.dart';
@@ -225,6 +226,22 @@ class MasterApi {
     return BaseResponse.fromJson(
       res.data,
       (json) => AnimalClass.fromJson(json),
+    );
+  }
+
+  Future<BaseResponse<SalesOrderDispatch>> getSoDispatch() async {
+    final res = await dio.get('/inventory/dispatch/sales-orders');
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    return BaseResponse.fromJson(
+      res.data,
+      (json) => SalesOrderDispatch.fromJson(json),
     );
   }
 }

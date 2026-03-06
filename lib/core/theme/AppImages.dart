@@ -52,4 +52,5 @@ class AppImages {
   static const icCalendarTick = "$iconsUrl/ic_calendar_tick.png";
   static const icNote = "$iconsUrl/ic_note.png";
   static const icUser = "$iconsUrl/ic_user.png";
+  static const icCar = "$iconsUrl/ic_car.png";
 }

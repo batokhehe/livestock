@@ -223,10 +223,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/dispatch/add',
-        builder: (context, state) {
-          final type = state.uri.queryParameters['type'];
-          return AddDispatchPage(type: type);
-        },
+        builder: (context, state) => const AddDispatchPage(),
       ),
       GoRoute(
         path: '/dispatch/add/step-2',

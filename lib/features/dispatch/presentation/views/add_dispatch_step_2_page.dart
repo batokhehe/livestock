@@ -6,11 +6,14 @@ import 'package:livestock/core/theme/AppImages.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/card_wrapper.dart';
+import '../../../../core/widgets/input_field_card.dart';
+import '../../../../core/widgets/product_header_card.dart';
+import '../../../../core/widgets/section_card.dart';
 import '../../../../core/widgets/step_info_card.dart';
+import '../../../../core/widgets/two_column_row_card.dart';
 import '../../data/model/dispatch_item_request_model.dart';
 import '../../dispatch_provider.dart';
-import '../widgets/add_item_bottom_sheet_animal.dart';
-import '../widgets/add_item_bottom_sheet_feed.dart';
+import '../widgets/add_item_bottom_sheet.dart';
 
 class AddDispatchStep2Page extends ConsumerStatefulWidget {
   const AddDispatchStep2Page({super.key});
@@ -20,33 +23,50 @@ class AddDispatchStep2Page extends ConsumerStatefulWidget {
       _AddDispatchStep2PageState();
 }
 
-class _AddDispatchStep2PageState
-    extends ConsumerState<AddDispatchStep2Page> {
+class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
+  late final TextEditingController downPaymentController;
+  late final TextEditingController additionalCostController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    downPaymentController = TextEditingController();
+    additionalCostController = TextEditingController();
+
+    downPaymentController.addListener(() {
+      final value = int.tryParse(downPaymentController.text) ?? 0;
+
+      ref.read(dispatchFormProvider.notifier).setDownPayment(value);
+    });
+
+    additionalCostController.addListener(() {
+      final value = int.tryParse(additionalCostController.text) ?? 0;
+
+      ref.read(dispatchFormProvider.notifier).setAdditionalCost(value);
+    });
+  }
+
+  @override
+  void dispose() {
+    downPaymentController.dispose();
+    additionalCostController.dispose();
+    super.dispose();
+  }
+
   void _openAddItemSheet() async {
-    final form = ref.read(dispatchFormProvider);
-    final type = form.dispatchItemType;
-
-    Widget sheet;
-
-    if (type == 'animal') {
-      sheet = const AddItemBottomSheetAnimal();
-    } else {
-      sheet = const AddItemBottomSheetFeed();
-    }
-
     final result = await showModalBottomSheet<DispatchItemRequest>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => sheet,
+      isScrollControlled: false,
+      backgroundColor: AppColors.greyBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => const AddItemBottomSheet(),
     );
 
     if (result != null) {
-      final current = ref.read(dispatchFormProvider);
-
-      ref.read(dispatchFormProvider.notifier).state = current.copyWith(
-        items: [...?current.items, result],
-      );
+      ref.read(dispatchFormProvider.notifier).addItem(result);
     }
   }
 
@@ -77,10 +97,17 @@ class _AddDispatchStep2PageState
           ),
           Expanded(
             child: Padding(
-              padding: EdgeInsetsGeometry.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16),
               child: _infoItem(items),
             ),
           ),
+          if (items.isNotEmpty) ...[
+            SizedBox(height: 8),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: _paymentDetail(),
+            ),
+          ],
           _NextButton(),
         ],
       ),
@@ -110,18 +137,8 @@ class _AddDispatchStep2PageState
   }
 
   Widget _itemCard(DispatchItemRequest item) {
-    final isAnimal = item.animalProfile != null;
-
-    final code = isAnimal
-        ? item.animalProfile!.animalCode
-        : item.feedMedicine!.code;
-
-    final secondValue = isAnimal
-        ? "${item.animalProfile!.weight} Kg"
-        : item.feedMedicine!.feedType;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -130,61 +147,71 @@ class _AddDispatchStep2PageState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.animalProfile?.name ?? item.feedMedicine!.name,
-                      style: AppTypography.smallBoldBlack,
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                // ICON
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryShade,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      AppImages.icProduct,
+                      width: 24,
+                      height: 24,
                     ),
-                    Text(
-                      "$code • $secondValue",
-                      style: AppTypography.smallNormalGrey,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              _iconAction(
-                icon: Icons.delete,
-                color: AppColors.danger,
-                backColor: AppColors.danger.withOpacity(0.08),
-                onTap: () => _showDeleteConfirmSheet(item),
-              ),
-              const SizedBox(width: 8),
-              _iconAction(
-                icon: Icons.edit,
-                color: AppColors.white,
-                backColor: AppColors.primary,
-                onTap: () {},
-              ),
-            ],
-          ),
 
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.animalProfileName,
+                        style: AppTypography.smallBoldBlack,
+                      ),
+                      Text(item.orderId, style: AppTypography.smallNormalGrey),
+                    ],
+                  ),
+                ),
+                _iconAction(
+                  icon: Icons.delete,
+                  color: AppColors.danger,
+                  backColor: AppColors.danger.withOpacity(0.08),
+                  onTap: () => _showDeleteConfirmSheet(item),
+                ),
+                const SizedBox(width: 8),
+                _iconAction(
+                  icon: Icons.edit,
+                  color: AppColors.white,
+                  backColor: AppColors.primary,
+                  onTap: () {},
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 12),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Rp ${item.unitPrice.toString()}',
-                style: AppTypography.smallBoldBlack,
-              ),
-              Text(
-                'Rp ${item.subtotal.toString()}',
-                style: AppTypography.smallBoldBlack,
-              ),
-            ],
+          TwoColumnRowCard(
+            leftValue: item.city,
+            leftLabel: "Kota Tujuan",
+            rightValue: item.dlvDate,
+            rightLabel: "Tanggal Kirim",
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Harga/kg Forecast', style: AppTypography.xSmallNormalBlack),
-              Text('Total Forecast', style: AppTypography.xSmallNormalBlack),
-            ],
+          Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+          TwoColumnRowCard(
+            leftValue: "",
+            leftLabel: "Biaya kirim",
+            rightValue: "",
+            rightLabel: item.shippingCost.toString(),
           ),
         ],
       ),
@@ -265,15 +292,42 @@ class _AddDispatchStep2PageState
       backgroundColor: Colors.transparent,
       builder: (_) => _DeleteConfirmBottomSheet(
         onDelete: () {
-          final current = ref.read(dispatchFormProvider);
-
-          ref.read(dispatchFormProvider.notifier).state = current.copyWith(
-            items: current.items?.where((e) => e != item).toList(),
-          );
+          ref.read(dispatchFormProvider.notifier).removeItem(item);
 
           Navigator.pop(context);
         },
       ),
+    );
+  }
+
+  Widget _paymentDetail() {
+    final dispatch = ref.watch(dispatchFormProvider);
+
+    return SectionCard(
+      title: "Rincian Biaya",
+      children: [
+        TextFields(
+          label: "Uang Muka Pengiriman (Opsional)",
+          hint: "Masukkan uang muka",
+          prefixIcon: AppImages.icMoneyTime,
+          controller: downPaymentController,
+        ),
+        TextFields(
+          label: "Biaya Tambahan (Opsional)",
+          hint: "Masukkan biaya tambahan",
+          prefixIcon: AppImages.icMoneyTime,
+          controller: additionalCostController,
+        ),
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: "Rp. ${dispatch.remainingPayment}",
+              subtitle: "Sisa pembayaran",
+              image: AppImages.icMoneyTime,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -297,7 +351,7 @@ class _NextButton extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              context.push("/dispatch-order/add/confirmation");
+              context.push("/dispatch/add/confirmation");
             },
             child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
           ),

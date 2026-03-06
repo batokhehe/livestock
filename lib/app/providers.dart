@@ -18,6 +18,7 @@ import '../core/data/model/animal_class_model.dart';
 import '../core/domain/usecase/get_master_data_list_use_case.dart';
 import '../core/errors/unauthorized_exception.dart';
 import '../core/network/dio_client.dart';
+import '../features/dispatch/data/model/sales_order_dispatch_model.dart';
 import '../features/product/data/product_provider_tab.dart';
 import '../features/product/data/product_tab.dart';
 
@@ -203,3 +204,10 @@ final animalListByClassProvider =
           .read(getMasterDataListUseCaseProvider)
           .callAnimals(animalClassPriceId);
     });
+
+//SO Dispatch
+final soListProvider = FutureProvider.autoDispose<List<SalesOrderDispatch>>((
+  ref,
+) async {
+  return ref.read(getMasterDataListUseCaseProvider).callSoDispatch();
+});

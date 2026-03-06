@@ -94,7 +94,7 @@ class DispatchPage extends ConsumerWidget {
           BottomButton(
             text: 'Tambah Pengiriman',
             onPressed: () {
-              showSalesTypeBottomSheet(context);
+              context.push('/dispatch/add');
             },
           ),
         ],
@@ -125,64 +125,6 @@ class DispatchPage extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
-
-  void showSalesTypeBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: false,
-      builder: (_) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-          decoration: BoxDecoration(
-            color: AppColors.greyBg,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Pilih Pengiriman',
-                    style: AppTypography.largeBoldBlack,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-
-              _SalesTypeItem(
-                title: 'Hewan',
-                onTap: () {
-                  Navigator.pop(context);
-                  context.push('/dispatch/add?type=animal');
-                },
-              ),
-
-              const SizedBox(height: 12),
-
-              /// Pakan / Obat
-              _SalesTypeItem(
-                title: 'Pakan/Obat',
-                onTap: () {
-                  Navigator.pop(context);
-                  context.push('/dispatch/add?type=feed');
-                },
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }
