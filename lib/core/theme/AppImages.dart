@@ -7,21 +7,26 @@ class AppImages {
 
   static const icHome = "$iconsUrl/ic_home.png";
   static const icField = "$iconsUrl/ic_field.png";
-  static const icAnimal = "$iconsUrl/ic_animal.png";
+  static const icAnimal = "$iconsUrl/ic_animal.svg";
   static const icUserTick = "$iconsUrl/ic_user_tick.png";
-  static const icWalletCheck = "$iconsUrl/ic_wallet_check.png";
+  static const icWalletCheck = "$iconsUrl/ic_wallet_check.svg";
   static const icBlend = "$iconsUrl/ic_blend.png";
   static const icRulerPen = "$iconsUrl/ic_ruler_pen.png";
   static const icBox = "$iconsUrl/ic_box.png";
 
-  static const icClipboardImport = "$iconsUrl/ic_clipboard_import.png";
-  static const icDocumentForward = "$iconsUrl/ic_document_forward.png";
-  static const icDocumentPrevious = "$iconsUrl/ic_document_previous.png";
+  static const icClipboardImport = "$iconsUrl/ic_clipboard_import.svg";
+  static const icDocumentForward = "$iconsUrl/ic_document_forward.svg";
+  static const icDocumentPrevious = "$iconsUrl/ic_document_previous.svg";
 
   static const icShare = "$iconsUrl/ic_share.png";
   static const icTruckFast = "$iconsUrl/ic_truck_fast.png";
   static const icCalendarSearch = "$iconsUrl/ic_calendar_search.png";
   static const icClipboard = "$iconsUrl/ic_clipboard.png";
+
+  static const icClipboardSvg = "$iconsUrl/ic_clipboard.svg";
+  static const icShareSvg = "$iconsUrl/ic_share.svg";
+  static const icTruckFastSvg = "$iconsUrl/ic_truck_fast.svg";
+  static const icCalendarSearchSvg = "$iconsUrl/ic_calendar_search.svg";
 
   static const icMoneyTick = "$iconsUrl/ic_money_tick.png";
   static const icMoneyTime = "$iconsUrl/ic_money_time.png";
@@ -55,4 +60,5 @@ class AppImages {
   static const icCar = "$iconsUrl/ic_car.png";
 
   static const icSearch = '$iconsUrl/ic_search.svg';
+  static const icNavCow = '$iconsUrl/ic_nav_cow.svg';
 }
