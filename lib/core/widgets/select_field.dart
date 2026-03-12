@@ -7,6 +7,7 @@ class SelectField extends StatelessWidget {
   final String label;
   final String hint;
   final String icon;
+  final bool isMandatoryField;
   final VoidCallback? onTap;
 
   const SelectField({
@@ -14,6 +15,7 @@ class SelectField extends StatelessWidget {
     required this.label,
     required this.hint,
     required this.icon,
+    this.isMandatoryField = false,
     this.onTap,
   });
 
@@ -22,7 +24,14 @@ class SelectField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTypography.smallBoldBlack),
+        Row(
+          children: [
+            Text(label, style: AppTypography.smallBoldBlack),
+            isMandatoryField
+                ? Text('*', style: AppTypography.smallBoldRed)
+                : SizedBox.shrink(),
+          ],
+        ),
         const SizedBox(height: 6),
 
         InkWell(

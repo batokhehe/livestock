@@ -107,6 +107,7 @@ class _SalesOrderInfoSection extends ConsumerWidget {
       children: [
         SelectField(
           label: "Tanggal Penjualan",
+          isMandatoryField: true,
           hint: formatDateTime(form.orderDate),
           icon: AppImages.icCalendarSearch,
           onTap: () async {
@@ -127,7 +128,8 @@ class _SalesOrderInfoSection extends ConsumerWidget {
         if (form.salesItemType == 'animal') ...[
           SizedBox(height: 12),
           SelectField(
-            label: "Tanggal Pelunasan",
+            label: "Tanggal Jatuh Tempo",
+            isMandatoryField: true,
             hint: formatDateTime(form.dueDate),
             icon: AppImages.icCalendarSearch,
             onTap: () async {
