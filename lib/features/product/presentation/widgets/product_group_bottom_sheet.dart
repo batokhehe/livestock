@@ -6,6 +6,8 @@ import 'package:livestock/features/product/presentation/widgets/product_card.dar
 import '../../../../app/providers.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/helpers/utils.dart';
+import '../../../../core/theme/AppImages.dart';
+import '../../../../core/theme/AppTypography.dart';
 
 class ProductGroupBottomSheet extends ConsumerWidget {
   const ProductGroupBottomSheet({super.key});
@@ -70,7 +72,34 @@ class ProductGroupBottomSheet extends ConsumerWidget {
                   error: (e, _) => Center(child: Text("Error: $e")),
                   data: (animals) {
                     if (animals.isEmpty) {
-                      return const Center(child: Text("Data tidak ditemukan"));
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 8.0,
+                          children: [
+                            Image.asset(
+                              AppImages.icNoItem,
+                              width: 250,
+                              height: 250,
+                              fit: BoxFit.fitWidth,
+                            ),
+                            Text(
+                              "Belum Ada Data yang Tersedia",
+                              style: AppTypography.mediumBoldBlack,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Text(
+                                "Belum ada sapi yang terdaftar pada kelas ini,\ntambahkan data atau ubah filter",
+                                textAlign: TextAlign.center,
+                                style: AppTypography.smallNormalWhite
+                                    .copyWith(color: AppColors.black),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
                     }
 
                     return ListView.builder(
@@ -93,7 +122,8 @@ class ProductGroupBottomSheet extends ConsumerWidget {
                               age: '${e.age} bulan',
                               weight: '${e.weight} kg',
                               price: 'Rp ${e.salesPrice}',
-                              refSalesPriceTotal: "Rp ${formatPrice(e.refSalesPriceTotal)}",
+                              refSalesPriceTotal:
+                                  "Rp ${formatPrice(e.refSalesPriceTotal)}",
                               location: e.farmLocation?.name ?? "-",
                               status: e.status,
                               farmArea: e.farmArea,

@@ -79,8 +79,8 @@ class GetMasterDataListUseCase {
     return repository.getAnimalDetail(id);
   }
 
-  Future<List<AnimalClass>> callAnimalClass({String? search}) {
-    return repository.getAnimalClass(search: search);
+  Future<List<AnimalClass>> callAnimalClass({String? search, String? status}) {
+    return repository.getAnimalClass(search: search, status: status);
   }
 
   Future<List<SalesOrderDispatch>> callSoDispatch() {

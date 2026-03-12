@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/features/product/data/product_tab.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/core/data/model/farm_area_model.dart';
@@ -12,13 +13,12 @@ import 'package:livestock/features/product/presentation/widgets/product_card.dar
 import 'package:livestock/features/product/presentation/widgets/product_grade_card.dart';
 
 import '../../../../app/providers.dart';
-import '../../../../core/constant/app_assets.dart';
 import '../../../../core/data/model/animal_class_model.dart';
 import '../../../../core/data/model/animal_profile_model.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../data/product_provider_tab.dart';
-import '../widgets/filter_dropdown.dart';
+
 import '../widgets/product_group_bottom_sheet.dart';
 import '../../../../core/helpers/utils.dart';
 
@@ -35,6 +35,12 @@ class _ProductPage extends ConsumerState<ProductPage> {
 
   final statusItems = [
     {'value': '', 'label': 'Semua Status'},
+    {'value': 'active', 'label': 'Aktif'},
+    {'value': 'inactive', 'label': 'Nonaktif'},
+  ];
+
+  final classItems = [
+    {'value': '', 'label': 'Semua Kelas'},
     {'value': 'active', 'label': 'Aktif'},
     {'value': 'inactive', 'label': 'Nonaktif'},
   ];
@@ -123,7 +129,7 @@ class _ProductPage extends ConsumerState<ProductPage> {
         prefixIconConstraints: BoxConstraints(minWidth: 40, minHeight: 40),
         prefixIcon: Padding(
           padding: const EdgeInsets.only(left: 12.0, right: 8.0),
-          child: SvgPicture.asset(AppAssets.icons.search, fit: BoxFit.fitWidth),
+          child: SvgPicture.asset(AppImages.icSearch, fit: BoxFit.fitWidth),
         ),
         suffixIcon: keyword.isNotEmpty
             ? IconButton(icon: Icon(Icons.close), onPressed: _clearSearch)
@@ -180,10 +186,14 @@ class _ProductPage extends ConsumerState<ProductPage> {
       child: Row(
         children: [
           SizedBox(
-            width: 160,
+            width: 170,
             child: DropdownButtonFormField2<String>(
               isExpanded: true,
-              hint: Text(selectedLabel, style: AppTypography.smallNormalBlack),
+              hint: Text(
+                selectedLabel,
+                style: AppTypography.smallNormalBlack,
+                overflow: TextOverflow.ellipsis,
+              ),
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
                 alignLabelWithHint: true,
@@ -258,6 +268,7 @@ class _ProductPage extends ConsumerState<ProductPage> {
                   hint: Text(
                     selectedLocationLabel,
                     style: AppTypography.smallNormalBlack,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -320,7 +331,7 @@ class _ProductPage extends ConsumerState<ProductPage> {
           ),
           const SizedBox(width: 8),
           SizedBox(
-            width: 160,
+            width: 170,
             child: farmAreasAsync.when(
               loading: () => const Center(
                 child: SizedBox(
@@ -345,6 +356,7 @@ class _ProductPage extends ConsumerState<ProductPage> {
                   hint: Text(
                     selectedAreaLabel,
                     style: AppTypography.smallNormalBlack,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -417,34 +429,64 @@ class _ProductPage extends ConsumerState<ProductPage> {
         const SizedBox(height: 12),
 
         Expanded(
-          child: ListView.builder(
-            itemCount: animals.length,
-            itemBuilder: (_, i) {
-              final e = animals[i];
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () => context.push('/product/${e.id}'),
-                  child: ProductCard(
-                    code: e.animalCode,
-                    name: e.name,
-                    gender: e.gender,
-                    grade: e.animalGroup?.name ?? "-",
-                    age: '${e.age} bulan',
-                    weight: '${e.weight} kg',
-                    price: 'Rp ${e.salesPrice}',
-                    refSalesPriceTotal:
-                        "Rp ${formatPrice(e.refSalesPriceTotal)}",
-                    location: e.farmLocation?.name ?? "-",
-                    status: e.status,
-                    farmArea: e.farmArea,
+          child: animals.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 8.0,
+                    children: [
+                      Image.asset(
+                        AppImages.icNoItem,
+                        width: 250,
+                        height: 250,
+                        fit: BoxFit.fitWidth,
+                      ),
+                      Text(
+                        "Belum Ada Data yang Tersedia",
+                        style: AppTypography.mediumBoldBlack,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          "Belum ada sapi yang terdaftar pada kelas ini,\ntambahkan data atau ubah filter",
+                          textAlign: TextAlign.center,
+                          style: AppTypography.smallNormalWhite.copyWith(
+                            color: AppColors.black,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
+                )
+              : ListView.builder(
+                  itemCount: animals.length,
+                  itemBuilder: (_, i) {
+                    final e = animals[i];
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => context.push('/product/${e.id}'),
+                        child: ProductCard(
+                          code: e.animalCode,
+                          name: e.name,
+                          gender: e.gender,
+                          grade: e.animalGroup?.name ?? "-",
+                          age: '${e.age} bulan',
+                          weight: '${e.weight} kg',
+                          price: 'Rp ${e.salesPrice}',
+                          refSalesPriceTotal:
+                              "Rp ${formatPrice(e.refSalesPriceTotal)}",
+                          location: e.farmLocation?.name ?? "-",
+                          status: e.status,
+                          farmArea: e.farmArea,
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
       ],
     );
@@ -452,41 +494,136 @@ class _ProductPage extends ConsumerState<ProductPage> {
 
   Widget _buildAnimalClassList(List<AnimalClass> classes) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _filterGrade(),
-        const SizedBox(height: 12),
-
         Expanded(
-          child: ListView.builder(
-            itemCount: classes.length,
-            itemBuilder: (_, i) {
-              final e = classes[i];
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () {
-                    _openProductGroupSheet(context, e.id);
-                  },
-                  child: ProductGradeCard(
-                    grade: e.animalGroup.name,
-                    weightRange: e.className,
-                    total: '300 Sapi',
-                    available: '300',
-                    sold: '200',
+          child: classes.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 8.0,
+                    children: [
+                      Image.asset(
+                        AppImages.icNoItem,
+                        width: 250,
+                        height: 250,
+                        fit: BoxFit.fitWidth,
+                      ),
+                      Text(
+                        "Belum Ada Data yang Tersedia",
+                        style: AppTypography.mediumBoldBlack,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          "Belum ada sapi yang terdaftar pada kelas ini,\ntambahkan data atau ubah filter",
+                          textAlign: TextAlign.center,
+                          style: AppTypography.smallNormalWhite.copyWith(
+                            color: AppColors.black,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
+                )
+              : ListView.builder(
+                  itemCount: classes.length,
+                  itemBuilder: (_, i) {
+                    final e = classes[i];
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () {
+                          _openProductGroupSheet(context, e.id);
+                        },
+                        child: ProductGradeCard(
+                          grade: e.animalGroup.name,
+                          weightRange: e.className,
+                          total: '${e.total}',
+                          available: '${e.available}',
+                          sold: '${e.sold}',
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
       ],
     );
   }
 
   Widget _filterGrade() {
-    return Row(children: const [FilterDropdown(label: "Semua Kelas")]);
+    final selectedStatus = ref.watch(animalClassStatusProvider);
+    final selectedLabel = classItems.firstWhere(
+      (e) => e['value'] == selectedStatus,
+    )['label']!;
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 170,
+            child: DropdownButtonFormField2<String>(
+              isExpanded: true,
+              hint: Text(
+                selectedLabel,
+                style: AppTypography.smallNormalBlack,
+                overflow: TextOverflow.ellipsis,
+              ),
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
+                alignLabelWithHint: true,
+                filled: true,
+                fillColor: Colors.white,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.fieldBorder),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: AppColors.primaryDark,
+                    width: 2.0,
+                  ),
+                ),
+              ),
+              iconStyleData: const IconStyleData(
+                icon: Icon(Icons.keyboard_arrow_down),
+              ),
+              style: AppTypography.smallNormalBlack,
+              items: classItems
+                  .map(
+                    (item) => DropdownItem<String>(
+                      value: item['value']!,
+                      child: Text(
+                        item['label']!,
+                        style: AppTypography.smallNormalBlack,
+                      ),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                ref.read(animalClassStatusProvider.notifier).state =
+                    value ?? '';
+              },
+              dropdownStyleData: DropdownStyleData(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white,
+                ),
+              ),
+              onMenuStateChange: (isOpen) {
+                if (!isOpen) FocusScope.of(context).unfocus();
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _openProductGroupSheet(BuildContext context, int id) {
@@ -529,7 +666,8 @@ class _TabChip extends StatelessWidget {
           label,
           style: AppTypography.smallNormalBlack.copyWith(
             color: selected ? AppColors.primary : AppColors.black,
-          ),
+            fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+            ),
         ),
       ),
     );
