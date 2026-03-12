@@ -17,15 +17,15 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              HeaderCard(),
-              SizedBox(height: 16),
-              Padding(
-                padding: EdgeInsetsGeometry.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            HeaderCard(),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SummaryCard(),
                     SizedBox(height: 16),
@@ -41,8 +41,8 @@ class HomePage extends StatelessWidget {
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -24,11 +24,11 @@ class ProductCardItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 280,
+      width: 300,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.fieldBorder),
       ),
       child: Column(
@@ -56,6 +56,7 @@ class ProductCardItem extends StatelessWidget {
           const SizedBox(height: 12),
           Wrap(
             spacing: 6,
+            runSpacing: 8.0,
             children: [
               ChipCard(label: weight),
               ChipCard(label: grade),
