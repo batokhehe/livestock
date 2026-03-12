@@ -53,4 +53,6 @@ class AppImages {
   static const icNote = "$iconsUrl/ic_note.png";
   static const icUser = "$iconsUrl/ic_user.png";
   static const icCar = "$iconsUrl/ic_car.png";
+
+  static const icSearch = '$iconsUrl/ic_search.svg';
 }
