@@ -60,6 +60,7 @@ class GoRouterRefreshStream extends ChangeNotifier {
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final hasShownSplashProvider = StateProvider<bool>((ref) => false);
+final mainPageKey = GlobalKey<MainPageState>();
 
 final routerProvider = Provider<GoRouter>((ref) {
   final hasShownSplash = ref.watch(hasShownSplashProvider);
@@ -96,7 +97,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: "/splash", builder: (_, __) => const SplashPage()),
       GoRoute(path: "/welcome", builder: (_, __) => const WelcomePage()),
       GoRoute(path: "/login", builder: (_, __) => const LoginPage()),
-      GoRoute(path: "/", builder: (_, __) => const MainPage()),
+      GoRoute(
+        path: "/",
+        builder: (_, __) => MainPage(key: mainPageKey),
+      ),
       GoRoute(path: "/home", builder: (_, __) => const HomePage()),
       GoRoute(path: "/dashboard", builder: (_, __) => const DashboardPage()),
       GoRoute(

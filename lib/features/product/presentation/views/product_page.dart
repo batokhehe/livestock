@@ -5,22 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:livestock/core/data/model/farm_area_model.dart';
+import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/features/product/data/product_tab.dart';
-import 'package:livestock/core/data/model/farm_location_model.dart';
-import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/features/product/presentation/widgets/product_card.dart';
 import 'package:livestock/features/product/presentation/widgets/product_grade_card.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/data/model/animal_class_model.dart';
 import '../../../../core/data/model/animal_profile_model.dart';
+import '../../../../core/helpers/utils.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../data/product_provider_tab.dart';
-
 import '../widgets/product_group_bottom_sheet.dart';
-import '../../../../core/helpers/utils.dart';
 
 class ProductPage extends ConsumerStatefulWidget {
   const ProductPage({super.key});
@@ -32,6 +31,7 @@ class ProductPage extends ConsumerStatefulWidget {
 class _ProductPage extends ConsumerState<ProductPage> {
   late final TextEditingController searchCtrl;
   Timer? _debounce;
+  late final ScrollController _scrollController;
 
   final statusItems = [
     {'value': '', 'label': 'Semua Status'},
@@ -49,12 +49,22 @@ class _ProductPage extends ConsumerState<ProductPage> {
   void initState() {
     super.initState();
     searchCtrl = TextEditingController();
+    _scrollController = ScrollController();
+
     ref.read(animalSearchProvider.notifier).state = '';
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
+        ref.read(productDataProvider.notifier).loadMore();
+      }
+    });
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
+    _scrollController.dispose();
     searchCtrl.dispose();
     super.dispose();
   }
@@ -71,7 +81,12 @@ class _ProductPage extends ConsumerState<ProductPage> {
         title: const Text("Hewan", style: AppTypography.largeBoldBlack),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () => context.go('/home'),
+          onPressed: () {
+            context.go('/');
+            Future.microtask(() {
+              mainPageKey.currentState?.changeTab(0);
+            });
+          },
         ),
       ),
       body: dataAsync.when(
@@ -89,8 +104,14 @@ class _ProductPage extends ConsumerState<ProductPage> {
 
                 Expanded(
                   child: tab == ProductTab.product
-                      ? _buildAnimalList(data as List<AnimalProfile>)
-                      : _buildAnimalClassList(data as List<AnimalClass>),
+                      ? _buildAnimalList(
+                          data.data.cast<AnimalProfile>(),
+                          data.total ?? 0,
+                        )
+                      : _buildAnimalClassList(
+                          data.data.cast<AnimalClass>(),
+                          data.total ?? 0,
+                        ),
                 ),
               ],
             ),
@@ -422,7 +443,9 @@ class _ProductPage extends ConsumerState<ProductPage> {
     );
   }
 
-  Widget _buildAnimalList(List<AnimalProfile> animals) {
+  Widget _buildAnimalList(List<AnimalProfile> animals, int total) {
+    final hasMore = animals.length < total;
+
     return Column(
       children: [
         _filterRow(),
@@ -460,8 +483,16 @@ class _ProductPage extends ConsumerState<ProductPage> {
                   ),
                 )
               : ListView.builder(
-                  itemCount: animals.length,
+                  controller: _scrollController,
+                  itemCount: animals.length + (hasMore ? 1 : 0),
                   itemBuilder: (_, i) {
+                    if (i == animals.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
                     final e = animals[i];
 
                     return Padding(
@@ -492,7 +523,9 @@ class _ProductPage extends ConsumerState<ProductPage> {
     );
   }
 
-  Widget _buildAnimalClassList(List<AnimalClass> classes) {
+  Widget _buildAnimalClassList(List<AnimalClass> classes, int total) {
+    final hasMore = classes.length < total;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -667,7 +700,7 @@ class _TabChip extends StatelessWidget {
           style: AppTypography.smallNormalBlack.copyWith(
             color: selected ? AppColors.primary : AppColors.black,
             fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-            ),
+          ),
         ),
       ),
     );

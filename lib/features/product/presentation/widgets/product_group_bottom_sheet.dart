@@ -71,7 +71,7 @@ class ProductGroupBottomSheet extends ConsumerWidget {
                       const Center(child: CircularProgressIndicator()),
                   error: (e, _) => Center(child: Text("Error: $e")),
                   data: (animals) {
-                    if (animals.isEmpty) {
+                    if (animals.data.isEmpty) {
                       return Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -105,9 +105,9 @@ class ProductGroupBottomSheet extends ConsumerWidget {
                     return ListView.builder(
                       controller: scrollController,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: animals.length,
+                      itemCount: animals.data.length,
                       itemBuilder: (_, i) {
-                        final e = animals[i];
+                        final e = animals.data[i];
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),

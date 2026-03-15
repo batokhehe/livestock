@@ -11,6 +11,7 @@ import 'package:livestock/core/data/model/village_model.dart';
 import 'package:livestock/core/data/repository/master_repository.dart';
 
 import '../../../features/dispatch/data/model/sales_order_dispatch_model.dart';
+import '../../data/model/base_response.dart';
 import '../../data/model/city_model.dart';
 import '../../data/model/supplier_model.dart';
 
@@ -31,12 +32,14 @@ class GetMasterDataListUseCase {
     return repository.getCustomers();
   }
 
-  Future<List<AnimalProfile>> callAnimals(
-    int? animalClassPriceId, {
+  Future<BaseResponse<AnimalProfile>> callAnimals({
+    int? animalClassPriceId,
     String? search,
     String? status,
     int? farmLocationId,
     int? farmAreaId,
+    required int page,
+    required int perPage,
   }) {
     return repository.getAnimals(
       animalClassPriceId,
@@ -44,6 +47,8 @@ class GetMasterDataListUseCase {
       status: status,
       farmLocationId: farmLocationId,
       farmAreaId: farmAreaId,
+      page: page,
+      perPage: perPage,
     );
   }
 
@@ -79,8 +84,18 @@ class GetMasterDataListUseCase {
     return repository.getAnimalDetail(id);
   }
 
-  Future<List<AnimalClass>> callAnimalClass({String? search, String? status}) {
-    return repository.getAnimalClass(search: search, status: status);
+  Future<BaseResponse<AnimalClass>> callAnimalClass({
+    String? search,
+    String? status,
+    required int page,
+    required int perPage,
+  }) {
+    return repository.getAnimalClass(
+      search: search,
+      status: status,
+      page: page,
+      perPage: perPage,
+    );
   }
 
   Future<List<SalesOrderDispatch>> callSoDispatch() {

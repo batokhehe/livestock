@@ -15,12 +15,12 @@ import 'package:livestock/core/data/repository/master_repository.dart';
 
 import '../core/constant/enum.dart';
 import '../core/data/model/animal_class_model.dart';
+import '../core/data/model/base_response.dart';
 import '../core/domain/usecase/get_master_data_list_use_case.dart';
 import '../core/errors/unauthorized_exception.dart';
 import '../core/network/dio_client.dart';
+import '../core/notifier/product_notifier.dart';
 import '../features/dispatch/data/model/sales_order_dispatch_model.dart';
-import '../features/product/data/product_provider_tab.dart';
-import '../features/product/data/product_tab.dart';
 
 export '../features/auth/data/auth_repository.dart';
 export '../features/auth/providers/auth_provider.dart';
@@ -44,11 +44,11 @@ final getMasterDataListUseCaseProvider = Provider((ref) {
 });
 
 // FARM LOCATION
-final farmLocationListProvider = FutureProvider.autoDispose<List<FarmLocation>>((
-  ref,
-) async {
-  return ref.read(getMasterDataListUseCaseProvider).callFarmLocations();
-});
+final farmLocationListProvider = FutureProvider.autoDispose<List<FarmLocation>>(
+  (ref) async {
+    return ref.read(getMasterDataListUseCaseProvider).callFarmLocations();
+  },
+);
 final selectedFarmLocationProvider = StateProvider<FarmLocation?>(
   (ref) => null,
 );
@@ -57,7 +57,9 @@ final farmLocationSearchProvider = StateProvider.autoDispose<String>(
 );
 
 // FARM AREA
-final farmAreaListProvider = FutureProvider.autoDispose<List<FarmArea>>((ref) async {
+final farmAreaListProvider = FutureProvider.autoDispose<List<FarmArea>>((
+  ref,
+) async {
   return ref.read(getMasterDataListUseCaseProvider).callFarmAreas();
 });
 final selectedFarmAreaProvider = StateProvider<FarmArea?>((ref) => null);
@@ -73,11 +75,12 @@ final selectedCustomerProvider = StateProvider<Customer?>((ref) => null);
 final customerSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
 // ANIMAL
-final animalListProvider = FutureProvider.autoDispose<List<AnimalProfile>>((
-  ref,
-) async {
-  return ref.read(getMasterDataListUseCaseProvider).callAnimals(null);
-});
+final animalListProvider =
+    FutureProvider.autoDispose<BaseResponse<AnimalProfile>>((ref) async {
+      return ref
+          .read(getMasterDataListUseCaseProvider)
+          .callAnimals(page: 1, perPage: 1000);
+    });
 final selectedAnimalProvider = StateProvider<AnimalProfile?>((ref) => null);
 final animalSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 final animalStatusProvider = StateProvider.autoDispose<String>((ref) => '');
@@ -177,11 +180,10 @@ final selectedSupplierProvider = StateProvider<Supplier?>((ref) => null);
 final supplierSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
 // ANIMAL CLASS
-final animalClassListProvider = FutureProvider.autoDispose<List<AnimalClass>>((
-  ref,
-) async {
-  return ref.read(getMasterDataListUseCaseProvider).callAnimalClass();
-});
+final animalClassListProvider =
+    FutureProvider.autoDispose<BaseResponse<AnimalClass>>((ref) async {
+      return ref.read(getMasterDataListUseCaseProvider).callAnimalClass(page: 1, perPage: 1000);
+    });
 final selectedAnimalClassProvider = StateProvider<AnimalClass?>((ref) => null);
 final animalClassSearchProvider = StateProvider.autoDispose<String>(
   (ref) => '',
@@ -190,40 +192,23 @@ final animalClassStatusProvider = StateProvider.autoDispose<String>(
   (ref) => '',
 );
 
-final productDataProvider = FutureProvider.autoDispose((ref) async {
-  final tab = ref.watch(productTabProvider);
-  final useCase = ref.read(getMasterDataListUseCaseProvider);
-  final keyword = ref.watch(animalSearchProvider);
-  final status = ref.watch(animalStatusProvider);
-  final farmLocationId = ref.watch(animalFarmLocationIdProvider);
-  final farmAreaId = ref.watch(animalFarmAreaIdProvider);
-
-  if (tab == ProductTab.product) {
-    final search = keyword.length >= 2 ? keyword : null;
-    final statusFilter = status.isNotEmpty ? status : null;
-    return await useCase.callAnimals(
-      null,
-      search: search,
-      status: statusFilter,
-      farmLocationId: farmLocationId,
-      farmAreaId: farmAreaId,
+final productDataProvider =
+    AsyncNotifierProvider<ProductNotifier, BaseResponse<dynamic>>(
+      ProductNotifier.new,
     );
-  } else {
-    final search = keyword.length >= 2 ? keyword : null;
-    final classStatus = ref.watch(animalClassStatusProvider);
-    final statusFilter = classStatus.isNotEmpty ? classStatus : null;
-    return await useCase.callAnimalClass(search: search, status: statusFilter);
-  }
-});
 
 final selectedAnimalClassPriceIdProvider = StateProvider<int?>((ref) => null);
 final animalListByClassProvider =
-    FutureProvider.autoDispose<List<AnimalProfile>>((ref) async {
+    FutureProvider.autoDispose<BaseResponse<AnimalProfile>>((ref) async {
       final animalClassPriceId = ref.watch(selectedAnimalClassPriceIdProvider);
 
       return ref
           .read(getMasterDataListUseCaseProvider)
-          .callAnimals(animalClassPriceId);
+          .callAnimals(
+            animalClassPriceId: animalClassPriceId,
+            page: 1,
+            perPage: 1000,
+          );
     });
 
 //SO Dispatch

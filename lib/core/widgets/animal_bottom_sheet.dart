@@ -47,7 +47,7 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
         ),
       ),
       data: (d) {
-        final filtered = d.where((e) {
+        final filtered = d.data.where((e) {
           return e.name.toLowerCase().contains(keyword.toLowerCase());
         }).toList();
 

@@ -69,16 +69,19 @@ class MasterApi {
     String? status,
     int? farmLocationId,
     int? farmAreaId,
+    required int page,
+    required int perPage,
   }) async {
     final res = await dio.get(
       '/master/animal-profile',
       queryParameters: {
-        if (animalClassPriceId != null)
-          'animal_class_price_id': animalClassPriceId,
+        'animal_class_price_id': ?animalClassPriceId,
         if (search != null && search.isNotEmpty) 'search': search,
         if (status != null && status.isNotEmpty) 'status': status,
-        if (farmLocationId != null) 'farm_location_id': farmLocationId,
-        if (farmAreaId != null) 'farm_area_id': farmAreaId,
+        'farm_location_id': ?farmLocationId,
+        'farm_area_id': ?farmAreaId,
+        'page': page,
+        'per_page': perPage,
       },
     );
 
@@ -224,12 +227,16 @@ class MasterApi {
   Future<BaseResponse<AnimalClass>> getAnimalClasses({
     String? search,
     String? status,
+    required int page,
+    required int perPage,
   }) async {
     final res = await dio.get(
       '/master/animal-class-price',
       queryParameters: {
         if (search != null && search.isNotEmpty) 'search': search,
         if (status != null && status.isNotEmpty) 'status': status,
+        'page': page,
+        'per_page': perPage,
       },
     );
 

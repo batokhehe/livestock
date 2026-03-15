@@ -12,6 +12,7 @@ import 'package:livestock/core/data/model/supplier_model.dart';
 
 import '../../../features/dispatch/data/model/sales_order_dispatch_model.dart';
 import '../api/master_api.dart';
+import '../model/base_response.dart';
 import '../model/village_model.dart';
 
 class MasterRepository {
@@ -34,21 +35,24 @@ class MasterRepository {
     return res.data;
   }
 
-  Future<List<AnimalProfile>> getAnimals(
+  Future<BaseResponse<AnimalProfile>> getAnimals(
     int? animalClassPriceId, {
     String? search,
     String? status,
     int? farmLocationId,
     int? farmAreaId,
+    required int page,
+    required int perPage,
   }) async {
-    final res = await api.getAnimals(
+    return await api.getAnimals(
       animalClassPriceId,
       search: search,
       status: status,
       farmLocationId: farmLocationId,
       farmAreaId: farmAreaId,
+      page: page,
+      perPage: perPage,
     );
-    return res.data;
   }
 
   Future<List<Province>> getProvinces() async {
@@ -87,12 +91,13 @@ class MasterRepository {
     return res.data;
   }
 
-  Future<List<AnimalClass>> getAnimalClass({
+  Future<BaseResponse<AnimalClass>> getAnimalClass({
     String? search,
     String? status,
+    required int page,
+    required int perPage,
   }) async {
-    final res = await api.getAnimalClasses(search: search, status: status);
-    return res.data;
+    return await api.getAnimalClasses(search: search, status: status, page: page, perPage: perPage);
   }
 
   Future<List<SalesOrderDispatch>> getSoDispatch() async {

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/info_item_card.dart';
 
+import '../../../../app/router.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../user/providers/user_provider.dart';
@@ -26,7 +27,10 @@ class ProfilePage extends ConsumerWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.go('/home');
+            context.go('/');
+            Future.microtask(() {
+              mainPageKey.currentState?.changeTab(0);
+            });
           },
         ),
       ),

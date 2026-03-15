@@ -83,9 +83,7 @@ class ReceivingDetailCard extends StatelessWidget {
             style: AppTypography.xSmallNormalGrey,
           ),
           const SizedBox(height: 2),
-          Text(item.notes.toString(), style: AppTypography.xSmallNormalGrey),
-          const SizedBox(height: 2),
-          const Text('Catatan', style: AppTypography.xSmallNormalGrey),
+          Text(item.notes ?? "-", style: AppTypography.xSmallNormalGrey),
         ],
       ),
     );

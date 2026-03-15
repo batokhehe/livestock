@@ -11,6 +11,7 @@ import 'package:livestock/features/dashboard/presentation/widgets/status_grid_ca
 import 'package:livestock/features/dashboard/presentation/widgets/summary_card.dart';
 import 'package:livestock/features/dashboard/presentation/widgets/tab_menu_card.dart';
 
+import '../../../../app/router.dart';
 import '../../data/dashboard_tab.dart';
 import '../../data/monitoring_item.dart';
 
@@ -28,7 +29,10 @@ class DashboardPage extends ConsumerWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.go('/home');
+            context.go('/');
+            Future.microtask(() {
+              mainPageKey.currentState?.changeTab(0);
+            });
           },
         ),
       ),
