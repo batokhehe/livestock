@@ -221,11 +221,15 @@ class MasterApi {
     );
   }
 
-  Future<BaseResponse<AnimalClass>> getAnimalClasses({String? search}) async {
+  Future<BaseResponse<AnimalClass>> getAnimalClasses({
+    String? search,
+    String? status,
+  }) async {
     final res = await dio.get(
       '/master/animal-class-price',
       queryParameters: {
         if (search != null && search.isNotEmpty) 'search': search,
+        if (status != null && status.isNotEmpty) 'status': status,
       },
     );
 

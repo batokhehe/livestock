@@ -186,6 +186,9 @@ final selectedAnimalClassProvider = StateProvider<AnimalClass?>((ref) => null);
 final animalClassSearchProvider = StateProvider.autoDispose<String>(
   (ref) => '',
 );
+final animalClassStatusProvider = StateProvider.autoDispose<String>(
+  (ref) => '',
+);
 
 final productDataProvider = FutureProvider.autoDispose((ref) async {
   final tab = ref.watch(productTabProvider);
@@ -207,7 +210,9 @@ final productDataProvider = FutureProvider.autoDispose((ref) async {
     );
   } else {
     final search = keyword.length >= 2 ? keyword : null;
-    return await useCase.callAnimalClass(search: search);
+    final classStatus = ref.watch(animalClassStatusProvider);
+    final statusFilter = classStatus.isNotEmpty ? classStatus : null;
+    return await useCase.callAnimalClass(search: search, status: statusFilter);
   }
 });
 

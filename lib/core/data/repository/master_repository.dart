@@ -87,8 +87,11 @@ class MasterRepository {
     return res.data;
   }
 
-  Future<List<AnimalClass>> getAnimalClass({String? search}) async {
-    final res = await api.getAnimalClasses(search: search);
+  Future<List<AnimalClass>> getAnimalClass({
+    String? search,
+    String? status,
+  }) async {
+    final res = await api.getAnimalClasses(search: search, status: status);
     return res.data;
   }
 

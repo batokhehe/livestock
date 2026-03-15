@@ -28,7 +28,7 @@ class ProductGradeView extends StatelessWidget {
                 child: const ProductGradeCard(
                   grade: "Kelas A",
                   weightRange: "200–250kg",
-                  total: "300 Sapi",
+                  total: "300",
                   available: "150",
                   sold: "150",
                 ),

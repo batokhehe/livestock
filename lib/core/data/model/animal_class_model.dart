@@ -11,6 +11,9 @@ class AnimalClass {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final int total;
+  final int available;
+  final int sold;
 
   AnimalClass({
     required this.id,
@@ -23,6 +26,9 @@ class AnimalClass {
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
+    required this.total,
+    required this.available,
+    required this.sold,
   });
 
   factory AnimalClass.fromJson(Map<String, dynamic> json) {
@@ -39,6 +45,9 @@ class AnimalClass {
       deletedAt: json['deleted_at'] != null
           ? DateTime.parse(json['deleted_at'])
           : null,
+      total: json['total'] ?? 0,
+      available: json['available'] ?? 0,
+      sold: json['sold'] ?? 0,
     );
   }
 }
