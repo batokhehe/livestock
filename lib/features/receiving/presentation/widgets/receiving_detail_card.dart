@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 
+import '../../../../core/helpers/utils.dart';
 import '../../../../core/widgets/info_tag.dart';
 import '../../data/model/receiving_item_model.dart';
 
@@ -57,7 +58,9 @@ class ReceivingDetailCard extends StatelessWidget {
             children: [
               InfoTag(label: item.ageCategory.toString()),
               InfoTag(label: '${item.receivedWeight} kg'),
-              InfoTag(label: 'Rp ${item.unitPrice}'),
+              InfoTag(
+                label: 'Rp ${formatPrice(double.parse(item.subtotal).toInt())}',
+              ),
               if (item.isVaccinated ?? false)
                 InfoTag(label: item.vaccineDate.toString()),
             ],

@@ -27,6 +27,29 @@ class TextFieldWithInnerCounter extends StatefulWidget {
 }
 
 class _TextFieldWithInnerCounterState extends State<TextFieldWithInnerCounter> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller ?? TextEditingController();
+    _controller.addListener(_onTextChanged);
+  }
+
+  void _onTextChanged() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_onTextChanged);
+    if (widget.controller == null) {
+      _controller.dispose();
+    }
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -48,7 +71,7 @@ class _TextFieldWithInnerCounterState extends State<TextFieldWithInnerCounter> {
           children: [
             TextField(
               onChanged: widget.onChanged,
-              controller: widget.controller,
+              controller: _controller,
               maxLength: widget.maxLength,
               maxLines: 3,
               style: AppTypography.xSmallNormalBlack,
@@ -71,7 +94,7 @@ class _TextFieldWithInnerCounterState extends State<TextFieldWithInnerCounter> {
               right: 12,
               bottom: 8,
               child: Text(
-                '${widget.controller?.text.length}/${widget.maxLength}',
+                '${_controller.text.length}/${widget.maxLength}',
                 style: const TextStyle(fontSize: 11, color: Colors.grey),
               ),
             ),

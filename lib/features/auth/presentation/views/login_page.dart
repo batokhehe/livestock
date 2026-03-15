@@ -187,7 +187,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             const SizedBox(height: 12),
             Center(
               child: Text(
-                "Livestock 1.0",
+                "Livestock 1.1",
                 style: AppTypography.xSmallNormalBlack,
               ),
             ),

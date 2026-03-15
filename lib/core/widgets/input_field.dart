@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:livestock/core/theme/AppColors.dart';
-import 'package:livestock/core/theme/AppTypography.dart';
+
+import '../theme/AppColors.dart';
+import '../theme/AppTypography.dart';
 
 class InputField extends StatelessWidget {
   final String label;
@@ -8,6 +9,7 @@ class InputField extends StatelessWidget {
   final String? suffix;
   final ValueChanged<String>? onChanged;
   final TextInputType? keyboardType;
+  final String? initialValue;
 
   const InputField({
     super.key,
@@ -16,16 +18,22 @@ class InputField extends StatelessWidget {
     this.suffix,
     this.onChanged,
     this.keyboardType,
+    this.initialValue,
   });
 
   @override
   Widget build(BuildContext context) {
+    final controller = initialValue != null
+        ? TextEditingController(text: initialValue)
+        : null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: AppTypography.smallBoldBlack),
         const SizedBox(height: 6),
         TextField(
+          controller: controller,
           style: AppTypography.smallNormalBlack,
           keyboardType: keyboardType,
           onChanged: onChanged,

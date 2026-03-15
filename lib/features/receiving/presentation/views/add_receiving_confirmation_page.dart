@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/widgets/text_field_disabled.dart';
 import 'package:livestock/features/receiving/receiving_provider.dart';
@@ -45,7 +46,7 @@ class AddReceivingConfirmationPage extends ConsumerWidget {
                   totalStep: 3,
                 ),
                 const SizedBox(height: 12),
-                _infoReceiving(),
+                _infoReceiving(ref),
                 const SizedBox(height: 12),
                 _infoItem(selectedItems),
                 const SizedBox(height: 12),
@@ -177,7 +178,8 @@ class AddReceivingConfirmationPage extends ConsumerWidget {
     );
   }
 
-  Widget _infoReceiving() {
+  Widget _infoReceiving(WidgetRef ref) {
+    final receiveDate = ref.read(receivingDateProvider);
     return CardWrapper(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,7 +189,7 @@ class AddReceivingConfirmationPage extends ConsumerWidget {
             style: AppTypography.mediumNormalBlack,
           ),
           const SizedBox(height: 12),
-          TextFieldDisabled(value: "14 Nov 2025"),
+          TextFieldDisabled(value: formatDateTime(receiveDate)),
         ],
       ),
     );

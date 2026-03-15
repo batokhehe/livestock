@@ -151,14 +151,31 @@ class _NextButtonStep2 extends ConsumerWidget {
                 return;
               }
 
-              // if (!provider.hasProofImage) {
-              //   ScaffoldMessenger.of(context).showSnackBar(
-              //     const SnackBar(
-              //       content: Text("Bukti penerimaan wajib diunggah"),
-              //     ),
-              //   );
-              //   return;
-              // }
+              if (!provider.hasProofImage) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Bukti penerimaan wajib diunggah"),
+                  ),
+                );
+                return;
+              }
+
+              final invalidItems = provider.selectedItems.where((e) {
+                final codeEmpty = (e.itemCode ?? '').trim().isEmpty;
+                final weightEmpty =
+                    e.receivedWeight == null || e.receivedWeight! <= 0;
+
+                return codeEmpty || weightEmpty;
+              }).toList();
+
+              if (invalidItems.isNotEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Kode hewan dan berat wajib diisi"),
+                  ),
+                );
+                return;
+              }
 
               context.push('/receiving/add/confirmation');
             },

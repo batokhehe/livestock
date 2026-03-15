@@ -53,7 +53,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                 ),
               ),
             ),
-            Text("Livestock 1.0", style: AppTypography.xSmallNormalBlack),
+            Text("Livestock 1.1", style: AppTypography.xSmallNormalBlack),
             const SizedBox(height: 8),
           ],
         ),

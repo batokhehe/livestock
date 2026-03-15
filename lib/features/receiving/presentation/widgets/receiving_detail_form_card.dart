@@ -102,6 +102,7 @@ class ReceivingDetailFormCard extends StatelessWidget {
                         label: "Kode Hewan",
                         hint: "Masukkan kode",
                         onChanged: onItemCodeChanged,
+                        initialValue: item.itemCode,
                       ),
 
                     if (onWeightChanged != null) ...[

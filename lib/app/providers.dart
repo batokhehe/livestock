@@ -44,7 +44,7 @@ final getMasterDataListUseCaseProvider = Provider((ref) {
 });
 
 // FARM LOCATION
-final farmLocationListProvider = FutureProvider<List<FarmLocation>>((
+final farmLocationListProvider = FutureProvider.autoDispose<List<FarmLocation>>((
   ref,
 ) async {
   return ref.read(getMasterDataListUseCaseProvider).callFarmLocations();
@@ -57,7 +57,7 @@ final farmLocationSearchProvider = StateProvider.autoDispose<String>(
 );
 
 // FARM AREA
-final farmAreaListProvider = FutureProvider<List<FarmArea>>((ref) async {
+final farmAreaListProvider = FutureProvider.autoDispose<List<FarmArea>>((ref) async {
   return ref.read(getMasterDataListUseCaseProvider).callFarmAreas();
 });
 final selectedFarmAreaProvider = StateProvider<FarmArea?>((ref) => null);
