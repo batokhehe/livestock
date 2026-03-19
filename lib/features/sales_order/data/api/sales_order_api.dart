@@ -76,4 +76,15 @@ class SalesOrderApi {
       (json) => CalculateForecast.fromJson(json),
     );
   }
+
+  Future<SalesOrderList> getSalesOrderDetail(int id) async {
+    final response = await dio.get('/transaction/sales-order/$id');
+
+    final result = BaseResponseSingle.fromJson(
+      response.data,
+      (json) => SalesOrderList.fromJson(json),
+    );
+
+    return result.data;
+  }
 }

@@ -187,3 +187,12 @@ final salesOrderRepositoryProvider = Provider<SalesOrderRepository>((ref) {
   final api = ref.read(salesOrderApiProvider);
   return SalesOrderRepository(api);
 });
+
+final salesOrderDetailProvider = FutureProvider.family<SalesOrderList, int>((
+  ref,
+  id,
+) async {
+  final repo = ref.read(salesOrderRepositoryProvider);
+
+  return repo.getSalesOrderDetail(id);
+});

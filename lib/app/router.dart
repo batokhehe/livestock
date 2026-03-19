@@ -39,6 +39,7 @@ import '../features/receiving/data/model/receiving_po_model.dart';
 import '../features/receiving/presentation/views/add_receiving_page.dart';
 import '../features/receiving/presentation/views/add_receiving_step_2_page.dart';
 import '../features/receiving/presentation/views/receiving_page.dart';
+import '../features/sales_order/presentation/views/sales_order_detail_page.dart';
 import '../features/splash_page.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -199,6 +200,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/sales-order/add/confirmation',
         builder: (context, state) => const AddSalesOrderConfirmationPage(),
+      ),
+      GoRoute(
+        path: '/sales-order/detail/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return SalesOrderDetailPage(id: id);
+        },
       ),
 
       GoRoute(

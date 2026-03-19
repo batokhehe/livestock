@@ -12,7 +12,10 @@ class SalesOrderList {
   final Customer customer;
   final String customerName;
 
+  final String farmLocationName;
+
   final int subtotal;
+  final int discountTotal;
   final int amountTotal;
   final int amountPaid;
   final int amountRemainder;
@@ -20,6 +23,9 @@ class SalesOrderList {
   final String salesStatus;
   final String salesType;
   final String salesItemType;
+
+  final String recipientName;
+  final String recipientNumber;
 
   final int totalDispatch;
 
@@ -36,13 +42,17 @@ class SalesOrderList {
     required this.customerId,
     required this.customer,
     required this.customerName,
+    required this.farmLocationName,
     required this.subtotal,
+    required this.discountTotal,
     required this.amountTotal,
     required this.amountPaid,
     required this.amountRemainder,
     required this.salesStatus,
     required this.salesType,
     required this.salesItemType,
+    required this.recipientName,
+    required this.recipientNumber,
     required this.totalDispatch,
     required this.items,
     required this.createdAt,
@@ -51,26 +61,45 @@ class SalesOrderList {
 
   factory SalesOrderList.fromJson(Map<String, dynamic> json) {
     return SalesOrderList(
-      id: json['id'],
-      orderId: json['order_id'],
-      orderDate: json['order_date'],
+      id: json['id'] ?? 0,
+      orderId: json['order_id'] ?? '',
+      orderDate: json['order_date'] ?? '',
       dueDate: json['due_date'],
-      customerId: json['customer_id'],
-      customer: Customer.fromJson(json['customer']),
-      customerName: json['customer_name'],
-      subtotal: json['subtotal'],
-      amountTotal: json['amount_total'],
-      amountPaid: json['amount_paid'],
-      amountRemainder: json['amount_remainder'],
-      salesStatus: json['sales_status'],
-      salesType: json['sales_type'],
-      salesItemType: json['sales_item_type'],
-      totalDispatch: json['total_dispatch'],
-      items: (json['items'] as List)
+
+      customerId: json['customer_id'] ?? 0,
+
+      customer: json['customer'] is Map
+          ? Customer.fromJson(json['customer'])
+          : Customer(
+              id: json['customer_id'] ?? 0,
+              name: json['customer'] ?? '',
+            ),
+
+      customerName: json['customer_name'] ?? json['customer'] ?? '',
+
+      farmLocationName: json['farm_location_name'] ?? '-',
+
+      subtotal: int.parse(json['subtotal'].toString()),
+      discountTotal: int.parse(json['discount_total'].toString()),
+      amountTotal: int.parse(json['amount_total'].toString()),
+      amountPaid: int.parse(json['amount_paid'].toString()),
+      amountRemainder: int.parse(json['amount_remainder'].toString()),
+
+      salesStatus: json['sales_status'] ?? '',
+      salesType: json['sales_type'] ?? '',
+      salesItemType: json['sales_item_type'] ?? '',
+
+      recipientName: json['recipient_name'] ?? '-',
+      recipientNumber: json['recipient_number'] ?? '-',
+
+      totalDispatch: int.parse((json['total_dispatch'] ?? 0).toString()),
+
+      items: (json['items'] as List? ?? [])
           .map((e) => SalesOrderItem.fromJson(e))
           .toList(),
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
     );
   }
 

@@ -34,6 +34,7 @@ class _AddSalesOrderPageState extends ConsumerState<AddSalesOrderPage> {
     super.initState();
 
     Future.microtask(() {
+      ref.read(salesOrderFormProvider.notifier).reset();
       ref.read(salesOrderFormProvider.notifier).setSalesItemType(widget.type);
     });
   }

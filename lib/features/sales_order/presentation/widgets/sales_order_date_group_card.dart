@@ -36,7 +36,7 @@ class SalesOrderDateGroupCard extends StatelessWidget {
             (e) => InkWell(
               borderRadius: BorderRadius.circular(12),
               onTap: () {
-                context.push('/receiving/detail/${e.id}');
+                context.push('/sales-order/detail/${e.id}');
               },
               child: SalesOrderItemDoubleCard(item: e),
             ),
