@@ -3,8 +3,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/features/dashboard/presentation/views/dashboard_page.dart';
 import 'package:livestock/features/notification/presentation/views/notification_page.dart';
-import 'package:livestock/features/product/presentation/views/product_page.dart';
 import 'package:livestock/features/profile/presentation/views/profile_page.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/AppImages.dart';
 import 'home_page.dart';
@@ -29,7 +29,6 @@ class MainPageState extends State<MainPage> {
     pages = const [
       HomePage(),
       DashboardPage(),
-      ProductPage(),
       NotificationPage(),
       ProfilePage(),
     ];
@@ -84,12 +83,12 @@ class _CustomBottomNav extends StatelessWidget {
     _NavItemModel(
       icon: 'assets/icons/ic_notification_bing.png',
       label: 'Notif',
-      pageIndex: 3,
+      pageIndex: 2,
     ),
     _NavItemModel(
       icon: 'assets/icons/ic_user_octagon.png',
       label: 'Profile',
-      pageIndex: 4,
+      pageIndex: 3,
     ),
   ];
 
@@ -104,7 +103,7 @@ class _CustomBottomNav extends StatelessWidget {
       );
     });
 
-    items.insert(_navItems.length >> 1, _buildMiddleItem(onTap));
+    items.insert(_navItems.length >> 1, _buildMiddleItem(context));
 
     return BottomAppBar(
       clipBehavior: Clip.hardEdge,
@@ -119,14 +118,14 @@ class _CustomBottomNav extends StatelessWidget {
     );
   }
 
-  Widget _buildMiddleItem(Function(int) onTap) {
+  Widget _buildMiddleItem(BuildContext context) {
     return Expanded(
       child: Material(
         type: MaterialType.transparency,
         borderRadius: BorderRadius.circular(10),
         child: Center(
           child: InkWell(
-            onTap: () => onTap(2),
+            onTap: () => context.push('/product'),
             borderRadius: BorderRadius.circular(10),
             child: Container(
               width: 42,

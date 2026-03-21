@@ -9,10 +9,12 @@ class TextFields extends StatelessWidget {
   final String? hint;
   final String? initial;
   final String? suffix;
+  final String? prefixText;
   final TextEditingController? controller;
   final int maxLines;
   final bool showCounter;
   final bool enabled;
+  final bool isMandatoryField;
   final String? prefixIcon;
   final ValueChanged<String>? onChanged;
   final TextInputType? keyboardType;
@@ -24,10 +26,12 @@ class TextFields extends StatelessWidget {
     this.hint,
     this.initial,
     this.suffix,
+    this.prefixText,
     this.controller,
     this.maxLines = 1,
     this.showCounter = false,
     this.enabled = true,
+    this.isMandatoryField = false,
     this.prefixIcon,
     this.onChanged,
     this.keyboardType,
@@ -41,11 +45,19 @@ class TextFields extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: enabled
-                ? AppTypography.smallBoldBlack
-                : AppTypography.smallBoldGrey,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: enabled
+                    ? AppTypography.smallBoldBlack
+                    : AppTypography.smallBoldGrey,
+              ),
+              isMandatoryField
+                  ? Text('*', style: AppTypography.smallBoldRed)
+                  : SizedBox.shrink(),
+            ],
           ),
           const SizedBox(height: 6),
           TextFormField(
@@ -56,6 +68,8 @@ class TextFields extends StatelessWidget {
             enabled: enabled,
             maxLines: maxLines,
             maxLength: showCounter ? 80 : null,
+            keyboardType: keyboardType,
+            inputFormatters: inputFormatters,
 
             /// 🔥 INI YANG PENTING
             onChanged: onChanged,
@@ -73,6 +87,14 @@ class TextFields extends StatelessWidget {
                       padding: const EdgeInsets.all(12),
                       child: Image.asset(prefixIcon!, width: 18),
                     )
+                  : prefixText != null
+                      ? Padding(
+                          padding: const EdgeInsets.only(left: 12),
+                          child: Text(prefixText!, style: AppTypography.smallBoldBlack),
+                        )
+                      : null,
+              prefixIconConstraints: prefixText != null
+                  ? const BoxConstraints(minWidth: 0, minHeight: 0)
                   : null,
               filled: true,
               fillColor: enabled ? AppColors.white : AppColors.greyBg,

@@ -10,10 +10,21 @@ class SalesOrderApi {
 
   SalesOrderApi(this.dio);
 
-  Future<List<SalesOrderList>> getSalesOrder({required String status}) async {
+  Future<List<SalesOrderList>> getSalesOrder({
+    required String status,
+    String? search,
+  }) async {
+    final Map<String, dynamic> queryParameters = {};
+    if (status != 'all') {
+      queryParameters['sales_status'] = status;
+    }
+    if (search != null && search.isNotEmpty) {
+      queryParameters['search'] = search;
+    }
+
     final res = await dio.get(
       '/transaction/sales-order',
-      queryParameters: status != 'all' ? {'sales_status': status} : null,
+      queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
     );
 
     if (res.statusCode != 200) {
