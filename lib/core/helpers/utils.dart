@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 int countPresent(List details) =>
@@ -43,4 +44,37 @@ String formatPrice(num value) {
 
 bool equalsIgnoreCase(String? string1, String? string2) {
   return string1?.toLowerCase() == string2?.toLowerCase();
+}
+
+extension StringDateFormatting on String {
+  String toIndonesianDate() {
+    final date = DateTime.parse(this);
+    return DateFormat('d MMM yyyy', 'id').format(date);
+  }
+}
+
+class CurrencyInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final digitsOnly = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+
+    if (digitsOnly.isEmpty) {
+      return const TextEditingValue(
+        text: '0',
+        selection: TextSelection.collapsed(offset: 1),
+      );
+    }
+
+    // Remove leading zeros
+    final number = int.parse(digitsOnly);
+    final formatted = formatPrice(number);
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
 }

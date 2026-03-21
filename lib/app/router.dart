@@ -13,6 +13,7 @@ import 'package:livestock/features/home/presentation/views/home_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/add_monitoring_confirmation_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/add_monitoring_page.dart';
 import 'package:livestock/features/product/presentation/views/product_detail_page.dart';
+import 'package:livestock/features/product/presentation/views/product_page.dart';
 import 'package:livestock/features/product/presentation/views/update_product_page.dart';
 import 'package:livestock/features/purchase_order/presentation/views/add_purchase_order_confirmation_page.dart';
 import 'package:livestock/features/purchase_order/presentation/views/add_purchase_order_page.dart';
@@ -99,6 +100,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: "/", builder: (_, __) => const MainPage()),
       GoRoute(path: "/home", builder: (_, __) => const HomePage()),
       GoRoute(path: "/dashboard", builder: (_, __) => const DashboardPage()),
+      GoRoute(
+        path: '/product',
+        builder: (context, state) => const ProductPage(),
+      ),
       GoRoute(
         path: '/product/:id',
         builder: (context, state) {

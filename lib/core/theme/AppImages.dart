@@ -49,6 +49,8 @@ class AppImages {
   static const icLogoutConfirmation = "$iconsUrl/ic_logout_confirmation.png";
   static const icFilterSearch = "$iconsUrl/ic_filter_search.png";
   static const icNoItem = "$iconsUrl/ic_no_item.png";
+  static const icEmptyDefault = "$iconsUrl/ic_empty_default.png";
+  static const imgEmptyTransaction = "$iconsUrl/img_empty_transaction.png";
   static const icDeleteConfirmation = "$iconsUrl/ic_delete_confirmation.png";
   static const icMenuClipboardTick = "$iconsUrl/ic_menu_clipboard_tick.png";
   static const icMenuUserTick = "$iconsUrl/ic_menu_user_tick.png";
@@ -61,4 +63,12 @@ class AppImages {
 
   static const icSearch = '$iconsUrl/ic_search.svg';
   static const icNavCow = '$iconsUrl/ic_nav_cow.svg';
+
+  static const icCalendarNew = '$iconsUrl/ic_calendar_new.svg';
+  static const icUserTagSvg = '$iconsUrl/ic_user_tag.svg';
+  static const icMoney = '$iconsUrl/ic_money.svg';
+  static const icReceipt = '$iconsUrl/ic_receipt.svg';
+  static const icMapSvg = '$iconsUrl/ic_map.svg';
+  static const icBookmark = '$iconsUrl/ic_bookmark.svg';
+  static const icDirectBoxReceive = '$iconsUrl/ic_directbox_receive.svg';
 }
