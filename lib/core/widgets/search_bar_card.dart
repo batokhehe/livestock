@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../theme/AppColors.dart';
 import '../theme/AppImages.dart';
-import '../theme/AppTypography.dart';
 
 class SearchBarCard extends StatelessWidget {
   final String hint;
@@ -11,6 +11,7 @@ class SearchBarCard extends StatelessWidget {
   final VoidCallback? onClear;
   final VoidCallback? onFilterTap;
   final bool showFilter;
+  final bool resetPadding;
 
   const SearchBarCard({
     super.key,
@@ -20,54 +21,70 @@ class SearchBarCard extends StatelessWidget {
     this.onClear,
     this.onFilterTap,
     this.showFilter = false,
+    this.resetPadding = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: resetPadding ? EdgeInsets.zero : const EdgeInsets.all(16),
       child: Row(
         children: [
-          // ===== SEARCH FIELD =====
           Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.fieldBorder),
-              ),
-              child: ValueListenableBuilder<TextEditingValue>(
-                valueListenable: controller,
-                builder: (context, value, _) {
-                  final hasText = value.text.isNotEmpty;
-
-                  return TextField(
-                    controller: controller,
-                    onChanged: onChanged,
-                    decoration: InputDecoration(
-                      hintText: hint,
-                      hintStyle: AppTypography.hint,
-                      border: InputBorder.none,
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: hasText
-                          ? IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () {
-                                FocusScope.of(context).unfocus();
-                                controller.clear();
-                                onClear?.call();
-                              },
-                            )
-                          : null,
+            child: ValueListenableBuilder<TextEditingValue>(
+              valueListenable: controller,
+              builder: (context, value, _) {
+                final hasText = value.text.isNotEmpty;
+                return TextField(
+                  controller: controller,
+                  onChanged: onChanged,
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: const TextStyle(
+                      color: AppColors.grey,
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.w600,
                     ),
-                  );
-                },
-              ),
+                    prefixIconConstraints:
+                        const BoxConstraints(minWidth: 40, minHeight: 40),
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.only(left: 12.0, right: 8.0),
+                      child: SvgPicture.asset(
+                        AppImages.icSearch,
+                        fit: BoxFit.fitWidth,
+                      ),
+                    ),
+                    suffixIcon: hasText
+                        ? IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              controller.clear();
+                              onClear?.call();
+                            },
+                          )
+                        : null,
+                    isDense: true,
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.fieldBorder,
+                        width: 1.0,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.primaryDark,
+                        width: 2.0,
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
-
-          // ===== FILTER BUTTON =====
           if (showFilter) ...[
             const SizedBox(width: 12),
             Material(

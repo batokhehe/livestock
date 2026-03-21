@@ -107,9 +107,41 @@ class SalesOrderRequest {
     };
   }
 
-  bool get isValid =>
-      customer != null &&
-      orderDate != null &&
-      farmLocation != null &&
-      (salesItemType != 'animal' || dueDate != null);
+  SalesOrderRequest clearForecastDate() {
+    return SalesOrderRequest(
+      customer: customer,
+      category: category,
+      forecastDate: null,
+      useForecast: useForecast,
+      orderDate: orderDate,
+      dueDate: dueDate,
+      salesItemType: salesItemType,
+      status: status,
+      salesType: salesType,
+      farmLocation: farmLocation,
+      farmArea: farmArea,
+      deliveryAddress: deliveryAddress,
+      recipientName: recipientName,
+      recipientNumber: recipientNumber,
+      shippingCost: shippingCost,
+      discountTotal: discountTotal,
+      notes: notes,
+      items: items,
+    );
+  }
+
+  bool get isValid {
+    bool animalValid = true;
+    if (salesItemType == 'animal') {
+      bool isForecastSelected = useForecast ?? true;
+      animalValid = dueDate != null &&
+          (!isForecastSelected || forecastDate != null) &&
+          (recipientName != null && recipientName!.isNotEmpty) &&
+          (recipientNumber != null && recipientNumber!.isNotEmpty);
+    }
+    return customer != null &&
+        orderDate != null &&
+        farmLocation != null &&
+        animalValid;
+  }
 }

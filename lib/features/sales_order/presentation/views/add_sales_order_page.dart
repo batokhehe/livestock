@@ -113,6 +113,7 @@ class _SalesOrderInfoSection extends ConsumerWidget {
             final pickedDate = await showModalBottomSheet<DateTime?>(
               context: context,
               isScrollControlled: true,
+              useSafeArea: true,
               backgroundColor: Colors.transparent,
               builder: (_) => const CustomDatePickerSheet(),
             );
@@ -152,6 +153,7 @@ class _SalesOrderInfoSection extends ConsumerWidget {
           label: "Nama Pelanggan",
           hint: form.customer?.name ?? "Pilih Pelanggan",
           icon: AppImages.icUserTag,
+          isMandatoryField: true,
           onTap: () async {
             final customer = await showModalBottomSheet(
               context: context,
@@ -171,6 +173,7 @@ class _SalesOrderInfoSection extends ConsumerWidget {
         TextFields(
           label: "Nomor Pelanggan",
           hint: "Masukkan nomor pelanggan",
+          isMandatoryField: true,
           prefixIcon: AppImages.icCalling,
           controller: phoneController,
         ),
@@ -196,57 +199,109 @@ class _SalesOrderInfoSection extends ConsumerWidget {
                   value: form.useForecast ?? true,
                   options: const [true, false],
                   labelBuilder: (v) => v ? 'Ya' : 'Tidak',
-                  onChanged: (v) => ref
-                      .read(salesOrderFormProvider.notifier)
-                      .setUseForecast(v),
+                  onChanged: (v) {
+                    ref.read(salesOrderFormProvider.notifier).setUseForecast(v);
+                    if (!v) {
+                      ref
+                          .read(salesOrderFormProvider.notifier)
+                          .clearForecastDate();
+                    }
+                  },
                 ),
               ),
             ],
           ),
-          SizedBox(height: 12),
-          SelectField(
-            label: "Tanggal Forecast",
-            hint: formatDateTime(form.forecastDate),
-            icon: AppImages.icCalendarSearch,
-            onTap: () async {
-              final pickedDate = await showModalBottomSheet<DateTime?>(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => const CustomDatePickerSheet(),
-              );
+          if (form.useForecast ?? true) ...[
+            SizedBox(height: 12),
+            SelectField(
+              label: "Tanggal Forecast",
+              isMandatoryField: true,
+              hint: formatDateTime(form.forecastDate),
+              icon: AppImages.icCalendarSearch,
+              onTap: () async {
+                final pickedDate = await showModalBottomSheet<DateTime?>(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => const CustomDatePickerSheet(),
+                );
 
-              if (pickedDate != null) {
-                ref
-                    .read(salesOrderFormProvider.notifier)
-                    .setForecastDate(pickedDate);
-              }
-            },
-          ),
+                if (pickedDate != null) {
+                  ref
+                      .read(salesOrderFormProvider.notifier)
+                      .setForecastDate(pickedDate);
+                }
+              },
+            ),
+          ],
         ],
       ],
     );
   }
 }
 
-class _CustomerInfoSection extends ConsumerWidget {
+class _CustomerInfoSection extends ConsumerStatefulWidget {
   final SalesOrderRequest form;
 
   const _CustomerInfoSection({required this.form});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CustomerInfoSection> createState() =>
+      _CustomerInfoSectionState();
+}
+
+class _CustomerInfoSectionState extends ConsumerState<_CustomerInfoSection> {
+  late final TextEditingController _recipientNameController =
+      TextEditingController();
+  late final TextEditingController _recipientNumberController =
+      TextEditingController();
+
+  @override
+  void dispose() {
+    _recipientNameController.dispose();
+    _recipientNumberController.dispose();
+    super.dispose();
+  }
+
+  void _copyFromCustomer() {
+    final customer = widget.form.customer;
+    if (customer == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Belum pilih nama pelanggan')),
+      );
+      return;
+    }
+
+    final name = customer.name;
+    final phone = customer.contactPhone ?? '';
+
+    _recipientNameController.text = name;
+    _recipientNumberController.text = phone;
+
+    ref.read(salesOrderFormProvider.notifier).setRecipientName(name);
+    ref.read(salesOrderFormProvider.notifier).setRecipientNumber(phone);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final form = widget.form;
     return SectionCard(
       title: "Informasi Pengiriman",
+      actionLabel: form.salesItemType == 'animal'
+          ? "Salin Data Penerima"
+          : null,
+      onActionTap: form.salesItemType == 'animal' ? _copyFromCustomer : null,
       children: [
         SelectField(
           label: "Lokasi peternakan",
+          isMandatoryField: true,
           hint: form.farmLocation?.name ?? "Pilih lokasi",
           icon: AppImages.icHomeHashTag,
           onTap: () async {
             final result = await showModalBottomSheet<FarmLocation?>(
               context: context,
               isScrollControlled: true,
+              backgroundColor: AppColors.greyBg,
               builder: (_) => const FarmLocationBottomSheet(),
             );
 
@@ -256,20 +311,24 @@ class _CustomerInfoSection extends ConsumerWidget {
           },
         ),
         if (form.salesItemType == 'animal') ...[
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           TextFields(
             label: "Nama penerima",
             hint: "Masukkan nama penerima",
+            isMandatoryField: true,
             prefixIcon: AppImages.icUser,
+            controller: _recipientNameController,
             onChanged: (value) {
               ref.read(salesOrderFormProvider.notifier).setRecipientName(value);
             },
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           TextFields(
             label: "Nomor penerima",
             hint: "Masukkan nomor penerima",
+            isMandatoryField: true,
             prefixIcon: AppImages.icCalling,
+            controller: _recipientNumberController,
             onChanged: (value) {
               ref
                   .read(salesOrderFormProvider.notifier)

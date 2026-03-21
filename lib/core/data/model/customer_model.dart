@@ -8,6 +8,10 @@ class Customer {
   final String? cityId;
   final String? state;
   final String? stateId;
+  final String? district;
+  final String? districtId;
+  final String? village;
+  final String? villageId;
   final String? status;
   final String? notes;
   final DateTime? createdAt;
@@ -24,6 +28,10 @@ class Customer {
     this.cityId,
     this.state,
     this.stateId,
+    this.district,
+    this.districtId,
+    this.village,
+    this.villageId,
     this.status,
     this.notes,
     this.createdAt,
@@ -43,6 +51,10 @@ class Customer {
       cityId: json['city_id'],
       state: json['state'],
       stateId: json['state_id'],
+      district: json['district'],
+      districtId: json['district_id'],
+      village: json['village'],
+      villageId: json['village_id'],
       status: json['status'],
       notes: json['notes'],
       createdAt: json['created_at'] != null
@@ -69,6 +81,10 @@ class Customer {
       "city_id": cityId,
       "state": state,
       "state_id": stateId,
+      "district": district,
+      "district_id": districtId,
+      "village": village,
+      "village_id": villageId,
       "status": status,
       "notes": notes,
       "created_at": createdAt?.toIso8601String(),
@@ -88,6 +104,10 @@ class Customer {
     String? cityId,
     String? state,
     String? stateId,
+    String? district,
+    String? districtId,
+    String? village,
+    String? villageId,
     String? status,
     String? notes,
     DateTime? createdAt,
@@ -104,6 +124,10 @@ class Customer {
       cityId: cityId ?? this.cityId,
       state: state ?? this.state,
       stateId: stateId ?? this.stateId,
+      district: district ?? this.district,
+      districtId: districtId ?? this.districtId,
+      village: village ?? this.village,
+      villageId: villageId ?? this.villageId,
       status: status ?? this.status,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,

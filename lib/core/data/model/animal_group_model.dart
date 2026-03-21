@@ -8,4 +8,8 @@ class AnimalGroup {
   factory AnimalGroup.fromJson(Map<String, dynamic> json) {
     return AnimalGroup(id: json['id'], name: json['name'], code: json['code']);
   }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name, 'code': code};
+  }
 }

@@ -11,6 +11,8 @@ import 'package:livestock/core/data/model/supplier_model.dart';
 import 'package:livestock/core/data/model/village_model.dart';
 import 'package:livestock/features/dispatch/data/model/sales_order_dispatch_model.dart';
 
+import 'package:livestock/core/data/model/shipping_cost_model.dart';
+
 import '../../../../core/data/model/base_response.dart';
 import '../model/base_response_single.dart';
 import '../model/city_model.dart';
@@ -259,6 +261,31 @@ class MasterApi {
     return BaseResponse.fromJson(
       res.data,
       (json) => SalesOrderDispatch.fromJson(json),
+    );
+  }
+
+  Future<BaseResponse<ShippingCost>> getShippingCost({
+    String? cityId,
+    int? farmLocationId,
+  }) async {
+    final res = await dio.get(
+      '/master/shipping-cost',
+      queryParameters: {
+        'city_id': ?cityId,
+        'farm_location_id': ?farmLocationId,
+      },
+    );
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    return BaseResponse.fromJson(
+      res.data,
+      (json) => ShippingCost.fromJson(json),
     );
   }
 }

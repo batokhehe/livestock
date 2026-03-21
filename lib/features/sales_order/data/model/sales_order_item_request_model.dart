@@ -14,6 +14,7 @@ class SalesOrderItemRequest {
   final DateTime? dlvDate;
   final double? weight;
   final double? shippingCost;
+  final double? forecastWeight;
 
   final String? stateId;
   final String? state;
@@ -37,6 +38,7 @@ class SalesOrderItemRequest {
     this.dlvDate,
     this.weight,
     this.shippingCost,
+    this.forecastWeight,
     this.stateId,
     this.state,
     this.cityId,
@@ -61,6 +63,7 @@ class SalesOrderItemRequest {
       dlvDate: json['dlv_date'],
       weight: (json['weight'] as num).toDouble(),
       shippingCost: (json['shipping_cost'] as num).toDouble(),
+      forecastWeight: (json['forecast_weight'] as num?)?.toDouble(),
       stateId: json['state_id'],
       state: json['state'],
       cityId: json['city_id'],
@@ -86,6 +89,7 @@ class SalesOrderItemRequest {
       if (dlvDate != null) "dlv_date": formatterJson.format(dlvDate!),
       "weight": weight,
       "shipping_cost": shippingCost,
+      "forecast_weight": forecastWeight,
       "state_id": stateId,
       "state": state,
       "city_id": cityId,

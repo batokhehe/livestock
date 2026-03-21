@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import '../../../core/theme/AppColors.dart';
 import '../../../core/theme/AppTypography.dart';
 
@@ -6,6 +7,7 @@ class InfoItemCard extends StatelessWidget {
   final String icon;
   final String title;
   final String subtitle;
+  final String? label;
   final VoidCallback? onTap;
 
   const InfoItemCard({
@@ -13,6 +15,7 @@ class InfoItemCard extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.label,
     this.onTap,
   });
 
@@ -31,22 +34,47 @@ class InfoItemCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
                 color: AppColors.greyBg,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Image.asset(icon, width: 24),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: SvgPicture.asset(
+                  icon,
+                  width: 20,
+                  height: 20,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.primary,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (label != null) ...[
+                    Text(
+                      label!,
+                      style: AppTypography.xSmallNormalBlack.copyWith(
+                        fontSize: 10,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                  ],
                   Text(title, style: AppTypography.smallBoldBlack),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: AppTypography.xSmallNormalGrey),
+                  Text(
+                    subtitle,
+                    style: AppTypography.smallNormalBlack.copyWith(
+                      fontSize: 16,
+                    ),
+                  ),
                 ],
               ),
             ),

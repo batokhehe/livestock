@@ -25,6 +25,7 @@ class SelectField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(label, style: AppTypography.smallBoldBlack),
             isMandatoryField
@@ -33,25 +34,26 @@ class SelectField extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 6),
-
         InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             decoration: BoxDecoration(
+              color: Colors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.fieldBorder),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Image.asset(icon, width: 20, color: AppColors.primary),
-                    const SizedBox(width: 8),
-                    Text(hint, style: AppTypography.hint),
-                  ],
+                Image.asset(icon, width: 20, color: AppColors.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    hint,
+                    style: AppTypography.hint,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 const Icon(Icons.chevron_right),
               ],

@@ -70,8 +70,8 @@ class _ProductPage extends ConsumerState<ProductPage> {
         backgroundColor: AppColors.white,
         title: const Text("Hewan", style: AppTypography.largeBoldBlack),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => context.go('/home'),
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
         ),
       ),
       body: dataAsync.when(
