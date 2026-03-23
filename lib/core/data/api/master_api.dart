@@ -194,8 +194,11 @@ class MasterApi {
     );
   }
 
-  Future<BaseResponse<Supplier>> getSuppliers() async {
-    final res = await dio.get('/master/supplier');
+  Future<BaseResponse<Supplier>> getSuppliers({String? type}) async {
+    final res = await dio.get(
+      '/master/supplier',
+      queryParameters: {if (type != null) 'type': type},
+    );
 
     if (res.statusCode != 200) {
       throw DioException(

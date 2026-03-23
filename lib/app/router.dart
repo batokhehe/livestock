@@ -35,6 +35,7 @@ import '../features/dispatch/presentation/views/add_dispatch_step_2_page.dart';
 import '../features/home/presentation/views/main_page.dart';
 import '../features/monitoring/presentation/views/add_monitoring_step_2_page.dart';
 import '../features/monitoring/presentation/views/monitoring_page.dart';
+import '../features/purchase_order/presentation/views/purchase_order_detail_page.dart';
 import '../features/receiving/data/model/receiving_po_model.dart';
 import '../features/receiving/presentation/views/add_receiving_page.dart';
 import '../features/receiving/presentation/views/add_receiving_step_2_page.dart';
@@ -227,6 +228,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/purchase-order/add/confirmation',
         builder: (context, state) => const AddPurchaseOrderConfirmationPage(),
+      ),
+      GoRoute(
+        path: '/purchase-order/detail/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return PurchaseOrderDetailPage(id: id);
+        },
       ),
 
       GoRoute(

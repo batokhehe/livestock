@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/item_double_card.dart';
 
@@ -111,7 +112,7 @@ class _AddPurchaseOrderStep2PageState
     );
   }
 
-  Widget _itemCard(PurchaseOrderItemRequest item) {
+  Widget _itemCard(PurchaseOrderItemRequest item, int index) {
     final isAnimal = item.animalName != null;
 
     final code = isAnimal
@@ -161,23 +162,29 @@ class _AddPurchaseOrderStep2PageState
                 icon: Icons.edit,
                 color: AppColors.white,
                 backColor: AppColors.primary,
-                onTap: () {},
+                onTap: () => _openEditItemSheet(item, index),
               ),
             ],
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           Container(
             padding: const EdgeInsets.all(12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                InfoTag(label: "${item.ageCategory} bulan"),
-                InfoTag(label: "${item.initialWeight} kg"),
-                InfoTag(label: "Rp. ${item.purchPrice}"),
-                item.isVaccinated == true
-                    ? InfoTag(label: "Vaksin")
-                    : SizedBox.shrink(),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal, // 🔥 ini kuncinya
+              child: Row(
+                children: [
+                  InfoTag(label: "${item.ageCategory} bulan"),
+                  const SizedBox(width: 8),
+                  InfoTag(label: "${item.initialWeight} kg"),
+                  const SizedBox(width: 8),
+                  InfoTag(label: "Rp. ${formatPrice(item.purchPrice as num)}"),
+                  const SizedBox(width: 8),
+                  if (item.isVaccinated == true)
+                    InfoTag(
+                      label: "Vaksin ${formatDateTime(item.vaccineDate)}",
+                    ),
+                ],
+              ),
             ),
           ),
         ],
@@ -229,7 +236,7 @@ class _AddPurchaseOrderStep2PageState
                   )
                 : ListView.builder(
                     itemCount: items.length,
-                    itemBuilder: (_, i) => _itemCard(items[i]),
+                    itemBuilder: (_, i) => _itemCard(items[i], i),
                   ),
           ),
         ],
@@ -270,13 +277,48 @@ class _AddPurchaseOrderStep2PageState
       ),
     );
   }
+
+  void _openEditItemSheet(PurchaseOrderItemRequest item, int index) async {
+    final form = ref.read(purchaseOrderFormProvider);
+    final type = form.purchaseItemType;
+
+    Widget sheet;
+
+    if (type == 'animal') {
+      sheet = AddItemBottomSheetAnimal(initialData: item); // 🔥 kirim data
+    } else {
+      sheet = AddItemBottomSheetFeed(initialData: item);
+    }
+
+    final result = await showModalBottomSheet<PurchaseOrderItemRequest>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => sheet,
+    );
+
+    if (result != null) {
+      final current = ref.read(purchaseOrderFormProvider);
+      final updatedItems = [...?current.items];
+
+      updatedItems[index] = result; // 🔥 replace item
+
+      ref.read(purchaseOrderFormProvider.notifier).state = current.copyWith(
+        items: updatedItems,
+      );
+    }
+  }
 }
 
-class _NextButton extends StatelessWidget {
+class _NextButton extends ConsumerWidget {
   const _NextButton();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final request = ref.watch(purchaseOrderFormProvider);
+    final items = request.items ?? [];
+    final isValid = items.isNotEmpty;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -285,14 +327,16 @@ class _NextButton extends StatelessWidget {
           height: 48,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              backgroundColor: isValid ? AppColors.primary : AppColors.grey,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: () {
-              context.push("/purchase-order/add/confirmation");
-            },
+            onPressed: isValid
+                ? () {
+                    context.push("/purchase-order/add/confirmation");
+                  }
+                : null,
             child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
           ),
         ),

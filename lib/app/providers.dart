@@ -171,18 +171,21 @@ final animalGroupSearchProvider = StateProvider.autoDispose<String>(
 );
 
 // SUPPLIER
-final supplierListProvider = FutureProvider.autoDispose<List<Supplier>>((
-  ref,
-) async {
-  return ref.read(getMasterDataListUseCaseProvider).callSuppliers();
-});
+final supplierListProvider = FutureProvider.autoDispose
+    .family<List<Supplier>, String?>((ref, type) async {
+      return ref
+          .read(getMasterDataListUseCaseProvider)
+          .callSuppliers(type: type);
+    });
 final selectedSupplierProvider = StateProvider<Supplier?>((ref) => null);
 final supplierSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
 // ANIMAL CLASS
 final animalClassListProvider =
     FutureProvider.autoDispose<BaseResponse<AnimalClass>>((ref) async {
-      return ref.read(getMasterDataListUseCaseProvider).callAnimalClass(page: 1, perPage: 1000);
+      return ref
+          .read(getMasterDataListUseCaseProvider)
+          .callAnimalClass(page: 1, perPage: 1000);
     });
 final selectedAnimalClassProvider = StateProvider<AnimalClass?>((ref) => null);
 final animalClassSearchProvider = StateProvider.autoDispose<String>(

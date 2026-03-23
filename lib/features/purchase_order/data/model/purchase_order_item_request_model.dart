@@ -7,6 +7,7 @@ class PurchaseOrderItemRequest {
   final String? poel;
   final String? gender;
   final double? initialWeight;
+  final int? age;
   final int? ageCategory;
   final bool? isVaccinated;
   final DateTime? vaccineDate;
@@ -35,6 +36,7 @@ class PurchaseOrderItemRequest {
     this.poel,
     this.gender,
     this.initialWeight,
+    this.age,
     this.ageCategory,
     this.isVaccinated,
     this.vaccineDate,
@@ -60,6 +62,7 @@ class PurchaseOrderItemRequest {
       "poel": poel,
       "gender": gender,
       "initial_weight": initialWeight,
+      "age": age,
       "age_category": ageCategory,
       "is_vaccinated": isVaccinated,
       "vaccine_date": vaccineDate?.toIso8601String().split('T').first,

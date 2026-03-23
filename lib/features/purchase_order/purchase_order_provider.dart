@@ -3,7 +3,6 @@ import 'package:livestock/core/data/model/animal_group_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/core/data/model/supplier_model.dart';
 
-import '../../core/data/model/customer_model.dart';
 import '../../core/network/dio_client.dart';
 import 'data/api/purchase_order_api.dart';
 import 'data/model/purchase_order_item_request_model.dart';
@@ -55,9 +54,10 @@ final purchaseOrderListProvider =
     });
 
 final purchaseOrderFormProvider =
-    StateNotifierProvider<PurchaseOrderFormNotifier, PurchaseOrderRequest>(
-      (ref) => PurchaseOrderFormNotifier(ref),
-    );
+    StateNotifierProvider.autoDispose<
+      PurchaseOrderFormNotifier,
+      PurchaseOrderRequest
+    >((ref) => PurchaseOrderFormNotifier(ref));
 
 class PurchaseOrderFormNotifier extends StateNotifier<PurchaseOrderRequest> {
   final Ref ref;
@@ -77,7 +77,7 @@ class PurchaseOrderFormNotifier extends StateNotifier<PurchaseOrderRequest> {
   }
 
   void setSupplier(Supplier value) {
-    state = state.copyWith(supplier: value);
+    state = state.copyWith(supplier: value, supplierAddress: value.address);
   }
 
   void setSupplierAddress(String value) {
@@ -125,9 +125,8 @@ class PurchaseOrderFormNotifier extends StateNotifier<PurchaseOrderRequest> {
 
   Future<void> submitPurchaseOrder() async {
     final api = ref.read(purchaseOrderApiProvider);
-    print(state.items);
     if (state.supplier == null) {
-      throw Exception("Suuploer belum dipilih");
+      throw Exception("Suplier belum dipilih");
     }
 
     if (state.items == null || state.items!.isEmpty) {
@@ -137,3 +136,27 @@ class PurchaseOrderFormNotifier extends StateNotifier<PurchaseOrderRequest> {
     await api.submitPurchaseOrder(state);
   }
 }
+
+extension PurchaseOrderValidation on PurchaseOrderRequest {
+  bool get isValid {
+    final isBasicFilled =
+        purchDate != null &&
+        animalGroup != null &&
+        supplier != null &&
+        supplierAddress != null &&
+        supplierAddress!.trim().isNotEmpty;
+
+    if (purchaseItemType == 'animal') {
+      return isBasicFilled && farmLocation != null;
+    }
+
+    return isBasicFilled;
+  }
+}
+
+final purchaseOrderDetailProvider =
+    FutureProvider.family<PurchaseOrderList, int>((ref, id) async {
+      final api = ref.read(purchaseOrderApiProvider);
+      final res = await api.getPurchaseOrderDetail(id);
+      return res.data;
+    });

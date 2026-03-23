@@ -76,8 +76,8 @@ class GetMasterDataListUseCase {
     return repository.getAnimalGroups();
   }
 
-  Future<List<Supplier>> callSuppliers() {
-    return repository.getSuppliers();
+  Future<List<Supplier>> callSuppliers({String? type}) {
+    return repository.getSuppliers(type: type);
   }
 
   Future<AnimalProfile> callAnimalDetail(String id) {

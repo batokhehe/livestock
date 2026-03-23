@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/core/data/model/feed_medicine_model.dart';
 import 'package:livestock/core/widgets/feed_medicine_bottom_sheet.dart';
@@ -12,7 +13,9 @@ import '../../../../core/widgets/select_field.dart';
 import '../../../../core/widgets/text_field_with_inner_counter.dart';
 
 class AddItemBottomSheetFeed extends ConsumerStatefulWidget {
-  const AddItemBottomSheetFeed({super.key});
+  final PurchaseOrderItemRequest? initialData;
+
+  const AddItemBottomSheetFeed({super.key, this.initialData});
 
   @override
   ConsumerState<AddItemBottomSheetFeed> createState() =>
@@ -34,6 +37,19 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetFeed> {
   @override
   void initState() {
     super.initState();
+
+    if (widget.initialData != null) {
+      final data = widget.initialData!;
+
+      selectedFeed = data.feedMedicine;
+
+      nameCtrl.text = data.feedMedicineName ?? '';
+      typeCtrl.text = data.feedMedicineType ?? '';
+      codeCtrl.text = data.feedMedicineCode ?? '';
+      qtyCtrl.text = data.quantity?.toString() ?? '';
+      priceCtrl.text = data.purchPrice?.toString() ?? '';
+      notesCtrl.text = data.notes ?? '';
+    }
   }
 
   @override
@@ -76,7 +92,10 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetFeed> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Tambah Item", style: AppTypography.largeBoldBlack),
+                    Text(
+                      widget.initialData == null ? "Tambah Item" : "Edit Item",
+                      style: AppTypography.largeBoldBlack,
+                    ),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: const Icon(Icons.close),
@@ -123,7 +142,13 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetFeed> {
                   hint: "Masukkan tipe",
                   controller: typeCtrl,
                 ),
-                TextFields(label: "Jumlah", hint: "0", controller: qtyCtrl),
+                TextFields(
+                  label: "Jumlah",
+                  hint: "0",
+                  controller: qtyCtrl,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                ),
                 TextFields(
                   label: "Satuan",
                   hint: "Masukkan satuan",
@@ -134,6 +159,8 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetFeed> {
                   hint: "0",
                   suffix: "Rp.",
                   controller: priceCtrl,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 ),
                 TextFieldWithInnerCounter(
                   label: 'Catatan',
@@ -157,7 +184,21 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetFeed> {
                       ),
                     ),
                     onPressed: () {
-                      if (selectedFeed == null) return;
+                      if (selectedFeed == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Pilih pakan/obat dulu"),
+                          ),
+                        );
+                        return;
+                      }
+
+                      if (qtyCtrl.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Jumlah wajib diisi")),
+                        );
+                        return;
+                      }
                       final item = PurchaseOrderItemRequest(
                         feedMedicine: selectedFeed,
                         feedMedicineCode: codeCtrl.text,
@@ -172,7 +213,9 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetFeed> {
                       Navigator.pop(context, item);
                     },
                     child: Text(
-                      "Tambah Item",
+                      widget.initialData == null
+                          ? "Tambah Item"
+                          : "Simpan Perubahan",
                       style: AppTypography.mediumBoldWhite,
                     ),
                   ),

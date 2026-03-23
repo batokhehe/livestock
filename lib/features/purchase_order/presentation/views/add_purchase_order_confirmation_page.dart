@@ -21,15 +21,6 @@ import '../../purchase_order_provider.dart';
 class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
   const AddPurchaseOrderConfirmationPage({super.key});
 
-  String formatCurrency(double value) {
-    final formatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
-    return formatter.format(value);
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final form = ref.watch(purchaseOrderFormProvider);
@@ -74,11 +65,6 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
                     counter: entry.key + 1,
                     data: entry.value,
                   ),
-                  // (entry) => _itemCard(
-                  //   index: entry.key + 1,
-                  //   item: entry.value,
-                  //   formatCurrency: formatCurrency,
-                  // ),
                 ),
 
                 const SizedBox(height: 12),
@@ -88,7 +74,6 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
                   subtotal: subtotal,
                   shippingCost: form.shippingCost ?? 0,
                   total: total,
-                  formatCurrency: formatCurrency,
                 ),
               ],
             ),
@@ -144,7 +129,7 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
                               ),
                             );
 
-                            context.go('/Purchase-order');
+                            context.go('/purchase-order');
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text("Gagal menyimpan: $e")),
@@ -205,7 +190,6 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
     required double subtotal,
     required double shippingCost,
     required double total,
-    required String Function(double) formatCurrency,
   }) {
     return SectionCard(
       title: 'Rincian Bayar',
@@ -213,13 +197,9 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
         SectionCard(
           children: [
             _rowSummary("Jumlah Item", totalItem.toString()),
-            _rowSummary("Subtotal", formatCurrency(subtotal)),
-            _rowSummary("Biaya Pengiriman", formatCurrency(shippingCost)),
-            _rowSummary(
-              "Total Keseluruhan",
-              formatCurrency(total),
-              isBold: true,
-            ),
+            _rowSummary("Subtotal", formatPrice(subtotal)),
+            _rowSummary("Biaya Pengiriman", formatPrice(shippingCost)),
+            _rowSummary("Total Keseluruhan", formatPrice(total), isBold: true),
           ],
         ),
       ],
@@ -279,9 +259,9 @@ class _ProductInfoCard extends StatelessWidget {
             const SizedBox(height: 12),
             Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
             TwoColumnRowCard(
-              leftValue: data.purchPrice.toString(),
+              leftValue: formatPrice(data.purchPrice as num),
               leftLabel: "Harga/kg Forecast",
-              rightValue: data.subtotal.toString(),
+              rightValue: formatPrice(data.subtotal),
               rightLabel: "Total Forecast",
             ),
           ],

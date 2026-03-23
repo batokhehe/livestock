@@ -7,7 +7,9 @@ import '../theme/AppColors.dart';
 import '../theme/AppTypography.dart';
 
 class SupplierBottomSheet extends ConsumerStatefulWidget {
-  const SupplierBottomSheet({super.key});
+  final String? type;
+
+  const SupplierBottomSheet({super.key, this.type});
 
   @override
   ConsumerState<SupplierBottomSheet> createState() =>
@@ -34,7 +36,7 @@ class _SupplierBottomSheetState extends ConsumerState<SupplierBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final dataAsync = ref.watch(supplierListProvider);
+    final dataAsync = ref.watch(supplierListProvider(widget.type));
     final selectedItem = ref.watch(selectedSupplierProvider);
     final keyword = ref.watch(supplierSearchProvider);
 

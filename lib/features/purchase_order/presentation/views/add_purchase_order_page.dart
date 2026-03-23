@@ -79,7 +79,7 @@ class _AddPurchaseOrderPageState extends ConsumerState<AddPurchaseOrderPage> {
                 const SizedBox(height: 12),
                 _PurchaseOrderInfoSection(
                   form: form,
-                  nameController: nameController,
+                  supplierNameController: nameController,
                   supplierAddressController: supplierAddressController,
                 ),
                 if (form.purchaseItemType == 'animal') ...[
@@ -97,20 +97,24 @@ class _AddPurchaseOrderPageState extends ConsumerState<AddPurchaseOrderPage> {
 }
 
 class _PurchaseOrderInfoSection extends ConsumerWidget {
-  final TextEditingController nameController;
+  final TextEditingController supplierNameController;
   final TextEditingController supplierAddressController;
   final PurchaseOrderRequest form;
 
   const _PurchaseOrderInfoSection({
     required this.form,
-    required this.nameController,
+    required this.supplierNameController,
     required this.supplierAddressController,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (nameController.text != (form.supplier?.name ?? "")) {
-      nameController.text = form.supplier?.name ?? "";
+    if (supplierNameController.text != (form.supplier?.name ?? "")) {
+      supplierNameController.text = form.supplier?.name ?? "";
+    }
+
+    if (supplierAddressController.text != (form.supplier?.address ?? "")) {
+      supplierAddressController.text = form.supplier?.address ?? "";
     }
 
     return SectionCard(
@@ -159,7 +163,7 @@ class _PurchaseOrderInfoSection extends ConsumerWidget {
         ),
         SizedBox(height: 12),
         SelectField(
-          label: "Nama Pemasok",
+          label: "Pemasok",
           hint: form.supplier?.name ?? "Pilih Pemasok",
           icon: AppImages.icUserTag,
           onTap: () async {
@@ -170,7 +174,7 @@ class _PurchaseOrderInfoSection extends ConsumerWidget {
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              builder: (_) => const SupplierBottomSheet(),
+              builder: (_) => SupplierBottomSheet(type: form.purchaseItemType),
             );
             if (supplier != null) {
               ref
@@ -184,13 +188,14 @@ class _PurchaseOrderInfoSection extends ConsumerWidget {
           label: "Nama Pemasok",
           hint: "Masukkan nama Pemasok",
           prefixIcon: AppImages.icUser,
-          controller: nameController,
+          controller: supplierNameController,
         ),
         TextFieldWithInnerCounter(
           label: "Alamat Pemasok",
           subLabel: "",
           hint: "Masukkan lokasi pemasok",
           maxLength: 150,
+          controller: supplierAddressController,
           onChanged: (value) {
             ref
                 .read(purchaseOrderFormProvider.notifier)
@@ -265,7 +270,7 @@ class _NextButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final form = ref.watch(purchaseOrderFormProvider);
-    final isValid = true; // form.isValid;
+    final isValid = form.isValid;
 
     return SafeArea(
       child: Padding(

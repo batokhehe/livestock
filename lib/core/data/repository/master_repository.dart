@@ -81,8 +81,8 @@ class MasterRepository {
     return res.data;
   }
 
-  Future<List<Supplier>> getSuppliers() async {
-    final res = await api.getSuppliers();
+  Future<List<Supplier>> getSuppliers({String? type}) async {
+    final res = await api.getSuppliers(type: type);
     return res.data;
   }
 
@@ -97,7 +97,12 @@ class MasterRepository {
     required int page,
     required int perPage,
   }) async {
-    return await api.getAnimalClasses(search: search, status: status, page: page, perPage: perPage);
+    return await api.getAnimalClasses(
+      search: search,
+      status: status,
+      page: page,
+      perPage: perPage,
+    );
   }
 
   Future<List<SalesOrderDispatch>> getSoDispatch() async {

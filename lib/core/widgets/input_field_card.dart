@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/AppColors.dart';
 import '../theme/AppTypography.dart';
@@ -14,6 +15,8 @@ class TextFields extends StatelessWidget {
   final bool enabled;
   final String? prefixIcon;
   final ValueChanged<String>? onChanged;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   const TextFields({
     super.key,
@@ -27,6 +30,8 @@ class TextFields extends StatelessWidget {
     this.enabled = true,
     this.prefixIcon,
     this.onChanged,
+    this.keyboardType,
+    this.inputFormatters,
   });
 
   @override
@@ -44,6 +49,8 @@ class TextFields extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           TextFormField(
+            keyboardType: keyboardType,
+            inputFormatters: inputFormatters,
             initialValue: controller == null ? initial : null,
             controller: controller,
             enabled: enabled,
