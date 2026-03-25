@@ -8,6 +8,7 @@ import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/core/data/model/feed_medicine_model.dart';
 import 'package:livestock/core/data/model/province_model.dart';
+import 'package:livestock/core/data/model/shipping_cost_model.dart';
 import 'package:livestock/core/data/model/supplier_model.dart';
 
 import '../../../features/dispatch/data/model/sales_order_dispatch_model.dart';
@@ -107,6 +108,17 @@ class MasterRepository {
 
   Future<List<SalesOrderDispatch>> getSoDispatch() async {
     final res = await api.getSoDispatch();
+    return res.data;
+  }
+
+  Future<List<ShippingCost>> getShippingCosts({
+    String? cityId,
+    int? farmLocationId,
+  }) async {
+    final res = await api.getShippingCost(
+      cityId: cityId,
+      farmLocationId: farmLocationId,
+    );
     return res.data;
   }
 }

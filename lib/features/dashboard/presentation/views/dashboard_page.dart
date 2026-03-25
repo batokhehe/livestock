@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppColors.dart';
+import 'package:livestock/features/home/presentation/providers/home_navigation_provider.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 import 'package:livestock/features/dashboard/dashboard_tab_provider.dart';
 import 'package:livestock/features/dashboard/presentation/views/monitoring_view.dart';
@@ -11,7 +12,6 @@ import 'package:livestock/features/dashboard/presentation/widgets/status_grid_ca
 import 'package:livestock/features/dashboard/presentation/widgets/summary_card.dart';
 import 'package:livestock/features/dashboard/presentation/widgets/tab_menu_card.dart';
 
-import '../../../../app/router.dart';
 import '../../data/dashboard_tab.dart';
 import '../../data/monitoring_item.dart';
 
@@ -23,16 +23,14 @@ class DashboardPage extends ConsumerWidget {
     final selectedTab = ref.watch(dashboardTabProvider);
     return Scaffold(
       backgroundColor: AppColors.greyBg,
+
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text("Dashboard", style: AppTypography.largeBoldBlack),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.go('/');
-            Future.microtask(() {
-              mainPageKey.currentState?.changeTab(0);
-            });
+            ref.read(mainNavIndexProvider.notifier).state = 0;
           },
         ),
       ),

@@ -9,10 +9,10 @@ class SwipeIndicator extends StatelessWidget {
     return Center(
       child: Container(
         width: 40,
-        height: 6,
+        height: 10,
         decoration: BoxDecoration(
           color: AppColors.primary,
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
     );

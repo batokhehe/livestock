@@ -5,25 +5,26 @@ import 'package:livestock/features/sales_order/data/model/calculate_forecast_mod
 import '../../core/data/model/customer_model.dart';
 import '../../core/network/dio_client.dart';
 import 'data/api/sales_order_api.dart';
-import 'data/model/calculate_forecast_request.dart';
 import 'data/model/sales_order_item_request_model.dart';
 import 'data/model/sales_order_list_model.dart';
 import 'data/model/sales_order_request_model.dart';
 import 'data/repository/sales_order_repository.dart';
 
-enum SalesOrderTab { all, sell, confirmed, closed }
+enum SalesOrderTab { draft, confirmed, closed, canceled, all }
 
 extension SalesOrderTabX on SalesOrderTab {
   String get apiValue {
     switch (this) {
       case SalesOrderTab.all:
         return 'all';
-      case SalesOrderTab.sell:
-        return 'sell';
+      case SalesOrderTab.draft:
+        return 'draft';
       case SalesOrderTab.confirmed:
         return 'confirmed';
       case SalesOrderTab.closed:
         return 'closed';
+      case SalesOrderTab.canceled:
+        return 'canceled';
     }
   }
 
@@ -31,12 +32,14 @@ extension SalesOrderTabX on SalesOrderTab {
     switch (this) {
       case SalesOrderTab.all:
         return 'Semua';
-      case SalesOrderTab.sell:
-        return 'Terjual';
+      case SalesOrderTab.draft:
+        return 'Draft';
       case SalesOrderTab.confirmed:
-        return 'Dikonfirmasi';
+        return 'Terkonfirmasi';
       case SalesOrderTab.closed:
-        return 'Tutup';
+        return 'Selesai';
+      case SalesOrderTab.canceled:
+        return 'Batal';
     }
   }
 
@@ -66,8 +69,9 @@ final salesOrderListProvider = FutureProvider.autoDispose<List<SalesOrderList>>(
   (ref) async {
     final api = ref.read(salesOrderApiProvider);
     final tab = ref.watch(salesOrderTabProvider);
+    final search = ref.watch(salesOrderSearchProvider);
 
-    return api.getSalesOrder(status: tab.apiValue);
+    return api.getSalesOrder(status: tab.apiValue, search: search);
   },
 );
 
@@ -103,6 +107,10 @@ class SalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
 
   void setForecastDate(DateTime value) {
     state = state.copyWith(forecastDate: value);
+  }
+
+  void clearForecastDate() {
+    state = state.clearForecastDate();
   }
 
   void setCategory(String value) {

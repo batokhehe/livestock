@@ -53,28 +53,36 @@ class _CustomerBottomSheetState extends ConsumerState<CustomerBottomSheet> {
         }).toList();
 
         return Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
               // ===== HEADER =====
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Lokasi Peternakan",
-                    style: AppTypography.mediumBoldBlack,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
+                  Text("Pilih Pelanggan", style: AppTypography.mediumBoldBlack),
+                  RawMaterialButton(
                     onPressed: () => Navigator.pop(context),
+                    elevation: 1.0,
+                    constraints: BoxConstraints(minWidth: 0.0),
+                    padding: EdgeInsets.all(8.0),
+                    shape: CircleBorder(
+                      side: const BorderSide(
+                        color: AppColors.iconColor,
+                        width: 2.0,
+                        style: BorderStyle.solid,
+                      ),
+                    ),
+                    child: Icon(Icons.close_rounded, size: 14.0),
                   ),
                 ],
               ),
-
+              SizedBox(height: 8.0),
               // ===== SEARCH =====
               SearchBarCard(
                 hint: "Cari pelanggan",
                 controller: searchCtrl,
+                resetPadding: true,
                 onChanged: (value) {
                   ref.read(customerSearchProvider.notifier).state = value;
                 },

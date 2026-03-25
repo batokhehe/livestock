@@ -10,6 +10,12 @@ class AppColors {
   static const black = Color(0xFF000000);
 
   static const baseBackground = Color(0xFFF9F9F9);
+  static const textBtnBackground = Color(0xFFFBF9EA);
+  static const bgColorShadeAwareness = Color(0xFFFFF8ED);
+  static const bgColorShadeSuccessFull = Color(0xFFF0FDF5);
+  static const bgColorShadeError = Color(0xFFFFF1F0);
+  static const emerald200 = Color(0xFFBBF7D1);
+  static const emerald700 = Color(0xFF15803C);
 
   static const grey1 = Color(0xFF555555);
   static const grey2 = Color(0xFF888888);
@@ -22,4 +28,5 @@ class AppColors {
   static const success = Color(0xFF16A34A);
   static const info = Color(0xFF4E8CFF);
   static const danger = Color(0xFFFF0D00);
+  static const iconColor = Color(0xFF454545);
 }

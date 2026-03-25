@@ -24,15 +24,16 @@ class _CustomDatePickerSheetState extends State<CustomDatePickerSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
       padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 12,
+        left: 20,
+        right: 20,
+        top: 22,
         bottom: MediaQuery.of(context).padding.bottom + 12,
       ),
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.all(Radius.circular(16)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

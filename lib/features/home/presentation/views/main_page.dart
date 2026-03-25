@@ -1,46 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/features/dashboard/presentation/views/dashboard_page.dart';
 import 'package:livestock/features/notification/presentation/views/notification_page.dart';
-import 'package:livestock/features/product/presentation/views/product_page.dart';
 import 'package:livestock/features/profile/presentation/views/profile_page.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/AppImages.dart';
 import 'home_page.dart';
 
-class MainPage extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/home_navigation_provider.dart';
+
+class MainPage extends ConsumerStatefulWidget {
   final bool showFinishSnackBar;
 
   const MainPage({super.key, this.showFinishSnackBar = false});
 
   @override
-  State<MainPage> createState() => MainPageState();
+  ConsumerState<MainPage> createState() => MainPageState();
 }
 
-class MainPageState extends State<MainPage> {
-  int currentIndex = 0;
-
+class MainPageState extends ConsumerState<MainPage> {
   late final List<Widget> pages;
 
   @override
   void initState() {
     super.initState();
-
     pages = const [
       HomePage(),
       DashboardPage(),
-      ProductPage(),
       NotificationPage(),
       ProfilePage(),
     ];
   }
 
   void changeTab(int index) {
-    setState(() => currentIndex = index);
+    ref.read(mainNavIndexProvider.notifier).state = index;
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentIndex = ref.watch(mainNavIndexProvider);
     return Scaffold(
       body: pages[currentIndex],
+      backgroundColor: AppColors.baseBackground,
       bottomNavigationBar: _CustomBottomNav(
         currentIndex: currentIndex,
         onTap: changeTab,
@@ -49,102 +53,147 @@ class MainPageState extends State<MainPage> {
   }
 }
 
+class _NavItemModel {
+  final String icon;
+  final String label;
+  final int pageIndex;
+
+  const _NavItemModel({
+    required this.icon,
+    required this.label,
+    required this.pageIndex,
+  });
+}
+
 class _CustomBottomNav extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
   const _CustomBottomNav({required this.currentIndex, required this.onTap});
 
+  static const List<_NavItemModel> _navItems = [
+    _NavItemModel(
+      icon: 'assets/icons/ic_home.png',
+      label: 'Home',
+      pageIndex: 0,
+    ),
+    _NavItemModel(
+      icon: 'assets/icons/ic_clipboard_text.png',
+      label: 'Dashboard',
+      pageIndex: 1,
+    ),
+    _NavItemModel(
+      icon: 'assets/icons/ic_notification_bing.png',
+      label: 'Notif',
+      pageIndex: 2,
+    ),
+    _NavItemModel(
+      icon: 'assets/icons/ic_user_octagon.png',
+      label: 'Profile',
+      pageIndex: 3,
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 80,
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          Container(
-            height: 60,
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _NavItem(
-                  icon: 'assets/icons/ic_home.png',
-                  label: 'Home',
-                  isActive: currentIndex == 0,
-                  onTap: () => onTap(0),
-                ),
-                _NavItem(
-                  icon: 'assets/icons/ic_clipboard_text.png',
-                  label: 'Dashboard',
-                  isActive: currentIndex == 1,
-                  onTap: () => onTap(1),
-                ),
+    final List<Widget> items = List.generate(_navItems.length, (index) {
+      final item = _navItems[index];
+      return _buildNavItem(
+        item: item,
+        isActive: currentIndex == item.pageIndex,
+        onTap: () => onTap(item.pageIndex),
+      );
+    });
 
-                const SizedBox(width: 40),
+    items.insert(_navItems.length >> 1, _buildMiddleItem(context));
 
-                _NavItem(
-                  icon: 'assets/icons/ic_notification_bing.png',
-                  label: 'Notif',
-                  isActive: currentIndex == 3,
-                  onTap: () => onTap(3),
-                ),
-                _NavItem(
-                  icon: 'assets/icons/ic_user_octagon.png',
-                  label: 'Profile',
-                  isActive: currentIndex == 4,
-                  onTap: () => onTap(4),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            child: GestureDetector(
-              onTap: () => onTap(2),
-              child: Center(child: Image.asset('assets/images/bottom_nav.png')),
-            ),
-          ),
-        ],
+    return BottomAppBar(
+      clipBehavior: Clip.hardEdge,
+      color: Colors.white,
+      elevation: 20,
+      shadowColor: const Color(0xFF3D4147),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: items,
       ),
     );
   }
-}
 
-class _NavItem extends StatelessWidget {
-  final String icon;
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
+  Widget _buildMiddleItem(BuildContext context) {
+    return Expanded(
+      child: Material(
+        type: MaterialType.transparency,
+        borderRadius: BorderRadius.circular(10),
+        child: Center(
+          child: InkWell(
+            onTap: () => context.push('/product'),
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: AppColors.primaryDark,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.45),
+                    blurRadius: 8,
+                    spreadRadius: 2,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: SvgPicture.asset(
+                  AppImages.icNavCow,
+                  fit: BoxFit.contain,
+                  width: 24,
+                  height: 24,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.white,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
+  Widget _buildNavItem({
+    required _NavItemModel item,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    final color = isActive ? AppColors.primaryDark : Colors.grey;
 
-  @override
-  Widget build(BuildContext context) {
-    final color = isActive ? Colors.orange : Colors.grey;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ImageIcon(AssetImage(icon), color: color, size: 22),
-          const SizedBox(height: 4),
-          Text(label, style: TextStyle(fontSize: 12, color: color)),
-        ],
+    return Expanded(
+      child: Material(
+        type: MaterialType.transparency,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ImageIcon(AssetImage(item.icon), color: color, size: 22),
+              const SizedBox(height: 4),
+              Text(
+                item.label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: color,
+                  fontWeight: isActive ? FontWeight.w500 : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

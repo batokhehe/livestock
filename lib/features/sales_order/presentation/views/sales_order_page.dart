@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/AppColors.dart';
+import '../../../../core/theme/AppImages.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/bottom_button.dart';
 import '../../../../core/widgets/search_bar_card.dart';
@@ -10,13 +12,50 @@ import '../../data/model/sales_order_list_model.dart';
 import '../../sales_order_provider.dart';
 import '../widgets/sales_order_date_group_card.dart';
 
-class SalesOrderPage extends ConsumerWidget {
+class SalesOrderPage extends ConsumerStatefulWidget {
   const SalesOrderPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SalesOrderPage> createState() => _SalesOrderPageState();
+}
+
+class _SalesOrderPageState extends ConsumerState<SalesOrderPage> {
+  late final TextEditingController searchCtrl;
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    searchCtrl = TextEditingController();
+    Future.microtask(() {
+      ref.read(salesOrderSearchProvider.notifier).state = '';
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    searchCtrl.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String value) {
+    _debounce?.cancel();
+    if (value.length < 2 && value.isNotEmpty) return;
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      ref.read(salesOrderSearchProvider.notifier).state = value;
+    });
+  }
+
+  void _clearSearch() {
+    searchCtrl.clear();
+    _debounce?.cancel();
+    ref.read(salesOrderSearchProvider.notifier).state = '';
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final dataAsync = ref.watch(salesOrderListProvider);
-    final searchCtrl = TextEditingController();
     final activeTab = ref.watch(salesOrderTabProvider);
 
     return Scaffold(
@@ -37,21 +76,31 @@ class SalesOrderPage extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          SearchBarCard(hint: 'Cari Apapun', controller: searchCtrl),
+          SearchBarCard(
+            hint: 'Cari Apapun',
+            controller: searchCtrl,
+            onChanged: _onSearchChanged,
+            onClear: _clearSearch,
+          ),
 
           /// 🔥 TABS
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                _tabItem(ref, SalesOrderTab.all, activeTab),
-                const SizedBox(width: 8),
-                _tabItem(ref, SalesOrderTab.sell, activeTab),
-                const SizedBox(width: 8),
-                _tabItem(ref, SalesOrderTab.confirmed, activeTab),
-                const SizedBox(width: 8),
-                _tabItem(ref, SalesOrderTab.closed, activeTab),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _tabItem(SalesOrderTab.all, activeTab),
+                  const SizedBox(width: 8),
+                  _tabItem(SalesOrderTab.draft, activeTab),
+                  const SizedBox(width: 8),
+                  _tabItem(SalesOrderTab.confirmed, activeTab),
+                  const SizedBox(width: 8),
+                  _tabItem(SalesOrderTab.closed, activeTab),
+                  const SizedBox(width: 8),
+                  _tabItem(SalesOrderTab.canceled, activeTab),
+                ],
+              ),
             ),
           ),
 
@@ -91,18 +140,18 @@ class SalesOrderPage extends ConsumerWidget {
               ),
             ),
           ),
-          BottomButton(
-            text: 'Tambah Penjualan',
-            onPressed: () {
-              showSalesTypeBottomSheet(context);
-            },
-          ),
         ],
+      ),
+      bottomNavigationBar:  BottomButton(
+        text: 'Tambah Penjualan',
+        onPressed: () {
+          showSalesTypeBottomSheet(context);
+        },
       ),
     );
   }
 
-  Widget _tabItem(WidgetRef ref, SalesOrderTab value, SalesOrderTab active) {
+  Widget _tabItem(SalesOrderTab value, SalesOrderTab active) {
     final isActive = value == active;
 
     return GestureDetector(
@@ -153,8 +202,15 @@ class SalesOrderPage extends ConsumerWidget {
                     style: AppTypography.largeBoldBlack,
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
+                    icon: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.iconColor, width: 2),
+                      ),
+                      child: const Icon(Icons.close_rounded, size: 16),
+                    ),
                   ),
                 ],
               ),
@@ -196,7 +252,35 @@ class _SalesOrderList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (list.isEmpty) {
-      return const Center(child: Text("Data kosong"));
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 8.0,
+          children: [
+            Image.asset(
+              AppImages.icEmptyDefault,
+              width: 250,
+              height: 250,
+              fit: BoxFit.fitWidth,
+            ),
+            Text(
+              "Belum Ada Data yang Tersedia",
+              style: AppTypography.mediumBoldBlack,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                "Tambahkan data baru atau sesuaikan filter untuk\nmelihat informasi di kategori ini",
+                textAlign: TextAlign.center,
+                style: AppTypography.smallNormalWhite.copyWith(
+                  color: AppColors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     final Map<String, List<SalesOrderList>> grouped = {};
@@ -235,7 +319,8 @@ class _SalesTypeItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.fieldBorder),
         ),
-        child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             title,
             style: AppTypography.mediumBoldBlack.copyWith(
