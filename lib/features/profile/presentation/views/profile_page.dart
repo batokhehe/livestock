@@ -11,6 +11,8 @@ import '../widgets/logout_confirmation_bottom_sheet.dart';
 import '../widgets/success_banner.dart';
 import '../widgets/update_name_bottom_sheet.dart';
 
+import '../../../home/presentation/providers/home_navigation_provider.dart';
+
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
@@ -26,7 +28,7 @@ class ProfilePage extends ConsumerWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.go('/home');
+            ref.read(mainNavIndexProvider.notifier).state = 0;
           },
         ),
       ),
