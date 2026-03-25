@@ -9,18 +9,19 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/AppImages.dart';
 import 'home_page.dart';
 
-class MainPage extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/home_navigation_provider.dart';
+
+class MainPage extends ConsumerStatefulWidget {
   final bool showFinishSnackBar;
 
   const MainPage({super.key, this.showFinishSnackBar = false});
 
   @override
-  State<MainPage> createState() => MainPageState();
+  ConsumerState<MainPage> createState() => MainPageState();
 }
 
-class MainPageState extends State<MainPage> {
-  int currentIndex = 0;
-
+class MainPageState extends ConsumerState<MainPage> {
   late final List<Widget> pages;
 
   @override
@@ -35,11 +36,12 @@ class MainPageState extends State<MainPage> {
   }
 
   void changeTab(int index) {
-    setState(() => currentIndex = index);
+    ref.read(mainNavIndexProvider.notifier).state = index;
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentIndex = ref.watch(mainNavIndexProvider);
     return Scaffold(
       body: pages[currentIndex],
       backgroundColor: AppColors.baseBackground,
