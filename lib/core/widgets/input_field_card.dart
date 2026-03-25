@@ -85,14 +85,11 @@ class TextFields extends StatelessWidget {
                       child: Image.asset(prefixIcon!, width: 18),
                     )
                   : prefixText != null
-                  ? Padding(
-                      padding: const EdgeInsets.only(left: 12),
-                      child: Text(
-                        prefixText!,
-                        style: AppTypography.smallBoldBlack,
-                      ),
-                    )
-                  : null,
+                      ? Padding(
+                          padding: const EdgeInsets.only(left: 12),
+                          child: Text(prefixText!, style: AppTypography.smallBoldBlack),
+                        )
+                      : null,
               prefixIconConstraints: prefixText != null
                   ? const BoxConstraints(minWidth: 0, minHeight: 0)
                   : null,
