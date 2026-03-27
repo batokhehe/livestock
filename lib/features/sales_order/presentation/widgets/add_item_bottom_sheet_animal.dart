@@ -27,7 +27,8 @@ import '../../../../core/widgets/village_bottom_sheet.dart';
 import '../../sales_order_provider.dart';
 
 class AddItemBottomSheetAnimal extends ConsumerStatefulWidget {
-  const AddItemBottomSheetAnimal({super.key});
+  final bool isEdit;
+  const AddItemBottomSheetAnimal({super.key, this.isEdit = false});
 
   @override
   ConsumerState<AddItemBottomSheetAnimal> createState() =>
@@ -232,12 +233,21 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                               discountCtrl.text = '0';
                             });
 
-                            if (result.animalGroup != null) {
-                              final forecast = await ref
-                                  .read(salesOrderFormProvider.notifier)
-                                  .calculateForecastForItem(
-                                    animalGroupId: result.animalGroup!.id,
-                                  );
+                             if (result.animalGroup != null) {
+                               late final CalculateForecast forecast;
+                               if (widget.isEdit) {
+                                 forecast = await ref
+                                     .read(editSalesOrderFormProvider.notifier)
+                                     .calculateForecastForItem(
+                                       animalGroupId: result.animalGroup!.id,
+                                     );
+                               } else {
+                                 forecast = await ref
+                                     .read(salesOrderFormProvider.notifier)
+                                     .calculateForecastForItem(
+                                       animalGroupId: result.animalGroup!.id,
+                                     );
+                               }
 
                               setState(() {
                                 forecastData = forecast;
