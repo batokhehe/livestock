@@ -30,6 +30,7 @@ class AppImages {
 
   static const icMoneyTick = "$iconsUrl/ic_money_tick.png";
   static const icMoneyTime = "$iconsUrl/ic_money_time.png";
+  static const icMoneyTimeSvg = "$iconsUrl/ic_money_time.svg";
   static const icReceiptEdit = "$iconsUrl/ic_receipt_edit.png";
   static const icReceiptSearch = "$iconsUrl/ic_receipt_search.png";
 
