@@ -189,8 +189,9 @@ class _SalesOrderInfoSection extends ConsumerWidget {
                   value: form.category ?? "kg",
                   options: const ['kg', 'Kelas'],
                   labelBuilder: (v) => v,
-                  onChanged: (v) =>
-                      ref.read(salesOrderFormProvider.notifier).setCategory(v),
+                  onChanged: (v) => ref
+                      .read(salesOrderFormProvider.notifier)
+                      .setCategory(v),
                 ),
               ),
               const SizedBox(width: 12),

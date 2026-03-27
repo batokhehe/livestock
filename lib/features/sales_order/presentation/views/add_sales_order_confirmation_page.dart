@@ -141,10 +141,12 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
                                   "Data item berhasil dicatat dalam transaksi penjualan.",
                             );
 
-                            context.go('/sales-order');
+                             context.go('/sales-order');
 
                             Future.microtask(() {
                               ref.read(salesOrderFormProvider.notifier).reset();
+                              ref.read(salesOrderTabProvider.notifier).state = SalesOrderTab.all;
+                              ref.invalidate(salesOrderListProvider);
                             });
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(

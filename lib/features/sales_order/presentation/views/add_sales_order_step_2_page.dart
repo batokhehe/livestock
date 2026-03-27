@@ -45,11 +45,7 @@ class _AddSalesOrderStep2PageState
     );
 
     if (result != null) {
-      final current = ref.read(salesOrderFormProvider);
-
-      ref.read(salesOrderFormProvider.notifier).state = current.copyWith(
-        items: [...?current.items, result],
-      );
+      ref.read(salesOrderFormProvider.notifier).addItem(result);
     }
   }
 
@@ -310,12 +306,7 @@ class _AddSalesOrderStep2PageState
       backgroundColor: AppColors.greyBg,
       builder: (_) => _DeleteConfirmBottomSheet(
         onDelete: () {
-          final current = ref.read(salesOrderFormProvider);
-
-          ref.read(salesOrderFormProvider.notifier).state = current.copyWith(
-            items: current.items?.where((e) => e != item).toList(),
-          );
-
+          ref.read(salesOrderFormProvider.notifier).removeItem(item);
           Navigator.pop(context);
         },
       ),
@@ -405,7 +396,6 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          // const Divider(color: AppColors.fieldBorder),
           Container(
             padding: const EdgeInsets.only(
               left: 16.0,
