@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/section_card.dart';
+import 'package:livestock/features/sales_order/data/model/sales_order_detail_model.dart';
 import 'package:livestock/features/sales_order/data/model/sales_order_item_model.dart';
-import 'package:livestock/features/sales_order/data/model/sales_order_list_model.dart';
+import 'package:open_filex/open_filex.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/card_wrapper.dart';
 import '../../../../core/widgets/info_item_card.dart';
 import '../../../../core/widgets/product_header_card.dart';
-import '../../../../core/widgets/step_info_card.dart';
 import '../../../../core/widgets/two_column_row_card.dart';
-import '../../data/model/sales_order_item_request_model.dart';
 import '../../sales_order_provider.dart';
+import '../widgets/sales_order_detail_card.dart';
+import 'package:livestock/features/sales_order/data/model/sales_invoice_model.dart';
+import 'invoice_downloader_provider.dart';
 
 class SalesOrderDetailPage extends ConsumerWidget {
   final int id;
@@ -34,6 +37,7 @@ class SalesOrderDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(salesOrderDetailProvider(id));
+    final invoiceListAsync = ref.watch(salesInvoiceListProvider(id));
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
@@ -57,13 +61,9 @@ class SalesOrderDetailPage extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const StepInfoCard(
-                      title: "Detail Penjualan",
-                      step: 3,
-                      totalStep: 3,
-                    ),
-
                     const SizedBox(height: 12),
+
+                    SalesOrderDetailCard(item: data),
 
                     _infoSalesOrder(data),
 
@@ -72,12 +72,12 @@ class SalesOrderDetailPage extends ConsumerWidget {
                     ...items.asMap().entries.map(
                       (entry) => _ProductInfoCard(
                         counter: entry.key + 1,
+                        detailData: data,
                         data: entry.value,
                       ),
                     ),
 
                     const SizedBox(height: 12),
-
                     _summaryCard(
                       totalItem: items.length,
                       subtotal: data.subtotal.toDouble(),
@@ -85,8 +85,22 @@ class SalesOrderDetailPage extends ConsumerWidget {
                       total: data.amountTotal.toDouble(),
                       formatCurrency: formatCurrency,
                     ),
+                    const SizedBox(height: 12),
+                    invoiceListAsync.when(
+                      data: (invoices) => _invoiceListSection(invoices),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (e, s) => const SizedBox(),
+                    ),
+                    const SizedBox(height: 70),
                   ],
                 ),
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: _bottomActions(context, data),
               ),
             ],
           );
@@ -95,11 +109,7 @@ class SalesOrderDetailPage extends ConsumerWidget {
     );
   }
 
-  /// =========================
-  /// INFORMASI PENJUALAN
-  /// =========================
-
-  Widget _infoSalesOrder(SalesOrderList data) {
+  Widget _infoSalesOrder(SalesOrderDetail data) {
     return CardWrapper(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,17 +117,20 @@ class SalesOrderDetailPage extends ConsumerWidget {
           const Text("Data Pemesanan", style: AppTypography.mediumNormalBlack),
           const SizedBox(height: 12),
           InfoItemCard(
-            icon: AppImages.icCalendarTick,
+            label: 'Tanggal Penjualan:',
+            icon: AppImages.icCalendarNew,
             title: data.orderDate,
             subtitle: data.farmLocationName,
           ),
           InfoItemCard(
-            icon: AppImages.icUserTag,
-            title: data.customer.toString(),
-            subtitle: data.customer.contactPhone.toString(),
+            label: 'Nama Pembeli:',
+            icon: AppImages.icUserTagSvg,
+            title: data.customer.name.toString(),
+            subtitle: data.customer.contactPhone ?? '-',
           ),
           InfoItemCard(
-            icon: AppImages.icUser,
+            label: 'Nama Penerima:',
+            icon: AppImages.icDirectBoxReceive,
             title: data.recipientName ?? '-',
             subtitle: data.recipientNumber ?? '-',
           ),
@@ -125,10 +138,6 @@ class SalesOrderDetailPage extends ConsumerWidget {
       ),
     );
   }
-
-  /// =========================
-  /// SUMMARY CARD
-  /// =========================
 
   Widget _summaryCard({
     required int totalItem,
@@ -153,6 +162,154 @@ class SalesOrderDetailPage extends ConsumerWidget {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _bottomActions(BuildContext context, SalesOrderDetail data) {
+    if (data.salesStatus != 'draft') return const SizedBox.shrink();
+    return Container(
+      color: AppColors.white,
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                context.push('/sales-order/create-invoice', extra: data);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
+              child: const Text(
+                "Buat Nota",
+                style: AppTypography.mediumBoldWhite,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: () {
+              context.push('/sales-order/edit', extra: data);
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF2F4FF),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Edit Data",
+                    style: AppTypography.smallBoldPrimary.copyWith(
+                      color: Colors.blue.shade700,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.edit_rounded,
+                    color: Colors.blue.shade700,
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _invoiceListSection(List<SalesInvoice> invoices) {
+    if (invoices.isEmpty) return const SizedBox();
+    return SectionCard(
+      title: 'Daftar Nota',
+      children: invoices
+          .map(
+            (inv) => Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: _invoiceItem(
+                inv.id,
+                inv.invoiceId,
+                formatDateString(inv.invoiceDate),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _invoiceItem(int id, String title, String date) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.fieldBorder.withOpacity(0.5)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppTypography.smallBoldBlack),
+                const SizedBox(height: 4),
+                Text(date, style: AppTypography.xSmallNormalGrey),
+              ],
+            ),
+          ),
+          Consumer(
+            builder: (context, ref, _) {
+              final progress = ref.watch(invoiceDownloadProgressProvider(id));
+
+              return ElevatedButton(
+                onPressed: progress > 0
+                    ? null
+                    : () async {
+                        try {
+                          final path = await ref
+                              .read(invoiceDownloaderProvider)
+                              .downloadInvoice(id, "$title.pdf");
+                          if (path != null) {
+                            // Use open_filex for direct preview
+                            await OpenFilex.open(path);
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Gagal mengunduh: $e")),
+                            );
+                          }
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFFF7E6),
+                  foregroundColor: AppColors.primary,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  progress > 0 ? "${(progress * 100).toInt()}%" : "Unduh",
+                  style: AppTypography.xSmallBoldPrimary,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -181,10 +338,15 @@ class SalesOrderDetailPage extends ConsumerWidget {
 }
 
 class _ProductInfoCard extends StatelessWidget {
+  final SalesOrderDetail detailData;
   final SalesOrderItem data;
   final int counter;
 
-  const _ProductInfoCard({required this.data, required this.counter});
+  const _ProductInfoCard({
+    required this.detailData,
+    required this.data,
+    required this.counter,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -206,16 +368,25 @@ class _ProductInfoCard extends StatelessWidget {
             ProductHeaderCard(
               title: data.animalProfile?.name ?? data.feedMedicineCode,
               subtitle: '$code • $secondValue',
-              image: AppImages.icProduct,
+              image: AppImages.icNavCow,
             ),
             const SizedBox(height: 12),
             Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-            TwoColumnRowCard(
-              leftValue: data.unitPrice.toString(),
-              leftLabel: "Harga/kg Forecast",
-              rightValue: data.subTotal.toString(),
-              rightLabel: "Total Forecast",
-            ),
+            if (detailData.isForecast == 'yes')
+              TwoColumnRowCard(
+                leftValue: 'Rp ${formatPrice(data.unitPrice)}',
+                leftLabel: "Harga/kg Forecast",
+                rightValue: 'Rp ${formatPrice(data.subtotal)}',
+                rightLabel: "Total Forecast",
+              )
+            else
+              TwoColumnRowCard(
+                leftValue:
+                    'Rp ${formatPrice(data.unitPrice)} ${data.isForecast}',
+                leftLabel: "Harga",
+                rightValue: 'Rp ${formatPrice(data.subtotal)}',
+                rightLabel: "Subtotal",
+              ),
           ],
         ),
         if (isAnimal) ...[
@@ -223,36 +394,40 @@ class _ProductInfoCard extends StatelessWidget {
           SectionCard(
             children: [
               ProductHeaderCard(
-                title: data.subTotal.toString(),
-                subtitle: data.dlvDate,
-                image: AppImages.icMoneys,
+                title: 'Rp ${formatPrice(data.subtotal)}',
+                subtitle: formatDateString(data.dlvDate ?? "-"),
+                image: AppImages.icMoney,
               ),
+              const SizedBox(height: 12),
               Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
               TwoColumnRowCard(
-                leftValue: data.unitPrice.toString(),
+                leftValue: "Rp ${formatPrice(data.priceTotal)}",
                 leftLabel: "Harga jual",
-                rightValue: data.discount.toString(),
+                rightValue: "Rp ${formatPrice(data.discount)}",
                 rightLabel: "Harga diskon",
               ),
             ],
           ),
+          if (detailData.isForecast == 'yes') ...[
+            const SizedBox(height: 12),
+            SectionCard(
+              children: [
+                ProductHeaderCard(
+                  title: 'Transaksi Forecast',
+                  subtitle:
+                      '${data.forecastWeight} kg • ${data.forecastDate == null || data.forecastDate!.isEmpty ? '-' : formatDateString(data.forecastDate!)}',
+                  image: AppImages.icReceipt,
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 12),
           SectionCard(
             children: [
               ProductHeaderCard(
-                title: 'Transaksi Forecast',
-                subtitle: 'kg • ${data.dlvDate}',
-                image: AppImages.icMoneys,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SectionCard(
-            children: [
-              ProductHeaderCard(
-                title: data.dlvDate.toString(),
+                title: formatDateString(data.dlvDate ?? "-"),
                 subtitle: 'Tanggal Pengiriman',
-                image: AppImages.icTruckFast,
+                image: AppImages.icTruckFastSvg,
               ),
             ],
           ),
@@ -262,7 +437,7 @@ class _ProductInfoCard extends StatelessWidget {
               ProductHeaderCard(
                 title: '${data.state} • ${data.city}',
                 subtitle: '${data.district} • ${data.village}',
-                image: AppImages.icMap,
+                image: AppImages.icMapSvg,
               ),
             ],
           ),
@@ -271,7 +446,7 @@ class _ProductInfoCard extends StatelessWidget {
             children: [
               ProductHeaderCard(
                 title: data.deliveryAddress!,
-                image: AppImages.icMap,
+                image: AppImages.icBookmark,
               ),
             ],
           ),
