@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/app/providers.dart';
+import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/widgets/search_bar_card.dart';
 
 import '../../../../core/theme/AppColors.dart';
@@ -25,9 +26,6 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
   void initState() {
     super.initState();
     searchCtrl = TextEditingController();
-
-    // 🔥 reset search setiap buka
-    ref.read(soSearchProvider.notifier).state = '';
   }
 
   @override
@@ -40,7 +38,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
   Widget build(BuildContext context) {
     final dataAsync = ref.watch(soListProvider);
     final selectedItem = ref.watch(selectedSoProvider);
-    final keyword = ref.watch(soSearchProvider);
+    final activeTab = ref.watch(dispatchSoTabProvider);
 
     return dataAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -52,10 +50,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
         ),
       ),
       data: (d) {
-        final filtered = d.where((e) {
-          return e.orderId.toLowerCase().contains(keyword.toLowerCase());
-        }).toList();
-
+        final list = d;
         return Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -77,19 +72,31 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
                 hint: "Cari hewan",
                 controller: searchCtrl,
                 onChanged: (value) {
-                  ref.read(soSearchProvider.notifier).state = value;
+                  ref.read(soSearchProvider.notifier).onSearchChanged(value);
                 },
                 onClear: () {
-                  searchCtrl.clear();
-                  ref.read(soSearchProvider.notifier).state = '';
+                  ref.read(soSearchProvider.notifier).onSearchChanged('');
                 },
               ),
-
               const SizedBox(height: 12),
-
-              // ===== LIST =====
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _tabItem(ref, DispatchSOTab.all, activeTab),
+                      const SizedBox(width: 8),
+                      _tabItem(ref, DispatchSOTab.paid, activeTab),
+                      const SizedBox(width: 8),
+                      _tabItem(ref, DispatchSOTab.unpaid, activeTab),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
               Expanded(
-                child: filtered.isEmpty
+                child: list.isEmpty
                     ? Center(
                         child: Text(
                           "Hewan tidak ditemukan",
@@ -97,9 +104,9 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
                         ),
                       )
                     : ListView.builder(
-                        itemCount: filtered.length,
+                        itemCount: list.length,
                         itemBuilder: (_, i) {
-                          final e = filtered[i];
+                          final e = list[i];
                           final isSelected = selectedItem?.id == e.id;
 
                           return GestureDetector(
@@ -108,7 +115,6 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
                             },
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 10),
-                              padding: const EdgeInsets.all(14),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
@@ -123,8 +129,8 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
                               child: Column(
                                 children: [
                                   ProductHeaderCard(
-                                    title: e.items.first.itemName ?? "-",
-                                    subtitle: e.orderId ?? "-",
+                                    title: e.items.first.itemName,
+                                    subtitle: e.orderId,
                                     image: AppImages.icProduct,
                                     isActive: e.state == "active",
                                   ),
@@ -137,7 +143,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
                                   TwoColumnRowCard(
                                     leftValue: e.items.first.city,
                                     leftLabel: "Kota Tujuan",
-                                    rightValue: e.items.first.dlvDate ?? "-",
+                                    rightValue: e.items.first.dlvDate,
                                     rightLabel: "Tanggal Kirim",
                                   ),
                                   Divider(
@@ -145,11 +151,23 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
                                     thickness: 1,
                                     color: AppColors.fieldBorder,
                                   ),
-                                  TwoColumnRowCard(
-                                    leftValue: "",
-                                    leftLabel: "Biaya kirim",
-                                    rightValue: "",
-                                    rightLabel: e.shippingCost.toString(),
+                                  Padding(
+                                    padding: EdgeInsetsGeometry.all(16),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Biaya Kirim",
+                                          style: AppTypography.smallNormalGrey,
+                                        ),
+                                        Text(
+                                          "Rp ${formatPrice(e.items.first.shippingCost as num)}",
+                                          style:
+                                              AppTypography.mediumBoldPrimary,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -193,6 +211,32 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
           ),
         );
       },
+    );
+  }
+
+  Widget _tabItem(WidgetRef ref, DispatchSOTab value, DispatchSOTab active) {
+    final isActive = value == active;
+
+    return GestureDetector(
+      onTap: () {
+        ref.read(dispatchSoTabProvider.notifier).state = value;
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.primaryShade : AppColors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isActive ? AppColors.primary : AppColors.fieldBorder,
+          ),
+        ),
+        child: Text(
+          value.label,
+          style: AppTypography.smallNormalPrimary.copyWith(
+            color: isActive ? AppColors.primary : AppColors.black,
+          ),
+        ),
+      ),
     );
   }
 }

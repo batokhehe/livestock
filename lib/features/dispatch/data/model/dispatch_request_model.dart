@@ -1,3 +1,4 @@
+import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/features/dispatch/data/model/dispatch_item_request_model.dart';
 
 class DispatchRequest {
@@ -8,6 +9,7 @@ class DispatchRequest {
   final int? downPayment;
   final int? additionalCost;
   final int? shippingCostTotal;
+  final FarmLocation? farmLocation;
   final List<DispatchItemRequest>? items;
 
   DispatchRequest({
@@ -15,6 +17,7 @@ class DispatchRequest {
     this.vehicleNumber,
     this.driverName,
     this.farmLocationId,
+    this.farmLocation,
     this.downPayment,
     this.additionalCost,
     this.shippingCostTotal,
@@ -26,6 +29,7 @@ class DispatchRequest {
     String? vehicleNumber,
     String? driverName,
     int? farmLocationId,
+    FarmLocation? farmLocation,
     int? downPayment,
     int? additionalCost,
     int? shippingCostTotal,
@@ -36,6 +40,7 @@ class DispatchRequest {
       vehicleNumber: vehicleNumber ?? this.vehicleNumber,
       driverName: driverName ?? this.driverName,
       farmLocationId: farmLocationId ?? this.farmLocationId,
+      farmLocation: farmLocation ?? this.farmLocation,
       downPayment: downPayment ?? this.downPayment,
       additionalCost: additionalCost ?? this.additionalCost,
       shippingCostTotal: shippingCostTotal ?? this.shippingCostTotal,
@@ -48,7 +53,7 @@ class DispatchRequest {
       "dispatch_date": dispatchDate,
       "vehicle_number": vehicleNumber,
       "driver_name": driverName,
-      "farm_location_id": 1, //farmLocationId,
+      "farm_location_id": farmLocationId,
       "shipping_cost_total": shippingCostTotal, // ambil total items
       "additional_cost": additionalCost,
       "down_payment": downPayment,

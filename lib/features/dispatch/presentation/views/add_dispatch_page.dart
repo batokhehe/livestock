@@ -5,9 +5,11 @@ import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/input_field_card.dart';
 
+import '../../../../core/data/model/farm_location_model.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/custom_date_picker_sheet.dart';
+import '../../../../core/widgets/farm_location_bottom_sheet.dart';
 import '../../../../core/widgets/section_card.dart';
 import '../../../../core/widgets/select_field.dart';
 import '../../../../core/widgets/step_info_card.dart';
@@ -132,6 +134,23 @@ class _DispatchInfoSection extends ConsumerWidget {
           },
         ),
         const SizedBox(height: 12),
+        SelectField(
+          label: "Lokasi peternakan",
+          hint: form.farmLocation?.name ?? "Pilih lokasi",
+          icon: AppImages.icHomeHashTag,
+          onTap: () async {
+            final result = await showModalBottomSheet<FarmLocation?>(
+              context: context,
+              isScrollControlled: true,
+              builder: (_) => const FarmLocationBottomSheet(),
+            );
+
+            if (result != null) {
+              ref.read(dispatchFormProvider.notifier).setFarmLocation(result);
+            }
+          },
+        ),
+        const SizedBox(height: 12),
         TextFields(
           label: "Nomor Mobil",
           hint: "Masukkan nomor mobil",
@@ -158,7 +177,8 @@ class _NextButton extends ConsumerWidget {
     final isValid =
         form.driverName?.isNotEmpty == true &&
         form.vehicleNumber?.isNotEmpty == true &&
-        form.dispatchDate != null;
+        form.dispatchDate != null &&
+        form.farmLocation != null;
 
     return SafeArea(
       child: Padding(

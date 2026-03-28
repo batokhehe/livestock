@@ -1,26 +1,28 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/features/dispatch/data/model/sales_order_dispatch_model.dart';
 
 import '../../core/network/dio_client.dart';
 import 'data/api/dispatch_api.dart';
 import 'data/model/dispatch_item_request_model.dart';
-import 'data/model/dispatch_list_model.dart';
 import 'data/model/dispatch_request_model.dart';
 import 'data/repository/dispatch_repository.dart';
 
-enum DispatchTab { all, sell, confirmed, closed }
+enum DispatchTab { all, ready, inTransit, delivered }
 
 extension DispatchTabX on DispatchTab {
   String get apiValue {
     switch (this) {
       case DispatchTab.all:
         return 'all';
-      case DispatchTab.sell:
-        return 'sell';
-      case DispatchTab.confirmed:
-        return 'confirmed';
-      case DispatchTab.closed:
-        return 'closed';
+      case DispatchTab.ready:
+        return 'ready';
+      case DispatchTab.inTransit:
+        return 'in_transit';
+      case DispatchTab.delivered:
+        return 'delivered';
     }
   }
 
@@ -28,44 +30,86 @@ extension DispatchTabX on DispatchTab {
     switch (this) {
       case DispatchTab.all:
         return 'Semua';
-      case DispatchTab.sell:
-        return 'Terjual';
-      case DispatchTab.confirmed:
-        return 'Dikonfirmasi';
-      case DispatchTab.closed:
-        return 'Tutup';
+      case DispatchTab.ready:
+        return 'Siap Dikirim';
+      case DispatchTab.inTransit:
+        return 'Sedang Dikirim';
+      case DispatchTab.delivered:
+        return 'Selesai Dikirim';
+    }
+  }
+}
+
+enum DispatchSOTab { all, paid, unpaid }
+
+extension DispatchSOTabX on DispatchSOTab {
+  String get apiValue {
+    switch (this) {
+      case DispatchSOTab.all:
+        return 'all';
+      case DispatchSOTab.paid:
+        return 'paid';
+      case DispatchSOTab.unpaid:
+        return 'unpaid';
     }
   }
 
-  // String get ext {
-  //   switch (this) {
-  //     case dispatchTab.animal:
-  //       return 'hewan';
-  //     case dispatchTab.feed:
-  //       return 'item';
-  //     case dispatchTab.equipment:
-  //       return 'item';
-  //   }
-  // }
+  String get label {
+    switch (this) {
+      case DispatchSOTab.all:
+        return 'Semua';
+      case DispatchSOTab.paid:
+        return 'Lunas';
+      case DispatchSOTab.unpaid:
+        return 'Belum Lunas';
+    }
+  }
 }
 
-final dispatchSearchProvider = StateProvider<String>((ref) => '');
+final dispatchSearchProvider =
+    StateNotifierProvider<DispatchSearchNotifier, String>((ref) {
+      return DispatchSearchNotifier();
+    });
+
+class DispatchSearchNotifier extends StateNotifier<String> {
+  DispatchSearchNotifier() : super('');
+
+  Timer? _debounce;
+
+  void onSearchChanged(String value) {
+    _debounce?.cancel();
+
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      state = value;
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+}
 
 final dispatchTabProvider = StateProvider<DispatchTab>((ref) {
   return DispatchTab.all;
+});
+
+final dispatchSoTabProvider = StateProvider<DispatchSOTab>((ref) {
+  return DispatchSOTab.all;
 });
 
 final dispatchApiProvider = Provider((ref) {
   return DispatchApi(ref.read(dioProvider));
 });
 
-final dispatchListProvider = FutureProvider.autoDispose<List<DispatchList>>((
-  ref,
-) async {
+final dispatchListProvider = FutureProvider((ref) async {
   final api = ref.read(dispatchApiProvider);
   final tab = ref.watch(dispatchTabProvider);
 
-  return api.getDispatch(status: tab.apiValue);
+  final search = ref.watch(dispatchSearchProvider);
+
+  return api.getDispatch(status: tab.apiValue, search: search);
 });
 
 final dispatchFormProvider =
@@ -106,6 +150,10 @@ class DispatchFormNotifier extends StateNotifier<DispatchRequest> {
     state = state.copyWith(shippingCostTotal: value);
   }
 
+  void setFarmLocation(FarmLocation value) {
+    state = state.copyWith(farmLocation: value, farmLocationId: value.id);
+  }
+
   void setItems(List<DispatchItemRequest> items) {
     state = state.copyWith(items: items);
   }
@@ -114,26 +162,24 @@ class DispatchFormNotifier extends StateNotifier<DispatchRequest> {
     final currentItems = state.items ?? [];
     final updated = [...currentItems, item];
 
-    final totalShipping =
-    updated.fold<int>(0, (sum, e) => sum + e.shippingCost);
-
-    state = state.copyWith(
-      items: updated,
-      shippingCostTotal: totalShipping,
+    final totalShipping = updated.fold<int>(
+      0,
+      (sum, e) => sum + e.shippingCost,
     );
+
+    state = state.copyWith(items: updated, shippingCostTotal: totalShipping);
   }
 
   void removeItem(DispatchItemRequest item) {
     final currentItems = state.items ?? [];
     final updated = [...currentItems]..remove(item);
 
-    final totalShipping =
-    updated.fold<int>(0, (sum, e) => sum + e.shippingCost);
-
-    state = state.copyWith(
-      items: updated,
-      shippingCostTotal: totalShipping,
+    final totalShipping = updated.fold<int>(
+      0,
+      (sum, e) => sum + e.shippingCost,
     );
+
+    state = state.copyWith(items: updated, shippingCostTotal: totalShipping);
   }
 
   void reset() {
@@ -162,4 +208,26 @@ final dispatchRepositoryProvider = Provider<DispatchRepository>((ref) {
 
 // SO Dispatch
 final selectedSoProvider = StateProvider<SalesOrderDispatch?>((ref) => null);
-final soSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+final soSearchProvider = StateNotifierProvider<SoSearchNotifier, String>((ref) {
+  return SoSearchNotifier();
+});
+
+class SoSearchNotifier extends StateNotifier<String> {
+  SoSearchNotifier() : super('');
+
+  Timer? _debounce;
+
+  void onSearchChanged(String value) {
+    _debounce?.cancel();
+
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      state = value;
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+}

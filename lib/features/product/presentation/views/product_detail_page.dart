@@ -69,8 +69,8 @@ class _ProductInfoCard extends StatelessWidget {
       child: Column(
         children: [
           ProductHeaderCard(
-            title: data.animalCode ?? "-",
-            subtitle: data.name ?? "-",
+            title: data.animalCode,
+            subtitle: data.name,
             image: AppImages.icProduct,
             isActive: data.status == "active",
           ),

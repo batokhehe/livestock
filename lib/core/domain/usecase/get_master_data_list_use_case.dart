@@ -98,7 +98,10 @@ class GetMasterDataListUseCase {
     );
   }
 
-  Future<List<SalesOrderDispatch>> callSoDispatch() {
-    return repository.getSoDispatch();
+  Future<List<SalesOrderDispatch>> callSoDispatch(
+    String paymentStatus,
+    String search,
+  ) {
+    return repository.getSoDispatch(paymentStatus, search);
   }
 }

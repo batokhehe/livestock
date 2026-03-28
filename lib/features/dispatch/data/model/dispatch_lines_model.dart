@@ -36,14 +36,14 @@ class DispatchLine {
       animalCode: json['animal_code'],
       animalName: json['animal_name'],
       quantity: json['quantity'],
-      state: json['state'],
-      city: json['city'],
-      district: json['district'],
-      village: json['village'],
+      state: json['state'] ?? "",
+      city: json['city'] ?? "",
+      district: json['district'] ?? "",
+      village: json['village'] ?? "",
       recipientName: json['recipient_name'],
       recipientNumber: json['recipient_number'],
-      deliveryAddress: json['delivery_address'],
-      dlvDate: json['dlv_date'],
+      deliveryAddress: json['delivery_address'] ?? "",
+      dlvDate: json['dlv_date'] ?? "",
     );
   }
 }

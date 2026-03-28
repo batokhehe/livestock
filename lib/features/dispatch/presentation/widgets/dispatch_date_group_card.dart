@@ -39,7 +39,7 @@ class DispatchDateGroupCard extends StatelessWidget {
             (e) => InkWell(
               borderRadius: BorderRadius.circular(12),
               onTap: () {
-                context.push('/receiving/detail/${e.id}');
+                context.push('/dipatch/detail/${e.id}');
               },
               child: DispatchItemDoubleCard(item: e),
             ),

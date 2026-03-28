@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/section_card.dart';
@@ -19,15 +18,6 @@ import '../../dispatch_provider.dart';
 
 class AddDispatchConfirmationPage extends ConsumerWidget {
   const AddDispatchConfirmationPage({super.key});
-
-  String formatCurrency(double value) {
-    final formatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
-    return formatter.format(value);
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -66,7 +56,6 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
 
                 _summaryCard(
                   totalItem: items.length,
-                  formatCurrency: formatCurrency,
                   deliveryFee: form.shippingCostTotal!.toDouble(),
                   downPayment: form.downPayment!.toDouble(),
                   additionalFee: form.additionalCost!.toDouble(),
@@ -104,10 +93,9 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
                             title: "Lanjutkan Pengiriman Item?",
                             subTitle:
                                 "Mohon pastikan semua item dan detail sudah sesuai sebelum melanjutkan transaksi",
-                            saveText: "Simpan Pengiriman",
+                            saveText: "Simpan",
                           ),
                         );
-                        print('test');
                         if (result == true) {
                           try {
                             await ref
@@ -236,11 +224,18 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
             rightLabel: "Tanggal Kirim",
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          TwoColumnRowCard(
-            leftValue: "",
-            leftLabel: "Biaya kirim",
-            rightValue: "",
-            rightLabel: item.shippingCost.toString(),
+          Padding(
+            padding: EdgeInsetsGeometry.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Biaya Kirim", style: AppTypography.smallNormalGrey),
+                Text(
+                  "Rp ${formatPrice(item.shippingCost as num)}",
+                  style: AppTypography.mediumBoldPrimary,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -271,6 +266,11 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
             title: form.vehicleNumber ?? '-',
             subtitle: form.driverName ?? '-',
           ),
+          InfoItemCard(
+            icon: AppImages.icField,
+            title: form.farmLocation?.name ?? '-',
+            subtitle: "Lokasi Peternakan",
+          ),
         ],
       ),
     );
@@ -286,7 +286,6 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
     required double downPayment,
     required double additionalFee,
     required double total,
-    required String Function(double) formatCurrency,
   }) {
     return SectionCard(
       title: 'Rincian Bayar',
@@ -294,12 +293,12 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
         SectionCard(
           children: [
             _rowSummary("Jumlah Item", totalItem.toString()),
-            _rowSummary("Total Biaya Kirim", formatCurrency(deliveryFee)),
-            _rowSummary("Uang Muka Pengiriman", formatCurrency(downPayment)),
-            _rowSummary("Biaya Tambahan", formatCurrency(additionalFee)),
+            _rowSummary("Total Biaya Kirim", formatPrice(deliveryFee)),
+            _rowSummary("Uang Muka Pengiriman", formatPrice(downPayment)),
+            _rowSummary("Biaya Tambahan", formatPrice(additionalFee)),
             _rowSummary(
               "Total Sisa Pembayaran",
-              formatCurrency(total),
+              formatPrice(total),
               isBold: true,
             ),
           ],

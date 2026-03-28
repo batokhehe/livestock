@@ -105,8 +105,8 @@ class MasterRepository {
     );
   }
 
-  Future<List<SalesOrderDispatch>> getSoDispatch() async {
-    final res = await api.getSoDispatch();
+  Future<List<SalesOrderDispatch>> getSoDispatch(String paymentStatus, String search) async {
+    final res = await api.getSoDispatch(paymentStatus, search);
     return res.data;
   }
 }

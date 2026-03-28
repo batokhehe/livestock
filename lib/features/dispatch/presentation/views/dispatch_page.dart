@@ -10,13 +10,31 @@ import '../../data/model/dispatch_list_model.dart';
 import '../../dispatch_provider.dart';
 import '../widgets/dispatch_date_group_card.dart';
 
-class DispatchPage extends ConsumerWidget {
+class DispatchPage extends ConsumerStatefulWidget {
   const DispatchPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DispatchPage> createState() => _DispatchPageState();
+}
+
+class _DispatchPageState extends ConsumerState<DispatchPage> {
+  late TextEditingController searchCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    searchCtrl = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final dataAsync = ref.watch(dispatchListProvider);
-    final searchCtrl = TextEditingController();
     final activeTab = ref.watch(dispatchTabProvider);
 
     return Scaffold(
@@ -37,21 +55,36 @@ class DispatchPage extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          SearchBarCard(hint: 'Cari Apapun', controller: searchCtrl),
-
-          /// 🔥 TABS
+          Padding(
+            padding: EdgeInsetsGeometry.all(8),
+            child: SearchBarCard(
+              hint: 'Cari Apapun',
+              controller: searchCtrl,
+              onChanged: (value) {
+                ref
+                    .read(dispatchSearchProvider.notifier)
+                    .onSearchChanged(value);
+              },
+              onClear: () {
+                ref.read(dispatchSearchProvider.notifier).onSearchChanged('');
+              },
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                _tabItem(ref, DispatchTab.all, activeTab),
-                const SizedBox(width: 8),
-                _tabItem(ref, DispatchTab.sell, activeTab),
-                const SizedBox(width: 8),
-                _tabItem(ref, DispatchTab.confirmed, activeTab),
-                const SizedBox(width: 8),
-                _tabItem(ref, DispatchTab.closed, activeTab),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _tabItem(ref, DispatchTab.all, activeTab),
+                  const SizedBox(width: 8),
+                  _tabItem(ref, DispatchTab.ready, activeTab),
+                  const SizedBox(width: 8),
+                  _tabItem(ref, DispatchTab.inTransit, activeTab),
+                  const SizedBox(width: 8),
+                  _tabItem(ref, DispatchTab.delivered, activeTab),
+                ],
+              ),
             ),
           ),
 

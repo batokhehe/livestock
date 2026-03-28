@@ -20,13 +20,13 @@ class DispatchItemDoubleCard extends StatelessWidget {
         statusColor = AppColors.primary;
         statusText = 'Siap Dikirim';
         break;
-      case 'finished':
+      case 'delivered':
         statusColor = AppColors.success;
         statusText = 'Selesai Dikirim';
         break;
       default:
         statusColor = AppColors.grey2;
-        statusText = 'Tutup';
+        statusText = 'Sedang Dikirim';
     }
 
     return Container(
@@ -72,7 +72,7 @@ class DispatchItemDoubleCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${item.totalQuantity} Pengantaran • ${item.vehicleNumber}',
+                      '${(double.tryParse(item.totalQuantity) ?? 0).toInt()} Hewan • ${item.vehicleNumber}',
                       style: AppTypography.xSmallNormalBlack,
                     ),
                     Text(

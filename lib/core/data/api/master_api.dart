@@ -256,8 +256,20 @@ class MasterApi {
     );
   }
 
-  Future<BaseResponse<SalesOrderDispatch>> getSoDispatch() async {
-    final res = await dio.get('/inventory/dispatch/sales-orders');
+  Future<BaseResponse<SalesOrderDispatch>> getSoDispatch(
+    String paymentStatus,
+    String search,
+  ) async {
+    final query = <String, dynamic>{};
+    if (paymentStatus != 'all') {
+      query['payment_status'] = paymentStatus;
+    }
+    query['search'] = search;
+
+    final res = await dio.get(
+      '/inventory/dispatch/sales-orders',
+      queryParameters: query.isNotEmpty ? query : null,
+    );
 
     if (res.statusCode != 200) {
       throw DioException(
@@ -266,6 +278,7 @@ class MasterApi {
         type: DioExceptionType.badResponse,
       );
     }
+
     return BaseResponse.fromJson(
       res.data,
       (json) => SalesOrderDispatch.fromJson(json),

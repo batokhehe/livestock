@@ -21,6 +21,7 @@ import '../core/errors/unauthorized_exception.dart';
 import '../core/network/dio_client.dart';
 import '../core/notifier/product_notifier.dart';
 import '../features/dispatch/data/model/sales_order_dispatch_model.dart';
+import '../features/dispatch/dispatch_provider.dart';
 
 export '../features/auth/data/auth_repository.dart';
 export '../features/auth/providers/auth_provider.dart';
@@ -218,5 +219,10 @@ final animalListByClassProvider =
 final soListProvider = FutureProvider.autoDispose<List<SalesOrderDispatch>>((
   ref,
 ) async {
-  return ref.read(getMasterDataListUseCaseProvider).callSoDispatch();
+  final tab = ref.watch(dispatchSoTabProvider);
+  final search = ref.watch(soSearchProvider);
+
+  return ref
+      .read(getMasterDataListUseCaseProvider)
+      .callSoDispatch(tab.apiValue, search);
 });

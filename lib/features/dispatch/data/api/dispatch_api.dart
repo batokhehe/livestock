@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../model/dispatch_list_model.dart';
@@ -8,10 +10,20 @@ class DispatchApi {
 
   DispatchApi(this.dio);
 
-  Future<List<DispatchList>> getDispatch({required String status}) async {
+  Future<List<DispatchList>> getDispatch({
+    required String status,
+    String? search,
+  }) async {
+    final query = <String, dynamic>{};
+    if (status != 'all') {
+      query['dispatch_status'] = status;
+    }
+    if (search != null && search.isNotEmpty) {
+      query['search'] = search;
+    }
     final res = await dio.get(
       '/inventory/dispatch',
-      queryParameters: status != 'all' ? {'dispatch_status': status} : null,
+      queryParameters: query.isNotEmpty ? query : null,
     );
 
     if (res.statusCode != 200) {
@@ -21,6 +33,7 @@ class DispatchApi {
         type: DioExceptionType.badResponse,
       );
     }
+
     final data = res.data;
     final List list = data['data'];
 
@@ -29,14 +42,15 @@ class DispatchApi {
 
   Future<void> submitDispatch(DispatchRequest request) async {
     final body = request.toJson();
-    body.forEach((key, value) {
-      print("KEY: $key → ${value.runtimeType}");
-    });
-    for (var item in body['items']) {
-      item.forEach((key, value) {
-        print("ITEM KEY: $key → ${value.runtimeType}");
-      });
-    }
+    print(jsonEncode(body));
+    // body.forEach((key, value) {
+    //   print("KEY: $key → ${value.runtimeType}");
+    // });
+    // for (var item in body['items']) {
+    //   item.forEach((key, value) {
+    //     print("ITEM KEY: $key → ${value.runtimeType}");
+    //   });
+    // }
     final res = await dio.post("/inventory/dispatch", data: request.toJson());
 
     if (res.statusCode != 200 && res.statusCode != 201) {

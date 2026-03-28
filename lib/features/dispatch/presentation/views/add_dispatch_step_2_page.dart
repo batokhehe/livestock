@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 
+import '../../../../core/helpers/currency_input_formatter.dart';
+import '../../../../core/helpers/utils.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/card_wrapper.dart';
@@ -35,13 +38,15 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
     additionalCostController = TextEditingController();
 
     downPaymentController.addListener(() {
-      final value = int.tryParse(downPaymentController.text) ?? 0;
+      final raw = downPaymentController.text.replaceAll('.', '');
+      final value = int.tryParse(raw) ?? 0;
 
       ref.read(dispatchFormProvider.notifier).setDownPayment(value);
     });
 
     additionalCostController.addListener(() {
-      final value = int.tryParse(additionalCostController.text) ?? 0;
+      final raw = additionalCostController.text.replaceAll('.', '');
+      final value = int.tryParse(raw) ?? 0;
 
       ref.read(dispatchFormProvider.notifier).setAdditionalCost(value);
     });
@@ -55,6 +60,8 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
   }
 
   void _openAddItemSheet() async {
+    ref.read(soSearchProvider.notifier).state = '';
+
     final result = await showModalBottomSheet<DispatchItemRequest>(
       context: context,
       isScrollControlled: false,
@@ -95,20 +102,22 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
               totalStep: 3,
             ),
           ),
+
           Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: _infoItem(items),
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
+                _infoItem(items),
+
+                if (items.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  _paymentDetail(),
+                ],
+              ],
             ),
           ),
-          if (items.isNotEmpty) ...[
-            SizedBox(height: 8),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: _paymentDetail(),
-            ),
-          ],
-          _NextButton(),
+
+          const _NextButton(),
         ],
       ),
     );
@@ -207,11 +216,18 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
             rightLabel: "Tanggal Kirim",
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          TwoColumnRowCard(
-            leftValue: "",
-            leftLabel: "Biaya kirim",
-            rightValue: "",
-            rightLabel: item.shippingCost.toString(),
+          Padding(
+            padding: EdgeInsetsGeometry.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Biaya Kirim", style: AppTypography.smallNormalGrey),
+                Text(
+                  "Rp ${formatPrice(item.shippingCost as num)}",
+                  style: AppTypography.mediumBoldPrimary,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -247,24 +263,23 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                "Informasi Item",
+                "Informasi Hewan",
                 style: AppTypography.mediumNormalBlack,
               ),
               _addButtonSmall(),
             ],
           ),
           const SizedBox(height: 12),
-          Expanded(
-            child: items.isEmpty
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [_emptyState()],
-                  )
-                : ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (_, i) => _itemCard(items[i]),
-                  ),
-          ),
+
+          if (items.isEmpty)
+            _emptyState()
+          else
+            ListView.builder(
+              itemCount: items.length,
+              shrinkWrap: true, // 🔥 WAJIB
+              physics: const NeverScrollableScrollPhysics(), // 🔥 WAJIB
+              itemBuilder: (_, i) => _itemCard(items[i]),
+            ),
         ],
       ),
     );
@@ -274,7 +289,7 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
     return OutlinedButton.icon(
       onPressed: _openAddItemSheet,
       icon: Icon(Icons.add, size: 16, color: AppColors.white),
-      label: Text("Tambah Item", style: AppTypography.xSmallNormalWhite),
+      label: Text("Tambah Hewan", style: AppTypography.xSmallNormalWhite),
       style: OutlinedButton.styleFrom(
         backgroundColor: AppColors.primary,
         side: const BorderSide(color: AppColors.primary, width: 1),
@@ -311,17 +326,27 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
           hint: "Masukkan uang muka",
           prefixIcon: AppImages.icMoneyTime,
           controller: downPaymentController,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            CurrencyInputFormatter(),
+          ],
         ),
         TextFields(
           label: "Biaya Tambahan (Opsional)",
           hint: "Masukkan biaya tambahan",
           prefixIcon: AppImages.icMoneyTime,
           controller: additionalCostController,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            CurrencyInputFormatter(),
+          ],
         ),
         SectionCard(
           children: [
             ProductHeaderCard(
-              title: "Rp. ${dispatch.remainingPayment}",
+              title: "Rp. ${formatPrice(dispatch.remainingPayment)}",
               subtitle: "Sisa pembayaran",
               image: AppImages.icMoneyTime,
             ),
@@ -332,11 +357,14 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
   }
 }
 
-class _NextButton extends StatelessWidget {
+class _NextButton extends ConsumerWidget {
   const _NextButton();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final items = ref.watch(dispatchFormProvider).items ?? [];
+    final isEnabled = items.isNotEmpty;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -345,14 +373,18 @@ class _NextButton extends StatelessWidget {
           height: 48,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              backgroundColor: isEnabled
+                  ? AppColors.primary
+                  : AppColors.fieldBorder,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: () {
-              context.push("/dispatch/add/confirmation");
-            },
+            onPressed: isEnabled
+                ? () {
+                    context.push("/dispatch/add/confirmation");
+                  }
+                : null,
             child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
           ),
         ),
