@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-
-import '../../../../app/router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
+import '../../../home/presentation/providers/home_navigation_provider.dart';
 
-class NotificationPage extends StatelessWidget {
+class NotificationPage extends ConsumerWidget {
   const NotificationPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
@@ -18,10 +17,7 @@ class NotificationPage extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.go('/');
-            Future.microtask(() {
-              mainPageKey.currentState?.changeTab(0);
-            });
+            ref.read(mainNavIndexProvider.notifier).state = 0;
           },
         ),
       ),

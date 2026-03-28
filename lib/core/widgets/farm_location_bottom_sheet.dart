@@ -66,16 +66,24 @@ class _FarmLocationBottomSheetState
                     style: AppTypography.mediumBoldBlack,
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
+                    icon: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.iconColor, width: 2),
+                      ),
+                      child: const Icon(Icons.close_rounded, size: 16),
+                    ),
                   ),
                 ],
               ),
-
+              const SizedBox(height: 16),
               // ===== SEARCH =====
               SearchBarCard(
                 hint: "Cari lokasi",
                 controller: searchCtrl,
+                resetPadding: true,
                 onChanged: (value) {
                   ref.read(farmLocationSearchProvider.notifier).state = value;
                 },
@@ -85,7 +93,7 @@ class _FarmLocationBottomSheetState
                 },
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
 
               // ===== LIST =====
               Expanded(

@@ -7,4 +7,8 @@ class FarmArea {
   factory FarmArea.fromJson(Map<String, dynamic> json) {
     return FarmArea(id: json['id'], name: json['area_name']);
   }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name};
+  }
 }

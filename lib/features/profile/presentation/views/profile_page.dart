@@ -4,13 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/info_item_card.dart';
 
-import '../../../../app/router.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../user/providers/user_provider.dart';
 import '../widgets/logout_confirmation_bottom_sheet.dart';
 import '../widgets/success_banner.dart';
 import '../widgets/update_name_bottom_sheet.dart';
+
+import '../../../home/presentation/providers/home_navigation_provider.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -27,10 +28,7 @@ class ProfilePage extends ConsumerWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.go('/');
-            Future.microtask(() {
-              mainPageKey.currentState?.changeTab(0);
-            });
+            ref.read(mainNavIndexProvider.notifier).state = 0;
           },
         ),
       ),

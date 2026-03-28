@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/AppColors.dart';
@@ -12,7 +13,7 @@ class SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.fieldBorder),
       ),
       child: Column(
@@ -25,7 +26,11 @@ class SummaryCard extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              image: DecorationImage(
+                image: AssetImage("assets/images/accent.png"),
+                fit: BoxFit.cover,
+              ),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start, // ⭐ penting
@@ -44,7 +49,10 @@ class SummaryCard extends StatelessWidget {
                         const SizedBox(height: 6),
                         Row(
                           children: [
-                            Image.asset(AppImages.icWalletCheck, width: 16),
+                            SvgPicture.asset(
+                              AppImages.icWalletCheck,
+                              fit: BoxFit.contain,
+                            ),
                             const SizedBox(width: 4),
                             const Text(
                               "Total pemasukan",
@@ -64,7 +72,10 @@ class SummaryCard extends StatelessWidget {
                         const SizedBox(height: 6),
                         Row(
                           children: [
-                            Image.asset(AppImages.icAnimal, width: 16),
+                            SvgPicture.asset(
+                              AppImages.icAnimal,
+                              fit: BoxFit.contain,
+                            ),
                             const SizedBox(width: 4),
                             const Text(
                               "Hewan terjual",

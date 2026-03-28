@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
+import 'package:livestock/core/helpers/utils.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
@@ -11,6 +13,7 @@ import '../../data/model/sales_order_item_request_model.dart';
 import '../../sales_order_provider.dart';
 import '../widgets/add_item_bottom_sheet_animal.dart';
 import '../widgets/add_item_bottom_sheet_feed.dart';
+import '../widgets/sales_order_item_detail_bottom_sheet.dart';
 
 class AddSalesOrderStep2Page extends ConsumerStatefulWidget {
   const AddSalesOrderStep2Page({super.key});
@@ -48,6 +51,15 @@ class _AddSalesOrderStep2PageState
         items: [...?current.items, result],
       );
     }
+  }
+
+  void _showItemDetailSheet(SalesOrderItemRequest item) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => SalesOrderItemDetailBottomSheet(item: item),
+    );
   }
 
   @override
@@ -92,8 +104,7 @@ class _AddSalesOrderStep2PageState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(AppImages.icNoItem),
-          SizedBox(height: 24),
+          Image.asset(AppImages.imgEmptyTransaction, width: 180, height: 180),
           Text(
             "Belum Ada Item yang Ditambahkan",
             style: AppTypography.mediumBoldBlack,
@@ -119,74 +130,108 @@ class _AddSalesOrderStep2PageState
     final secondValue = isAnimal
         ? "${item.animalProfile!.weight} Kg"
         : item.feedMedicine!.feedType;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.fieldBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.animalProfile?.name ?? item.feedMedicine!.name,
-                      style: AppTypography.smallBoldBlack,
-                    ),
-                    Text(
-                      "$code • $secondValue",
-                      style: AppTypography.smallNormalGrey,
-                    ),
-                  ],
-                ),
-              ),
-              _iconAction(
-                icon: Icons.delete,
-                color: AppColors.danger,
-                backColor: AppColors.danger.withOpacity(0.08),
-                onTap: () => _showDeleteConfirmSheet(item),
-              ),
-              const SizedBox(width: 8),
-              _iconAction(
-                icon: Icons.edit,
-                color: AppColors.white,
-                backColor: AppColors.primary,
-                onTap: () {},
-              ),
-            ],
-          ),
+    final useForecast = ref.read(salesOrderFormProvider).useForecast ?? true;
 
-          const SizedBox(height: 12),
-          Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Rp ${item.unitPrice.toString()}',
-                style: AppTypography.smallBoldBlack,
+    return InkWell(
+      onTap: () => _showItemDetailSheet(item),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.fieldBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 8.0,
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: AppColors.greyBg,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: SvgPicture.asset(
+                            AppImages.icNavCow,
+                            fit: BoxFit.contain,
+                            width: 24,
+                            height: 24,
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.primary,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.animalProfile?.name ?? item.feedMedicine!.name,
+                            style: AppTypography.smallBoldBlack,
+                          ),
+                          Text(
+                            "$code • $secondValue",
+                            style: AppTypography.smallNormalGrey,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                _iconAction(
+                  icon: Icons.delete,
+                  color: AppColors.danger,
+                  backColor: AppColors.danger.withOpacity(0.08),
+                  onTap: () => _showDeleteConfirmSheet(item),
+                ),
+                const SizedBox(width: 8),
+                Icon(Icons.navigate_next_rounded),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Rp ${formatPrice(item.unitPrice ?? 0)}',
+                  style: AppTypography.smallBoldBlack,
+                ),
+                Text(
+                  'Rp ${formatPrice(item.subtotal ?? 0)}',
+                  style: AppTypography.smallBoldBlack,
+                ),
+              ],
+            ),
+            if (useForecast)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Harga/kg Forecast',
+                    style: AppTypography.xSmallNormalBlack,
+                  ),
+                  const Text(
+                    'Total Forecast',
+                    style: AppTypography.xSmallNormalBlack,
+                  ),
+                ],
               ),
-              Text(
-                'Rp ${item.subtotal.toString()}',
-                style: AppTypography.smallBoldBlack,
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Harga/kg Forecast', style: AppTypography.xSmallNormalBlack),
-              Text('Total Forecast', style: AppTypography.xSmallNormalBlack),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -262,7 +307,7 @@ class _AddSalesOrderStep2PageState
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.greyBg,
       builder: (_) => _DeleteConfirmBottomSheet(
         onDelete: () {
           final current = ref.read(salesOrderFormProvider);
@@ -315,78 +360,107 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(
-        20,
-        16,
-        20,
-        MediaQuery.of(context).padding.bottom + 16,
-      ),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.greyBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Hapus Item", style: AppTypography.largeBoldBlack),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.close),
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Hapus Item", style: AppTypography.largeBoldBlack),
+                RawMaterialButton(
+                  onPressed: () => Navigator.pop(context),
+                  elevation: 1.0,
+                  constraints: BoxConstraints(minWidth: 0.0),
+                  padding: EdgeInsets.all(8.0),
+                  shape: CircleBorder(
+                    side: const BorderSide(
+                      color: AppColors.iconColor,
+                      width: 2.0,
+                      style: BorderStyle.solid,
+                    ),
+                  ),
+                  child: Icon(Icons.close_rounded, size: 12.0),
+                ),
+              ],
+            ),
           ),
-
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
           Image.asset(AppImages.icDeleteConfirmation, height: 120),
           const SizedBox(height: 20),
           Text("Hapus Item Ini?", style: AppTypography.mediumBoldBlack),
           const SizedBox(height: 8),
-          Text(
-            "Item yang telah diinput akan dihapus dan tidak dapat dikembalikan. "
-            "Apakah Anda yakin ingin melanjutkan?",
-            textAlign: TextAlign.center,
-            style: AppTypography.smallNormalGrey,
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              "Item yang telah diinput akan dihapus dan tidak dapat dikembalikan. "
+              "Apakah Anda yakin ingin melanjutkan?",
+              textAlign: TextAlign.center,
+              style: AppTypography.smallNormalGrey,
+            ),
           ),
           const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: AppColors.primaryShade,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    side: BorderSide(color: AppColors.primaryShade),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+          // const Divider(color: AppColors.fieldBorder),
+          Container(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              top: 16.0,
+              bottom: 16.0,
+            ),
+            decoration: BoxDecoration(
+              boxShadow: kElevationToShadow[4],
+              color: Colors.white,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: AppColors.primaryShade,
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      side: BorderSide(color: AppColors.primaryShade),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      "Batal",
+                      style: AppTypography.smallBoldBlack.copyWith(
+                        color: AppColors.primaryDark,
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    "Batal",
-                    style: AppTypography.mediumBoldPrimary,
-                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.danger,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.danger,
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: onDelete,
+                    child: Text(
+                      "Hapus Sekarang",
+                      style: AppTypography.smallBoldBlack.copyWith(
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                  onPressed: onDelete,
-                  child: Text(
-                    "Hapus Sekarang",
-                    style: AppTypography.mediumBoldWhite,
-                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

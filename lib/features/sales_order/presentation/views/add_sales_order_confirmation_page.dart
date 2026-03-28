@@ -14,6 +14,7 @@ import '../../../../core/widgets/info_item_card.dart';
 import '../../../../core/widgets/product_header_card.dart';
 import '../../../../core/widgets/step_info_card.dart';
 import '../../../../core/widgets/two_column_row_card.dart';
+import '../../../../core/widgets/success_notification.dart';
 import '../../../receiving/presentation/widgets/confirmation_bottom_sheet.dart';
 import '../../data/model/sales_order_item_request_model.dart';
 import '../../sales_order_provider.dart';
@@ -78,12 +79,9 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
                   (entry) => _ProductInfoCard(
                     counter: entry.key + 1,
                     data: entry.value,
+                    useForecast: form.useForecast ?? true,
+                    forecastDate: form.forecastDate,
                   ),
-                  // (entry) => _itemCard(
-                  //   index: entry.key + 1,
-                  //   item: entry.value,
-                  //   formatCurrency: formatCurrency,
-                  // ),
                 ),
 
                 const SizedBox(height: 12),
@@ -121,7 +119,7 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
                         final result = await showModalBottomSheet<bool>(
                           context: context,
                           isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
+                          backgroundColor: AppColors.greyBg,
                           builder: (_) => const ConfirmationBottomSheet(
                             header: "Konfirmasi Penjualan",
                             title: "Lanjutkan Penjualan Item?",
@@ -137,18 +135,17 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
                                 .read(salesOrderFormProvider.notifier)
                                 .submitSalesOrder();
 
-                            ref.read(salesOrderFormProvider.notifier).reset();
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                  "Penjualan berhasil disimpan",
-                                ),
-                                backgroundColor: Colors.green,
-                              ),
+                            SuccessNotification.show(
+                              title: "Item Berhasil Ditambahkan",
+                              subtitle:
+                                  "Data item berhasil dicatat dalam transaksi penjualan.",
                             );
 
                             context.go('/sales-order');
+
+                            Future.microtask(() {
+                              ref.read(salesOrderFormProvider.notifier).reset();
+                            });
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text("Gagal menyimpan: $e")),
@@ -178,20 +175,23 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Data Pemesanan", style: AppTypography.mediumNormalBlack),
+          const Text("Data Pemesanan", style: AppTypography.smallNormalBlack),
           const SizedBox(height: 12),
           InfoItemCard(
-            icon: AppImages.icCalendarTick,
+            label: 'Tanggal Penjualan:',
+            icon: AppImages.icCalendarNew,
             title: formatDateTime(form.orderDate),
-            subtitle: form.farmLocation!.name,
+            subtitle: form.farmLocation?.name ?? '-',
           ),
           InfoItemCard(
-            icon: AppImages.icUserTag,
-            title: form.customer!.name,
-            subtitle: form.customer!.contactPhone.toString(),
+            label: 'Nama Pembeli:',
+            icon: AppImages.icUserTagSvg,
+            title: form.customer?.name ?? '-',
+            subtitle: form.customer?.contactPhone.toString() ?? '-',
           ),
           InfoItemCard(
-            icon: AppImages.icUser,
+            label: 'Nama Penerima:',
+            icon: AppImages.icDirectBoxReceive,
             title: form.recipientName ?? '-',
             subtitle: form.recipientNumber ?? '-',
           ),
@@ -257,8 +257,15 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
 class _ProductInfoCard extends StatelessWidget {
   final SalesOrderItemRequest data;
   final int counter;
+  final bool useForecast;
+  final DateTime? forecastDate;
 
-  const _ProductInfoCard({required this.data, required this.counter});
+  const _ProductInfoCard({
+    required this.data,
+    required this.counter,
+    required this.useForecast,
+    this.forecastDate,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -280,16 +287,24 @@ class _ProductInfoCard extends StatelessWidget {
             ProductHeaderCard(
               title: data.animalProfile?.name ?? data.feedMedicine!.name,
               subtitle: '$code • $secondValue',
-              image: AppImages.icProduct,
+              image: AppImages.icNavCow,
             ),
             const SizedBox(height: 12),
             Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-            TwoColumnRowCard(
-              leftValue: data.unitPrice.toString(),
-              leftLabel: "Harga/kg Forecast",
-              rightValue: data.subtotal.toString(),
-              rightLabel: "Total Forecast",
-            ),
+            if (useForecast)
+              TwoColumnRowCard(
+                leftValue: 'Rp ${formatPrice(data.unitPrice ?? 0)}',
+                leftLabel: "Harga/kg Forecast",
+                rightValue: 'Rp ${formatPrice(data.subtotal ?? 0)}',
+                rightLabel: "Total Forecast",
+              )
+            else
+              TwoColumnRowCard(
+                leftValue: 'Rp ${formatPrice(data.unitPrice ?? 0)}',
+                leftLabel: "Harga",
+                rightValue: 'Rp ${formatPrice(data.subtotal ?? 0)}',
+                rightLabel: "Subtotal",
+              ),
           ],
         ),
         if (isAnimal) ...[
@@ -297,36 +312,55 @@ class _ProductInfoCard extends StatelessWidget {
           SectionCard(
             children: [
               ProductHeaderCard(
-                title: data.subtotal.toString(),
+                title: 'Rp ${formatPrice(data.subtotal ?? 0)}',
                 subtitle: formatDateTime(data.dlvDate),
-                image: AppImages.icMoneys,
+                image: AppImages.icMoney,
               ),
+              const SizedBox(height: 12),
               Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-              TwoColumnRowCard(
-                leftValue: data.unitPrice.toString(),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Harga jual", style: AppTypography.xSmallNormalBlack),
+                  Text("Rp ${formatPrice(data.unitPrice ?? 0)}", style: AppTypography.smallBoldBlack),
+                ],
+              ),
+              const SizedBox(height: 8.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Harga diskon", style: AppTypography.xSmallNormalBlack),
+                  Text("Rp ${formatPrice(data.discount ?? 0)}", style: AppTypography.smallBoldBlack),
+                ],
+              ),
+              /*TwoColumnRowCard(
+                leftValue: 'Rp ${formatPrice(data.unitPrice ?? 0)}',
                 leftLabel: "Harga jual",
-                rightValue: data.discount.toString(),
+                rightValue: 'Rp ${formatPrice(data.discount ?? 0)}',
                 rightLabel: "Harga diskon",
-              ),
+              ),*/
             ],
           ),
-          const SizedBox(height: 12),
-          SectionCard(
-            children: [
-              ProductHeaderCard(
-                title: 'Transaksi Forecast',
-                subtitle: 'kg • ${formatDateTime(data.dlvDate)}',
-                image: AppImages.icMoneys,
-              ),
-            ],
-          ),
+          if (useForecast) ...[
+            const SizedBox(height: 12),
+            SectionCard(
+              children: [
+                ProductHeaderCard(
+                  title: 'Transaksi Forecast',
+                  subtitle: '${data.forecastWeight ?? 0} kg • ${formatDateTime(forecastDate)}',
+                  image: AppImages.icReceipt,
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 12),
           SectionCard(
             children: [
               ProductHeaderCard(
                 title: formatDateTime(data.dlvDate),
                 subtitle: 'Tanggal Pengiriman',
-                image: AppImages.icTruckFast,
+                image: AppImages.icTruckFastSvg,
               ),
             ],
           ),
@@ -336,7 +370,7 @@ class _ProductInfoCard extends StatelessWidget {
               ProductHeaderCard(
                 title: '${data.state} • ${data.city}',
                 subtitle: '${data.district} • ${data.village}',
-                image: AppImages.icMap,
+                image: AppImages.icMapSvg,
               ),
             ],
           ),
@@ -345,7 +379,7 @@ class _ProductInfoCard extends StatelessWidget {
             children: [
               ProductHeaderCard(
                 title: data.deliveryAddress!,
-                image: AppImages.icMap,
+                image: AppImages.icBookmark,
               ),
             ],
           ),

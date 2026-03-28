@@ -1,3 +1,4 @@
+import '../../helpers/utils.dart';
 import 'animal_group_model.dart';
 import 'farm_area_model.dart';
 import 'farm_location_model.dart';
@@ -33,6 +34,8 @@ class AnimalProfile {
   final String? vehicleNumber;
   final String? settlementStatus;
 
+  final String? lastAdgDate;
+
   AnimalProfile({
     required this.id,
     required this.animalCode,
@@ -57,6 +60,7 @@ class AnimalProfile {
     this.dispatchStatus,
     this.vehicleNumber,
     this.settlementStatus,
+    this.lastAdgDate,
   });
 
   factory AnimalProfile.fromJson(Map<String, dynamic> json) {
@@ -104,6 +108,42 @@ class AnimalProfile {
       dispatchStatus: json['dispatch_status'],
       vehicleNumber: json['vehicle_number'],
       settlementStatus: json['settlement_status'],
+      lastAdgDate: json['last_adg_date'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'animal_code': animalCode,
+      'name': name,
+      'sales_order_customer_names': salesOrderCustomerName,
+      'poel': poel,
+      'notes': notes,
+
+      'animal_group': animalGroup?.toJson(),
+      'farm_location': farmLocation?.toJson(),
+      'farm_area': farmArea?.toJson(),
+
+      'gender': gender,
+      'status': status,
+      'available': available,
+
+      'age': age,
+      'weight': weight,
+
+      'purch_price': purchPrice,
+      'sales_price': salesPrice,
+      'ref_sales_price': refSalesPrice,
+      'ref_sales_price_total': refSalesPriceTotal,
+
+      'current_class_name': currentClassName,
+      'current_class_price': currentClassPrice,
+
+      'dispatch_status': dispatchStatus,
+      'vehicle_number': vehicleNumber,
+      'settlement_status': settlementStatus,
+      "last_adg_date": lastAdgDate
+    };
   }
 }

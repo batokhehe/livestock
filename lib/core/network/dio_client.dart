@@ -7,8 +7,9 @@ import 'interceptors.dart';
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
-      baseUrl: "https://dev.livestock.seavihive.com/api",
+      // baseUrl: "http://72.61.214.163:6621/api",
       // baseUrl: "http://72.61.214.163:6622/api",
+      baseUrl: "https://dev.livestock.seavihive.com/api",
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
       headers: {

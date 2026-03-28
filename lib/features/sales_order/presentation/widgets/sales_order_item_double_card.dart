@@ -14,19 +14,27 @@ class SalesOrderItemDoubleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color statusColor;
+    final Color backgroundColor;
     final String statusText;
     switch (item.salesStatus) {
+      case 'draft':
+        statusColor = AppColors.primaryDark;
+        backgroundColor = AppColors.bgColorShadeAwareness;
+        statusText = 'Draft';
       case 'confirmed':
-        statusColor = AppColors.success;
-        statusText = 'Dikonfirmasi';
+        statusColor = AppColors.emerald700;
+        backgroundColor = AppColors.bgColorShadeSuccessFull;
+        statusText = 'Terkonfirmasi';
         break;
-      case 'sell':
-        statusColor = AppColors.primary;
-        statusText = 'Terjual';
+      case 'closed':
+        statusColor = AppColors.emerald700;
+        backgroundColor = AppColors.emerald200;
+        statusText = 'Selesai';
         break;
       default:
-        statusColor = AppColors.grey2;
-        statusText = 'Tutup';
+        statusColor = AppColors.danger;
+        backgroundColor = AppColors.bgColorShadeError;
+        statusText = 'Batal';
     }
 
     return Container(
@@ -54,7 +62,7 @@ class SalesOrderItemDoubleCard extends StatelessWidget {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.15),
+                        color: backgroundColor,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
