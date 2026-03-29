@@ -127,6 +127,7 @@ class _DispatchPageState extends ConsumerState<DispatchPage> {
           BottomButton(
             text: 'Tambah Pengiriman',
             onPressed: () {
+              ref.invalidate(dispatchFormProvider);
               context.push('/dispatch/add');
             },
           ),

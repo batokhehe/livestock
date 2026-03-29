@@ -77,22 +77,18 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
                 onClear: () {
                   ref.read(soSearchProvider.notifier).onSearchChanged('');
                 },
+                resetPadding: true,
               ),
               const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _tabItem(ref, DispatchSOTab.all, activeTab),
-                      const SizedBox(width: 8),
-                      _tabItem(ref, DispatchSOTab.paid, activeTab),
-                      const SizedBox(width: 8),
-                      _tabItem(ref, DispatchSOTab.unpaid, activeTab),
-                    ],
-                  ),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _tabItem(ref, DispatchSOTab.all, activeTab),
+                  const SizedBox(width: 8),
+                  _tabItem(ref, DispatchSOTab.paid, activeTab),
+                  const SizedBox(width: 8),
+                  _tabItem(ref, DispatchSOTab.unpaid, activeTab),
+                ],
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -114,6 +110,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
                               ref.read(selectedSoProvider.notifier).state = e;
                             },
                             child: Container(
+                              padding: EdgeInsets.all(16),
                               margin: const EdgeInsets.only(bottom: 10),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
@@ -152,7 +149,12 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
                                     color: AppColors.fieldBorder,
                                   ),
                                   Padding(
-                                    padding: EdgeInsetsGeometry.all(16),
+                                    padding: EdgeInsetsGeometry.fromLTRB(
+                                      0,
+                                      16,
+                                      0,
+                                      0,
+                                    ),
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,

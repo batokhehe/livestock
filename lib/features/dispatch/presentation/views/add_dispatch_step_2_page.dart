@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 
-import '../../../../core/helpers/currency_input_formatter.dart';
 import '../../../../core/helpers/utils.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';

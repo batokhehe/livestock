@@ -31,15 +31,10 @@ class _AddDispatchPageState extends ConsumerState<AddDispatchPage> {
   void initState() {
     super.initState();
 
-    driverController.addListener(() {
-      ref.read(dispatchFormProvider.notifier).setDriver(driverController.text);
-    });
+    final form = ref.read(dispatchFormProvider);
 
-    vehicleController.addListener(() {
-      ref
-          .read(dispatchFormProvider.notifier)
-          .setVehicle(vehicleController.text);
-    });
+    driverController.text = form.driverName ?? "";
+    vehicleController.text = form.vehicleNumber ?? "";
   }
 
   @override
@@ -103,14 +98,6 @@ class _DispatchInfoSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (driverController.text != (form.driverName ?? "")) {
-      driverController.text = form.driverName ?? "";
-    }
-
-    if (vehicleController.text != (form.vehicleNumber ?? "")) {
-      vehicleController.text = form.vehicleNumber ?? "";
-    }
-
     return SectionCard(
       title: "Informasi Pengiriman",
       children: [
@@ -156,12 +143,18 @@ class _DispatchInfoSection extends ConsumerWidget {
           hint: "Masukkan nomor mobil",
           prefixIcon: AppImages.icCar,
           controller: vehicleController,
+          onChanged: (val) {
+            ref.read(dispatchFormProvider.notifier).setVehicle(val);
+          },
         ),
         TextFields(
           label: "Nama Supir",
           hint: "Masukkan nama supir",
           prefixIcon: AppImages.icUser,
           controller: driverController,
+          onChanged: (val) {
+            ref.read(dispatchFormProvider.notifier).setDriver(val);
+          },
         ),
       ],
     );

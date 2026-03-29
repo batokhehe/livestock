@@ -50,7 +50,7 @@ class DispatchRequest {
 
   Map<String, dynamic> toJson() {
     return {
-      "dispatch_date": dispatchDate,
+      "dispatch_date": dispatchDate?.toIso8601String(),
       "vehicle_number": vehicleNumber,
       "driver_name": driverName,
       "farm_location_id": farmLocationId,

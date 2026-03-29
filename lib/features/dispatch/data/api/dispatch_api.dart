@@ -41,6 +41,7 @@ class DispatchApi {
   }
 
   Future<void> submitDispatch(DispatchRequest request) async {
+    print(request.toString());
     final body = request.toJson();
     print(jsonEncode(body));
     // body.forEach((key, value) {

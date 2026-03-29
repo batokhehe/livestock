@@ -1,4 +1,3 @@
-import '../../helpers/utils.dart';
 import 'animal_group_model.dart';
 import 'farm_area_model.dart';
 import 'farm_location_model.dart';
@@ -143,7 +142,7 @@ class AnimalProfile {
       'dispatch_status': dispatchStatus,
       'vehicle_number': vehicleNumber,
       'settlement_status': settlementStatus,
-      "last_adg_date": lastAdgDate
+      "last_adg_date": lastAdgDate,
     };
   }
 }
