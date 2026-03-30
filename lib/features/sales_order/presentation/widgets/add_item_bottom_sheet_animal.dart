@@ -233,31 +233,50 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                               discountCtrl.text = '0';
                             });
 
-                             if (result.animalGroup != null) {
-                               late final CalculateForecast forecast;
-                               if (widget.isEdit) {
-                                 forecast = await ref
-                                     .read(editSalesOrderFormProvider.notifier)
-                                     .calculateForecastForItem(
-                                       animalGroupId: result.animalGroup!.id,
-                                     );
-                               } else {
-                                 forecast = await ref
-                                     .read(salesOrderFormProvider.notifier)
-                                     .calculateForecastForItem(
-                                       animalGroupId: result.animalGroup!.id,
-                                     );
-                               }
+                            final form = widget.isEdit
+                                ? ref.read(editSalesOrderFormProvider)
+                                : ref.read(salesOrderFormProvider);
+                            final isForecastEnabled =
+                                (form.category ?? 'kg') == 'kg' &&
+                                (form.useForecast ?? true);
 
-                              setState(() {
-                                forecastData = forecast;
-                                priceCtrl.text = formatPrice(
-                                  forecast.forecastPrice,
-                                );
-                                finalPriceCtrl.text = formatPrice(
-                                  forecast.targetPriceForecast,
-                                );
-                              });
+                            if (isForecastEnabled &&
+                                result.animalGroup != null) {
+                              try {
+                                late final CalculateForecast forecast;
+                                if (widget.isEdit) {
+                                  forecast = await ref
+                                      .read(editSalesOrderFormProvider.notifier)
+                                      .calculateForecastForItem(
+                                        animalGroupId: result.animalGroup!.id,
+                                      );
+                                } else {
+                                  forecast = await ref
+                                      .read(salesOrderFormProvider.notifier)
+                                      .calculateForecastForItem(
+                                        animalGroupId: result.animalGroup!.id,
+                                      );
+                                }
+
+                                setState(() {
+                                  forecastData = forecast;
+                                  if (forecast.forecastPrice > 0) {
+                                    priceCtrl.text = formatPrice(
+                                      forecast.forecastPrice,
+                                    );
+                                  }
+                                  if (forecast.targetPriceForecast > 0) {
+                                    finalPriceCtrl.text = formatPrice(
+                                      forecast.targetPriceForecast,
+                                    );
+                                  }
+                                });
+                              } catch (e) {
+                                debugPrint("Error calculating forecast: $e");
+                                setState(() {
+                                  forecastData = null;
+                                });
+                              }
                             }
                           }
                         },
@@ -618,6 +637,14 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
   }
 
   Widget _buildAnimalInfoSection(AnimalProfile animal) {
+    final form = widget.isEdit
+        ? ref.watch(editSalesOrderFormProvider)
+        : ref.watch(salesOrderFormProvider);
+    final isForecastEnabled = (form.useForecast ?? true);
+    final category = (form.category ?? 'kg').trim();
+    // final isForecastActive = isForecastEnabled && forecastData != null;
+    final isKelas = category.toLowerCase() == 'kelas';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -671,6 +698,62 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
             '${animal.weight.toStringAsFixed(0)} kg',
             AppImages.icMoneys,
           ),
+          if (isKelas) ...[
+            if (isForecastEnabled) ...[
+              const SizedBox(height: 14),
+              Text('Berat Forecast', style: AppTypography.smallBoldBlack),
+              const SizedBox(height: 6),
+              _infoField(
+                '${(forecastData?.forecastWeight ?? 0).toStringAsFixed(0)} kg',
+                AppImages.icMoneys,
+              ),
+            ],
+            const SizedBox(height: 14),
+            Text('Kelas Harga', style: AppTypography.smallBoldBlack),
+            const SizedBox(height: 6),
+            _infoField(animal.currentClassName ?? '-', AppImages.icMoneys),
+            if (isForecastEnabled) ...[
+              const SizedBox(height: 14),
+              Text('Berat Minimum', style: AppTypography.smallBoldBlack),
+              const SizedBox(height: 6),
+              _infoField(
+                '${(animal.currentClassMinWeight ?? 0).toStringAsFixed(0)} kg',
+                AppImages.icMoneys,
+              ),
+              const SizedBox(height: 14),
+              Text('Berat Maksimum', style: AppTypography.smallBoldBlack),
+              const SizedBox(height: 6),
+              _infoField(
+                '${(animal.currentClassMaxWeight ?? 0).toStringAsFixed(0)} kg',
+                AppImages.icMoneys,
+              ),
+            ],
+          ],
+          if (isForecastEnabled &&
+              category.toLowerCase() == 'kg' &&
+              forecastData != null) ...[
+            const SizedBox(height: 14),
+            Text('Target harga per kg', style: AppTypography.smallBoldBlack),
+            const SizedBox(height: 6),
+            _infoField(
+              'Rp ${formatPrice(forecastData?.targetPriceForecast ?? 0)}',
+              AppImages.icMoneys,
+            ),
+            const SizedBox(height: 14),
+            Text('Berat Forecast', style: AppTypography.smallBoldBlack),
+            const SizedBox(height: 6),
+            _infoField(
+              '${(forecastData?.forecastWeight ?? 0).toStringAsFixed(0)} kg',
+              AppImages.icMoneys,
+            ),
+            const SizedBox(height: 14),
+            Text('Harga Forecast', style: AppTypography.smallBoldBlack),
+            const SizedBox(height: 6),
+            _infoField(
+              'Rp ${formatPrice(forecastData?.forecastPrice ?? 0)}',
+              AppImages.icMoneys,
+            ),
+          ],
           const SizedBox(height: 14),
           Text('Est. Harga jual per kg', style: AppTypography.smallBoldBlack),
           const SizedBox(height: 6),
@@ -702,7 +785,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.greyBg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.fieldBorder, width: 1),
       ),

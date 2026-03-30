@@ -101,7 +101,8 @@ final salesOrderFormProvider =
 class SalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
   final Ref ref;
 
-  SalesOrderFormNotifier(this.ref) : super(SalesOrderRequest());
+  SalesOrderFormNotifier(this.ref)
+    : super(SalesOrderRequest(category: 'kg', useForecast: true));
 
   void setSalesOrderDate(DateTime date) {
     state = state.copyWith(orderDate: date);
@@ -159,7 +160,9 @@ class SalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
   }
 
   void setCategory(String category) {
-    state = state.copyWith(category: category);
+    if (state.category != category) {
+      state = state.copyWith(category: category, items: []);
+    }
   }
 
   void addItem(SalesOrderItemRequest item) {
@@ -179,7 +182,7 @@ class SalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
   }
 
   void reset() {
-    state = SalesOrderRequest();
+    state = SalesOrderRequest(category: 'kg', useForecast: true);
   }
 
   Future<void> submitSalesOrder() async {
@@ -245,7 +248,8 @@ final editSalesOrderFormProvider =
 class EditSalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
   final Ref ref;
 
-  EditSalesOrderFormNotifier(this.ref) : super(SalesOrderRequest());
+  EditSalesOrderFormNotifier(this.ref)
+    : super(SalesOrderRequest(category: 'kg', useForecast: true));
 
   void initFromDetail(SalesOrderDetail detail) {
     final List<SalesOrderItemRequest> items = detail.items.map((e) {
@@ -283,6 +287,7 @@ class EditSalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
       ),
       farmArea: FarmArea(id: detail.farmAreaId ?? 0, name: detail.farmAreaName),
       deliveryAddress: detail.deliveryAddress,
+      useForecast: detail.isForecast == 'yes',
       isForecast: detail.isForecast,
       forecastDate: detail.forecastDate != null
           ? DateTime.tryParse(detail.forecastDate!)
@@ -302,7 +307,9 @@ class EditSalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
   }
 
   void setCategory(String category) {
-    state = state.copyWith(category: category);
+    if (state.category != category) {
+      state = state.copyWith(category: category, items: []);
+    }
   }
 
   void addItem(SalesOrderItemRequest item) {
@@ -373,7 +380,7 @@ class EditSalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
   }
 
   void reset() {
-    state = SalesOrderRequest();
+    state = SalesOrderRequest(category: 'kg', useForecast: true);
   }
 
   Future<void> updateSalesOrder(int id) async {
