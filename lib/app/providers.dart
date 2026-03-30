@@ -78,13 +78,19 @@ final customerSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 // ANIMAL
 final animalListProvider =
     FutureProvider.autoDispose<BaseResponse<AnimalProfile>>((ref) async {
+      final available = ref.watch(animalAvailableProvider);
       return ref
           .read(getMasterDataListUseCaseProvider)
-          .callAnimals(page: 1, perPage: 1000);
+          .callAnimals(
+            available: available.isEmpty ? null : available,
+            page: 1,
+            perPage: 1000,
+          );
     });
 final selectedAnimalProvider = StateProvider<AnimalProfile?>((ref) => null);
 final animalSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 final animalStatusProvider = StateProvider.autoDispose<String>((ref) => '');
+final animalAvailableProvider = StateProvider.autoDispose<String>((ref) => '');
 final animalFarmLocationIdProvider = StateProvider.autoDispose<int?>(
   (ref) => null,
 );

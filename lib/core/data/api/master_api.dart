@@ -69,6 +69,7 @@ class MasterApi {
     int? animalClassPriceId, {
     String? search,
     String? status,
+    String? available,
     int? farmLocationId,
     int? farmAreaId,
     required int page,
@@ -77,11 +78,12 @@ class MasterApi {
     final res = await dio.get(
       '/master/animal-profile',
       queryParameters: {
-        'animal_class_price_id': ?animalClassPriceId,
+        'animal_class_price_id': animalClassPriceId,
         if (search != null && search.isNotEmpty) 'search': search,
         if (status != null && status.isNotEmpty) 'status': status,
-        'farm_location_id': ?farmLocationId,
-        'farm_area_id': ?farmAreaId,
+        if (available != null && available.isNotEmpty) 'available': available,
+        'farm_location_id': farmLocationId,
+        'farm_area_id': farmAreaId,
         'page': page,
         'per_page': perPage,
       },
