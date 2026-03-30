@@ -5,34 +5,36 @@ import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/helpers/utils.dart';
 
-import '../../../../core/theme/AppColors.dart';
-import '../../../../core/theme/AppTypography.dart';
-import '../../../../core/widgets/card_wrapper.dart';
-import '../../../../core/widgets/step_info_card.dart';
-import '../../data/model/sales_order_item_request_model.dart';
-import '../../sales_order_provider.dart';
-import '../widgets/add_item_bottom_sheet_animal.dart';
-import '../widgets/add_item_bottom_sheet_feed.dart';
-import '../widgets/sales_order_item_detail_bottom_sheet.dart';
+import '../../../../../core/theme/AppColors.dart';
+import '../../../../../core/theme/AppTypography.dart';
+import '../../../../../core/widgets/card_wrapper.dart';
+import '../../../../../core/widgets/step_info_card.dart';
+import '../../../data/model/sales_order_detail_model.dart';
+import '../../../data/model/sales_order_item_request_model.dart';
+import '../../../sales_order_provider.dart';
+import '../../widgets/add_item_bottom_sheet_animal.dart';
+import '../../widgets/add_item_bottom_sheet_feed.dart';
+import '../../widgets/sales_order_item_detail_bottom_sheet.dart';
 
-class AddSalesOrderStep2Page extends ConsumerStatefulWidget {
-  const AddSalesOrderStep2Page({super.key});
+class EditSalesOrderStep2Page extends ConsumerStatefulWidget {
+  final SalesOrderDetail detail;
+
+  const EditSalesOrderStep2Page({super.key, required this.detail});
 
   @override
-  ConsumerState<AddSalesOrderStep2Page> createState() =>
-      _AddSalesOrderStep2PageState();
+  ConsumerState<EditSalesOrderStep2Page> createState() =>
+      _EditSalesOrderStep2PageState();
 }
 
-class _AddSalesOrderStep2PageState
-    extends ConsumerState<AddSalesOrderStep2Page> {
+class _EditSalesOrderStep2PageState
+    extends ConsumerState<EditSalesOrderStep2Page> {
   void _openAddItemSheet() async {
-    final form = ref.read(salesOrderFormProvider);
+    final form = ref.read(editSalesOrderFormProvider);
     final type = form.salesItemType;
 
     Widget sheet;
-
     if (type == 'animal') {
-      sheet = const AddItemBottomSheetAnimal();
+      sheet = const AddItemBottomSheetAnimal(isEdit: true);
     } else {
       sheet = const AddItemBottomSheetFeed();
     }
@@ -45,7 +47,7 @@ class _AddSalesOrderStep2PageState
     );
 
     if (result != null) {
-      ref.read(salesOrderFormProvider.notifier).addItem(result);
+      ref.read(editSalesOrderFormProvider.notifier).addItem(result);
     }
   }
 
@@ -60,7 +62,7 @@ class _AddSalesOrderStep2PageState
 
   @override
   Widget build(BuildContext context) {
-    final request = ref.watch(salesOrderFormProvider);
+    final request = ref.watch(editSalesOrderFormProvider);
     final items = request.items ?? [];
 
     return Scaffold(
@@ -68,7 +70,7 @@ class _AddSalesOrderStep2PageState
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Tambah Penjualan",
+          "Edit Penjualan",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -85,11 +87,11 @@ class _AddSalesOrderStep2PageState
           ),
           Expanded(
             child: Padding(
-              padding: EdgeInsetsGeometry.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _infoItem(items),
             ),
           ),
-          _NextButton(),
+          _buildNextButton(),
         ],
       ),
     );
@@ -101,12 +103,12 @@ class _AddSalesOrderStep2PageState
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(AppImages.imgEmptyTransaction, width: 180, height: 180),
-          Text(
+          const Text(
             "Belum Ada Item yang Ditambahkan",
             style: AppTypography.mediumBoldBlack,
           ),
-          SizedBox(height: 4),
-          Text(
+          const SizedBox(height: 4),
+          const Text(
             "Tambahkan minimal satu item untuk melanjutkan proses penjualan",
             textAlign: TextAlign.center,
             style: AppTypography.smallNormalGrey,
@@ -118,15 +120,13 @@ class _AddSalesOrderStep2PageState
 
   Widget _itemCard(SalesOrderItemRequest item) {
     final isAnimal = item.animalProfile != null;
-
-    final code = isAnimal
-        ? item.animalProfile!.animalCode
-        : item.feedMedicine!.code;
-
+    final code =
+        isAnimal ? item.animalProfile!.animalCode : item.feedMedicine!.code;
     final secondValue = isAnimal
         ? "${item.animalProfile!.weight} Kg"
         : item.feedMedicine!.feedType;
-    final useForecast = ref.read(salesOrderFormProvider).useForecast ?? true;
+    final useForecast =
+        ref.read(editSalesOrderFormProvider).useForecast ?? true;
 
     return InkWell(
       onTap: () => _showItemDetailSheet(item),
@@ -174,7 +174,8 @@ class _AddSalesOrderStep2PageState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            item.animalProfile?.name ?? item.feedMedicine!.name,
+                            item.animalProfile?.name ??
+                                item.feedMedicine!.name,
                             style: AppTypography.smallBoldBlack,
                           ),
                           Text(
@@ -193,11 +194,12 @@ class _AddSalesOrderStep2PageState
                   onTap: () => _showDeleteConfirmSheet(item),
                 ),
                 const SizedBox(width: 8),
-                Icon(Icons.navigate_next_rounded),
+                const Icon(Icons.navigate_next_rounded),
               ],
             ),
             const SizedBox(height: 12),
-            Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+            const Divider(
+                height: 1, thickness: 1, color: AppColors.fieldBorder),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -215,15 +217,11 @@ class _AddSalesOrderStep2PageState
             if (useForecast)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Harga/kg Forecast',
-                    style: AppTypography.xSmallNormalBlack,
-                  ),
-                  const Text(
-                    'Total Forecast',
-                    style: AppTypography.xSmallNormalBlack,
-                  ),
+                children: const [
+                  Text('Harga/kg Forecast',
+                      style: AppTypography.xSmallNormalBlack),
+                  Text('Total Forecast',
+                      style: AppTypography.xSmallNormalBlack),
                 ],
               ),
           ],
@@ -287,8 +285,8 @@ class _AddSalesOrderStep2PageState
   Widget _addButtonSmall() {
     return OutlinedButton.icon(
       onPressed: _openAddItemSheet,
-      icon: Icon(Icons.add, size: 16, color: AppColors.white),
-      label: Text("Tambah Item", style: AppTypography.xSmallNormalWhite),
+      icon: const Icon(Icons.add, size: 16, color: AppColors.white),
+      label: const Text("Tambah Item", style: AppTypography.xSmallNormalWhite),
       style: OutlinedButton.styleFrom(
         backgroundColor: AppColors.primary,
         side: const BorderSide(color: AppColors.primary, width: 1),
@@ -306,19 +304,14 @@ class _AddSalesOrderStep2PageState
       backgroundColor: AppColors.greyBg,
       builder: (_) => _DeleteConfirmBottomSheet(
         onDelete: () {
-          ref.read(salesOrderFormProvider.notifier).removeItem(item);
+          ref.read(editSalesOrderFormProvider.notifier).removeItem(item);
           Navigator.pop(context);
         },
       ),
     );
   }
-}
 
-class _NextButton extends StatelessWidget {
-  const _NextButton();
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildNextButton() {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -333,9 +326,13 @@ class _NextButton extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              context.push("/sales-order/add/confirmation");
+              context.push(
+                '/sales-order/edit/confirmation',
+                extra: widget.detail,
+              );
             },
-            child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
+            child: const Text("Selanjutnya",
+                style: AppTypography.mediumBoldWhite),
           ),
         ),
       ),
@@ -351,7 +348,7 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.greyBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -359,24 +356,26 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 16.0),
+            padding:
+                const EdgeInsets.only(left: 20.0, right: 20.0, top: 16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Hapus Item", style: AppTypography.largeBoldBlack),
+                const Text("Hapus Item",
+                    style: AppTypography.largeBoldBlack),
                 RawMaterialButton(
                   onPressed: () => Navigator.pop(context),
                   elevation: 1.0,
-                  constraints: BoxConstraints(minWidth: 0.0),
-                  padding: EdgeInsets.all(8.0),
-                  shape: CircleBorder(
-                    side: const BorderSide(
+                  constraints: const BoxConstraints(minWidth: 0.0),
+                  padding: const EdgeInsets.all(8.0),
+                  shape: const CircleBorder(
+                    side: BorderSide(
                       color: AppColors.iconColor,
                       width: 2.0,
                       style: BorderStyle.solid,
                     ),
                   ),
-                  child: Icon(Icons.close_rounded, size: 12.0),
+                  child: const Icon(Icons.close_rounded, size: 12.0),
                 ),
               ],
             ),
@@ -384,10 +383,11 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
           const SizedBox(height: 12),
           Image.asset(AppImages.icDeleteConfirmation, height: 120),
           const SizedBox(height: 20),
-          Text("Hapus Item Ini?", style: AppTypography.mediumBoldBlack),
+          const Text("Hapus Item Ini?",
+              style: AppTypography.mediumBoldBlack),
           const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+          const Padding(
+            padding: EdgeInsets.all(16.0),
             child: Text(
               "Item yang telah diinput akan dihapus dan tidak dapat dikembalikan. "
               "Apakah Anda yakin ingin melanjutkan?",
@@ -397,12 +397,7 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Container(
-            padding: const EdgeInsets.only(
-              left: 16.0,
-              right: 16.0,
-              top: 16.0,
-              bottom: 16.0,
-            ),
+            padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
               boxShadow: kElevationToShadow[4],
               color: Colors.white,
@@ -414,9 +409,9 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
                       backgroundColor: AppColors.primaryShade,
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      side: BorderSide(color: AppColors.primaryShade),
+                      side: const BorderSide(color: AppColors.primaryShade),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -434,7 +429,7 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.danger,
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),

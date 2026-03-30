@@ -5,22 +5,24 @@ import 'package:intl/intl.dart';
 import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/section_card.dart';
-import 'package:livestock/features/sales_order/data/model/sales_order_request_model.dart';
+import 'package:livestock/core/widgets/success_notification.dart';
+import 'package:livestock/features/receiving/presentation/widgets/confirmation_bottom_sheet.dart';
 
-import '../../../../core/theme/AppColors.dart';
-import '../../../../core/theme/AppTypography.dart';
-import '../../../../core/widgets/card_wrapper.dart';
-import '../../../../core/widgets/info_item_card.dart';
-import '../../../../core/widgets/product_header_card.dart';
-import '../../../../core/widgets/step_info_card.dart';
-import '../../../../core/widgets/two_column_row_card.dart';
-import '../../../../core/widgets/success_notification.dart';
-import '../../../receiving/presentation/widgets/confirmation_bottom_sheet.dart';
-import '../../data/model/sales_order_item_request_model.dart';
-import '../../sales_order_provider.dart';
+import '../../../../../core/theme/AppColors.dart';
+import '../../../../../core/theme/AppTypography.dart';
+import '../../../../../core/widgets/card_wrapper.dart';
+import '../../../../../core/widgets/info_item_card.dart';
+import '../../../../../core/widgets/product_header_card.dart';
+import '../../../../../core/widgets/step_info_card.dart';
+import '../../../../../core/widgets/two_column_row_card.dart';
+import '../../../data/model/sales_order_detail_model.dart';
+import '../../../data/model/sales_order_item_request_model.dart';
+import '../../../sales_order_provider.dart';
 
-class AddSalesOrderConfirmationPage extends ConsumerWidget {
-  const AddSalesOrderConfirmationPage({super.key});
+class EditSalesOrderConfirmationPage extends ConsumerWidget {
+  final SalesOrderDetail detail;
+
+  const EditSalesOrderConfirmationPage({super.key, required this.detail});
 
   String formatCurrency(double value) {
     final formatter = NumberFormat.currency(
@@ -33,7 +35,7 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final form = ref.watch(salesOrderFormProvider);
+    final form = ref.watch(editSalesOrderFormProvider);
     final items = form.items ?? [];
 
     final subtotal = items.fold<double>(
@@ -53,7 +55,7 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Tambah Penjualan",
+          "Edit Penjualan",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -71,21 +73,17 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
                   totalStep: 3,
                 ),
                 const SizedBox(height: 12),
-
                 _infoSalesOrder(form),
                 const SizedBox(height: 12),
-
                 ...items.asMap().entries.map(
-                  (entry) => _ProductInfoCard(
-                    counter: entry.key + 1,
-                    data: entry.value,
-                    useForecast: form.useForecast ?? true,
-                    forecastDate: form.forecastDate,
-                  ),
-                ),
-
+                      (entry) => _ProductInfoCard(
+                        counter: entry.key + 1,
+                        data: entry.value,
+                        useForecast: form.useForecast ?? true,
+                        forecastDate: form.forecastDate,
+                      ),
+                    ),
                 const SizedBox(height: 12),
-
                 _summaryCard(
                   totalItem: items.length,
                   subtotal: subtotal,
@@ -96,8 +94,6 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
               ],
             ),
           ),
-
-          /// BUTTON
           Positioned(
             left: 16,
             right: 16,
@@ -106,9 +102,8 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
               height: 48,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: items.isEmpty
-                      ? AppColors.grey
-                      : AppColors.primary,
+                  backgroundColor:
+                      items.isEmpty ? AppColors.grey : AppColors.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -121,43 +116,45 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
                           isScrollControlled: true,
                           backgroundColor: AppColors.greyBg,
                           builder: (_) => const ConfirmationBottomSheet(
-                            header: "Konfirmasi Penjualan",
-                            title: "Lanjutkan Penjualan Item?",
+                            header: "Konfirmasi Edit",
+                            title: "Simpan Perubahan Penjualan?",
                             subTitle:
-                                "Mohon pastikan semua item dan detail sudah sesuai sebelum melanjutkan transaksi",
-                            saveText: "Simpan Penjualan",
+                                "Mohon pastikan semua item dan detail sudah sesuai sebelum menyimpan perubahan",
+                            saveText: "Simpan Perubahan",
                           ),
                         );
-                        print('test');
+
                         if (result == true) {
                           try {
                             await ref
-                                .read(salesOrderFormProvider.notifier)
-                                .submitSalesOrder();
+                                .read(editSalesOrderFormProvider.notifier)
+                                .updateSalesOrder(detail.id);
 
                             SuccessNotification.show(
-                              title: "Item Berhasil Ditambahkan",
+                              title: "Penjualan Berhasil Diperbarui",
                               subtitle:
-                                  "Data item berhasil dicatat dalam transaksi penjualan.",
+                                  "Data penjualan telah berhasil disimpan.",
                             );
 
-                             context.go('/sales-order');
-
-                            Future.microtask(() {
-                              ref.read(salesOrderFormProvider.notifier).reset();
-                              ref.read(salesOrderTabProvider.notifier).state = SalesOrderTab.all;
-                              ref.invalidate(salesOrderListProvider);
-                            });
+                             if (context.mounted) {
+                               ref.read(editSalesOrderFormProvider.notifier).reset();
+                               ref.invalidate(salesOrderListProvider);
+                               ref.invalidate(salesOrderDetailProvider(detail.id));
+                               ref.read(salesOrderTabProvider.notifier).state = SalesOrderTab.all;
+                               context.go('/sales-order');
+                             }
                           } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Gagal menyimpan: $e")),
-                            );
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text("Gagal menyimpan: $e")),
+                              );
+                            }
                           }
                         }
                       },
-
-                child: Text(
-                  "Selanjutnya",
+                child: const Text(
+                  "Simpan Perubahan",
                   style: AppTypography.mediumBoldWhite,
                 ),
               ),
@@ -168,11 +165,7 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
     );
   }
 
-  /// =========================
-  /// INFORMASI PENJUALAN
-  /// =========================
-
-  Widget _infoSalesOrder(SalesOrderRequest form) {
+  Widget _infoSalesOrder(dynamic form) {
     return CardWrapper(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +182,7 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
             label: 'Nama Pembeli:',
             icon: AppImages.icUserTagSvg,
             title: form.customer?.name ?? '-',
-            subtitle: form.customer?.contactPhone.toString() ?? '-',
+            subtitle: form.customer?.contactPhone?.toString() ?? '-',
           ),
           InfoItemCard(
             label: 'Nama Penerima:',
@@ -201,10 +194,6 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
       ),
     );
   }
-
-  /// =========================
-  /// SUMMARY CARD
-  /// =========================
 
   Widget _summaryCard({
     required int totalItem,
@@ -273,9 +262,8 @@ class _ProductInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isAnimal = data.animalProfile != null;
 
-    final code = isAnimal
-        ? data.animalProfile!.animalCode
-        : data.feedMedicine!.code;
+    final code =
+        isAnimal ? data.animalProfile!.animalCode : data.feedMedicine!.code;
 
     final secondValue = isAnimal
         ? "${data.animalProfile!.weight} Kg"
@@ -292,7 +280,8 @@ class _ProductInfoCard extends StatelessWidget {
               image: AppImages.icNavCow,
             ),
             const SizedBox(height: 12),
-            Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+            const Divider(
+                height: 1, thickness: 1, color: AppColors.fieldBorder),
             if (useForecast)
               TwoColumnRowCard(
                 leftValue: 'Rp ${formatPrice(data.unitPrice ?? 0)}',
@@ -319,29 +308,28 @@ class _ProductInfoCard extends StatelessWidget {
                 image: AppImages.icMoney,
               ),
               const SizedBox(height: 12),
-              Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+              const Divider(
+                  height: 1, thickness: 1, color: AppColors.fieldBorder),
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Harga jual", style: AppTypography.xSmallNormalBlack),
-                  Text("Rp ${formatPrice(data.unitPrice ?? 0)}", style: AppTypography.smallBoldBlack),
+                  const Text("Harga jual",
+                      style: AppTypography.xSmallNormalBlack),
+                  Text("Rp ${formatPrice(data.unitPrice ?? 0)}",
+                      style: AppTypography.smallBoldBlack),
                 ],
               ),
               const SizedBox(height: 8.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Harga diskon", style: AppTypography.xSmallNormalBlack),
-                  Text("Rp ${formatPrice(data.discount ?? 0)}", style: AppTypography.smallBoldBlack),
+                  const Text("Harga diskon",
+                      style: AppTypography.xSmallNormalBlack),
+                  Text("Rp ${formatPrice(data.discount ?? 0)}",
+                      style: AppTypography.smallBoldBlack),
                 ],
               ),
-              /*TwoColumnRowCard(
-                leftValue: 'Rp ${formatPrice(data.unitPrice ?? 0)}',
-                leftLabel: "Harga jual",
-                rightValue: 'Rp ${formatPrice(data.discount ?? 0)}',
-                rightLabel: "Harga diskon",
-              ),*/
             ],
           ),
           if (useForecast) ...[
@@ -350,7 +338,8 @@ class _ProductInfoCard extends StatelessWidget {
               children: [
                 ProductHeaderCard(
                   title: 'Transaksi Forecast',
-                  subtitle: '${data.forecastWeight ?? 0} kg • ${formatDateTime(forecastDate)}',
+                  subtitle:
+                      '${data.forecastWeight ?? 0} kg • ${formatDateTime(forecastDate)}',
                   image: AppImages.icReceipt,
                 ),
               ],
@@ -370,8 +359,8 @@ class _ProductInfoCard extends StatelessWidget {
           SectionCard(
             children: [
               ProductHeaderCard(
-                title: '${data.state} • ${data.city}',
-                subtitle: '${data.district} • ${data.village}',
+                title: '${data.state ?? '-'} • ${data.city ?? '-'}',
+                subtitle: '${data.district ?? '-'} • ${data.village ?? '-'}',
                 image: AppImages.icMapSvg,
               ),
             ],
@@ -380,7 +369,7 @@ class _ProductInfoCard extends StatelessWidget {
           SectionCard(
             children: [
               ProductHeaderCard(
-                title: data.deliveryAddress!,
+                title: data.deliveryAddress ?? '-',
                 image: AppImages.icBookmark,
               ),
             ],

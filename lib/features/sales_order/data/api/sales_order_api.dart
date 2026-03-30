@@ -2,8 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:livestock/core/data/model/base_response_single.dart';
 import 'package:livestock/features/sales_order/data/model/calculate_forecast_model.dart';
 
+import '../model/sales_invoice_model.dart';
+import '../model/sales_order_detail_model.dart';
 import '../model/sales_order_list_model.dart';
 import '../model/sales_order_request_model.dart';
+import 'package:livestock/core/data/model/payment_type_model.dart';
+import 'package:livestock/core/data/model/chart_of_account_model.dart';
+
 
 class SalesOrderApi {
   final Dio dio;
@@ -88,14 +93,107 @@ class SalesOrderApi {
     );
   }
 
-  Future<SalesOrderList> getSalesOrderDetail(int id) async {
+  Future<SalesOrderDetail> getSalesOrderDetail(int id) async {
     final response = await dio.get('/transaction/sales-order/$id');
 
     final result = BaseResponseSingle.fromJson(
       response.data,
-      (json) => SalesOrderList.fromJson(json),
+      (json) => SalesOrderDetail.fromJson(json),
     );
 
     return result.data;
+  }
+
+  Future<void> updateSalesOrder(int id, SalesOrderRequest request) async {
+    final res = await dio.put(
+      "/transaction/sales-order/$id",
+      data: request.toJson(),
+    );
+
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+  }
+
+  Future<List<PaymentType>> getPaymentTypes() async {
+    final res = await dio.get('/transaction/sales-invoice/payment-types');
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    final data = res.data;
+    final List list = data is Map ? data['data'] : data;
+    return list.map((e) => PaymentType.fromJson(e)).toList();
+  }
+  Future<List<SalesInvoice>> getSalesInvoices(int soId) async {
+    final res = await dio.get(
+      '/transaction/sales-invoice',
+      queryParameters: {'so_id': soId},
+    );
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    final data = res.data;
+    final List list = data is Map ? data['data'] : data;
+    return list.map((e) => SalesInvoice.fromJson(e)).toList();
+  }
+
+  Future<Response> downloadSalesInvoice(int invoiceId,
+      {void Function(int, int)? onProgress}) async {
+    return await dio.get(
+      '/transaction/sales-invoice/$invoiceId/print',
+      options: Options(
+        responseType: ResponseType.bytes,
+        followRedirects: false,
+      ),
+      onReceiveProgress: onProgress,
+    );
+  }
+
+  Future<List<ChartOfAccount>> getChartOfAccounts() async {
+    final res = await dio.get('/transaction/sales-invoice/chart-of-accounts');
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    final data = res.data;
+    final List list = data is Map ? data['data'] : data;
+    return list.map((e) => ChartOfAccount.fromJson(e)).toList();
+  }
+  Future<void> submitSalesInvoice(Map<String, dynamic> data) async {
+    final formData = FormData.fromMap(data);
+
+    // If there's a file, it should be handled in the notifier before calling this,
+    // or passed as a MultipartFile within the map.
+
+    final res = await dio.post(
+      "/transaction/sales-invoice",
+      data: formData,
+    );
+
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
   }
 }
