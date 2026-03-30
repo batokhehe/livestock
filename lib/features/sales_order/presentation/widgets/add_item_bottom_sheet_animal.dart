@@ -41,6 +41,8 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
   final finalPriceCtrl = TextEditingController();
   final addressCtrl = TextEditingController();
   final shippingCostCtrl = TextEditingController(text: '0');
+  final animalWeightCtrl = TextEditingController();
+  final animalPricePerKgCtrl = TextEditingController();
 
   DateTime? deliveryDate;
   AnimalProfile? selectedAnimal;
@@ -53,6 +55,8 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
 
     priceCtrl.addListener(_calculateFinalPrice);
     discountCtrl.addListener(_calculateFinalPrice);
+    animalWeightCtrl.addListener(_calculateEstTotal);
+    animalPricePerKgCtrl.addListener(_calculateEstTotal);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateShippingCost();
@@ -92,6 +96,10 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
     final discount = _parsePrice(discountCtrl.text);
     final result = price - discount;
     finalPriceCtrl.text = result > 0 ? formatPrice(result) : '0';
+  }
+
+  void _calculateEstTotal() {
+    setState(() {});
   }
 
   void _copyFromCustomer() {
@@ -221,12 +229,18 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                                     top: Radius.circular(20),
                                   ),
                                 ),
-                                builder: (_) => const AnimalBottomSheet(),
+                                builder: (_) =>
+                                    const AnimalBottomSheet(available: 'available'),
                               );
 
                           if (result != null) {
                             setState(() {
                               selectedAnimal = result;
+                              animalWeightCtrl.text = result.weight
+                                  .toStringAsFixed(0);
+                              animalPricePerKgCtrl.text = formatPrice(
+                                result.refSalesPrice,
+                              );
                               priceCtrl.text = formatPrice(
                                 result.refSalesPriceTotal,
                               );
@@ -692,11 +706,16 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
             ],
           ),
           const SizedBox(height: 14),
-          Text('Berat Hewan', style: AppTypography.smallBoldBlack),
-          const SizedBox(height: 6),
-          _infoField(
-            '${animal.weight.toStringAsFixed(0)} kg',
-            AppImages.icMoneys,
+          TextFields(
+            label: 'Berat Hewan',
+            hint: '0',
+            controller: animalWeightCtrl,
+            suffix: 'kg',
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              CurrencyInputFormatter(),
+            ],
           ),
           if (isKelas) ...[
             if (isForecastEnabled) ...[
@@ -755,11 +774,16 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
             ),
           ],
           const SizedBox(height: 14),
-          Text('Est. Harga jual per kg', style: AppTypography.smallBoldBlack),
-          const SizedBox(height: 6),
-          _infoField(
-            'Rp ${formatPrice(animal.refSalesPrice)}',
-            AppImages.icMoneys,
+          TextFields(
+            label: 'Est. Harga jual per kg',
+            hint: '0',
+            controller: animalPricePerKgCtrl,
+            prefixText: 'Rp ',
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              CurrencyInputFormatter(),
+            ],
           ),
           const SizedBox(height: 14),
           Row(
@@ -770,7 +794,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                 style: AppTypography.smallNormalGrey,
               ),
               Text(
-                'Rp ${formatPrice(animal.refSalesPriceTotal)}',
+                'Rp ${formatPrice(_parsePrice(animalWeightCtrl.text) * _parsePrice(animalPricePerKgCtrl.text))}',
                 style: AppTypography.smallBoldBlack,
               ),
             ],

@@ -8,7 +8,8 @@ import '../theme/AppColors.dart';
 import '../theme/AppTypography.dart';
 
 class AnimalBottomSheet extends ConsumerStatefulWidget {
-  const AnimalBottomSheet({super.key});
+  final String? available;
+  const AnimalBottomSheet({super.key, this.available});
 
   @override
   ConsumerState<AnimalBottomSheet> createState() => _AnimalBottomSheetState();
@@ -23,7 +24,10 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
     searchCtrl = TextEditingController();
 
     // 🔥 reset search setiap buka
-    ref.read(animalSearchProvider.notifier).state = '';
+    Future.microtask(() {
+      ref.read(animalSearchProvider.notifier).state = '';
+      ref.read(animalAvailableProvider.notifier).state = widget.available ?? '';
+    });
   }
 
   @override

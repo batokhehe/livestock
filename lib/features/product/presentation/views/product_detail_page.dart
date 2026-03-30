@@ -68,26 +68,44 @@ class _ProductInfoCard extends StatelessWidget {
       title: "Informasi Hewan",
       child: Column(
         children: [
-          ProductHeaderCard(
-            title: data.animalCode,
-            subtitle: data.name,
-            image: AppImages.icProduct,
-            isActive: data.status == "active",
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
+            child: ProductHeaderCard(
+              title: data.animalCode,
+              subtitle: data.name,
+              image: AppImages.icProduct,
+              status: data.available,
+            ),
           ),
           const SizedBox(height: 12),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          TwoColumnRowCard(
-            leftValue: data.animalGroup?.name ?? "-",
-            leftLabel: "Grup hewan",
-            rightValue: data.poel ?? "-",
-            rightLabel: "POEL",
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
+            child: TwoColumnRowCard(
+              leftValue: data.animalGroup?.name ?? "-",
+              leftLabel: "Grup hewan",
+              rightValue: data.poel ?? "-",
+              rightLabel: "POEL",
+            ),
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          TwoColumnRowCard(
-            leftValue: data.age.toString(),
-            leftLabel: "Umur",
-            rightValue: "${data.weight} kg",
-            rightLabel: "Berat",
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
+            child: TwoColumnRowCard(
+              leftValue: data.age.toString(),
+              leftLabel: "Umur",
+              rightValue: "${data.weight} kg",
+              rightLabel: "Berat",
+            ),
           ),
         ],
       ),
@@ -104,11 +122,14 @@ class _LocationInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _CardWrapper(
       title: "Informasi Peternakan",
-      child: ProductHeaderCard(
-        title: data.farmLocation?.name ?? "-",
-        subtitle: data.farmArea?.name ?? "-",
-        image: AppImages.icField,
-        isActive: false,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: ProductHeaderCard(
+          title: data.farmLocation?.name ?? "-",
+          subtitle: data.farmArea?.name ?? "-",
+          image: AppImages.icField,
+          isActive: false,
+        ),
       ),
     );
   }
@@ -123,22 +144,26 @@ class _PriceInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _CardWrapper(
       title: "Informasi Harga",
-      child: Column(
-        children: [
-          ProductHeaderCard(
-            title: 'Rp ${formatPrice(data.purchPrice)}',
-            subtitle: "Harga Beli",
-            image: AppImages.icMoneys,
-            isActive: false,
-          ),
-          Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          TwoColumnRowCard(
-            leftValue: 'Rp ${formatPrice(data.refSalesPrice)}',
-            leftLabel: "Ref Harga Jual (kg)",
-            rightValue: 'Rp ${formatPrice(data.refSalesPriceTotal)}',
-            rightLabel: "Harga Beli",
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: Column(
+          children: [
+            ProductHeaderCard(
+              title: 'Rp ${formatPrice(data.purchPrice)}',
+              subtitle: "Harga Beli",
+              image: AppImages.icMoneys,
+              isActive: false,
+            ),
+            SizedBox(height: 8),
+            Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+            TwoColumnRowCard(
+              leftValue: 'Rp ${formatPrice(data.refSalesPrice)}',
+              leftLabel: "Ref Harga Jual (kg)",
+              rightValue: 'Rp ${formatPrice(data.refSalesPriceTotal)}',
+              rightLabel: "Harga Jual",
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -169,18 +194,30 @@ class _AnotherInfoCard extends StatelessWidget {
             )
           : Column(
               children: [
-                ProductHeaderCard(
-                  title: data.salesOrderCustomerName,
-                  subtitle: "Nama Pelanggan",
-                  image: AppImages.icUserTag,
-                  isActive: false,
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 12.0,
+                  ),
+                  child: ProductHeaderCard(
+                    title: data.salesOrderCustomerName,
+                    subtitle: "Nama Pelanggan",
+                    image: AppImages.icUserTag,
+                    isActive: false,
+                  ),
                 ),
                 Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-                TwoColumnRowCard(
-                  leftValue: "Catatan",
-                  leftLabel: data.notes ?? "-",
-                  rightValue: "",
-                  rightLabel: "",
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 12.0,
+                  ),
+                  child: TwoColumnRowCard(
+                    leftValue: "Catatan",
+                    leftLabel: data.notes ?? "-",
+                    rightValue: "",
+                    rightLabel: "",
+                  ),
                 ),
               ],
             ),

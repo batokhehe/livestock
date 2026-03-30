@@ -511,7 +511,7 @@ class _ProductPage extends ConsumerState<ProductPage> {
                           refSalesPriceTotal:
                               "Rp ${formatPrice(e.refSalesPriceTotal)}",
                           location: e.farmLocation?.name ?? "-",
-                          status: e.status,
+                          status: e.available,
                           farmArea: e.farmArea,
                         ),
                       ),
