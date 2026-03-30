@@ -15,6 +15,7 @@ class SalesOrderItemRequest {
   final double? weight;
   final double? shippingCost;
   final double? forecastWeight;
+  final DateTime? forecastDate;
 
   final String? stateId;
   final String? state;
@@ -39,6 +40,7 @@ class SalesOrderItemRequest {
     this.weight,
     this.shippingCost,
     this.forecastWeight,
+    this.forecastDate,
     this.stateId,
     this.state,
     this.cityId,
@@ -64,6 +66,7 @@ class SalesOrderItemRequest {
       weight: (json['weight'] as num).toDouble(),
       shippingCost: (json['shipping_cost'] as num).toDouble(),
       forecastWeight: (json['forecast_weight'] as num?)?.toDouble(),
+      forecastDate: json['forecast_date'] != null ? DateTime.tryParse(json['forecast_date']) : null,
       stateId: json['state_id'],
       state: json['state'],
       cityId: json['city_id'],
@@ -90,6 +93,7 @@ class SalesOrderItemRequest {
       "weight": weight,
       "shipping_cost": shippingCost,
       "forecast_weight": forecastWeight,
+      if (forecastDate != null) "forecast_date": formatterJson.format(forecastDate!),
       "state_id": stateId,
       "state": state,
       "city_id": cityId,
@@ -101,5 +105,55 @@ class SalesOrderItemRequest {
       "delivery_address": deliveryAddress,
       "is_forecast": isForecast,
     };
+  }
+
+  SalesOrderItemRequest copyWith({
+    AnimalProfile? animalProfile,
+    FeedMedicine? feedMedicine,
+    int? qty,
+    String? uom,
+    double? unitPrice,
+    double? subtotal,
+    double? discount,
+    DateTime? dlvDate,
+    double? weight,
+    double? shippingCost,
+    double? forecastWeight,
+    DateTime? forecastDate,
+    String? stateId,
+    String? state,
+    String? cityId,
+    String? city,
+    String? districtId,
+    String? district,
+    String? villageId,
+    String? village,
+    String? deliveryAddress,
+    String? isForecast,
+  }) {
+    return SalesOrderItemRequest(
+      animalProfile: animalProfile ?? this.animalProfile,
+      feedMedicine: feedMedicine ?? this.feedMedicine,
+      qty: qty ?? this.qty,
+      uom: uom ?? this.uom,
+      unitPrice: unitPrice ?? this.unitPrice,
+      subtotal: subtotal ?? this.subtotal,
+      discount: discount ?? this.discount,
+      dlvDate: dlvDate ?? this.dlvDate,
+      weight: weight ?? this.weight,
+      shippingCost: shippingCost ?? this.shippingCost,
+      forecastWeight: forecastWeight ?? this.forecastWeight,
+      forecastDate: forecastDate ?? this.forecastDate,
+      stateId: stateId ?? this.stateId,
+      state: state ?? this.state,
+      cityId: cityId ?? this.cityId,
+      city: city ?? this.city,
+      districtId: districtId ?? this.districtId,
+      district: district ?? this.district,
+      villageId: villageId ?? this.villageId,
+      village: village ?? this.village,
+      deliveryAddress: deliveryAddress ?? this.deliveryAddress,
+      isForecast: isForecast ?? this.isForecast,
+    );
   }
 }

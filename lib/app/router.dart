@@ -21,10 +21,15 @@ import 'package:livestock/features/purchase_order/presentation/views/add_purchas
 import 'package:livestock/features/purchase_order/presentation/views/purchase_order_page.dart';
 import 'package:livestock/features/receiving/presentation/views/add_receiving_confirmation_page.dart';
 import 'package:livestock/features/receiving/presentation/views/receiving_detail_page.dart';
+import 'package:livestock/features/sales_order/data/model/sales_order_detail_model.dart';
 import 'package:livestock/features/sales_order/presentation/views/add_sales_order_confirmation_page.dart';
 import 'package:livestock/features/sales_order/presentation/views/add_sales_order_page.dart';
 import 'package:livestock/features/sales_order/presentation/views/add_sales_order_step_2_page.dart';
 import 'package:livestock/features/sales_order/presentation/views/sales_order_page.dart';
+import 'package:livestock/features/sales_order/presentation/views/create_invoice/create_invoice_page.dart';
+import 'package:livestock/features/sales_order/presentation/views/edit_sales_order/edit_sales_order_page.dart';
+import 'package:livestock/features/sales_order/presentation/views/edit_sales_order/edit_sales_order_step_2_page.dart';
+import 'package:livestock/features/sales_order/presentation/views/edit_sales_order/edit_sales_order_confirmation_page.dart';
 import 'package:livestock/features/welcome_page.dart';
 
 import '../features/attendance/presentation/views/history_attendance_page.dart';
@@ -103,117 +108,157 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: "/",
         builder: (_, __) => MainPage(key: mainPageKey),
+        routes: [
+          GoRoute(
+            path: 'dashboard',
+            builder: (_, __) => const DashboardPage(),
+          ),
+          GoRoute(
+            path: 'product',
+            builder: (context, state) => const ProductPage(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (context, state) {
+                  final id = state.pathParameters['id']!;
+                  return ProductDetailPage(productId: id);
+                },
+              ),
+            ],
+          ),
+          GoRoute(
+            path: "product-update",
+            builder: (_, __) => const UpdateProductPage(),
+          ),
+          GoRoute(
+            path: 'receiving',
+            builder: (context, state) => const ReceivingPage(),
+            routes: [
+              GoRoute(
+                path: 'add',
+                builder: (context, state) => const AddReceivingPage(),
+              ),
+              GoRoute(
+                path: 'add/step-2',
+                builder: (context, state) {
+                  final ReceivingPo item = state.extra as ReceivingPo;
+                  return AddReceivingStep2Page(item: item);
+                },
+              ),
+              GoRoute(
+                path: 'add/confirmation',
+                builder: (context, state) => const AddReceivingConfirmationPage(),
+              ),
+              GoRoute(
+                path: 'detail/:id',
+                builder: (context, state) {
+                  final id = int.parse(state.pathParameters['id']!);
+                  return ReceivingDetailPage(receivingId: id);
+                },
+              ),
+            ],
+          ),
+          GoRoute(
+            path: 'monitoring',
+            builder: (context, state) => const MonitoringPage(),
+            routes: [
+              GoRoute(
+                path: 'add',
+                builder: (context, state) => const AddMonitoringPage(),
+              ),
+              GoRoute(
+                path: 'add/step-2',
+                builder: (context, state) => const AddMonitoringStep2Page(),
+              ),
+              GoRoute(
+                path: 'add/confirmation',
+                builder: (context, state) =>
+                    const AddMonitoringConfirmationPage(),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: 'employee-attendance',
+            builder: (context, state) => const EmployeeAttendancePage(),
+          ),
+          GoRoute(
+            path: 'history-attendance',
+            builder: (context, state) => const HistoryAttendancePage(),
+          ),
+          GoRoute(
+            path: 'history-detail-attendance/:type/:transdate',
+            name: 'history-detail-attendance',
+            builder: (context, state) {
+              final String type = state.pathParameters['type']!;
+              final String transDate = state.pathParameters['transdate']!;
+
+              return HistoryDetailAttendancePage(type: type, transDate: transDate);
+            },
+          ),
+          GoRoute(
+            path: 'employee-overnight',
+            builder: (context, state) => const EmployeeOvernightPage(),
+          ),
+          GoRoute(
+            path: 'sales-order',
+            builder: (context, state) => const SalesOrderPage(),
+            routes: [
+              GoRoute(
+                path: 'add',
+                builder: (context, state) {
+                  final type = state.uri.queryParameters['type'];
+                  return AddSalesOrderPage(type: type);
+                },
+              ),
+              GoRoute(
+                path: 'add/step-2',
+                builder: (context, state) => const AddSalesOrderStep2Page(),
+              ),
+              GoRoute(
+                path: 'add/confirmation',
+                builder: (context, state) =>
+                    const AddSalesOrderConfirmationPage(),
+              ),
+              GoRoute(
+                path: 'detail/:id',
+                builder: (context, state) {
+                  final id = int.parse(state.pathParameters['id']!);
+                  return SalesOrderDetailPage(id: id);
+                },
+              ),
+              GoRoute(
+                path: 'create-invoice',
+                builder: (context, state) {
+                  final item = state.extra as SalesOrderDetail;
+                  return CreateInvoicePage(item: item);
+                },
+              ),
+              GoRoute(
+                path: 'edit',
+                builder: (context, state) {
+                  final detail = state.extra as SalesOrderDetail;
+                  return EditSalesOrderPage(detail: detail);
+                },
+              ),
+              GoRoute(
+                path: 'edit/step-2',
+                builder: (context, state) {
+                  final detail = state.extra as SalesOrderDetail;
+                  return EditSalesOrderStep2Page(detail: detail);
+                },
+              ),
+              GoRoute(
+                path: 'edit/confirmation',
+                builder: (context, state) {
+                  final detail = state.extra as SalesOrderDetail;
+                  return EditSalesOrderConfirmationPage(detail: detail);
+                },
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(path: "/home", builder: (_, __) => const HomePage()),
-      GoRoute(path: "/dashboard", builder: (_, __) => const DashboardPage()),
-      GoRoute(
-        path: '/product',
-        builder: (context, state) => const ProductPage(),
-      ),
-      GoRoute(
-        path: '/product/:id',
-        builder: (context, state) {
-          final id = state.pathParameters['id']!;
-          return ProductDetailPage(productId: id);
-        },
-      ),
-      GoRoute(
-        path: "/product-update",
-        builder: (_, __) => const UpdateProductPage(),
-      ),
-      GoRoute(
-        path: '/receiving',
-        builder: (context, state) => const ReceivingPage(),
-      ),
-      GoRoute(
-        path: '/receiving/add',
-        builder: (context, state) => const AddReceivingPage(),
-      ),
-      GoRoute(
-        path: '/receiving/add/step-2',
-        builder: (context, state) {
-          final ReceivingPo item = state.extra as ReceivingPo;
-          return AddReceivingStep2Page(item: item);
-        },
-      ),
-      GoRoute(
-        path: '/receiving/add/confirmation',
-        builder: (context, state) => const AddReceivingConfirmationPage(),
-      ),
-      GoRoute(
-        path: '/receiving/detail/:id',
-        builder: (context, state) {
-          final id = int.parse(state.pathParameters['id']!);
-          return ReceivingDetailPage(receivingId: id);
-        },
-      ),
-
-      GoRoute(
-        path: '/monitoring',
-        builder: (context, state) => const MonitoringPage(),
-      ),
-      GoRoute(
-        path: '/monitoring/add',
-        builder: (context, state) => const AddMonitoringPage(),
-      ),
-      GoRoute(
-        path: '/monitoring/add/step-2',
-        builder: (context, state) => const AddMonitoringStep2Page(),
-      ),
-      GoRoute(
-        path: '/monitoring/add/confirmation',
-        builder: (context, state) => const AddMonitoringConfirmationPage(),
-      ),
-
-      GoRoute(
-        path: '/employee-attendance',
-        builder: (context, state) => const EmployeeAttendancePage(),
-      ),
-      GoRoute(
-        path: '/history-attendance',
-        builder: (context, state) => const HistoryAttendancePage(),
-      ),
-      GoRoute(
-        path: '/history-detail-attendance/:type/:transdate',
-        name: 'history-detail-attendance',
-        builder: (context, state) {
-          final String type = state.pathParameters['type']!;
-          final String transDate = state.pathParameters['transdate']!;
-
-          return HistoryDetailAttendancePage(type: type, transDate: transDate);
-        },
-      ),
-      GoRoute(
-        path: '/employee-overnight',
-        builder: (context, state) => const EmployeeOvernightPage(),
-      ),
-
-      GoRoute(
-        path: '/sales-order',
-        builder: (context, state) => const SalesOrderPage(),
-      ),
-      GoRoute(
-        path: '/sales-order/add',
-        builder: (context, state) {
-          final type = state.uri.queryParameters['type'];
-          return AddSalesOrderPage(type: type);
-        },
-      ),
-      GoRoute(
-        path: '/sales-order/add/step-2',
-        builder: (context, state) => const AddSalesOrderStep2Page(),
-      ),
-      GoRoute(
-        path: '/sales-order/add/confirmation',
-        builder: (context, state) => const AddSalesOrderConfirmationPage(),
-      ),
-      GoRoute(
-        path: '/sales-order/detail/:id',
-        builder: (context, state) {
-          final id = int.parse(state.pathParameters['id']!);
-          return SalesOrderDetailPage(id: id);
-        },
-      ),
 
       GoRoute(
         path: '/purchase-order',

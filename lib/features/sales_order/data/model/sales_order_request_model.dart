@@ -21,6 +21,7 @@ class SalesOrderRequest {
   final String? recipientNumber;
   final double? shippingCost;
   final double? discountTotal;
+  final String? isForecast;
   final String? notes;
   final List<SalesOrderItemRequest>? items;
 
@@ -41,6 +42,7 @@ class SalesOrderRequest {
     this.recipientNumber,
     this.shippingCost,
     this.discountTotal,
+    this.isForecast,
     this.notes,
     this.items,
   });
@@ -62,6 +64,7 @@ class SalesOrderRequest {
     String? recipientNumber,
     double? shippingCost,
     double? discountTotal,
+    String? isForecast,
     String? notes,
     List<SalesOrderItemRequest>? items,
   }) {
@@ -82,6 +85,7 @@ class SalesOrderRequest {
       recipientNumber: recipientNumber ?? this.recipientNumber,
       shippingCost: shippingCost ?? this.shippingCost,
       discountTotal: discountTotal ?? this.discountTotal,
+      isForecast: isForecast ?? this.isForecast,
       notes: notes ?? this.notes,
       items: items ?? this.items,
     );
@@ -92,6 +96,7 @@ class SalesOrderRequest {
       "customer_id": customer?.id,
       if (orderDate != null) "order_date": formatterJson.format(orderDate!),
       if (dueDate != null) "due_date": formatterJson.format(dueDate!),
+      if (forecastDate != null) "forecast_date": formatterJson.format(forecastDate!),
       "sales_item_type": salesItemType ?? "animal",
       "status": status ?? "draft",
       "sales_type": salesType ?? "basic",
@@ -103,6 +108,7 @@ class SalesOrderRequest {
       "shipping_cost": shippingCost ?? 0,
       "discount_total": discountTotal ?? 0,
       "notes": notes,
+      "is_forecast": isForecast ?? ((useForecast ?? true) ? "yes" : "no"),
       "items": items?.map((e) => e.toJson()).toList() ?? [],
     };
   }

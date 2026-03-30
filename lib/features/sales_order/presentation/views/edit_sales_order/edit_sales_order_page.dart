@@ -8,53 +8,66 @@ import 'package:livestock/core/widgets/customer_bottom_sheet.dart';
 import 'package:livestock/core/widgets/input_field_card.dart';
 import 'package:livestock/features/sales_order/data/model/sales_order_request_model.dart';
 
-import '../../../../core/theme/AppColors.dart';
-import '../../../../core/theme/AppTypography.dart';
-import '../../../../core/widgets/custom_date_picker_sheet.dart';
-import '../../../../core/widgets/farm_location_bottom_sheet.dart';
-import '../../../../core/widgets/section_card.dart';
-import '../../../../core/widgets/select_field.dart';
-import '../../../../core/widgets/step_info_card.dart';
-import '../../sales_order_provider.dart';
+import '../../../../../core/theme/AppColors.dart';
+import '../../../../../core/theme/AppTypography.dart';
+import '../../../../../core/widgets/custom_date_picker_sheet.dart';
+import '../../../../../core/widgets/farm_location_bottom_sheet.dart';
+import '../../../../../core/widgets/section_card.dart';
+import '../../../../../core/widgets/select_field.dart';
+import '../../../../../core/widgets/step_info_card.dart';
+import '../../../data/model/sales_order_detail_model.dart';
+import '../../../sales_order_provider.dart';
 
-class AddSalesOrderPage extends ConsumerStatefulWidget {
-  final String? type;
+class EditSalesOrderPage extends ConsumerStatefulWidget {
+  final SalesOrderDetail detail;
 
-  const AddSalesOrderPage({super.key, this.type});
+  const EditSalesOrderPage({super.key, required this.detail});
 
   @override
-  ConsumerState<AddSalesOrderPage> createState() => _AddSalesOrderPageState();
+  ConsumerState<EditSalesOrderPage> createState() => _EditSalesOrderPageState();
 }
 
-class _AddSalesOrderPageState extends ConsumerState<AddSalesOrderPage> {
-  late TextEditingController phoneController = TextEditingController();
+class _EditSalesOrderPageState extends ConsumerState<EditSalesOrderPage> {
+  late final TextEditingController _phoneController;
+  late final TextEditingController _recipientNameController;
+  late final TextEditingController _recipientNumberController;
 
   @override
   void initState() {
     super.initState();
+    final d = widget.detail;
+
+    _phoneController = TextEditingController(
+      text: d.customer.contactPhone ?? '',
+    );
+    _recipientNameController = TextEditingController(text: d.recipientName);
+    _recipientNumberController = TextEditingController(text: d.recipientNumber);
 
     Future.microtask(() {
-      ref.read(salesOrderFormProvider.notifier).reset();
-      ref.read(salesOrderFormProvider.notifier).setSalesItemType(widget.type);
+      final notifier = ref.read(editSalesOrderFormProvider.notifier);
+      notifier.initFromDetail(d);
     });
   }
 
   @override
   void dispose() {
-    phoneController.dispose();
+    _phoneController.dispose();
+    _recipientNameController.dispose();
+    _recipientNumberController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final form = ref.watch(salesOrderFormProvider);
+    final form = ref.watch(editSalesOrderFormProvider);
+    print("hmmm ${form.toJson()}");
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Tambah Penjualan",
+          "Edit Penjualan",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -71,37 +84,19 @@ class _AddSalesOrderPageState extends ConsumerState<AddSalesOrderPage> {
                   totalStep: 3,
                 ),
                 const SizedBox(height: 12),
-                _SalesOrderInfoSection(
-                  form: form,
-                  phoneController: phoneController,
-                ),
+                _buildSalesInfoSection(form),
                 const SizedBox(height: 12),
-                _CustomerInfoSection(form: form),
+                _buildShippingInfoSection(form),
               ],
             ),
           ),
-          const _NextButton(),
+          _buildNextButton(form),
         ],
       ),
     );
   }
-}
 
-class _SalesOrderInfoSection extends ConsumerWidget {
-  final TextEditingController phoneController;
-  final SalesOrderRequest form;
-
-  const _SalesOrderInfoSection({
-    required this.form,
-    required this.phoneController,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (phoneController.text != (form.customer?.contactPhone ?? "")) {
-      phoneController.text = form.customer?.contactPhone ?? "";
-    }
-
+  Widget _buildSalesInfoSection(SalesOrderRequest form) {
     return SectionCard(
       title: "Informasi Penjualan",
       children: [
@@ -111,45 +106,43 @@ class _SalesOrderInfoSection extends ConsumerWidget {
           hint: formatDateTime(form.orderDate),
           icon: AppImages.icCalendarSearch,
           onTap: () async {
-            final pickedDate = await showModalBottomSheet<DateTime?>(
+            final picked = await showModalBottomSheet<DateTime?>(
               context: context,
               isScrollControlled: true,
               useSafeArea: true,
               backgroundColor: Colors.transparent,
               builder: (_) => const CustomDatePickerSheet(),
             );
-
-            if (pickedDate != null) {
+            if (picked != null) {
               ref
-                  .read(salesOrderFormProvider.notifier)
-                  .setSalesOrderDate(pickedDate);
+                  .read(editSalesOrderFormProvider.notifier)
+                  .setSalesOrderDate(picked);
             }
           },
         ),
         if (form.salesItemType == 'animal') ...[
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           SelectField(
             label: "Tanggal Jatuh Tempo",
             isMandatoryField: true,
             hint: formatDateTime(form.dueDate),
             icon: AppImages.icCalendarSearch,
             onTap: () async {
-              final pickedDate = await showModalBottomSheet<DateTime?>(
+              final picked = await showModalBottomSheet<DateTime?>(
                 context: context,
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
                 builder: (_) => const CustomDatePickerSheet(),
               );
-
-              if (pickedDate != null) {
+              if (picked != null) {
                 ref
-                    .read(salesOrderFormProvider.notifier)
-                    .setDueDate(pickedDate);
+                    .read(editSalesOrderFormProvider.notifier)
+                    .setDueDate(picked);
               }
             },
           ),
         ],
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         SelectField(
           label: "Nama Pelanggan",
           hint: form.customer?.name ?? "Pilih Pelanggan",
@@ -166,20 +159,27 @@ class _SalesOrderInfoSection extends ConsumerWidget {
               builder: (_) => const CustomerBottomSheet(),
             );
             if (customer != null) {
-              ref.read(salesOrderFormProvider.notifier).setCustomer(customer);
+              _phoneController.text = customer.contactPhone ?? '';
+              _recipientNameController.text = customer.name;
+              _recipientNumberController.text = customer.contactPhone ?? '';
+
+              final notifier = ref.read(editSalesOrderFormProvider.notifier);
+              notifier.setCustomer(customer);
+              notifier.setRecipientName(customer.name);
+              notifier.setRecipientNumber(customer.contactPhone ?? '');
             }
           },
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         TextFields(
           label: "Nomor Pelanggan",
           hint: "Masukkan nomor pelanggan",
           isMandatoryField: true,
           prefixIcon: AppImages.icCalling,
-          controller: phoneController,
+          controller: _phoneController,
         ),
         if (form.salesItemType == 'animal') ...[
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -190,7 +190,7 @@ class _SalesOrderInfoSection extends ConsumerWidget {
                   options: const ['kg', 'Kelas'],
                   labelBuilder: (v) => v,
                   onChanged: (v) => ref
-                      .read(salesOrderFormProvider.notifier)
+                      .read(editSalesOrderFormProvider.notifier)
                       .setCategory(v),
                 ),
               ),
@@ -202,10 +202,12 @@ class _SalesOrderInfoSection extends ConsumerWidget {
                   options: const [true, false],
                   labelBuilder: (v) => v ? 'Ya' : 'Tidak',
                   onChanged: (v) {
-                    ref.read(salesOrderFormProvider.notifier).setUseForecast(v);
+                    ref
+                        .read(editSalesOrderFormProvider.notifier)
+                        .setUseForecast(v);
                     if (!v) {
                       ref
-                          .read(salesOrderFormProvider.notifier)
+                          .read(editSalesOrderFormProvider.notifier)
                           .clearForecastDate();
                     }
                   },
@@ -214,24 +216,23 @@ class _SalesOrderInfoSection extends ConsumerWidget {
             ],
           ),
           if (form.useForecast ?? true) ...[
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             SelectField(
               label: "Tanggal Forecast",
               isMandatoryField: true,
               hint: formatDateTime(form.forecastDate),
               icon: AppImages.icCalendarSearch,
               onTap: () async {
-                final pickedDate = await showModalBottomSheet<DateTime?>(
+                final picked = await showModalBottomSheet<DateTime?>(
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
                   builder: (_) => const CustomDatePickerSheet(),
                 );
-
-                if (pickedDate != null) {
+                if (picked != null) {
                   ref
-                      .read(salesOrderFormProvider.notifier)
-                      .setForecastDate(pickedDate);
+                      .read(editSalesOrderFormProvider.notifier)
+                      .setForecastDate(picked);
                 }
               },
             ),
@@ -240,53 +241,8 @@ class _SalesOrderInfoSection extends ConsumerWidget {
       ],
     );
   }
-}
 
-class _CustomerInfoSection extends ConsumerStatefulWidget {
-  final SalesOrderRequest form;
-
-  const _CustomerInfoSection({required this.form});
-
-  @override
-  ConsumerState<_CustomerInfoSection> createState() =>
-      _CustomerInfoSectionState();
-}
-
-class _CustomerInfoSectionState extends ConsumerState<_CustomerInfoSection> {
-  late final TextEditingController _recipientNameController =
-      TextEditingController();
-  late final TextEditingController _recipientNumberController =
-      TextEditingController();
-
-  @override
-  void dispose() {
-    _recipientNameController.dispose();
-    _recipientNumberController.dispose();
-    super.dispose();
-  }
-
-  void _copyFromCustomer() {
-    final customer = widget.form.customer;
-    if (customer == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Belum pilih nama pelanggan')),
-      );
-      return;
-    }
-
-    final name = customer.name;
-    final phone = customer.contactPhone ?? '';
-
-    _recipientNameController.text = name;
-    _recipientNumberController.text = phone;
-
-    ref.read(salesOrderFormProvider.notifier).setRecipientName(name);
-    ref.read(salesOrderFormProvider.notifier).setRecipientNumber(phone);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final form = widget.form;
+  Widget _buildShippingInfoSection(dynamic form) {
     return SectionCard(
       title: "Informasi Pengiriman",
       actionLabel: form.salesItemType == 'animal'
@@ -306,9 +262,10 @@ class _CustomerInfoSectionState extends ConsumerState<_CustomerInfoSection> {
               backgroundColor: AppColors.greyBg,
               builder: (_) => const FarmLocationBottomSheet(),
             );
-
             if (result != null) {
-              ref.read(salesOrderFormProvider.notifier).setFarmLocation(result);
+              ref
+                  .read(editSalesOrderFormProvider.notifier)
+                  .setFarmLocation(result);
             }
           },
         ),
@@ -321,7 +278,9 @@ class _CustomerInfoSectionState extends ConsumerState<_CustomerInfoSection> {
             prefixIcon: AppImages.icUser,
             controller: _recipientNameController,
             onChanged: (value) {
-              ref.read(salesOrderFormProvider.notifier).setRecipientName(value);
+              ref
+                  .read(editSalesOrderFormProvider.notifier)
+                  .setRecipientName(value);
             },
           ),
           const SizedBox(height: 12),
@@ -333,7 +292,7 @@ class _CustomerInfoSectionState extends ConsumerState<_CustomerInfoSection> {
             controller: _recipientNumberController,
             onChanged: (value) {
               ref
-                  .read(salesOrderFormProvider.notifier)
+                  .read(editSalesOrderFormProvider.notifier)
                   .setRecipientNumber(value);
             },
           ),
@@ -341,14 +300,29 @@ class _CustomerInfoSectionState extends ConsumerState<_CustomerInfoSection> {
       ],
     );
   }
-}
 
-class _NextButton extends ConsumerWidget {
-  const _NextButton();
+  void _copyFromCustomer() {
+    final form = ref.read(editSalesOrderFormProvider);
+    final customer = form.customer;
+    if (customer == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Belum pilih nama pelanggan')),
+      );
+      return;
+    }
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final form = ref.watch(salesOrderFormProvider);
+    _recipientNameController.text = customer.name;
+    _recipientNumberController.text = customer.contactPhone ?? '';
+
+    ref
+        .read(editSalesOrderFormProvider.notifier)
+        .setRecipientName(customer.name);
+    ref
+        .read(editSalesOrderFormProvider.notifier)
+        .setRecipientNumber(customer.contactPhone ?? '');
+  }
+
+  Widget _buildNextButton(dynamic form) {
     final isValid = form.isValid;
 
     return SafeArea(
@@ -366,10 +340,16 @@ class _NextButton extends ConsumerWidget {
             ),
             onPressed: isValid
                 ? () {
-                    context.push('/sales-order/add/step-2');
+                    context.push(
+                      '/sales-order/edit/step-2',
+                      extra: widget.detail,
+                    );
                   }
                 : null,
-            child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
+            child: const Text(
+              "Selanjutnya",
+              style: AppTypography.mediumBoldWhite,
+            ),
           ),
         ),
       ),
