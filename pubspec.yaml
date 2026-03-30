@@ -53,6 +53,11 @@ dependencies:
   dropdown_button2: ^3.0.0
   image_picker: ^1.0.7
 
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/bottom_nav.png"
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

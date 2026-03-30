@@ -27,8 +27,8 @@ class HomePage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SummaryCard(),
-                    SizedBox(height: 16),
+                    // SummaryCard(),
+                    // SizedBox(height: 16),
                     ProductCard(),
                     SizedBox(height: 8),
                     SwipeIndicator(),
