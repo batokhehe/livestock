@@ -28,6 +28,7 @@ import '../../sales_order_provider.dart';
 
 class AddItemBottomSheetAnimal extends ConsumerStatefulWidget {
   final bool isEdit;
+
   const AddItemBottomSheetAnimal({super.key, this.isEdit = false});
 
   @override
@@ -788,7 +789,8 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
             ),
           ],
           const SizedBox(height: 14),
-          if (!isForecastEnabled) ...[
+          if (!isForecastEnabled &&
+              category.toLowerCase() == 'kg') ...[
             TextFields(
               label: 'Est. Harga jual per kg',
               hint: '0',
