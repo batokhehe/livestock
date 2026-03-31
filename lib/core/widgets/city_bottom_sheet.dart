@@ -21,8 +21,10 @@ class _CityBottomSheetState extends ConsumerState<CityBottomSheet> {
     super.initState();
     searchCtrl = TextEditingController();
 
-    ref.read(citySearchProvider.notifier).state = '';
-    ref.read(selectedCityProvider.notifier).state = null;
+    Future.microtask(() {
+      ref.read(citySearchProvider.notifier).state = '';
+      ref.read(selectedCityProvider.notifier).state = null;
+    });
   }
 
   @override

@@ -366,8 +366,8 @@ class _ProductInfoCard extends StatelessWidget {
         SectionCard(
           children: [
             ProductHeaderCard(
-              title: data.animalProfile?.name ?? data.feedMedicineCode,
-              subtitle: '$code • $secondValue',
+              title: code,
+              subtitle: '${data.animalProfile?.name} • $secondValue',
               image: AppImages.icNavCow,
             ),
             const SizedBox(height: 12),
@@ -381,8 +381,7 @@ class _ProductInfoCard extends StatelessWidget {
               )
             else
               TwoColumnRowCard(
-                leftValue:
-                    'Rp ${formatPrice(data.unitPrice)} ${data.isForecast}',
+                leftValue: 'Rp ${formatPrice(data.unitPrice)}',
                 leftLabel: "Harga",
                 rightValue: 'Rp ${formatPrice(data.subtotal)}',
                 rightLabel: "Subtotal",

@@ -66,7 +66,7 @@ class SalesInvoiceFormNotifier extends StateNotifier<SalesInvoiceRequest> {
       "customer_id": orderDetail.customerId,
       "invoice_date": formatterJson.format(state.date ?? DateTime.now()),
       "payment_status": state.paymentStatus,
-      "payment_type": state.paymentType?.id.toString(),
+      "payment_type": state.paymentType?.name.toString(),
       "amount_paid": state.amount,
       "amount_total": orderDetail.amountTotal,
       "discount_total": orderDetail.discountTotal,

@@ -44,7 +44,9 @@ class SectionCard extends StatelessWidget {
                     TextButton(
                       onPressed: onActionTap,
                       style: TextButton.styleFrom(
-                        backgroundColor: AppColors.textBtnBackground,
+                        backgroundColor: onActionTap == null
+                            ? AppColors.greyBg
+                            : AppColors.textBtnBackground,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 6,
@@ -58,7 +60,9 @@ class SectionCard extends StatelessWidget {
                       child: Text(
                         actionLabel!,
                         style: AppTypography.smallNormalBlack.copyWith(
-                          color: AppColors.primary,
+                          color: onActionTap == null
+                              ? AppColors.hint
+                              : AppColors.primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

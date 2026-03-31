@@ -33,10 +33,11 @@ class _ProductPage extends ConsumerState<ProductPage> {
   Timer? _debounce;
   late final ScrollController _scrollController;
 
-  final statusItems = [
-    {'value': '', 'label': 'Semua Status'},
-    {'value': 'active', 'label': 'Aktif'},
-    {'value': 'inactive', 'label': 'Nonaktif'},
+  final availableItems = [
+    {'value': '', 'label': 'Ketersediaan'},
+    {'value': 'available', 'label': 'Tersedia'},
+    {'value': 'sold', 'label': 'Terjual'},
+    {'value': 'booked', 'label': 'Dipesan'},
   ];
 
   final classItems = [
@@ -191,9 +192,9 @@ class _ProductPage extends ConsumerState<ProductPage> {
   }
 
   Widget _filterRow() {
-    final selectedStatus = ref.watch(animalStatusProvider);
-    final selectedLabel = statusItems.firstWhere(
-      (e) => e['value'] == selectedStatus,
+    final selectedAvailable = ref.watch(animalAvailableProvider);
+    final selectedLabel = availableItems.firstWhere(
+      (e) => e['value'] == selectedAvailable,
     )['label']!;
 
     final farmLocationsAsync = ref.watch(farmLocationListProvider);
@@ -236,7 +237,7 @@ class _ProductPage extends ConsumerState<ProductPage> {
                 icon: Icon(Icons.keyboard_arrow_down),
               ),
               style: AppTypography.smallNormalBlack,
-              items: statusItems
+              items: availableItems
                   .map(
                     (item) => DropdownItem<String>(
                       value: item['value']!,
@@ -248,7 +249,7 @@ class _ProductPage extends ConsumerState<ProductPage> {
                   )
                   .toList(),
               onChanged: (value) {
-                ref.read(animalStatusProvider.notifier).state = value ?? '';
+                ref.read(animalAvailableProvider.notifier).state = value ?? '';
               },
               dropdownStyleData: DropdownStyleData(
                 decoration: BoxDecoration(
@@ -336,6 +337,7 @@ class _ProductPage extends ConsumerState<ProductPage> {
                         .state = (value == null || value.isEmpty)
                         ? null
                         : int.tryParse(value);
+                    ref.read(animalFarmAreaIdProvider.notifier).state = null;
                   },
                   dropdownStyleData: DropdownStyleData(
                     decoration: BoxDecoration(

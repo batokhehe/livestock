@@ -141,11 +141,12 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
                                   "Data item berhasil dicatat dalam transaksi penjualan.",
                             );
 
-                             context.go('/sales-order');
+                            context.go('/sales-order');
 
                             Future.microtask(() {
                               ref.read(salesOrderFormProvider.notifier).reset();
-                              ref.read(salesOrderTabProvider.notifier).state = SalesOrderTab.all;
+                              ref.read(salesOrderTabProvider.notifier).state =
+                                  SalesOrderTab.all;
                               ref.invalidate(salesOrderListProvider);
                             });
                           } catch (e) {
@@ -287,8 +288,8 @@ class _ProductInfoCard extends StatelessWidget {
         SectionCard(
           children: [
             ProductHeaderCard(
-              title: data.animalProfile?.name ?? data.feedMedicine!.name,
-              subtitle: '$code • $secondValue',
+              title: code,
+              subtitle: '${data.animalProfile?.name} • $secondValue',
               image: AppImages.icNavCow,
             ),
             const SizedBox(height: 12),
@@ -325,7 +326,10 @@ class _ProductInfoCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text("Harga jual", style: AppTypography.xSmallNormalBlack),
-                  Text("Rp ${formatPrice(data.unitPrice ?? 0)}", style: AppTypography.smallBoldBlack),
+                  Text(
+                    "Rp ${formatPrice(data.unitPrice ?? 0)}",
+                    style: AppTypography.smallBoldBlack,
+                  ),
                 ],
               ),
               const SizedBox(height: 8.0),
@@ -333,7 +337,10 @@ class _ProductInfoCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text("Harga diskon", style: AppTypography.xSmallNormalBlack),
-                  Text("Rp ${formatPrice(data.discount ?? 0)}", style: AppTypography.smallBoldBlack),
+                  Text(
+                    "Rp ${formatPrice(data.discount ?? 0)}",
+                    style: AppTypography.smallBoldBlack,
+                  ),
                 ],
               ),
               /*TwoColumnRowCard(
@@ -350,7 +357,8 @@ class _ProductInfoCard extends StatelessWidget {
               children: [
                 ProductHeaderCard(
                   title: 'Transaksi Forecast',
-                  subtitle: '${data.forecastWeight ?? 0} kg • ${formatDateTime(forecastDate)}',
+                  subtitle:
+                      '${data.forecastWeight ?? 0} kg • ${formatDateTime(forecastDate)}',
                   image: AppImages.icReceipt,
                 ),
               ],
