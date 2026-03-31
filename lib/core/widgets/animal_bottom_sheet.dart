@@ -22,12 +22,6 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
   void initState() {
     super.initState();
     searchCtrl = TextEditingController();
-
-    // 🔥 reset search setiap buka
-    Future.microtask(() {
-      ref.read(animalSearchProvider.notifier).state = '';
-      ref.read(animalAvailableProvider.notifier).state = widget.available ?? '';
-    });
   }
 
   @override
@@ -38,7 +32,7 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final dataAsync = ref.watch(animalListProvider);
+    final dataAsync = ref.watch(animalListProvider(widget.available));
     final selectedItem = ref.watch(selectedAnimalProvider);
     final keyword = ref.watch(animalSearchProvider);
 
@@ -141,22 +135,24 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
                                       mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
                                       spacing: 8.0,
                                       children: [
                                         Text(
-                                          e.name,
+                                          e.animalCode,
                                           overflow: TextOverflow.ellipsis,
-                                    
+
                                           style: isSelected
                                               ? AppTypography.smallBoldPrimary
                                               : AppTypography.smallBoldBlack,
                                         ),
                                         Text(
-                                          "${e.animalCode} • ${e.weight.floor()} kg",
+                                          "${e.name} • ${e.weight.floor()} kg",
                                           overflow: TextOverflow.ellipsis,
                                           style: isSelected
-                                              ? AppTypography.xSmallNormalPrimary
+                                              ? AppTypography
+                                                    .xSmallNormalPrimary
                                               : AppTypography.xSmallNormalBlack,
                                         ),
                                       ],
@@ -165,8 +161,10 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
                                   Expanded(
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
                                       spacing: 8.0,
                                       children: [
                                         _itemStatusBadge(e.available),
@@ -175,7 +173,8 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
                                               '-',
                                           overflow: TextOverflow.ellipsis,
                                           style: isSelected
-                                              ? AppTypography.xSmallNormalPrimary
+                                              ? AppTypography
+                                                    .xSmallNormalPrimary
                                               : AppTypography.xSmallNormalBlack,
                                         ),
                                       ],

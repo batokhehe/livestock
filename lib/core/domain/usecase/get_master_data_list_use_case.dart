@@ -24,8 +24,8 @@ class GetMasterDataListUseCase {
     return repository.getFarmLocations();
   }
 
-  Future<List<FarmArea>> callFarmAreas() {
-    return repository.getFarmAreas();
+  Future<List<FarmArea>> callFarmAreas({int? farmLocationId}) {
+    return repository.getFarmAreas(farmLocationId: farmLocationId);
   }
 
   Future<List<Customer>> callCustomer() {

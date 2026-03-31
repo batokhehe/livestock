@@ -164,10 +164,14 @@ class SalesOrderItemDetailBottomSheet extends ConsumerWidget {
                     vertical: 4.0,
                   ),
                   child: _buildValueRow(
-                    label1: "Est. Harga Jual/kg",
+                    label1: request.useForecast
+                        ? "Est. Harga Jual/kg"
+                        : "Harga Jual/kg",
                     value1:
                         "Rp ${formatPrice(item.animalProfile?.refSalesPrice ?? 0)}",
-                    label2: "Est. Harga Jual Total",
+                    label2: request.useForecast
+                        ? "Est. Harga Jual Total"
+                        : "Harga Jual Total",
                     value2:
                         "Rp ${formatPrice(item.animalProfile?.refSalesPriceTotal ?? 0)}",
                   ),
@@ -305,11 +309,11 @@ class SalesOrderItemDetailBottomSheet extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              item.animalProfile?.name ?? '-',
+              item.animalProfile?.animalCode ?? '-',
               style: AppTypography.smallBoldBlack,
             ),
             Text(
-              "${item.animalProfile?.animalCode ?? '-'} • ${item.animalProfile?.weight ?? 0} kg",
+              "${item.animalProfile?.name ?? '-'} • ${item.animalProfile?.weight ?? 0} kg",
               style: AppTypography.xSmallNormalGrey,
             ),
           ],

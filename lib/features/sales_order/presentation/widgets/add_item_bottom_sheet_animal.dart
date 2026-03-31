@@ -64,17 +64,19 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
   }
 
   Future<void> _updateShippingCost() async {
-    final form = ref.read(salesOrderFormProvider);
+    final form = widget.isEdit
+        ? ref.read(editSalesOrderFormProvider)
+        : ref.read(salesOrderFormProvider);
     final selectedCity = ref.read(selectedCityProvider);
     final farmLocationId = form.farmLocation?.id;
 
-    if (farmLocationId == null) return;
+    if (farmLocationId == null || selectedCity == null) return;
 
     try {
       final costs = await ref
           .read(masterRepositoryProvider)
           .getShippingCosts(
-            cityId: selectedCity?.code,
+            cityId: selectedCity.code,
             farmLocationId: farmLocationId,
           );
 
@@ -99,7 +101,26 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
   }
 
   void _calculateEstTotal() {
+    _updatePriceFromForecast();
     setState(() {});
+  }
+
+  void _updatePriceFromForecast() {
+    final form = widget.isEdit
+        ? ref.read(editSalesOrderFormProvider)
+        : ref.read(salesOrderFormProvider);
+    final isForecastEnabled = (form.useForecast ?? true);
+
+    if (isForecastEnabled && selectedAnimal != null && forecastData != null) {
+      final currentWeight = _parsePrice(animalWeightCtrl.text);
+      final totalKgForecast =
+          currentWeight + (forecastData?.forecastWeight ?? 0);
+      final hargaForecast = forecastData?.targetPriceForecast ?? 0;
+
+      final hargaJualTotal = totalKgForecast * hargaForecast;
+
+      priceCtrl.text = formatPrice(hargaJualTotal);
+    }
   }
 
   void _copyFromCustomer() {
@@ -229,8 +250,9 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                                     top: Radius.circular(20),
                                   ),
                                 ),
-                                builder: (_) =>
-                                    const AnimalBottomSheet(available: 'available'),
+                                builder: (_) => const AnimalBottomSheet(
+                                  available: 'available',
+                                ),
                               );
 
                           if (result != null) {
@@ -274,16 +296,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
 
                                 setState(() {
                                   forecastData = forecast;
-                                  if (forecast.forecastPrice > 0) {
-                                    priceCtrl.text = formatPrice(
-                                      forecast.forecastPrice,
-                                    );
-                                  }
-                                  if (forecast.targetPriceForecast > 0) {
-                                    finalPriceCtrl.text = formatPrice(
-                                      forecast.targetPriceForecast,
-                                    );
-                                  }
+                                  _updatePriceFromForecast();
                                 });
                               } catch (e) {
                                 debugPrint("Error calculating forecast: $e");
@@ -574,6 +587,10 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                       const SizedBox(height: 16),
                       SectionCard(
                         title: 'Rincian Biaya',
+                        actionLabel: 'Cek Biaya Pengiriman',
+                        onActionTap: selectedCity == null
+                            ? null
+                            : _updateShippingCost,
                         children: [
                           TextFields(
                             label: "Biaya Pengiriman",
@@ -696,11 +713,8 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(animal.name, style: AppTypography.smallBoldBlack),
-                  Text(
-                    animal.animalCode,
-                    style: AppTypography.xSmallNormalGrey,
-                  ),
+                  Text(animal.animalCode, style: AppTypography.smallBoldBlack),
+                  Text(animal.name, style: AppTypography.xSmallNormalGrey),
                 ],
               ),
             ],
@@ -723,7 +737,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
               Text('Berat Forecast', style: AppTypography.smallBoldBlack),
               const SizedBox(height: 6),
               _infoField(
-                '${(forecastData?.forecastWeight ?? 0).toStringAsFixed(0)} kg',
+                '${((forecastData?.forecastWeight ?? 0) + _parsePrice(animalWeightCtrl.text)).toStringAsFixed(0)} kg',
                 AppImages.icMoneys,
               ),
             ],
@@ -762,7 +776,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
             Text('Berat Forecast', style: AppTypography.smallBoldBlack),
             const SizedBox(height: 6),
             _infoField(
-              '${(forecastData?.forecastWeight ?? 0).toStringAsFixed(0)} kg',
+              '${((forecastData?.forecastWeight ?? 0) + _parsePrice(animalWeightCtrl.text)).toStringAsFixed(0)} kg',
               AppImages.icMoneys,
             ),
             const SizedBox(height: 14),
@@ -774,31 +788,33 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
             ),
           ],
           const SizedBox(height: 14),
-          TextFields(
-            label: 'Est. Harga jual per kg',
-            hint: '0',
-            controller: animalPricePerKgCtrl,
-            prefixText: 'Rp ',
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              CurrencyInputFormatter(),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Est. Harga Jual Total',
-                style: AppTypography.smallNormalGrey,
-              ),
-              Text(
-                'Rp ${formatPrice(_parsePrice(animalWeightCtrl.text) * _parsePrice(animalPricePerKgCtrl.text))}',
-                style: AppTypography.smallBoldBlack,
-              ),
-            ],
-          ),
+          if (!isForecastEnabled) ...[
+            TextFields(
+              label: 'Est. Harga jual per kg',
+              hint: '0',
+              controller: animalPricePerKgCtrl,
+              prefixText: 'Rp ',
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                CurrencyInputFormatter(),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Est. Harga Jual Total',
+                  style: AppTypography.smallNormalGrey,
+                ),
+                Text(
+                  'Rp ${formatPrice(_parsePrice(animalWeightCtrl.text) * _parsePrice(animalPricePerKgCtrl.text))}',
+                  style: AppTypography.smallBoldBlack,
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );

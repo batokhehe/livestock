@@ -173,12 +173,9 @@ class _AddSalesOrderStep2PageState
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Text(code, style: AppTypography.smallBoldBlack),
                           Text(
-                            item.animalProfile?.name ?? item.feedMedicine!.name,
-                            style: AppTypography.smallBoldBlack,
-                          ),
-                          Text(
-                            "$code • $secondValue",
+                            "${item.animalProfile?.name} • $secondValue",
                             style: AppTypography.smallNormalGrey,
                           ),
                         ],
@@ -212,20 +209,20 @@ class _AddSalesOrderStep2PageState
                 ),
               ],
             ),
-            if (useForecast)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Harga/kg Forecast',
-                    style: AppTypography.xSmallNormalBlack,
-                  ),
-                  const Text(
-                    'Total Forecast',
-                    style: AppTypography.xSmallNormalBlack,
-                  ),
-                ],
-              ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  useForecast ? 'Harga/kg Forecast' : 'Harga Jual',
+                  style: AppTypography.xSmallNormalBlack,
+                ),
+                Text(
+                  useForecast ? 'Total Forecast' : 'Subtotal',
+                  style: AppTypography.xSmallNormalBlack,
+                ),
+              ],
+            ),
           ],
         ),
       ),

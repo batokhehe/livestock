@@ -18,6 +18,7 @@ class ProductNotifier extends AsyncNotifier<BaseResponse<dynamic>> {
 
     final keyword = ref.watch(animalSearchProvider);
     final status = ref.watch(animalStatusProvider);
+    final available = ref.watch(animalAvailableProvider);
     final farmLocationId = ref.watch(animalFarmLocationIdProvider);
     final farmAreaId = ref.watch(animalFarmAreaIdProvider);
 
@@ -27,6 +28,7 @@ class ProductNotifier extends AsyncNotifier<BaseResponse<dynamic>> {
       return await useCase.callAnimals(
         search: search,
         status: status.isNotEmpty ? status : null,
+        available: available.isNotEmpty ? available : null,
         farmLocationId: farmLocationId,
         farmAreaId: farmAreaId,
         page: _page,
@@ -61,6 +63,7 @@ class ProductNotifier extends AsyncNotifier<BaseResponse<dynamic>> {
     if (tab == ProductTab.product) {
       final keyword = ref.read(animalSearchProvider);
       final status = ref.read(animalStatusProvider);
+      final available = ref.read(animalAvailableProvider);
       final farmLocationId = ref.read(animalFarmLocationIdProvider);
       final farmAreaId = ref.read(animalFarmAreaIdProvider);
 
@@ -69,6 +72,7 @@ class ProductNotifier extends AsyncNotifier<BaseResponse<dynamic>> {
       final result = await useCase.callAnimals(
         search: search,
         status: status.isNotEmpty ? status : null,
+        available: available.isNotEmpty ? available : null,
         farmLocationId: farmLocationId,
         farmAreaId: farmAreaId,
         page: _page,

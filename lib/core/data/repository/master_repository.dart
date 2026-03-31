@@ -26,8 +26,8 @@ class MasterRepository {
     return res.data;
   }
 
-  Future<List<FarmArea>> getFarmAreas() async {
-    final res = await api.getFarmAreas();
+  Future<List<FarmArea>> getFarmAreas({int? farmLocationId}) async {
+    final res = await api.getFarmAreas(farmLocationId: farmLocationId);
     return res.data;
   }
 

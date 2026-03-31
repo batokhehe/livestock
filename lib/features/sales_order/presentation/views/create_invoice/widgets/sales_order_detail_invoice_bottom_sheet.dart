@@ -140,9 +140,9 @@ class SalesOrderDetailInvoiceBottomSheet extends StatelessWidget {
               children: [
                 _buildInfoRow(
                   icon: AppImages.icNavCow,
-                  title: orderItem.item,
+                  title: orderItem.animalCode ?? "-",
                   subtitle:
-                      "${orderItem.animalCode ?? orderItem.feedMedicineCode} • ${orderItem.weight} kg",
+                      "${orderItem.animalProfile?.name ?? orderItem.feedMedicineCode} • ${orderItem.weight} kg",
                 ),
                 const Divider(height: 24, color: AppColors.fieldBorder),
                 _buildValueRow(
