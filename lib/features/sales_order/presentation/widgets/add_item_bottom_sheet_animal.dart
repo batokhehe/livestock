@@ -49,6 +49,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
   AnimalProfile? selectedAnimal;
   CalculateForecast? forecastData;
   Province? selectedProvince;
+  bool _isFetchingShippingCost = false;
 
   @override
   void initState() {
@@ -73,6 +74,8 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
 
     if (farmLocationId == null || selectedCity == null) return;
 
+    setState(() => _isFetchingShippingCost = true);
+
     try {
       final costs = await ref
           .read(masterRepositoryProvider)
@@ -81,13 +84,15 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
             farmLocationId: farmLocationId,
           );
 
-      if (costs.isNotEmpty) {
+      if (mounted && costs.isNotEmpty) {
         setState(() {
           shippingCostCtrl.text = formatPrice(costs.first.price);
         });
       }
     } catch (e) {
       debugPrint("Error fetching shipping cost: $e");
+    } finally {
+      if (mounted) setState(() => _isFetchingShippingCost = false);
     }
   }
 
@@ -162,6 +167,10 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
 
     addressCtrl.text = customer.address ?? '';
 
+    // Reset biaya pengiriman karena alamat berubah, lalu fetch ulang
+    setState(() {
+      shippingCostCtrl.text = '0';
+    });
     _updateShippingCost();
   }
 
@@ -442,6 +451,11 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                                               )
                                               .state =
                                           null;
+
+                                      // Reset biaya pengiriman karena city_id berubah (cleared)
+                                      setState(() {
+                                        shippingCostCtrl.text = '0';
+                                      });
                                     }
                                   },
                                 ),
@@ -486,6 +500,10 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                                                     .state =
                                                 null;
 
+                                            // Reset biaya pengiriman karena city_id berubah, lalu fetch ulang
+                                            setState(() {
+                                              shippingCostCtrl.text = '0';
+                                            });
                                             _updateShippingCost();
                                           }
                                         },
@@ -593,17 +611,33 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                             ? null
                             : _updateShippingCost,
                         children: [
-                          TextFields(
-                            label: "Biaya Pengiriman",
-                            hint: "0",
-                            prefixText: 'Rp ',
-                            controller: shippingCostCtrl,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              CurrencyInputFormatter(),
-                            ],
-                          ),
+                          _isFetchingShippingCost
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Biaya Pengiriman',
+                                      style: AppTypography.smallBoldBlack,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const _ShimmerBox(
+                                      width: double.infinity,
+                                      height: 48,
+                                      borderRadius: 12,
+                                    ),
+                                  ],
+                                )
+                              : TextFields(
+                                  label: "Biaya Pengiriman",
+                                  hint: "0",
+                                  prefixText: 'Rp ',
+                                  controller: shippingCostCtrl,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                    CurrencyInputFormatter(),
+                                  ],
+                                ),
                         ],
                       ),
                     ],
@@ -781,16 +815,15 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
               AppImages.icMoneys,
             ),
             const SizedBox(height: 14),
-            Text('Harga Forecast', style: AppTypography.smallBoldBlack),
+            /*Text('Harga Forecast', style: AppTypography.smallBoldBlack),
             const SizedBox(height: 6),
             _infoField(
               'Rp ${formatPrice(forecastData?.forecastPrice ?? 0)}',
               AppImages.icMoneys,
-            ),
+            ),*/
           ],
           const SizedBox(height: 14),
-          if (!isForecastEnabled &&
-              category.toLowerCase() == 'kg') ...[
+          if (!isForecastEnabled && category.toLowerCase() == 'kg') ...[
             TextFields(
               label: 'Est. Harga jual per kg',
               hint: '0',
@@ -838,6 +871,66 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
           Text(value, style: AppTypography.smallNormalBlack),
         ],
       ),
+    );
+  }
+}
+
+class _ShimmerBox extends StatefulWidget {
+  final double width;
+  final double height;
+  final double borderRadius;
+
+  const _ShimmerBox({
+    required this.width,
+    required this.height,
+    this.borderRadius = 8,
+  });
+
+  @override
+  State<_ShimmerBox> createState() => _ShimmerBoxState();
+}
+
+class _ShimmerBoxState extends State<_ShimmerBox>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(widget.borderRadius),
+            gradient: LinearGradient(
+              begin: Alignment(-1.0 + 2.0 * _controller.value, 0),
+              end: Alignment(-1.0 + 2.0 * _controller.value + 1.0, 0),
+              colors: const [
+                Color(0xFFE0E0E0),
+                Color(0xFFF5F5F5),
+                Color(0xFFE0E0E0),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
