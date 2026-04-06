@@ -18,6 +18,7 @@ import '../../../../core/widgets/two_column_row_card.dart';
 import '../../sales_order_provider.dart';
 import '../widgets/sales_order_detail_card.dart';
 import 'package:livestock/features/sales_order/data/model/sales_invoice_model.dart';
+import '../widgets/sales_invoice_detail_bottom_sheet.dart';
 import 'invoice_downloader_provider.dart';
 
 class SalesOrderDetailPage extends ConsumerWidget {
@@ -87,7 +88,7 @@ class SalesOrderDetailPage extends ConsumerWidget {
                     ),
                     const SizedBox(height: 12),
                     invoiceListAsync.when(
-                      data: (invoices) => _invoiceListSection(invoices),
+                      data: (invoices) => _invoiceListSection(context, invoices),
                       loading: () =>
                           const Center(child: CircularProgressIndicator()),
                       error: (e, s) => const SizedBox(),
@@ -166,7 +167,7 @@ class SalesOrderDetailPage extends ConsumerWidget {
   }
 
   Widget _bottomActions(BuildContext context, SalesOrderDetail data) {
-    if (data.salesStatus != 'draft') return const SizedBox.shrink();
+    if (data.salesStatus == 'closed') return const SizedBox.shrink();
     return Container(
       color: AppColors.white,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
@@ -229,7 +230,7 @@ class SalesOrderDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _invoiceListSection(List<SalesInvoice> invoices) {
+  Widget _invoiceListSection(BuildContext context, List<SalesInvoice> invoices) {
     if (invoices.isEmpty) return const SizedBox();
     return SectionCard(
       title: 'Daftar Nota',
@@ -238,9 +239,8 @@ class SalesOrderDetailPage extends ConsumerWidget {
             (inv) => Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: _invoiceItem(
-                inv.id,
-                inv.invoiceId,
-                formatDateString(inv.invoiceDate),
+                context,
+                inv,
               ),
             ),
           )
@@ -248,29 +248,42 @@ class SalesOrderDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _invoiceItem(int id, String title, String date) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.fieldBorder.withOpacity(0.5)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTypography.smallBoldBlack),
-                const SizedBox(height: 4),
-                Text(date, style: AppTypography.xSmallNormalGrey),
-              ],
+  Widget _invoiceItem(BuildContext context, SalesInvoice inv) {
+    return InkWell(
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) => SalesInvoiceDetailBottomSheet(invoice: inv),
+        );
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.fieldBorder.withOpacity(0.5)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(inv.invoiceId, style: AppTypography.smallBoldBlack),
+                  const SizedBox(height: 4),
+                  Text(
+                    formatDateString(inv.invoiceDate),
+                    style: AppTypography.xSmallNormalGrey,
+                  ),
+                ],
+              ),
             ),
-          ),
           Consumer(
             builder: (context, ref, _) {
-              final progress = ref.watch(invoiceDownloadProgressProvider(id));
+              final progress = ref.watch(invoiceDownloadProgressProvider(inv.id));
 
               return ElevatedButton(
                 onPressed: progress > 0
@@ -279,7 +292,7 @@ class SalesOrderDetailPage extends ConsumerWidget {
                         try {
                           final path = await ref
                               .read(invoiceDownloaderProvider)
-                              .downloadInvoice(id, "$title.pdf");
+                              .downloadInvoice(inv.id, "${inv.invoiceId}.pdf");
                           if (path != null) {
                             // Use open_filex for direct preview
                             await OpenFilex.open(path);
@@ -310,8 +323,9 @@ class SalesOrderDetailPage extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _rowSummary(String title, String value, {bool isBold = false}) {
     return Padding(
@@ -366,8 +380,8 @@ class _ProductInfoCard extends StatelessWidget {
         SectionCard(
           children: [
             ProductHeaderCard(
-              title: data.animalProfile?.name ?? data.feedMedicineCode,
-              subtitle: '$code • $secondValue',
+              title: code,
+              subtitle: '${data.animalProfile?.name} • $secondValue',
               image: AppImages.icNavCow,
             ),
             const SizedBox(height: 12),
@@ -381,8 +395,7 @@ class _ProductInfoCard extends StatelessWidget {
               )
             else
               TwoColumnRowCard(
-                leftValue:
-                    'Rp ${formatPrice(data.unitPrice)} ${data.isForecast}',
+                leftValue: 'Rp ${formatPrice(data.unitPrice)}',
                 leftLabel: "Harga",
                 rightValue: 'Rp ${formatPrice(data.subtotal)}',
                 rightLabel: "Subtotal",

@@ -5,6 +5,10 @@ class SalesInvoice {
   final String invoiceDate;
   final String paymentStatus;
   final String? paymentType;
+  final String? customerName;
+  final String? orderId;
+  final String? coaName;
+  final int totalItem;
   final double subtotal;
   final double discountTotal;
   final double amountTotal;
@@ -20,6 +24,10 @@ class SalesInvoice {
     required this.invoiceDate,
     required this.paymentStatus,
     this.paymentType,
+    this.customerName,
+    this.orderId,
+    this.coaName,
+    this.totalItem = 0,
     required this.subtotal,
     required this.discountTotal,
     required this.amountTotal,
@@ -37,6 +45,10 @@ class SalesInvoice {
       invoiceDate: json['invoice_date'] ?? '',
       paymentStatus: json['payment_status'] ?? '',
       paymentType: json['payment_type']?.toString(),
+      customerName: json['customer']?['name'],
+      orderId: json['sales_order']?['order_id'],
+      coaName: json['chart_of_account']?['name'],
+      totalItem: (json['items'] as List?)?.length ?? 0,
       subtotal: double.tryParse(json['subtotal']?.toString() ?? '0') ?? 0,
       discountTotal: double.tryParse(json['discount_total']?.toString() ?? '0') ?? 0,
       amountTotal: double.tryParse(json['amount_total']?.toString() ?? '0') ?? 0,

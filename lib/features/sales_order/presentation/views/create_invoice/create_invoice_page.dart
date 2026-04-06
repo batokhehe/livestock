@@ -35,13 +35,18 @@ class CreateInvoicePage extends ConsumerStatefulWidget {
 class _CreateInvoicePageState extends ConsumerState<CreateInvoicePage> {
   late final TextEditingController _amountController;
 
+  final statusList = [
+    {'label': 'Uang Muka', 'value': 'down_payment'},
+    {'label': 'Pembayaran Sebagian', 'value': 'partial'},
+    {'label': 'Pelunasan', 'value': 'full_payment'},
+  ];
+
   @override
   void initState() {
     super.initState();
     _amountController = TextEditingController(
       text: formatPrice(widget.item.amountTotal),
     );
-    // Initial amount update to provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(salesInvoiceFormProvider.notifier)
@@ -337,7 +342,9 @@ class _CreateInvoicePageState extends ConsumerState<CreateInvoicePage> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.fieldBorder.withOpacity(0.5)),
+          border: Border.all(
+            color: AppColors.fieldBorder.withValues(alpha: 0.5),
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -530,12 +537,6 @@ class _CreateInvoicePageState extends ConsumerState<CreateInvoicePage> {
   }
 
   void _showPaymentStatusBottomSheet() async {
-    final statusList = [
-      {'label': 'Uang Muka', 'value': 'down_payment'},
-      {'label': 'Pembayaran Sebagian', 'value': 'partial'},
-      {'label': 'Pelunasan', 'value': 'paid'},
-    ];
-
     final result = await showModalBottomSheet<Map<String, String>>(
       context: context,
       backgroundColor: Colors.white,

@@ -89,12 +89,15 @@ class ProductGroupBottomSheet extends ConsumerWidget {
                               style: AppTypography.mediumBoldBlack,
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                              ),
                               child: Text(
                                 "Belum ada sapi yang terdaftar pada kelas ini,\ntambahkan data atau ubah filter",
                                 textAlign: TextAlign.center,
-                                style: AppTypography.smallNormalWhite
-                                    .copyWith(color: AppColors.black),
+                                style: AppTypography.smallNormalWhite.copyWith(
+                                  color: AppColors.black,
+                                ),
                               ),
                             ),
                           ],
@@ -125,7 +128,7 @@ class ProductGroupBottomSheet extends ConsumerWidget {
                               refSalesPriceTotal:
                                   "Rp ${formatPrice(e.refSalesPriceTotal)}",
                               location: e.farmLocation?.name ?? "-",
-                              status: e.status,
+                              status: e.available,
                               farmArea: e.farmArea,
                             ),
                           ),

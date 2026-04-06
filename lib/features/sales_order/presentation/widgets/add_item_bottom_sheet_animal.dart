@@ -28,6 +28,7 @@ import '../../sales_order_provider.dart';
 
 class AddItemBottomSheetAnimal extends ConsumerStatefulWidget {
   final bool isEdit;
+
   const AddItemBottomSheetAnimal({super.key, this.isEdit = false});
 
   @override
@@ -41,11 +42,14 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
   final finalPriceCtrl = TextEditingController();
   final addressCtrl = TextEditingController();
   final shippingCostCtrl = TextEditingController(text: '0');
+  final animalWeightCtrl = TextEditingController();
+  final animalPricePerKgCtrl = TextEditingController();
 
   DateTime? deliveryDate;
   AnimalProfile? selectedAnimal;
   CalculateForecast? forecastData;
   Province? selectedProvince;
+  bool _isFetchingShippingCost = false;
 
   @override
   void initState() {
@@ -53,6 +57,8 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
 
     priceCtrl.addListener(_calculateFinalPrice);
     discountCtrl.addListener(_calculateFinalPrice);
+    animalWeightCtrl.addListener(_calculateEstTotal);
+    animalPricePerKgCtrl.addListener(_calculateEstTotal);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateShippingCost();
@@ -60,27 +66,33 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
   }
 
   Future<void> _updateShippingCost() async {
-    final form = ref.read(salesOrderFormProvider);
+    final form = widget.isEdit
+        ? ref.read(editSalesOrderFormProvider)
+        : ref.read(salesOrderFormProvider);
     final selectedCity = ref.read(selectedCityProvider);
     final farmLocationId = form.farmLocation?.id;
 
-    if (farmLocationId == null) return;
+    if (farmLocationId == null || selectedCity == null) return;
+
+    setState(() => _isFetchingShippingCost = true);
 
     try {
       final costs = await ref
           .read(masterRepositoryProvider)
           .getShippingCosts(
-            cityId: selectedCity?.code,
+            cityId: selectedCity.code,
             farmLocationId: farmLocationId,
           );
 
-      if (costs.isNotEmpty) {
+      if (mounted && costs.isNotEmpty) {
         setState(() {
           shippingCostCtrl.text = formatPrice(costs.first.price);
         });
       }
     } catch (e) {
       debugPrint("Error fetching shipping cost: $e");
+    } finally {
+      if (mounted) setState(() => _isFetchingShippingCost = false);
     }
   }
 
@@ -92,6 +104,29 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
     final discount = _parsePrice(discountCtrl.text);
     final result = price - discount;
     finalPriceCtrl.text = result > 0 ? formatPrice(result) : '0';
+  }
+
+  void _calculateEstTotal() {
+    _updatePriceFromForecast();
+    setState(() {});
+  }
+
+  void _updatePriceFromForecast() {
+    final form = widget.isEdit
+        ? ref.read(editSalesOrderFormProvider)
+        : ref.read(salesOrderFormProvider);
+    final isForecastEnabled = (form.useForecast ?? true);
+
+    if (isForecastEnabled && selectedAnimal != null && forecastData != null) {
+      final currentWeight = _parsePrice(animalWeightCtrl.text);
+      final totalKgForecast =
+          currentWeight + (forecastData?.forecastWeight ?? 0);
+      final hargaForecast = forecastData?.targetPriceForecast ?? 0;
+
+      final hargaJualTotal = totalKgForecast * hargaForecast;
+
+      priceCtrl.text = formatPrice(hargaJualTotal);
+    }
   }
 
   void _copyFromCustomer() {
@@ -132,6 +167,10 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
 
     addressCtrl.text = customer.address ?? '';
 
+    // Reset biaya pengiriman karena alamat berubah, lalu fetch ulang
+    setState(() {
+      shippingCostCtrl.text = '0';
+    });
     _updateShippingCost();
   }
 
@@ -221,43 +260,60 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                                     top: Radius.circular(20),
                                   ),
                                 ),
-                                builder: (_) => const AnimalBottomSheet(),
+                                builder: (_) => const AnimalBottomSheet(
+                                  available: 'available',
+                                ),
                               );
 
                           if (result != null) {
                             setState(() {
                               selectedAnimal = result;
+                              animalWeightCtrl.text = result.weight
+                                  .toStringAsFixed(0);
+                              animalPricePerKgCtrl.text = formatPrice(
+                                result.refSalesPrice,
+                              );
                               priceCtrl.text = formatPrice(
                                 result.refSalesPriceTotal,
                               );
                               discountCtrl.text = '0';
                             });
 
-                             if (result.animalGroup != null) {
-                               late final CalculateForecast forecast;
-                               if (widget.isEdit) {
-                                 forecast = await ref
-                                     .read(editSalesOrderFormProvider.notifier)
-                                     .calculateForecastForItem(
-                                       animalGroupId: result.animalGroup!.id,
-                                     );
-                               } else {
-                                 forecast = await ref
-                                     .read(salesOrderFormProvider.notifier)
-                                     .calculateForecastForItem(
-                                       animalGroupId: result.animalGroup!.id,
-                                     );
-                               }
+                            final form = widget.isEdit
+                                ? ref.read(editSalesOrderFormProvider)
+                                : ref.read(salesOrderFormProvider);
+                            final isForecastEnabled =
+                                (form.category ?? 'kg') == 'kg' &&
+                                (form.useForecast ?? true);
 
-                              setState(() {
-                                forecastData = forecast;
-                                priceCtrl.text = formatPrice(
-                                  forecast.forecastPrice,
-                                );
-                                finalPriceCtrl.text = formatPrice(
-                                  forecast.targetPriceForecast,
-                                );
-                              });
+                            if (isForecastEnabled &&
+                                result.animalGroup != null) {
+                              try {
+                                late final CalculateForecast forecast;
+                                if (widget.isEdit) {
+                                  forecast = await ref
+                                      .read(editSalesOrderFormProvider.notifier)
+                                      .calculateForecastForItem(
+                                        animalGroupId: result.animalGroup!.id,
+                                      );
+                                } else {
+                                  forecast = await ref
+                                      .read(salesOrderFormProvider.notifier)
+                                      .calculateForecastForItem(
+                                        animalGroupId: result.animalGroup!.id,
+                                      );
+                                }
+
+                                setState(() {
+                                  forecastData = forecast;
+                                  _updatePriceFromForecast();
+                                });
+                              } catch (e) {
+                                debugPrint("Error calculating forecast: $e");
+                                setState(() {
+                                  forecastData = null;
+                                });
+                              }
                             }
                           }
                         },
@@ -395,6 +451,11 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                                               )
                                               .state =
                                           null;
+
+                                      // Reset biaya pengiriman karena city_id berubah (cleared)
+                                      setState(() {
+                                        shippingCostCtrl.text = '0';
+                                      });
                                     }
                                   },
                                 ),
@@ -439,6 +500,10 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                                                     .state =
                                                 null;
 
+                                            // Reset biaya pengiriman karena city_id berubah, lalu fetch ulang
+                                            setState(() {
+                                              shippingCostCtrl.text = '0';
+                                            });
                                             _updateShippingCost();
                                           }
                                         },
@@ -541,18 +606,38 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                       const SizedBox(height: 16),
                       SectionCard(
                         title: 'Rincian Biaya',
+                        actionLabel: 'Cek Biaya Pengiriman',
+                        onActionTap: selectedCity == null
+                            ? null
+                            : _updateShippingCost,
                         children: [
-                          TextFields(
-                            label: "Biaya Pengiriman",
-                            hint: "0",
-                            prefixText: 'Rp ',
-                            controller: shippingCostCtrl,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              CurrencyInputFormatter(),
-                            ],
-                          ),
+                          _isFetchingShippingCost
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Biaya Pengiriman',
+                                      style: AppTypography.smallBoldBlack,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const _ShimmerBox(
+                                      width: double.infinity,
+                                      height: 48,
+                                      borderRadius: 12,
+                                    ),
+                                  ],
+                                )
+                              : TextFields(
+                                  label: "Biaya Pengiriman",
+                                  hint: "0",
+                                  prefixText: 'Rp ',
+                                  controller: shippingCostCtrl,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                    CurrencyInputFormatter(),
+                                  ],
+                                ),
                         ],
                       ),
                     ],
@@ -618,6 +703,14 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
   }
 
   Widget _buildAnimalInfoSection(AnimalProfile animal) {
+    final form = widget.isEdit
+        ? ref.watch(editSalesOrderFormProvider)
+        : ref.watch(salesOrderFormProvider);
+    final isForecastEnabled = (form.useForecast ?? true);
+    final category = (form.category ?? 'kg').trim();
+    // final isForecastActive = isForecastEnabled && forecastData != null;
+    final isKelas = category.toLowerCase() == 'kelas';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -655,43 +748,108 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(animal.name, style: AppTypography.smallBoldBlack),
-                  Text(
-                    animal.animalCode,
-                    style: AppTypography.xSmallNormalGrey,
-                  ),
+                  Text(animal.animalCode, style: AppTypography.smallBoldBlack),
+                  Text(animal.name, style: AppTypography.xSmallNormalGrey),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 14),
-          Text('Berat Hewan', style: AppTypography.smallBoldBlack),
-          const SizedBox(height: 6),
-          _infoField(
-            '${animal.weight.toStringAsFixed(0)} kg',
-            AppImages.icMoneys,
-          ),
-          const SizedBox(height: 14),
-          Text('Est. Harga jual per kg', style: AppTypography.smallBoldBlack),
-          const SizedBox(height: 6),
-          _infoField(
-            'Rp ${formatPrice(animal.refSalesPrice)}',
-            AppImages.icMoneys,
-          ),
-          const SizedBox(height: 14),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Est. Harga Jual Total',
-                style: AppTypography.smallNormalGrey,
-              ),
-              Text(
-                'Rp ${formatPrice(animal.refSalesPriceTotal)}',
-                style: AppTypography.smallBoldBlack,
-              ),
+          TextFields(
+            label: 'Berat Hewan',
+            hint: '0',
+            controller: animalWeightCtrl,
+            suffix: 'kg',
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              CurrencyInputFormatter(),
             ],
           ),
+          if (isKelas) ...[
+            if (isForecastEnabled) ...[
+              const SizedBox(height: 14),
+              Text('Berat Forecast', style: AppTypography.smallBoldBlack),
+              const SizedBox(height: 6),
+              _infoField(
+                '${((forecastData?.forecastWeight ?? 0) + _parsePrice(animalWeightCtrl.text)).toStringAsFixed(0)} kg',
+                AppImages.icMoneys,
+              ),
+            ],
+            const SizedBox(height: 14),
+            Text('Kelas Harga', style: AppTypography.smallBoldBlack),
+            const SizedBox(height: 6),
+            _infoField(animal.currentClassName ?? '-', AppImages.icMoneys),
+            if (isForecastEnabled) ...[
+              const SizedBox(height: 14),
+              Text('Berat Minimum', style: AppTypography.smallBoldBlack),
+              const SizedBox(height: 6),
+              _infoField(
+                '${(animal.currentClassMinWeight ?? 0).toStringAsFixed(0)} kg',
+                AppImages.icMoneys,
+              ),
+              const SizedBox(height: 14),
+              Text('Berat Maksimum', style: AppTypography.smallBoldBlack),
+              const SizedBox(height: 6),
+              _infoField(
+                '${(animal.currentClassMaxWeight ?? 0).toStringAsFixed(0)} kg',
+                AppImages.icMoneys,
+              ),
+            ],
+          ],
+          if (isForecastEnabled &&
+              category.toLowerCase() == 'kg' &&
+              forecastData != null) ...[
+            const SizedBox(height: 14),
+            Text('Target harga per kg', style: AppTypography.smallBoldBlack),
+            const SizedBox(height: 6),
+            _infoField(
+              'Rp ${formatPrice(forecastData?.targetPriceForecast ?? 0)}',
+              AppImages.icMoneys,
+            ),
+            const SizedBox(height: 14),
+            Text('Berat Forecast', style: AppTypography.smallBoldBlack),
+            const SizedBox(height: 6),
+            _infoField(
+              '${((forecastData?.forecastWeight ?? 0) + _parsePrice(animalWeightCtrl.text)).toStringAsFixed(0)} kg',
+              AppImages.icMoneys,
+            ),
+            const SizedBox(height: 14),
+            /*Text('Harga Forecast', style: AppTypography.smallBoldBlack),
+            const SizedBox(height: 6),
+            _infoField(
+              'Rp ${formatPrice(forecastData?.forecastPrice ?? 0)}',
+              AppImages.icMoneys,
+            ),*/
+          ],
+          const SizedBox(height: 14),
+          if (!isForecastEnabled && category.toLowerCase() == 'kg') ...[
+            TextFields(
+              label: 'Est. Harga jual per kg',
+              hint: '0',
+              controller: animalPricePerKgCtrl,
+              prefixText: 'Rp ',
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                CurrencyInputFormatter(),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Est. Harga Jual Total',
+                  style: AppTypography.smallNormalGrey,
+                ),
+                Text(
+                  'Rp ${formatPrice(_parsePrice(animalWeightCtrl.text) * _parsePrice(animalPricePerKgCtrl.text))}',
+                  style: AppTypography.smallBoldBlack,
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -702,7 +860,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.greyBg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.fieldBorder, width: 1),
       ),
@@ -713,6 +871,66 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
           Text(value, style: AppTypography.smallNormalBlack),
         ],
       ),
+    );
+  }
+}
+
+class _ShimmerBox extends StatefulWidget {
+  final double width;
+  final double height;
+  final double borderRadius;
+
+  const _ShimmerBox({
+    required this.width,
+    required this.height,
+    this.borderRadius = 8,
+  });
+
+  @override
+  State<_ShimmerBox> createState() => _ShimmerBoxState();
+}
+
+class _ShimmerBoxState extends State<_ShimmerBox>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(widget.borderRadius),
+            gradient: LinearGradient(
+              begin: Alignment(-1.0 + 2.0 * _controller.value, 0),
+              end: Alignment(-1.0 + 2.0 * _controller.value + 1.0, 0),
+              colors: const [
+                Color(0xFFE0E0E0),
+                Color(0xFFF5F5F5),
+                Color(0xFFE0E0E0),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

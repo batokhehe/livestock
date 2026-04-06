@@ -68,7 +68,7 @@ class ProductCard extends StatelessWidget {
             children: [
               _infoChip(age),
               _infoChip(weight),
-              _infoChip(refSalesPriceTotal),
+              // _infoChip(refSalesPriceTotal),
               _infoChip(location),
               if (farmArea != null) _infoChip(farmArea!.name),
             ],
@@ -79,21 +79,41 @@ class ProductCard extends StatelessWidget {
   }
 
   Widget _statusBadge(String status) {
-    final isActive = status == 'active';
-    final label = isActive ? 'Aktif' : 'Nonaktif';
+    Color bgColor;
+    Color textColor;
+    String label;
+
+    switch (status) {
+      case 'available':
+        bgColor = AppColors.success.withOpacity(0.08);
+        textColor = AppColors.success;
+        label = 'Tersedia';
+        break;
+      case 'sold':
+        bgColor = Colors.red.withOpacity(0.08);
+        textColor = Colors.red;
+        label = 'Terjual';
+        break;
+      case 'booked':
+        bgColor = Colors.orange.withOpacity(0.08);
+        textColor = Colors.orange;
+        label = 'Dipesan';
+        break;
+      default:
+        bgColor = Colors.grey.withOpacity(0.08);
+        textColor = Colors.grey;
+        label = status;
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: isActive
-            ? AppColors.success.withOpacity(0.08)
-            : Colors.red.withOpacity(0.08),
+        color: bgColor,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         label,
-        style: isActive
-            ? AppTypography.xSmallNormalGreen
-            : AppTypography.xSmallNormalGreen.copyWith(color: Colors.red),
+        style: AppTypography.xSmallNormalGreen.copyWith(color: textColor),
       ),
     );
   }

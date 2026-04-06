@@ -61,7 +61,11 @@ final farmLocationSearchProvider = StateProvider.autoDispose<String>(
 final farmAreaListProvider = FutureProvider.autoDispose<List<FarmArea>>((
   ref,
 ) async {
-  return ref.read(getMasterDataListUseCaseProvider).callFarmAreas();
+  final farmLocationId = ref.watch(animalFarmLocationIdProvider);
+  if (farmLocationId == null) return [];
+  return ref
+      .read(getMasterDataListUseCaseProvider)
+      .callFarmAreas(farmLocationId: farmLocationId);
 });
 final selectedFarmAreaProvider = StateProvider<FarmArea?>((ref) => null);
 final farmAreaSearchProvider = StateProvider.autoDispose<String>((ref) => '');
@@ -76,15 +80,21 @@ final selectedCustomerProvider = StateProvider<Customer?>((ref) => null);
 final customerSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
 // ANIMAL
-final animalListProvider =
-    FutureProvider.autoDispose<BaseResponse<AnimalProfile>>((ref) async {
-      return ref
-          .read(getMasterDataListUseCaseProvider)
-          .callAnimals(page: 1, perPage: 1000);
-    });
+final animalListProvider = FutureProvider.autoDispose.family<
+  BaseResponse<AnimalProfile>,
+  ({String? available, String? search})
+>((ref, arg) async {
+  return ref.read(getMasterDataListUseCaseProvider).callAnimals(
+    available: (arg.available?.isEmpty ?? true) ? null : arg.available,
+    search: (arg.search?.length ?? 0) >= 2 ? arg.search : null,
+    page: 1,
+    perPage: 1000,
+  );
+});
 final selectedAnimalProvider = StateProvider<AnimalProfile?>((ref) => null);
 final animalSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 final animalStatusProvider = StateProvider.autoDispose<String>((ref) => '');
+final animalAvailableProvider = StateProvider.autoDispose<String>((ref) => '');
 final animalFarmLocationIdProvider = StateProvider.autoDispose<int?>(
   (ref) => null,
 );

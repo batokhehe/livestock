@@ -230,7 +230,7 @@ class _SalesOrderPageState extends ConsumerState<SalesOrderPage> {
 
               /// Pakan / Obat
               _SalesTypeItem(
-                title: 'Pakan/Obat',
+                title: 'Pakan',
                 onTap: () {
                   Navigator.pop(context);
                   context.push('/sales-order/add?type=feed');

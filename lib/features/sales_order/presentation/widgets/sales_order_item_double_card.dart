@@ -80,7 +80,7 @@ class SalesOrderItemDoubleCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${item.items.first.qty} hewan • ${item.items.first.animalProfile?.name}',
+                      '${item.items.length} hewan • ${item.items.first.animalProfile?.animalCode}',
                       style: AppTypography.xSmallNormalBlack,
                     ),
                     Text(

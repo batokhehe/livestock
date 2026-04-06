@@ -28,6 +28,9 @@ class AnimalProfile {
 
   final String? currentClassName;
   final int? currentClassPrice;
+  final int? currentClassPriceId;
+  final double? currentClassMinWeight;
+  final double? currentClassMaxWeight;
 
   final String? dispatchStatus;
   final String? vehicleNumber;
@@ -56,6 +59,9 @@ class AnimalProfile {
     required this.refSalesPriceTotal,
     this.currentClassName,
     this.currentClassPrice,
+    this.currentClassPriceId,
+    this.currentClassMinWeight,
+    this.currentClassMaxWeight,
     this.dispatchStatus,
     this.vehicleNumber,
     this.settlementStatus,
@@ -103,6 +109,13 @@ class AnimalProfile {
 
       currentClassName: json['current_class_name'],
       currentClassPrice: json['current_class_price'] ?? 0,
+      currentClassPriceId: json['current_class_price_id'] ?? 0,
+      currentClassMinWeight: (json['current_class_min_weight'] is num)
+          ? (json['current_class_min_weight'] as num).toDouble()
+          : double.tryParse(json['current_class_min_weight']?.toString() ?? ''),
+      currentClassMaxWeight: (json['current_class_max_weight'] is num)
+          ? (json['current_class_max_weight'] as num).toDouble()
+          : double.tryParse(json['current_class_max_weight']?.toString() ?? ''),
 
       dispatchStatus: json['dispatch_status'],
       vehicleNumber: json['vehicle_number'],
@@ -138,6 +151,9 @@ class AnimalProfile {
 
       'current_class_name': currentClassName,
       'current_class_price': currentClassPrice,
+      'current_class_price_id': currentClassPriceId,
+      'current_class_min_weight': currentClassMinWeight,
+      'current_class_max_weight': currentClassMaxWeight,
 
       'dispatch_status': dispatchStatus,
       'vehicle_number': vehicleNumber,

@@ -26,8 +26,8 @@ class MasterRepository {
     return res.data;
   }
 
-  Future<List<FarmArea>> getFarmAreas() async {
-    final res = await api.getFarmAreas();
+  Future<List<FarmArea>> getFarmAreas({int? farmLocationId}) async {
+    final res = await api.getFarmAreas(farmLocationId: farmLocationId);
     return res.data;
   }
 
@@ -40,6 +40,7 @@ class MasterRepository {
     int? animalClassPriceId, {
     String? search,
     String? status,
+    String? available,
     int? farmLocationId,
     int? farmAreaId,
     required int page,
@@ -49,6 +50,7 @@ class MasterRepository {
       animalClassPriceId,
       search: search,
       status: status,
+      available: available,
       farmLocationId: farmLocationId,
       farmAreaId: farmAreaId,
       page: page,
