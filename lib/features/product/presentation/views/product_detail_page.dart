@@ -148,19 +148,26 @@ class _PriceInfoCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Column(
           children: [
-            ProductHeaderCard(
+            /*ProductHeaderCard(
               title: 'Rp ${formatPrice(data.purchPrice)}',
               subtitle: "Harga Beli",
               image: AppImages.icMoneys,
               isActive: false,
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 8),*/
             Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
             TwoColumnRowCard(
               leftValue: 'Rp ${formatPrice(data.refSalesPrice)}',
               leftLabel: "Ref Harga Jual (kg)",
-              rightValue: 'Rp ${formatPrice(data.refSalesPriceTotal)}',
-              rightLabel: "Harga Jual",
+              rightValue: data.currentClassName ?? "-",
+              rightLabel: "Kelas Hewan",
+            ),
+            SizedBox(height: 8),
+            TwoColumnRowCard(
+              leftValue: 'Rp ${formatPrice(data.refSalesPriceTotal)}',
+              leftLabel: "Ref Harga Total",
+              rightValue: 'Rp ${formatPrice(data.currentClassPrice ?? 0)}',
+              rightLabel: "Harga Kelas",
             ),
           ],
         ),
@@ -272,9 +279,10 @@ class _UpdateButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        onPressed: () {
+        onPressed: null,
+        /*onPressed: () {
           context.push("/product-update");
-        },
+        },*/
         child: const Text("Perbarui Data"),
       ),
     );
