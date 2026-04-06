@@ -188,34 +188,3 @@ class _DispatchList extends StatelessWidget {
     );
   }
 }
-
-class _SalesTypeItem extends StatelessWidget {
-  final String title;
-  final VoidCallback onTap;
-
-  const _SalesTypeItem({required this.title, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.fieldBorder),
-        ),
-        child: Center(
-          child: Text(
-            title,
-            style: AppTypography.mediumBoldBlack.copyWith(
-              color: AppColors.black,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

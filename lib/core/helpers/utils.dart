@@ -78,3 +78,18 @@ class CurrencyInputFormatter extends TextInputFormatter {
     );
   }
 }
+
+int parseToInt(dynamic value) {
+  if (value == null) return 0;
+
+  if (value is int) return value;
+
+  if (value is double) return value.toInt();
+
+  if (value is String) {
+    final parsedDouble = double.tryParse(value);
+    return parsedDouble?.toInt() ?? 0;
+  }
+
+  return 0;
+}

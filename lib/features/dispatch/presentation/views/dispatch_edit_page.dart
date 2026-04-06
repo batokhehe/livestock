@@ -1,143 +1,125 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
+import 'package:livestock/core/widgets/section_card.dart';
+import 'package:livestock/features/dispatch/data/model/dispatch_list_model.dart';
+import 'package:livestock/features/dispatch/presentation/widgets/dispatch_item_double_card.dart';
 
-import '../../../../core/helpers/utils.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/card_wrapper.dart';
+import '../../../../core/widgets/info_item_card.dart';
 import '../../../../core/widgets/input_field_card.dart';
-import '../../../../core/widgets/product_header_card.dart';
-import '../../../../core/widgets/section_card.dart';
-import '../../../../core/widgets/step_info_card.dart';
 import '../../../../core/widgets/two_column_row_card.dart';
 import '../../data/model/dispatch_item_request_model.dart';
 import '../../dispatch_provider.dart';
 import '../widgets/add_item_bottom_sheet.dart';
 
-class AddDispatchStep2Page extends ConsumerStatefulWidget {
-  const AddDispatchStep2Page({super.key});
+class DispatchEditPage extends ConsumerStatefulWidget {
+  final int id;
+
+  const DispatchEditPage({super.key, required this.id});
 
   @override
-  ConsumerState<AddDispatchStep2Page> createState() =>
-      _AddDispatchStep2PageState();
+  ConsumerState<DispatchEditPage> createState() => _DispatchEditPageState();
 }
 
-class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
-  late final TextEditingController downPaymentController;
-  late final TextEditingController additionalCostController;
-
-  @override
-  void initState() {
-    super.initState();
-
-    downPaymentController = TextEditingController();
-    additionalCostController = TextEditingController();
-
-    downPaymentController.addListener(() {
-      final raw = downPaymentController.text.replaceAll('.', '');
-      final value = int.tryParse(raw) ?? 0;
-
-      ref.read(dispatchFormProvider.notifier).setDownPayment(value);
-    });
-
-    additionalCostController.addListener(() {
-      final raw = additionalCostController.text.replaceAll('.', '');
-      final value = int.tryParse(raw) ?? 0;
-
-      ref.read(dispatchFormProvider.notifier).setAdditionalCost(value);
-    });
-  }
-
-  @override
-  void dispose() {
-    downPaymentController.dispose();
-    additionalCostController.dispose();
-    super.dispose();
-  }
-
-  void _openAddItemSheet() async {
-    ref.read(soSearchProvider.notifier).state = '';
-
-    final result = await showModalBottomSheet<DispatchItemRequest>(
-      context: context,
-      isScrollControlled: false,
-      backgroundColor: AppColors.greyBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => const AddItemBottomSheet(),
-    );
-
-    if (result != null) {
-      ref.read(dispatchFormProvider.notifier).addItem(result);
-    }
-  }
+class _DispatchEditPageState extends ConsumerState<DispatchEditPage> {
+  bool isInit = false;
 
   @override
   Widget build(BuildContext context) {
+    final detailAsync = ref.watch(dispatchDetailProvider(widget.id));
+
+    return Scaffold(
+      body: detailAsync.when(
+        data: (detail) {
+          if (!isInit) {
+            Future.microtask(() {
+              ref.read(dispatchFormProvider.notifier).setFromDetail(detail);
+            });
+            isInit = true;
+          }
+
+          return _body(context, detail);
+        },
+        loading: () => const CircularProgressIndicator(),
+        error: (e, _) => Text("Error: $e"),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SizedBox(
+          height: 48,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: () {
+              /// nanti trigger update API
+            },
+            child: Text(
+              "Simpan Perubahan",
+              style: AppTypography.mediumBoldWhite,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _body(BuildContext context, DispatchList detail) {
     final request = ref.watch(dispatchFormProvider);
     final items = request.items ?? [];
 
-    return Scaffold(
-      backgroundColor: AppColors.greyBg,
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-        title: const Text(
-          "Tambah Pengiriman",
-          style: AppTypography.largeBoldBlack,
-        ),
-        leading: const BackButton(),
-      ),
-      body: Column(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: StepInfoCard(
-              title: "Informasi Pesanan Pengiriman",
-              step: 2,
-              totalStep: 3,
-            ),
+          _infoDispatch(detail),
+          const SizedBox(height: 12),
+          _infoItem(items), // 🔥 dari provider
+          const SizedBox(height: 12),
+          _summaryCard(
+            totalItem: items.length,
+            deliveryFee: request.totalShipping.toDouble(),
+            downPayment: (request.downPayment ?? 0).toDouble(),
+            additionalFee: (request.additionalCost ?? 0).toDouble(),
+            total: request.remainingPayment.toDouble(),
           ),
-
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                _infoItem(items),
-
-                if (items.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  _paymentDetail(),
-                ],
-              ],
-            ),
-          ),
-
-          const _NextButton(),
         ],
       ),
     );
   }
 
-  Widget _emptyState() {
-    return Center(
+  Widget _infoItem(List<DispatchItemRequest> items) {
+    return CardWrapper(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(AppImages.icNoItem),
-          SizedBox(height: 24),
-          Text(
-            "Belum Ada Item yang Ditambahkan",
-            style: AppTypography.mediumBoldBlack,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Informasi Hewan",
+                style: AppTypography.mediumNormalBlack,
+              ),
+              _addButtonSmall(),
+            ],
           ),
-          SizedBox(height: 4),
-          Text(
-            "Tambahkan minimal satu item untuk melanjutkan proses Pengiriman",
-            textAlign: TextAlign.center,
-            style: AppTypography.smallNormalGrey,
+          const SizedBox(height: 12),
+
+          ListView.builder(
+            itemCount: items.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (_, i) => _itemCard(items[i]),
           ),
         ],
       ),
@@ -201,11 +183,14 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
           ),
           const SizedBox(height: 12),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          TwoColumnRowCard(
-            leftValue: item.city,
-            leftLabel: "Kota Tujuan",
-            rightValue: item.dlvDate,
-            rightLabel: "Tanggal Kirim",
+          Padding(
+            padding: EdgeInsetsGeometry.symmetric(horizontal: 16),
+            child: TwoColumnRowCard(
+              leftValue: item.city,
+              leftLabel: "Kota Tujuan",
+              rightValue: item.dlvDate,
+              rightLabel: "Tanggal Kirim",
+            ),
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           Padding(
@@ -221,57 +206,6 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _iconAction({
-    required IconData icon,
-    required Color color,
-    required Color backColor,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: backColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, size: 16, color: color),
-      ),
-    );
-  }
-
-  Widget _infoItem(List<DispatchItemRequest> items) {
-    return CardWrapper(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Informasi Hewan",
-                style: AppTypography.mediumNormalBlack,
-              ),
-              _addButtonSmall(),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          if (items.isEmpty)
-            _emptyState()
-          else
-            ListView.builder(
-              itemCount: items.length,
-              shrinkWrap: true, // 🔥 WAJIB
-              physics: const NeverScrollableScrollPhysics(), // 🔥 WAJIB
-              itemBuilder: (_, i) => _itemCard(items[i]),
-            ),
         ],
       ),
     );
@@ -307,79 +241,125 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
     );
   }
 
-  Widget _paymentDetail() {
-    final dispatch = ref.watch(dispatchFormProvider);
+  Widget _iconAction({
+    required IconData icon,
+    required Color color,
+    required Color backColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: backColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, size: 16, color: color),
+      ),
+    );
+  }
 
+  void _openAddItemSheet() async {
+    ref.read(soSearchProvider.notifier).state = '';
+
+    final result = await showModalBottomSheet<DispatchItemRequest>(
+      context: context,
+      isScrollControlled: false,
+      backgroundColor: AppColors.greyBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => const AddItemBottomSheet(),
+    );
+
+    if (result != null) {
+      ref.read(dispatchFormProvider.notifier).addItem(result);
+    }
+  }
+
+  Widget _infoDispatch(DispatchList detail) {
+    return CardWrapper(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Informasi Pengiriman"),
+          const SizedBox(height: 12),
+          DispatchItemDoubleCard(item: detail),
+          InfoItemCard(
+            title: formatDateString(detail.dispatchDate),
+            subtitle: "Tanggal Pengiriman",
+          ),
+          const SizedBox(height: 12),
+          TextFields(
+            label: "Nomor Mobil",
+            hint: detail.vehicleNumber,
+            prefixIcon: AppImages.icCar,
+            enabled: false,
+          ),
+          TextFields(
+            label: "Nama Supir",
+            hint: detail.driverName,
+            prefixIcon: AppImages.icUser,
+            enabled: false,
+          ),
+          Dropdowns(label: "Status Pengiriman", value: "Status Pengiriman"),
+        ],
+      ),
+    );
+  }
+
+  /// =========================
+  /// SUMMARY CARD
+  /// =========================
+
+  Widget _summaryCard({
+    required int totalItem,
+    required double deliveryFee,
+    required double downPayment,
+    required double additionalFee,
+    required double total,
+  }) {
     return SectionCard(
-      title: "Rincian Biaya",
+      title: 'Rincian Bayar',
       children: [
-        TextFields(
-          label: "Uang Muka Pengiriman (Opsional)",
-          hint: "Masukkan uang muka",
-          prefixIcon: AppImages.icMoneyTime,
-          controller: downPaymentController,
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            CurrencyInputFormatter(),
-          ],
-        ),
-        TextFields(
-          label: "Biaya Tambahan (Opsional)",
-          hint: "Masukkan biaya tambahan",
-          prefixIcon: AppImages.icMoneyTime,
-          controller: additionalCostController,
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            CurrencyInputFormatter(),
-          ],
-        ),
         SectionCard(
           children: [
-            ProductHeaderCard(
-              title: "Rp. ${formatPrice(dispatch.remainingPayment)}",
-              subtitle: "Sisa pembayaran",
-              image: AppImages.icMoneyTime,
+            _rowSummary("Jumlah Item", totalItem.toString()),
+            _rowSummary("Total Biaya Kirim", formatPrice(deliveryFee)),
+            _rowSummary("Uang Muka Pengiriman", formatPrice(downPayment)),
+            _rowSummary("Biaya Tambahan", formatPrice(additionalFee)),
+            _rowSummary(
+              "Total Sisa Pembayaran",
+              formatPrice(total),
+              isBold: true,
             ),
           ],
         ),
       ],
     );
   }
-}
 
-class _NextButton extends ConsumerWidget {
-  const _NextButton();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final items = ref.watch(dispatchFormProvider).items ?? [];
-    final isEnabled = items.isNotEmpty;
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isEnabled
-                  ? AppColors.primary
-                  : AppColors.fieldBorder,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: isEnabled
-                ? () {
-                    context.push("/dispatch/add/confirmation");
-                  }
-                : null,
-            child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
+  Widget _rowSummary(String title, String value, {bool isBold = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: isBold
+                ? AppTypography.xSmallBoldBlack
+                : AppTypography.xSmallNormalBlack,
           ),
-        ),
+          Text(
+            value,
+            style: isBold
+                ? AppTypography.smallBoldPrimary
+                : AppTypography.smallBoldBlack,
+          ),
+        ],
       ),
     );
   }

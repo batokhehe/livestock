@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
+import 'package:livestock/features/dispatch/data/model/dispatch_list_model.dart';
 import 'package:livestock/features/dispatch/data/model/sales_order_dispatch_model.dart';
 
 import '../../core/network/dio_client.dart';
 import 'data/api/dispatch_api.dart';
 import 'data/model/dispatch_item_request_model.dart';
+import 'data/model/dispatch_lines_model.dart';
 import 'data/model/dispatch_request_model.dart';
 import 'data/repository/dispatch_repository.dart';
 
@@ -186,6 +188,24 @@ class DispatchFormNotifier extends StateNotifier<DispatchRequest> {
     state = DispatchRequest();
   }
 
+  void setFromDetail(DispatchList detail) {
+    final dp = int.tryParse(detail.downPayment) ?? 0;
+    final additional = int.tryParse(detail.additionalCost) ?? 0;
+
+    final items = detail.items.map((e) {
+      return e.toRequest(downPayment: dp, additionalCost: additional);
+    }).toList();
+
+    state = state.copyWith(
+      dispatchDate: DateTime.tryParse(detail.dispatchDate),
+      vehicleNumber: detail.vehicleNumber,
+      driverName: detail.driverName,
+      downPayment: dp,
+      additionalCost: additional,
+      items: items,
+    );
+  }
+
   /// =============================
   /// SUBMIT
   /// =============================
@@ -231,3 +251,11 @@ class SoSearchNotifier extends StateNotifier<String> {
     super.dispose();
   }
 }
+
+final dispatchDetailProvider = FutureProvider.family<DispatchList, int>((
+  ref,
+  id,
+) async {
+  final api = ref.read(dispatchApiProvider);
+  return api.getDispatchDetail(id);
+});

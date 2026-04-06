@@ -76,7 +76,7 @@ class DispatchItemDoubleCard extends StatelessWidget {
                       style: AppTypography.xSmallNormalBlack,
                     ),
                     Text(
-                      'Rp. ${formatPrice(int.tryParse(item.shippingCost) ?? 0)}',
+                      'Rp. ${formatPrice(double.tryParse(item.shippingCostTotal) ?? 0)}',
                       style: AppTypography.xSmallNormalBlack,
                     ),
                   ],

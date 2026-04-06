@@ -8,6 +8,7 @@ import 'package:livestock/features/attendance/presentation/views/employee_attend
 import 'package:livestock/features/attendance/presentation/views/employee_overnight_page.dart';
 import 'package:livestock/features/dashboard/presentation/views/dashboard_page.dart';
 import 'package:livestock/features/dispatch/presentation/views/add_dispatch_page.dart';
+import 'package:livestock/features/dispatch/presentation/views/dispatch_edit_page.dart';
 import 'package:livestock/features/dispatch/presentation/views/dispatch_page.dart';
 import 'package:livestock/features/home/presentation/views/home_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/add_monitoring_confirmation_page.dart';
@@ -25,11 +26,11 @@ import 'package:livestock/features/sales_order/data/model/sales_order_detail_mod
 import 'package:livestock/features/sales_order/presentation/views/add_sales_order_confirmation_page.dart';
 import 'package:livestock/features/sales_order/presentation/views/add_sales_order_page.dart';
 import 'package:livestock/features/sales_order/presentation/views/add_sales_order_step_2_page.dart';
-import 'package:livestock/features/sales_order/presentation/views/sales_order_page.dart';
 import 'package:livestock/features/sales_order/presentation/views/create_invoice/create_invoice_page.dart';
+import 'package:livestock/features/sales_order/presentation/views/edit_sales_order/edit_sales_order_confirmation_page.dart';
 import 'package:livestock/features/sales_order/presentation/views/edit_sales_order/edit_sales_order_page.dart';
 import 'package:livestock/features/sales_order/presentation/views/edit_sales_order/edit_sales_order_step_2_page.dart';
-import 'package:livestock/features/sales_order/presentation/views/edit_sales_order/edit_sales_order_confirmation_page.dart';
+import 'package:livestock/features/sales_order/presentation/views/sales_order_page.dart';
 import 'package:livestock/features/welcome_page.dart';
 
 import '../features/attendance/presentation/views/history_attendance_page.dart';
@@ -38,6 +39,7 @@ import '../features/auth/presentation/views/login_page.dart';
 import '../features/auth/providers/auth_provider.dart';
 import '../features/dispatch/presentation/views/add_dispatch_confirmation_page.dart';
 import '../features/dispatch/presentation/views/add_dispatch_step_2_page.dart';
+import '../features/dispatch/presentation/views/dispatch_detail_page.dart';
 import '../features/home/presentation/views/main_page.dart';
 import '../features/monitoring/presentation/views/add_monitoring_step_2_page.dart';
 import '../features/monitoring/presentation/views/monitoring_page.dart';
@@ -109,10 +111,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: "/",
         builder: (_, __) => MainPage(key: mainPageKey),
         routes: [
-          GoRoute(
-            path: 'dashboard',
-            builder: (_, __) => const DashboardPage(),
-          ),
+          GoRoute(path: 'dashboard', builder: (_, __) => const DashboardPage()),
           GoRoute(
             path: 'product',
             builder: (context, state) => const ProductPage(),
@@ -147,7 +146,8 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
               GoRoute(
                 path: 'add/confirmation',
-                builder: (context, state) => const AddReceivingConfirmationPage(),
+                builder: (context, state) =>
+                    const AddReceivingConfirmationPage(),
               ),
               GoRoute(
                 path: 'detail/:id',
@@ -192,7 +192,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               final String type = state.pathParameters['type']!;
               final String transDate = state.pathParameters['transdate']!;
 
-              return HistoryDetailAttendancePage(type: type, transDate: transDate);
+              return HistoryDetailAttendancePage(
+                type: type,
+                transDate: transDate,
+              );
             },
           ),
           GoRoute(
@@ -302,6 +305,20 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/dispatch/add/confirmation',
         builder: (context, state) => const AddDispatchConfirmationPage(),
+      ),
+      GoRoute(
+        path: '/dispatch/detail/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return DispatchDetailPage(id: id);
+        },
+      ),
+      GoRoute(
+        path: '/dispatch/edit/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return DispatchEditPage(id: id);
+        },
       ),
     ],
   );

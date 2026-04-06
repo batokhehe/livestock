@@ -62,4 +62,9 @@ class DispatchApi {
       );
     }
   }
+
+  Future<DispatchList> getDispatchDetail(int id) async {
+    final res = await dio.get('/inventory/dispatch/$id');
+    return DispatchList.fromJson(res.data['data']);
+  }
 }
