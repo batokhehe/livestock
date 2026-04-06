@@ -200,7 +200,9 @@ class _AddSalesOrderStep2PageState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Rp ${formatPrice(item.unitPrice ?? 0)}',
+                  useForecast
+                      ? 'Rp ${formatPrice(item.unitPrice ?? 0)}'
+                      : formatDateTime(item.dlvDate),
                   style: AppTypography.smallBoldBlack,
                 ),
                 Text(
@@ -214,7 +216,7 @@ class _AddSalesOrderStep2PageState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  useForecast ? 'Harga/kg Forecast' : 'Harga Jual',
+                  useForecast ? 'Harga/kg Forecast' : 'Tanggal Pengiriman',
                   style: AppTypography.xSmallNormalBlack,
                 ),
                 Text(

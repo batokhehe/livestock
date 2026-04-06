@@ -92,7 +92,20 @@ class _ProductPage extends ConsumerState<ProductPage> {
       ),
       body: dataAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text("Error $error")),
+        error: (error, _) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Error: $error", textAlign: TextAlign.center),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () => ref.invalidate(productDataProvider),
+                icon: const Icon(Icons.refresh),
+                label: const Text("Coba Lagi"),
+              ),
+            ],
+          ),
+        ),
         data: (data) {
           return Padding(
             padding: const EdgeInsets.all(16),
@@ -182,7 +195,7 @@ class _ProductPage extends ConsumerState<ProductPage> {
         ),
         const SizedBox(width: 8),
         _TabChip(
-          label: "Data Kelas",
+          label: "Data Sapi Qurban",
           selected: tab == ProductTab.grade,
           onTap: () =>
               ref.read(productTabProvider.notifier).state = ProductTab.grade,
