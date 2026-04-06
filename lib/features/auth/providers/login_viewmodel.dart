@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../app/providers.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/errors/error_parser.dart';
 import '../../user/providers/user_provider.dart';
@@ -27,6 +28,7 @@ class LoginViewModel extends StateNotifier<AsyncValue<void>> {
       }
       ref.read(authStateProvider.notifier).state = true;
       ref.invalidate(userProvider);
+      ref.invalidate(productDataProvider);
       state = const AsyncValue.data(null);
     } catch (e, st) {
       final err = ErrorParser.parse(e);

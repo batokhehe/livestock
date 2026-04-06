@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
+import '../../../../core/helpers/maintenance_helper.dart';
 import '../../../../core/theme/AppImages.dart';
 import 'menu_button_card.dart';
 
@@ -50,12 +50,16 @@ class QuickMenu extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (BuildContext context, int index) {
         final menu = _menus[index];
-        return MenuButton(
-          menu.image,
-          menu.label,
-          onTap: () => context.push(menu.route),
+        return Opacity(
+          opacity: 0.5,
+          child: MenuButton(
+            menu.image,
+            menu.label,
+            onTap: () => MaintenanceHelper.showMaintenanceSnackBar(context),
+          ),
         );
       },
     );
   }
 }
+

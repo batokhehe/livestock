@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livestock/core/helpers/maintenance_helper.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/features/dashboard/presentation/views/dashboard_page.dart';
@@ -96,11 +97,15 @@ class _CustomBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const enabledIndices = {0, 3};
     final List<Widget> items = List.generate(_navItems.length, (index) {
       final item = _navItems[index];
+      final isEnabled = enabledIndices.contains(item.pageIndex);
       return _buildNavItem(
+        context: context,
         item: item,
         isActive: currentIndex == item.pageIndex,
+        isEnabled: isEnabled,
         onTap: () => onTap(item.pageIndex),
       );
     });
@@ -164,18 +169,29 @@ class _CustomBottomNav extends StatelessWidget {
   }
 
   Widget _buildNavItem({
+    required BuildContext context,
     required _NavItemModel item,
     required bool isActive,
+    required bool isEnabled,
     required VoidCallback onTap,
   }) {
-    final color = isActive ? AppColors.primaryDark : Colors.grey;
+    final Color color;
+    if (!isEnabled) {
+      color = Colors.grey.shade300;
+    } else if (isActive) {
+      color = AppColors.primaryDark;
+    } else {
+      color = Colors.grey;
+    }
 
     return Expanded(
       child: Material(
         type: MaterialType.transparency,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
-          onTap: onTap,
+          onTap: isEnabled
+              ? onTap
+              : () => MaintenanceHelper.showMaintenanceSnackBar(context),
           borderRadius: BorderRadius.circular(10),
           child: Column(
             mainAxisSize: MainAxisSize.max,
