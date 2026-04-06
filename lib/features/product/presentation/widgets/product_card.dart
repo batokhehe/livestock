@@ -68,7 +68,7 @@ class ProductCard extends StatelessWidget {
             children: [
               _infoChip(age),
               _infoChip(weight),
-              _infoChip(refSalesPriceTotal),
+              // _infoChip(refSalesPriceTotal),
               _infoChip(location),
               if (farmArea != null) _infoChip(farmArea!.name),
             ],
