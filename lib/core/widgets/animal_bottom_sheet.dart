@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/core/widgets/search_bar_card.dart';
@@ -17,6 +18,8 @@ class AnimalBottomSheet extends ConsumerStatefulWidget {
 
 class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
   late final TextEditingController searchCtrl;
+  Timer? _debounce;
+  String _searchKeyword = '';
 
   @override
   void initState() {
@@ -26,15 +29,31 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     searchCtrl.dispose();
     super.dispose();
   }
 
+  void _onSearchChanged(String value) {
+    _debounce?.cancel();
+    if (value.length < 2 && value.isNotEmpty) return;
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() => _searchKeyword = value);
+    });
+  }
+
+  void _clearSearch() {
+    searchCtrl.clear();
+    _debounce?.cancel();
+    setState(() => _searchKeyword = '');
+  }
+
   @override
   Widget build(BuildContext context) {
-    final dataAsync = ref.watch(animalListProvider(widget.available));
+    final dataAsync = ref.watch(
+      animalListProvider((available: widget.available, search: _searchKeyword)),
+    );
     final selectedItem = ref.watch(selectedAnimalProvider);
-    final keyword = ref.watch(animalSearchProvider);
 
     return dataAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -46,9 +65,7 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
         ),
       ),
       data: (d) {
-        final filtered = d.data.where((e) {
-          return e.name.toLowerCase().contains(keyword.toLowerCase());
-        }).toList();
+        final filtered = d.data;
 
         return Padding(
           padding: const EdgeInsets.all(16),
@@ -81,13 +98,8 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
                 hint: "Cari hewan",
                 controller: searchCtrl,
                 resetPadding: true,
-                onChanged: (value) {
-                  ref.read(animalSearchProvider.notifier).state = value;
-                },
-                onClear: () {
-                  searchCtrl.clear();
-                  ref.read(animalSearchProvider.notifier).state = '';
-                },
+                onChanged: _onSearchChanged,
+                onClear: _clearSearch,
               ),
 
               const SizedBox(height: 24),

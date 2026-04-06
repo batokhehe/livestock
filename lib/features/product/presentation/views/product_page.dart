@@ -195,7 +195,7 @@ class _ProductPage extends ConsumerState<ProductPage> {
         ),
         const SizedBox(width: 8),
         _TabChip(
-          label: "Data Per Kelas",
+          label: "Data Sapi Qurban",
           selected: tab == ProductTab.grade,
           onTap: () =>
               ref.read(productTabProvider.notifier).state = ProductTab.grade,

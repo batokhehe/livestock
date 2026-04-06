@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/card_wrapper.dart';
 import 'package:livestock/core/widgets/product_header_card.dart';
+import 'package:livestock/features/product/data/product_provider_tab.dart';
+import 'package:livestock/features/product/data/product_tab.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/data/model/animal_profile_model.dart';
@@ -135,13 +136,15 @@ class _LocationInfoCard extends StatelessWidget {
   }
 }
 
-class _PriceInfoCard extends StatelessWidget {
+class _PriceInfoCard extends ConsumerWidget {
   final AnimalProfile data;
 
   const _PriceInfoCard({required this.data});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tab = ref.watch(productTabProvider);
+
     return _CardWrapper(
       title: "Informasi Harga",
       child: Padding(
@@ -156,19 +159,20 @@ class _PriceInfoCard extends StatelessWidget {
             ),
             SizedBox(height: 8),*/
             Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-            TwoColumnRowCard(
-              leftValue: 'Rp ${formatPrice(data.refSalesPrice)}',
-              leftLabel: "Ref Harga Jual (kg)",
-              rightValue: data.currentClassName ?? "-",
-              rightLabel: "Kelas Hewan",
-            ),
-            SizedBox(height: 8),
-            TwoColumnRowCard(
-              leftValue: 'Rp ${formatPrice(data.refSalesPriceTotal)}',
-              leftLabel: "Ref Harga Total",
-              rightValue: 'Rp ${formatPrice(data.currentClassPrice ?? 0)}',
-              rightLabel: "Harga Kelas",
-            ),
+            if (tab == ProductTab.product)
+              TwoColumnRowCard(
+                leftValue: 'Rp ${formatPrice(data.refSalesPrice)}',
+                leftLabel: "Ref Harga per KG",
+                rightValue: 'Rp ${formatPrice(data.refSalesPriceTotal)}',
+                rightLabel: "Ref Harga Total",
+              )
+            else
+              TwoColumnRowCard(
+                leftValue: data.currentClassName ?? "-",
+                leftLabel: "Kelas Hewan",
+                rightValue: 'Rp ${formatPrice(data.currentClassPrice ?? 0)}',
+                rightLabel: "Harga Kelas",
+              ),
           ],
         ),
       ),
