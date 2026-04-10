@@ -12,11 +12,11 @@ class SalesInvoiceDetailBottomSheet extends StatelessWidget {
   String _getPaymentStatus(String status) {
     switch (status) {
       case 'down_payment':
-        return 'Sebagian';
-      case 'paid':
-        return 'Lunas';
-      case 'unpaid':
-        return 'Belum Dibayar';
+        return 'Uang Muka';
+      case 'partial':
+        return 'Pembayaran Sebagian';
+      case 'full_payment':
+        return 'Pelunasan';
       default:
         return status;
     }
@@ -37,7 +37,10 @@ class SalesInvoiceDetailBottomSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Ringkasan Faktur", style: AppTypography.mediumBoldBlack),
+              const Text(
+                "Ringkasan Faktur",
+                style: AppTypography.mediumBoldBlack,
+              ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.close_rounded),
@@ -52,7 +55,10 @@ class SalesInvoiceDetailBottomSheet extends StatelessWidget {
           _buildInfoRow("Nama Pelanggan", invoice.customerName ?? '-'),
           _buildInfoRow("Tipe Pembayaran", invoice.paymentType ?? '-'),
           _buildInfoRow("Akun keuangan", invoice.coaName ?? '-'),
-          _buildInfoRow("Status pembayaran", _getPaymentStatus(invoice.paymentStatus)),
+          _buildInfoRow(
+            "Status pembayaran",
+            _getPaymentStatus(invoice.paymentStatus),
+          ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Divider(height: 1, thickness: 1, color: AppColors.greyBg),
@@ -97,7 +103,9 @@ class SalesInvoiceDetailBottomSheet extends StatelessWidget {
         children: [
           Text(
             label,
-            style: isBold ? AppTypography.smallBoldBlack : AppTypography.smallNormalBlack,
+            style: isBold
+                ? AppTypography.smallBoldBlack
+                : AppTypography.smallNormalBlack,
           ),
           Text(
             value,

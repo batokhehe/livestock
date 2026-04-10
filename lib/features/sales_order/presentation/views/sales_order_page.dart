@@ -77,7 +77,7 @@ class _SalesOrderPageState extends ConsumerState<SalesOrderPage> {
       body: Column(
         children: [
           SearchBarCard(
-            hint: 'Cari Apapun',
+            hint: 'Cari Penjualan',
             controller: searchCtrl,
             onChanged: _onSearchChanged,
             onClear: _clearSearch,
@@ -142,7 +142,7 @@ class _SalesOrderPageState extends ConsumerState<SalesOrderPage> {
           ),
         ],
       ),
-      bottomNavigationBar:  BottomButton(
+      bottomNavigationBar: BottomButton(
         text: 'Tambah Penjualan',
         onPressed: () {
           showSalesTypeBottomSheet(context);
@@ -207,7 +207,10 @@ class _SalesOrderPageState extends ConsumerState<SalesOrderPage> {
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.iconColor, width: 2),
+                        border: Border.all(
+                          color: AppColors.iconColor,
+                          width: 2,
+                        ),
                       ),
                       child: const Icon(Icons.close_rounded, size: 16),
                     ),

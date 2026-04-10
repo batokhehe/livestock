@@ -10,7 +10,12 @@ import '../theme/AppTypography.dart';
 
 class AnimalBottomSheet extends ConsumerStatefulWidget {
   final String? available;
-  const AnimalBottomSheet({super.key, this.available});
+  final List<int> excludedIds;
+  const AnimalBottomSheet({
+    super.key,
+    this.available,
+    this.excludedIds = const [],
+  });
 
   @override
   ConsumerState<AnimalBottomSheet> createState() => _AnimalBottomSheetState();
@@ -117,13 +122,20 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
                         itemCount: filtered.length,
                         itemBuilder: (_, i) {
                           final e = filtered[i];
+                          final isExcluded = widget.excludedIds.contains(e.id);
                           final isSelected = selectedItem?.id == e.id;
 
                           return GestureDetector(
-                            onTap: () {
-                              ref.read(selectedAnimalProvider.notifier).state =
-                                  e;
-                            },
+                            onTap: isExcluded
+                                ? null
+                                : () {
+                                    ref
+                                            .read(
+                                              selectedAnimalProvider.notifier,
+                                            )
+                                            .state =
+                                        e;
+                                  },
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 10),
                               padding: const EdgeInsets.all(14),
@@ -134,65 +146,72 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
                                       ? AppColors.primary
                                       : AppColors.fieldBorder,
                                 ),
-                                color: isSelected
-                                    ? AppColors.primary.withOpacity(0.08)
+                                color: isExcluded
+                                    ? AppColors.grey.withValues(alpha: 0.1)
+                                    : isSelected
+                                    ? AppColors.primary.withValues(alpha: 0.08)
                                     : Colors.white,
                               ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      spacing: 8.0,
-                                      children: [
-                                        Text(
-                                          e.animalCode,
-                                          overflow: TextOverflow.ellipsis,
+                              child: Opacity(
+                                opacity: isExcluded ? 0.5 : 1.0,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        spacing: 8.0,
+                                        children: [
+                                          Text(
+                                            e.animalCode,
+                                            overflow: TextOverflow.ellipsis,
 
-                                          style: isSelected
-                                              ? AppTypography.smallBoldPrimary
-                                              : AppTypography.smallBoldBlack,
-                                        ),
-                                        Text(
-                                          "${e.name} • ${e.weight.floor()} kg",
-                                          overflow: TextOverflow.ellipsis,
-                                          style: isSelected
-                                              ? AppTypography
-                                                    .xSmallNormalPrimary
-                                              : AppTypography.xSmallNormalBlack,
-                                        ),
-                                      ],
+                                            style: isSelected
+                                                ? AppTypography.smallBoldPrimary
+                                                : AppTypography.smallBoldBlack,
+                                          ),
+                                          Text(
+                                            "${e.name} • ${e.weight.floor()} kg",
+                                            overflow: TextOverflow.ellipsis,
+                                            style: isSelected
+                                                ? AppTypography
+                                                      .xSmallNormalPrimary
+                                                : AppTypography
+                                                      .xSmallNormalBlack,
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      spacing: 8.0,
-                                      children: [
-                                        _itemStatusBadge(e.available),
-                                        Text(
-                                          e.lastAdgDate?.toIndonesianDate() ??
-                                              '-',
-                                          overflow: TextOverflow.ellipsis,
-                                          style: isSelected
-                                              ? AppTypography
-                                                    .xSmallNormalPrimary
-                                              : AppTypography.xSmallNormalBlack,
-                                        ),
-                                      ],
+                                    Expanded(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        spacing: 8.0,
+                                        children: [
+                                          _itemStatusBadge(e.available),
+                                          Text(
+                                            e.lastAdgDate?.toIndonesianDate() ??
+                                                '-',
+                                            overflow: TextOverflow.ellipsis,
+                                            style: isSelected
+                                                ? AppTypography
+                                                      .xSmallNormalPrimary
+                                                : AppTypography
+                                                      .xSmallNormalBlack,
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           );
