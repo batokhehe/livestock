@@ -79,7 +79,7 @@ class SalesOrderDetailCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${item.items.isNotEmpty ? item.items.first.qty : 0} hewan • ${item.items.isNotEmpty ? (item.items.first.animalProfile?.name ?? item.items.first.item) : '-'}',
+                      '${item.items.length} hewan',
                       style: AppTypography.xSmallNormalBlack,
                     ),
                     Text(
@@ -106,7 +106,7 @@ class SalesOrderDetailCard extends StatelessWidget {
                 InfoTag(
                   label: item.items.isNotEmpty
                       ? (item.items.first.animalProfile?.animalGroup?.name ??
-                          '-')
+                            '-')
                       : '-',
                 ),
               ],

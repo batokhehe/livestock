@@ -251,6 +251,18 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                         hint: selectedAnimal?.name ?? "Pilih Hewan",
                         icon: AppImages.icProduct,
                         onTap: () async {
+                          ref.read(selectedAnimalProvider.notifier).state =
+                              selectedAnimal;
+
+                          final form = widget.isEdit
+                              ? ref.read(editSalesOrderFormProvider)
+                              : ref.read(salesOrderFormProvider);
+                          final excludedIds = form.items
+                                  ?.where((e) => e.animalProfile != null)
+                                  .map((e) => e.animalProfile!.id)
+                                  .toList() ??
+                              [];
+
                           final result =
                               await showModalBottomSheet<AnimalProfile>(
                                 context: context,
@@ -260,8 +272,9 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                                     top: Radius.circular(20),
                                   ),
                                 ),
-                                builder: (_) => const AnimalBottomSheet(
+                                builder: (_) => AnimalBottomSheet(
                                   available: 'available',
+                                  excludedIds: excludedIds,
                                 ),
                               );
 
