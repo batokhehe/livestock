@@ -84,6 +84,8 @@ class SalesOrderDetailPage extends ConsumerWidget {
                       subtotal: data.subtotal.toDouble(),
                       discount: data.discountTotal.toDouble(),
                       total: data.amountTotal.toDouble(),
+                      amountPaid: data.amountPaid.toDouble(),
+                      amountRemainder: data.amountRemainder.toDouble(),
                       formatCurrency: formatCurrency,
                     ),
                     const SizedBox(height: 12),
@@ -146,6 +148,8 @@ class SalesOrderDetailPage extends ConsumerWidget {
     required double subtotal,
     required double discount,
     required double total,
+    required double amountPaid,
+    required double amountRemainder,
     required String Function(double) formatCurrency,
   }) {
     return SectionCard(
@@ -160,6 +164,19 @@ class SalesOrderDetailPage extends ConsumerWidget {
               "Total Keseluruhan",
               formatCurrency(total),
               isBold: true,
+            ),
+            _rowSummary(
+              "Jumlah dibayar",
+              formatCurrency(amountPaid),
+              isBold: true,
+            ),
+            _rowSummary(
+              "Sisa Pembayaran",
+              formatCurrency(amountRemainder),
+              isBold: true,
+              valueColor: amountRemainder <= 0
+                  ? AppColors.emerald700
+                  : AppColors.danger,
             ),
           ],
         ),
@@ -339,7 +356,12 @@ class SalesOrderDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _rowSummary(String title, String value, {bool isBold = false}) {
+  Widget _rowSummary(
+    String title,
+    String value, {
+    bool isBold = false,
+    Color? valueColor,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -354,8 +376,8 @@ class SalesOrderDetailPage extends ConsumerWidget {
           Text(
             value,
             style: isBold
-                ? AppTypography.smallBoldPrimary
-                : AppTypography.smallBoldBlack,
+                ? AppTypography.smallBoldPrimary.copyWith(color: valueColor)
+                : AppTypography.smallBoldBlack.copyWith(color: valueColor),
           ),
         ],
       ),
