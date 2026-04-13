@@ -50,7 +50,12 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
         ),
       ),
       data: (d) {
-        final list = d;
+        final selectedItems = ref.watch(dispatchFormProvider).items ?? [];
+        final selectedIds = selectedItems.map((e) => e.orderId).toSet();
+        final list = d.where((item) {
+          return !selectedIds.contains(item.orderId);
+        }).toList();
+
         return Padding(
           padding: const EdgeInsets.all(16),
           child: Column(

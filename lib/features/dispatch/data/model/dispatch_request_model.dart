@@ -9,6 +9,7 @@ class DispatchRequest {
   final int? downPayment;
   final int? additionalCost;
   final int? shippingCostTotal;
+  final String? dispatchStatus;
   final FarmLocation? farmLocation;
   final List<DispatchItemRequest>? items;
 
@@ -21,6 +22,7 @@ class DispatchRequest {
     this.downPayment,
     this.additionalCost,
     this.shippingCostTotal,
+    this.dispatchStatus,
     this.items,
   });
 
@@ -33,6 +35,7 @@ class DispatchRequest {
     int? downPayment,
     int? additionalCost,
     int? shippingCostTotal,
+    String? dispatchStatus,
     List<DispatchItemRequest>? items,
   }) {
     return DispatchRequest(
@@ -44,6 +47,7 @@ class DispatchRequest {
       downPayment: downPayment ?? this.downPayment,
       additionalCost: additionalCost ?? this.additionalCost,
       shippingCostTotal: shippingCostTotal ?? this.shippingCostTotal,
+      dispatchStatus: dispatchStatus ?? this.dispatchStatus,
       items: items ?? this.items,
     );
   }
@@ -54,10 +58,12 @@ class DispatchRequest {
       "vehicle_number": vehicleNumber,
       "driver_name": driverName,
       "farm_location_id": farmLocationId,
-      "shipping_cost_total": shippingCostTotal, // ambil total items
+      "shipping_cost_total": shippingCostTotal,
+      // ambil total items
       "additional_cost": additionalCost,
       "down_payment": downPayment,
-      "dispatch_status": "ready", // ready , in_transit , delivered
+      "dispatch_status": dispatchStatus ?? "ready",
+      // ready , in_transit , delivered
       "remarks": "test created",
       "items": items?.map((e) => e.toJson()).toList(),
     };

@@ -42,6 +42,21 @@ extension DispatchTabX on DispatchTab {
   }
 }
 
+extension DispatchTabParser on DispatchTab {
+  static DispatchTab fromApi(String? value) {
+    switch (value) {
+      case 'ready':
+        return DispatchTab.ready;
+      case 'in_transit':
+        return DispatchTab.inTransit;
+      case 'delivered':
+        return DispatchTab.delivered;
+      default:
+        return DispatchTab.all;
+    }
+  }
+}
+
 enum DispatchSOTab { all, paid, unpaid }
 
 extension DispatchSOTabX on DispatchSOTab {
@@ -184,6 +199,10 @@ class DispatchFormNotifier extends StateNotifier<DispatchRequest> {
     state = state.copyWith(items: updated, shippingCostTotal: totalShipping);
   }
 
+  void setStatus(String status) {
+    state = state.copyWith(dispatchStatus: status);
+  }
+
   void reset() {
     state = DispatchRequest();
   }
@@ -202,6 +221,8 @@ class DispatchFormNotifier extends StateNotifier<DispatchRequest> {
       driverName: detail.driverName,
       downPayment: dp,
       additionalCost: additional,
+      farmLocationId: detail.farmLocationId,
+      dispatchStatus: detail.dispatchStatus,
       items: items,
     );
   }
@@ -218,6 +239,16 @@ class DispatchFormNotifier extends StateNotifier<DispatchRequest> {
     }
 
     await api.submitDispatch(state);
+  }
+
+  Future<void> updateDispatch(int id) async {
+    final api = ref.read(dispatchApiProvider);
+
+    if (state.items == null || state.items!.isEmpty) {
+      throw Exception("Item tidak boleh kosong");
+    }
+
+    await api.updateDispatch(state, id);
   }
 }
 
@@ -252,10 +283,8 @@ class SoSearchNotifier extends StateNotifier<String> {
   }
 }
 
-final dispatchDetailProvider = FutureProvider.family<DispatchList, int>((
-  ref,
-  id,
-) async {
-  final api = ref.read(dispatchApiProvider);
-  return api.getDispatchDetail(id);
-});
+final dispatchDetailProvider = FutureProvider.autoDispose
+    .family<DispatchList, int>((ref, id) async {
+      final api = ref.read(dispatchApiProvider);
+      return api.getDispatchDetail(id);
+    });

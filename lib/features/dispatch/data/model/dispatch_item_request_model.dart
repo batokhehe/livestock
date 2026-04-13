@@ -47,7 +47,6 @@ class DispatchItemRequest {
     required this.totalShippingCost,
     required this.salesOrderId,
     required this.salesOrderDetailId,
-
   });
 
   Map<String, dynamic> toJson() {
@@ -68,6 +67,7 @@ class DispatchItemRequest {
       "recipient_number": recipientNumber,
       "down_payment": downPayment,
       "additional_cost": additionalCost,
+      "shipping_cost": shippingCost,
       "total_shipping_cost": totalShippingCost,
       "sales_order_id": salesOrderId,
       "sales_order_detail_id": salesOrderDetailId,

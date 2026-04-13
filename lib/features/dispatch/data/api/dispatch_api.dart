@@ -63,6 +63,23 @@ class DispatchApi {
     }
   }
 
+  Future<void> updateDispatch(DispatchRequest request, int id) async {
+    final status = request.dispatchStatus;
+    final url = (status != null && status != 'ready')
+        ? "/inventory/dispatch/$id/${status.replaceAll('_', '-')}"
+        : "/inventory/dispatch/$id";
+
+    final res = await dio.put(url, data: request.toJson());
+
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+  }
+
   Future<DispatchList> getDispatchDetail(int id) async {
     final res = await dio.get('/inventory/dispatch/$id');
     return DispatchList.fromJson(res.data['data']);

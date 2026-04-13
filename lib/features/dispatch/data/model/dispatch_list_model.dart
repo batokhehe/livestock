@@ -8,6 +8,7 @@ class DispatchList {
   final String vehicleNumber;
   final String driverName;
   final String farmName;
+  final int? farmLocationId;
   final String dispatchStatus;
   final String createdBy;
   final String farmLocationName;
@@ -27,6 +28,7 @@ class DispatchList {
     required this.vehicleNumber,
     required this.driverName,
     required this.farmName,
+    this.farmLocationId,
     required this.dispatchStatus,
     required this.createdBy,
     required this.farmLocationName,
@@ -48,6 +50,7 @@ class DispatchList {
       vehicleNumber: json['vehicle_number'] ?? '',
       driverName: json['driver_name'] ?? '',
       farmName: json['farm_name'] ?? '',
+      farmLocationId: json['farm_location_id'] ?? 0,
       dispatchStatus: json['dispatch_status'] ?? '',
       createdBy: json['created_by'] ?? '',
       farmLocationName: json['farm_location_name'] ?? '',
