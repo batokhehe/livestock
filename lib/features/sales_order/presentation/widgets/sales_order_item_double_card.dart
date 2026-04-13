@@ -80,7 +80,7 @@ class SalesOrderItemDoubleCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${item.items.length} hewan • ${item.items.first.animalProfile?.animalCode}',
+                      '${item.items.length} hewan',
                       style: AppTypography.xSmallNormalBlack,
                     ),
                     Text(
@@ -99,17 +99,17 @@ class SalesOrderItemDoubleCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 InfoTag(label: item.customerName),
-                InfoTag(
-                  label: item.items.isNotEmpty
-                      ? '${item.items.first.animalProfile?.weight ?? '-'} kg'
-                      : '-',
-                ),
-                InfoTag(
-                  label: item.items.isNotEmpty
-                      ? (item.items.first.animalProfile?.animalGroup?.name ??
-                            '-')
-                      : '-',
-                ),
+                // InfoTag(
+                //   label: item.items.isNotEmpty
+                //       ? '${item.items.first.animalProfile?.weight ?? '-'} kg'
+                //       : '-',
+                // ),
+                // InfoTag(
+                //   label: item.items.isNotEmpty
+                //       ? (item.items.first.animalProfile?.animalGroup?.name ??
+                //             '-')
+                //       : '-',
+                // ),
               ],
             ),
           ),

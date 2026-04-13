@@ -155,7 +155,7 @@ class _ProductPage extends ConsumerState<ProductPage> {
       controller: searchCtrl,
       onChanged: _onSearchChanged,
       decoration: InputDecoration(
-        hintText: "Cari Apapun",
+        hintText: "Cari Hewan",
         hintStyle: TextStyle(
           color: AppColors.grey,
           fontSize: 13.0,

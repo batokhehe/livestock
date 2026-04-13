@@ -35,6 +35,7 @@ class AnimalProfile {
   final String? dispatchStatus;
   final String? vehicleNumber;
   final String? settlementStatus;
+  final String? salesOrderIdDetail;
 
   final String? lastAdgDate;
 
@@ -65,6 +66,7 @@ class AnimalProfile {
     this.dispatchStatus,
     this.vehicleNumber,
     this.settlementStatus,
+    this.salesOrderIdDetail,
     this.lastAdgDate,
   });
 
@@ -120,6 +122,7 @@ class AnimalProfile {
       dispatchStatus: json['dispatch_status'],
       vehicleNumber: json['vehicle_number'],
       settlementStatus: json['settlement_status'],
+      salesOrderIdDetail: json['sales_order_id_detail'],
       lastAdgDate: json['last_adg_date'],
     );
   }
@@ -158,6 +161,7 @@ class AnimalProfile {
       'dispatch_status': dispatchStatus,
       'vehicle_number': vehicleNumber,
       'settlement_status': settlementStatus,
+      'sales_order_id_detail': salesOrderIdDetail,
       "last_adg_date": lastAdgDate,
     };
   }

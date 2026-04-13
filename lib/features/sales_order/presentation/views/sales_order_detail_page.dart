@@ -88,7 +88,8 @@ class SalesOrderDetailPage extends ConsumerWidget {
                     ),
                     const SizedBox(height: 12),
                     invoiceListAsync.when(
-                      data: (invoices) => _invoiceListSection(context, invoices),
+                      data: (invoices) =>
+                          _invoiceListSection(context, invoices),
                       loading: () =>
                           const Center(child: CircularProgressIndicator()),
                       error: (e, s) => const SizedBox(),
@@ -230,7 +231,10 @@ class SalesOrderDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _invoiceListSection(BuildContext context, List<SalesInvoice> invoices) {
+  Widget _invoiceListSection(
+    BuildContext context,
+    List<SalesInvoice> invoices,
+  ) {
     if (invoices.isEmpty) return const SizedBox();
     return SectionCard(
       title: 'Daftar Nota',
@@ -238,10 +242,7 @@ class SalesOrderDetailPage extends ConsumerWidget {
           .map(
             (inv) => Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: _invoiceItem(
-                context,
-                inv,
-              ),
+              child: _invoiceItem(context, inv),
             ),
           )
           .toList(),
@@ -281,51 +282,62 @@ class SalesOrderDetailPage extends ConsumerWidget {
                 ],
               ),
             ),
-          Consumer(
-            builder: (context, ref, _) {
-              final progress = ref.watch(invoiceDownloadProgressProvider(inv.id));
+            Consumer(
+              builder: (context, ref, _) {
+                final progress = ref.watch(
+                  invoiceDownloadProgressProvider(inv.id),
+                );
 
-              return ElevatedButton(
-                onPressed: progress > 0
-                    ? null
-                    : () async {
-                        try {
-                          final path = await ref
-                              .read(invoiceDownloaderProvider)
-                              .downloadInvoice(inv.id, "${inv.invoiceId}.pdf");
-                          if (path != null) {
-                            // Use open_filex for direct preview
-                            await OpenFilex.open(path);
+                return ElevatedButton(
+                  onPressed: progress > 0
+                      ? null
+                      : () async {
+                          try {
+                            final path = await ref
+                                .read(invoiceDownloaderProvider)
+                                .downloadInvoice(
+                                  inv.id,
+                                  "${inv.invoiceId}.pdf",
+                                );
+                            if (path != null) {
+                              // Use open_filex for direct preview
+                              await OpenFilex.open(path);
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("Gagal mengunduh: $e")),
+                              );
+                            }
                           }
-                        } catch (e) {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Gagal mengunduh: $e")),
-                            );
-                          }
-                        }
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFF7E6),
-                  foregroundColor: AppColors.primary,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFF7E6),
+                    foregroundColor: AppColors.primary,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                ),
-                child: Text(
-                  progress > 0 ? "${(progress * 100).toInt()}%" : "Unduh",
-                  style: AppTypography.xSmallBoldPrimary,
-                ),
-              );
-            },
-          ),
-        ],
+                  child: Text(
+                    progress > 0 ? "${(progress * 100).toInt()}%" : "Unduh",
+                    style: AppTypography.xSmallBoldPrimary,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 8),
+            const Icon(
+              Icons.navigate_next_rounded,
+              color: AppColors.iconColor,
+              size: 20,
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _rowSummary(String title, String value, {bool isBold = false}) {
     return Padding(

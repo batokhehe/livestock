@@ -192,7 +192,7 @@ class _AnotherInfoCard extends StatelessWidget {
         equalsIgnoreCase(data.salesOrderCustomerName, '-');
 
     return _CardWrapper(
-      title: "Informasi Lainnya",
+      title: "Informasi Penjualan",
       child: hasNoData
           ? const Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
@@ -217,7 +217,31 @@ class _AnotherInfoCard extends StatelessWidget {
                     isActive: false,
                   ),
                 ),
-                Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+                _divider(),
+                _buildInfoItem(
+                  title: _getDispatchStatusLabel(data.dispatchStatus),
+                  subtitle: "Status Pengiriman",
+                  image: AppImages.icTruckFastSvg,
+                ),
+                _divider(),
+                _buildInfoItem(
+                  title: data.vehicleNumber ?? "-",
+                  subtitle: "Nomor Kendaraan",
+                  image: AppImages.icCar,
+                ),
+                _divider(),
+                _buildInfoItem(
+                  title: _getSettlementStatusLabel(data.settlementStatus),
+                  subtitle: "Status Pelunasan",
+                  image: AppImages.icWalletCheck,
+                ),
+                _divider(),
+                _buildInfoItem(
+                  title: data.salesOrderIdDetail ?? "-",
+                  subtitle: "Nomor Pesanan",
+                  image: AppImages.icReceipt,
+                ),
+                _divider(),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16.0,
@@ -233,6 +257,51 @@ class _AnotherInfoCard extends StatelessWidget {
               ],
             ),
     );
+  }
+
+  Widget _divider() =>
+      Divider(height: 1, thickness: 1, color: AppColors.fieldBorder);
+
+  Widget _buildInfoItem({
+    required String title,
+    required String subtitle,
+    required String image,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      child: ProductHeaderCard(
+        title: title,
+        subtitle: subtitle,
+        image: image,
+        isActive: false,
+      ),
+    );
+  }
+
+  String _getDispatchStatusLabel(String? status) {
+    switch (status) {
+      case 'in_transit':
+        return 'Sedang Dikirim';
+      case 'delivered':
+        return 'Selesai Dikirim';
+      case 'ready':
+        return 'Siap Dikirim';
+      default:
+        return '-';
+    }
+  }
+
+  String _getSettlementStatusLabel(String? status) {
+    switch (status) {
+      case 'not_settled':
+        return 'Belum Lunas';
+      case 'settled':
+        return 'Lunas';
+      case 'not_sold':
+        return 'Belum Terjual';
+      default:
+        return '-';
+    }
   }
 }
 
