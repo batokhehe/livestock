@@ -15,6 +15,7 @@ class UserRepository {
   static const _keyUser = "user_profile";
 
   Future<void> saveUser(UserModel user) async {
+    print(user.permissions);
     await storage.write(key: _keyUser, value: jsonEncode(user.toJson()));
   }
 

@@ -4,6 +4,7 @@ class UserModel {
   final int roleId;
   final String roleName;
   final int? farmLocationId;
+  final List<String> permissions;
 
   UserModel({
     required this.name,
@@ -11,6 +12,7 @@ class UserModel {
     required this.roleId,
     required this.roleName,
     this.farmLocationId,
+    required this.permissions,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class UserModel {
       roleId: _parseInt(json['role_id']) ?? 0,
       roleName: (json['role_name'] ?? '').toString(),
       farmLocationId: _parseInt(json['farm_location_id']),
+      permissions: List<String>.from(json['permissions'] ?? []),
     );
   }
 
@@ -30,6 +33,7 @@ class UserModel {
       "role_id": roleId,
       "role_name": roleName,
       "farm_location_id": farmLocationId,
+      "permissions": permissions,
     };
   }
 
@@ -38,5 +42,9 @@ class UserModel {
     if (value is int) return value;
     if (value is String) return int.tryParse(value);
     return null;
+  }
+
+  bool hasPermission(String key) {
+    return permissions.contains(key);
   }
 }
