@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../../core/helpers/maintenance_helper.dart';
 import '../../../user/providers/user_provider.dart';
 
 import '../../../../core/theme/AppImages.dart';
@@ -65,18 +63,10 @@ class QuickMenu extends ConsumerWidget {
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (BuildContext context, int index) {
             final menu = menus[index];
-            /*return MenuButton(
+            return MenuButton(
               menu.image,
               menu.label,
               onTap: () => context.push(menu.route),
-            );*/
-            return Opacity(
-              opacity: 0.5,
-              child: MenuButton(
-                menu.image,
-                menu.label,
-                onTap: () => MaintenanceHelper.showMaintenanceSnackBar(context),
-              ),
             );
           },
         );
