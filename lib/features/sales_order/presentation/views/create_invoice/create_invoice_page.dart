@@ -523,6 +523,61 @@ class _CreateInvoicePageState extends ConsumerState<CreateInvoicePage> {
     );
   }
 
+  Widget _buildSelectionCard({
+    required String title,
+    String? subtitle,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected
+                  ? AppColors.primary
+                  : AppColors.fieldBorder.withValues(alpha: 0.5),
+              width: isSelected ? 1.5 : 1.0,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTypography.smallBoldBlack.copyWith(
+                        color: isSelected ? AppColors.primary : null,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 4),
+                      Text(subtitle, style: AppTypography.xSmallNormalGrey),
+                    ],
+                  ],
+                ),
+              ),
+              if (isSelected)
+                const Icon(
+                  Icons.check_circle,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showDatePicker() async {
     final pickedDate = await showModalBottomSheet<DateTime?>(
       context: context,
@@ -549,27 +604,35 @@ class _CreateInvoicePageState extends ConsumerState<CreateInvoicePage> {
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Pilih Status Pembayaran",
-                  style: AppTypography.mediumBoldBlack,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: const Text(
+                    "Pilih Status Pembayaran",
+                    style: AppTypography.mediumBoldBlack,
+                  ),
                 ),
                 const SizedBox(height: 16),
-                ...statusList.map(
-                  (status) => ListTile(
-                    title: Text(
-                      status['label']!,
-                      style: AppTypography.smallNormalBlack,
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ...statusList.map((status) {
+                          final isSelected =
+                              ref
+                                  .read(salesInvoiceFormProvider)
+                                  .paymentStatus ==
+                              status['value'];
+                          return _buildSelectionCard(
+                            title: status['label']!,
+                            isSelected: isSelected,
+                            onTap: () => Navigator.pop(context, status),
+                          );
+                        }),
+                      ],
                     ),
-                    onTap: () => Navigator.pop(context, status),
-                    trailing:
-                        ref.read(salesInvoiceFormProvider).paymentStatus ==
-                            status['value']
-                        ? const Icon(
-                            Icons.check_circle,
-                            color: AppColors.primary,
-                          )
-                        : null,
                   ),
                 ),
               ],
@@ -605,30 +668,37 @@ class _CreateInvoicePageState extends ConsumerState<CreateInvoicePage> {
                   padding: const EdgeInsets.symmetric(vertical: 24),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Pilih Tipe Pembayaran",
-                        style: AppTypography.mediumBoldBlack,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: const Text(
+                          "Pilih Tipe Pembayaran",
+                          style: AppTypography.mediumBoldBlack,
+                        ),
                       ),
                       const SizedBox(height: 16),
-                      if (types.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Text("Tidak ada data tipe pembayaran"),
-                        ),
-                      ...types.map(
-                        (type) => ListTile(
-                          title: Text(
-                            type.name,
-                            style: AppTypography.smallNormalBlack,
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (types.isEmpty)
+                                const Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Text("Tidak ada data tipe pembayaran"),
+                                ),
+                              ...types.map((type) {
+                                final isSelected =
+                                    invoiceState.paymentType?.id == type.id;
+                                return _buildSelectionCard(
+                                  title: type.name,
+                                  isSelected: isSelected,
+                                  onTap: () => Navigator.pop(context, type),
+                                );
+                              }),
+                            ],
                           ),
-                          onTap: () => Navigator.pop(context, type),
-                          trailing: invoiceState.paymentType?.id == type.id
-                              ? const Icon(
-                                  Icons.check_circle,
-                                  color: AppColors.primary,
-                                )
-                              : null,
                         ),
                       ),
                     ],
@@ -673,35 +743,39 @@ class _CreateInvoicePageState extends ConsumerState<CreateInvoicePage> {
                   padding: const EdgeInsets.symmetric(vertical: 24),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Pilih Akun Keuangan",
-                        style: AppTypography.mediumBoldBlack,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: const Text(
+                          "Pilih Akun Keuangan",
+                          style: AppTypography.mediumBoldBlack,
+                        ),
                       ),
                       const SizedBox(height: 16),
-                      if (accounts.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Text("Tidak ada data akun keuangan"),
-                        ),
-                      ...accounts.map(
-                        (account) => ListTile(
-                          title: Text(
-                            account.name,
-                            style: AppTypography.smallNormalBlack,
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (accounts.isEmpty)
+                                const Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Text("Tidak ada data akun keuangan"),
+                                ),
+                              ...accounts.map((account) {
+                                final isSelected =
+                                    invoiceState.chartOfAccount?.id ==
+                                    account.id;
+                                return _buildSelectionCard(
+                                  title: account.name,
+                                  subtitle: account.code,
+                                  isSelected: isSelected,
+                                  onTap: () => Navigator.pop(context, account),
+                                );
+                              }),
+                            ],
                           ),
-                          subtitle: Text(
-                            account.code,
-                            style: AppTypography.xSmallNormalGrey,
-                          ),
-                          onTap: () => Navigator.pop(context, account),
-                          trailing:
-                              invoiceState.chartOfAccount?.id == account.id
-                              ? const Icon(
-                                  Icons.check_circle,
-                                  color: AppColors.primary,
-                                )
-                              : null,
                         ),
                       ),
                     ],

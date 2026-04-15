@@ -19,7 +19,13 @@ import '../../sales_order_provider.dart';
 import '../widgets/sales_order_detail_card.dart';
 import 'package:livestock/features/sales_order/data/model/sales_invoice_model.dart';
 import '../widgets/sales_invoice_detail_bottom_sheet.dart';
+import '../widgets/cancel_sales_invoice_bottom_sheet.dart';
 import 'invoice_downloader_provider.dart';
+import 'package:livestock/features/receiving/presentation/widgets/confirmation_bottom_sheet.dart';
+
+import 'dart:convert';
+import 'package:dio/dio.dart';
+import '../../../../core/widgets/success_notification.dart';
 
 class SalesOrderDetailPage extends ConsumerWidget {
   final int id;
@@ -135,8 +141,8 @@ class SalesOrderDetailPage extends ConsumerWidget {
           InfoItemCard(
             label: 'Nama Penerima:',
             icon: AppImages.icDirectBoxReceive,
-            title: data.recipientName ?? '-',
-            subtitle: data.recipientNumber ?? '-',
+            title: data.recipientName,
+            subtitle: data.recipientNumber,
           ),
         ],
       ),
@@ -266,6 +272,19 @@ class SalesOrderDetailPage extends ConsumerWidget {
     );
   }
 
+  String _getPaymentStatus(String status) {
+    switch (status) {
+      case 'down_payment':
+        return 'Uang Muka';
+      case 'partial':
+        return 'Pembayaran Sebagian';
+      case 'full_payment':
+        return 'Pelunasan';
+      default:
+        return status;
+    }
+  }
+
   Widget _invoiceItem(BuildContext context, SalesInvoice inv) {
     return InkWell(
       onTap: () {
@@ -282,7 +301,9 @@ class SalesOrderDetailPage extends ConsumerWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.fieldBorder.withOpacity(0.5)),
+          border: Border.all(
+            color: AppColors.fieldBorder.withValues(alpha: 0.5),
+          ),
         ),
         child: Row(
           children: [
@@ -296,53 +317,211 @@ class SalesOrderDetailPage extends ConsumerWidget {
                     formatDateString(inv.invoiceDate),
                     style: AppTypography.xSmallNormalGrey,
                   ),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: inv.paymentStatus == 'canceled'
+                          ? AppColors.danger.withValues(alpha: 0.1)
+                          : const Color(0xFFFFF7E6),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _getPaymentStatus(inv.paymentStatus).toUpperCase(),
+                      style: inv.paymentStatus == 'canceled'
+                          ? AppTypography.xSmallBoldBlack.copyWith(
+                              color: AppColors.danger,
+                              fontSize: 10,
+                            )
+                          : AppTypography.xSmallBoldPrimary.copyWith(
+                              fontSize: 10,
+                            ),
+                    ),
+                  ),
                 ],
               ),
             ),
-            Consumer(
-              builder: (context, ref, _) {
-                final progress = ref.watch(
-                  invoiceDownloadProgressProvider(inv.id),
-                );
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Consumer(
+                  builder: (context, ref, _) {
+                    final progress = ref.watch(
+                      invoiceDownloadProgressProvider(inv.id),
+                    );
 
-                return ElevatedButton(
-                  onPressed: progress > 0
-                      ? null
-                      : () async {
-                          try {
-                            final path = await ref
-                                .read(invoiceDownloaderProvider)
-                                .downloadInvoice(
-                                  inv.id,
-                                  "${inv.invoiceId}.pdf",
+                    return ElevatedButton(
+                      onPressed: progress > 0
+                          ? null
+                          : () async {
+                              try {
+                                final path = await ref
+                                    .read(invoiceDownloaderProvider)
+                                    .downloadInvoice(
+                                      inv.id,
+                                      "${inv.invoiceId}.pdf",
+                                    );
+                                if (path != null) {
+                                  // Use open_filex for direct preview
+                                  await OpenFilex.open(path);
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text("Gagal mengunduh: $e"),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFFF7E6),
+                        foregroundColor: AppColors.primary,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        minimumSize: const Size(120, 32),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        progress > 0 ? "${(progress * 100).toInt()}%" : "Unduh",
+                        style: AppTypography.xSmallBoldPrimary,
+                      ),
+                    );
+                  },
+                ),
+                if (inv.paymentStatus != 'canceled') ...[
+                  const SizedBox(height: 8),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      return ElevatedButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            backgroundColor: Colors.white,
+                            isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
+                              ),
+                            ),
+                            builder: (sheetCtx) => CancelSalesInvoiceBottomSheet(
+                              onConfirm: (account) async {
+                                if (account == null) return;
+
+                                final isOk = await showModalBottomSheet<bool>(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (_) => const ConfirmationBottomSheet(
+                                    header: "Konfirmasi Pembatalan",
+                                    title: "Batalkan Nota?",
+                                    subTitle:
+                                        "Apakah Anda yakin ingin membatalkan nota ini?",
+                                    saveText: "Ya",
+                                  ),
                                 );
-                            if (path != null) {
-                              // Use open_filex for direct preview
-                              await OpenFilex.open(path);
-                            }
-                          } catch (e) {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Gagal mengunduh: $e")),
-                              );
-                            }
-                          }
+
+                                if (isOk != true) return;
+
+                                try {
+                                  final payload = {
+                                    "status": "canceled",
+                                    "payment_status": "canceled",
+                                    "amount_paid": inv.amountPaid,
+                                    "amount_total": inv.amountTotal,
+                                    "payment_type": inv.paymentType ?? "cash",
+                                    "sales_order_id": inv.salesOrderId,
+                                    "chart_of_account_id": "", //kosongkan
+                                    "chart_of_account_id_reversed": account.id
+                                        .toString(),
+                                    "bank_account_id": "", //kosongkan
+                                  };
+
+                                  await ref
+                                      .read(salesOrderApiProvider)
+                                      .cancelSalesInvoice(inv.id, payload);
+
+                                  if (context.mounted) {
+                                    SuccessNotification.show(
+                                      title: "Berhasil",
+                                      subtitle: "Nota berhasil dibatalkan",
+                                    );
+                                    ref.invalidate(
+                                      salesInvoiceListProvider(id),
+                                    );
+                                    ref.invalidate(
+                                      salesOrderDetailProvider(id),
+                                    );
+                                  }
+                                } on DioException catch (e) {
+                                  if (context.mounted) {
+                                    String? msg;
+                                    final rd = e.response?.data;
+                                    if (rd is Map) {
+                                      msg = rd['message'];
+                                    } else if (rd is String) {
+                                      try {
+                                        final parsed = jsonDecode(rd);
+                                        if (parsed is Map) {
+                                          msg = parsed['message'];
+                                        }
+                                      } catch (_) {}
+                                    }
+
+                                    final errorMessage =
+                                        msg ??
+                                        e.message ??
+                                        "Gagal membatalkan nota";
+
+                                    SuccessNotification.show(
+                                      title: "Peringatan",
+                                      subtitle: errorMessage.toString(),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    SuccessNotification.show(
+                                      title: "Peringatan",
+                                      subtitle: "Gagal membatalkan nota: $e",
+                                    );
+                                  }
+                                }
+                              },
+                            ),
+                          );
                         },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFF7E6),
-                    foregroundColor: AppColors.primary,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.danger.withValues(
+                            alpha: 0.1,
+                          ),
+                          foregroundColor: AppColors.danger,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          minimumSize: const Size(120, 32),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          "Batalkan Nota",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.danger,
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                  child: Text(
-                    progress > 0 ? "${(progress * 100).toInt()}%" : "Unduh",
-                    style: AppTypography.xSmallBoldPrimary,
-                  ),
-                );
-              },
+                ],
+              ],
             ),
             const SizedBox(width: 8),
             const Icon(
