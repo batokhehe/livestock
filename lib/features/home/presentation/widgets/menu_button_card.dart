@@ -26,12 +26,19 @@ class MenuButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SvgPicture.asset(
-                image,
-                fit: BoxFit.contain,
-                width: 24,
-                height: 24,
-              ),
+              image.endsWith('.svg')
+                  ? SvgPicture.asset(
+                      image,
+                      fit: BoxFit.contain,
+                      width: 24,
+                      height: 24,
+                    )
+                  : Image.asset(
+                      image,
+                      fit: BoxFit.contain,
+                      width: 24,
+                      height: 24,
+                    ),
               const SizedBox(height: 6),
               Text(
                 label,
