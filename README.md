@@ -1,17 +1,43 @@
-# livestock_new
+# Livestock
 
-A new Flutter project.
+A Flutter project for livestock management, built with Clean Architecture and Riverpod.
+
+## Environment Info
+- **Flutter Version:** 3.35.5 (Stable)
+- **Dart Version:** 3.9.2
+- **State Management:** Riverpod (`flutter_riverpod`)
+- **Architecture:** Clean Architecture
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+1.  **Dependencies**: Run `flutter pub get`
+2.  **Environment**: Ensure you are using Flutter 3.35.5
+3.  **Run**: `flutter run`
 
-A few resources to get you started if this is your first Flutter project:
+## Release Guidance (Android)
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+This project is configured to upload releases directly to **Firebase App Distribution**.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 1. Preparation
+Ensure the following files are present in the `android/` directory (these are usually not tracked by Git):
+- `local.properties`: Must include `firebaseAppId`.
+- `key.properties`: Android signing configuration.
+- `livestock-keystore.jks`: The signing keystore file.
+- `app-distribution-key.json`: Firebase Service Account credentials.
+- `release-notes.txt`: Content for the release notes in App Distribution.
+
+### 2. Release Command
+Run the following command from the root directory to build and upload:
+
+```bash
+./gradlew -p android assembleRelease appDistributionUploadRelease
+```
+
+Or navigate to the android directory:
+```bash
+cd android
+./gradlew assembleRelease appDistributionUploadRelease
+```
+
+> [!IMPORTANT]
+> Make sure `firebaseAppId` in `local.properties` matches your Firebase Project App ID.
