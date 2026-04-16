@@ -3,9 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/features/home/presentation/widgets/other_menu_button_card.dart';
 
-import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppImages.dart';
-import '../../../../core/theme/AppTypography.dart';
 import '../../../user/providers/user_provider.dart';
 import 'employee_attendance_bottom_sheet.dart';
 
@@ -19,6 +17,16 @@ class OtherMenuItem {
 
 class OtherMenu extends ConsumerWidget {
   const OtherMenu({super.key});
+
+  static const List<OtherMenuItem> _menus = [
+    OtherMenuItem(image: AppImages.icClipboardSvg, label: 'Pemantauan'),
+    OtherMenuItem(image: AppImages.icShareSvg, label: 'Pemindahan'),
+    OtherMenuItem(image: AppImages.icTruckFastSvg, label: 'Pengiriman'),
+    OtherMenuItem(
+      image: AppImages.icCalendarSearchSvg,
+      label: 'Absensi Pekerja',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

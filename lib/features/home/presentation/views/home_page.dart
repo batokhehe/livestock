@@ -7,7 +7,6 @@ import 'package:livestock/features/home/presentation/widgets/swipe_indicator.dar
 import '../widgets/other_menu_card.dart';
 import '../widgets/quick_menu_card.dart';
 import '../widgets/stock_card.dart';
-import '../widgets/summary_card.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

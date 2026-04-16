@@ -11,6 +11,9 @@ import 'home_page.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/home_navigation_provider.dart';
+import '../../../user/providers/user_provider.dart';
+import '../../../../core/helpers/maintenance_helper.dart';
+import '../../../user/domain/user_model.dart';
 
 class MainPage extends ConsumerStatefulWidget {
   final bool showFinishSnackBar;
@@ -42,13 +45,28 @@ class MainPageState extends ConsumerState<MainPage> {
   @override
   Widget build(BuildContext context) {
     final currentIndex = ref.watch(mainNavIndexProvider);
-    return Scaffold(
-      body: pages[currentIndex],
-      backgroundColor: AppColors.baseBackground,
-      bottomNavigationBar: _CustomBottomNav(
-        currentIndex: currentIndex,
-        onTap: changeTab,
+    final userAsync = ref.watch(userProvider);
+
+    return userAsync.when(
+      loading: () => const Scaffold(
+        backgroundColor: AppColors.baseBackground,
+        body: Center(child: CircularProgressIndicator()),
       ),
+      error: (e, s) => Scaffold(
+        backgroundColor: AppColors.baseBackground,
+        body: Center(child: Text("Error: $e")),
+      ),
+      data: (user) {
+        return Scaffold(
+          body: pages[currentIndex],
+          backgroundColor: AppColors.baseBackground,
+          bottomNavigationBar: _CustomBottomNav(
+            currentIndex: currentIndex,
+            user: user,
+            onTap: changeTab,
+          ),
+        );
+      },
     );
   }
 }
@@ -68,8 +86,13 @@ class _NavItemModel {
 class _CustomBottomNav extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
+  final UserModel? user;
 
-  const _CustomBottomNav({required this.currentIndex, required this.onTap});
+  const _CustomBottomNav({
+    required this.currentIndex,
+    required this.onTap,
+    this.user,
+  });
 
   static const List<_NavItemModel> _navItems = [
     _NavItemModel(
@@ -101,7 +124,19 @@ class _CustomBottomNav extends StatelessWidget {
       return _buildNavItem(
         item: item,
         isActive: currentIndex == item.pageIndex,
-        onTap: () => onTap(item.pageIndex),
+        onTap: () {
+          if (item.pageIndex == 1 &&
+              !(user?.hasPermission('feedmonitoring-read') ?? false)) {
+            MaintenanceHelper.showMaintenanceSnackBar(context);
+            return;
+          }
+          if (item.pageIndex == 2 &&
+              !(user?.hasPermission('users-read') ?? false)) {
+            MaintenanceHelper.showMaintenanceSnackBar(context);
+            return;
+          }
+          onTap(item.pageIndex);
+        },
       );
     });
 
@@ -127,7 +162,13 @@ class _CustomBottomNav extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         child: Center(
           child: InkWell(
-            onTap: () => context.push('/product'),
+            onTap: () {
+              if (!(user?.hasPermission('animalprofile-read') ?? false)) {
+                MaintenanceHelper.showMaintenanceSnackBar(context);
+                return;
+              }
+              context.push('/product');
+            },
             borderRadius: BorderRadius.circular(10),
             child: Container(
               width: 42,
@@ -137,7 +178,7 @@ class _CustomBottomNav extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.45),
+                    color: AppColors.primary.withValues(alpha: 0.45),
                     blurRadius: 8,
                     spreadRadius: 2,
                     offset: const Offset(0, 2),

@@ -43,15 +43,22 @@ class InfoItemCard extends StatelessWidget {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(8),
-                  child: SvgPicture.asset(
-                    icon!,
-                    width: 20,
-                    height: 20,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.primary,
-                      BlendMode.srcIn,
-                    ),
-                  ),
+                  child: icon!.endsWith('.svg')
+                      ? SvgPicture.asset(
+                          icon!,
+                          width: 20,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.primary,
+                            BlendMode.srcIn,
+                          ),
+                        )
+                      : Image.asset(
+                          icon!,
+                          width: 20,
+                          height: 20,
+                          color: AppColors.primary,
+                        ),
                 ),
               ),
               const SizedBox(width: 12),

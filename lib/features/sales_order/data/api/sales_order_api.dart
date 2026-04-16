@@ -9,7 +9,6 @@ import '../model/sales_order_request_model.dart';
 import 'package:livestock/core/data/model/payment_type_model.dart';
 import 'package:livestock/core/data/model/chart_of_account_model.dart';
 
-
 class SalesOrderApi {
   final Dio dio;
 
@@ -133,6 +132,7 @@ class SalesOrderApi {
     final List list = data is Map ? data['data'] : data;
     return list.map((e) => PaymentType.fromJson(e)).toList();
   }
+
   Future<List<SalesInvoice>> getSalesInvoices(int soId) async {
     final res = await dio.get(
       '/transaction/sales-invoice',
@@ -151,8 +151,10 @@ class SalesOrderApi {
     return list.map((e) => SalesInvoice.fromJson(e)).toList();
   }
 
-  Future<Response> downloadSalesInvoice(int invoiceId,
-      {void Function(int, int)? onProgress}) async {
+  Future<Response> downloadSalesInvoice(
+    int invoiceId, {
+    void Function(int, int)? onProgress,
+  }) async {
     return await dio.get(
       '/transaction/sales-invoice/$invoiceId/print',
       options: Options(
@@ -177,15 +179,31 @@ class SalesOrderApi {
     final List list = data is Map ? data['data'] : data;
     return list.map((e) => ChartOfAccount.fromJson(e)).toList();
   }
+
   Future<void> submitSalesInvoice(Map<String, dynamic> data) async {
     final formData = FormData.fromMap(data);
 
     // If there's a file, it should be handled in the notifier before calling this,
     // or passed as a MultipartFile within the map.
 
-    final res = await dio.post(
-      "/transaction/sales-invoice",
-      data: formData,
+    final res = await dio.post("/transaction/sales-invoice", data: formData);
+
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+  }
+
+  Future<void> cancelSalesInvoice(
+    int invoiceId,
+    Map<String, dynamic> data,
+  ) async {
+    final res = await dio.put(
+      "/transaction/sales-invoice/$invoiceId",
+      data: data,
     );
 
     if (res.statusCode != 200 && res.statusCode != 201) {

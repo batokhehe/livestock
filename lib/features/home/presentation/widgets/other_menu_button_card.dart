@@ -27,12 +27,19 @@ class OtherMenuButton extends StatelessWidget {
                 color: AppColors.baseBackground,
               ),
               child: Center(
-                child: SvgPicture.asset(
-                  image,
-                  fit: BoxFit.contain,
-                  width: 24,
-                  height: 24,
-                ),
+                child: image.endsWith('.svg')
+                    ? SvgPicture.asset(
+                        image,
+                        fit: BoxFit.contain,
+                        width: 24,
+                        height: 24,
+                      )
+                    : Image.asset(
+                        image,
+                        fit: BoxFit.contain,
+                        width: 24,
+                        height: 24,
+                      ),
               ),
             ),
             const SizedBox(height: 6),
