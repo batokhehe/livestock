@@ -22,6 +22,8 @@ import '../widgets/sales_invoice_detail_bottom_sheet.dart';
 import '../widgets/cancel_sales_invoice_bottom_sheet.dart';
 import 'invoice_downloader_provider.dart';
 import 'package:livestock/features/receiving/presentation/widgets/confirmation_bottom_sheet.dart';
+import 'package:livestock/features/user/domain/user_model.dart';
+import 'package:livestock/features/user/providers/user_provider.dart';
 
 import 'dart:convert';
 import 'package:dio/dio.dart';
@@ -45,6 +47,7 @@ class SalesOrderDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(salesOrderDetailProvider(id));
     final invoiceListAsync = ref.watch(salesInvoiceListProvider(id));
+    final userAsync = ref.watch(userProvider);
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
@@ -94,14 +97,16 @@ class SalesOrderDetailPage extends ConsumerWidget {
                       amountRemainder: data.amountRemainder.toDouble(),
                       formatCurrency: formatCurrency,
                     ),
-                    const SizedBox(height: 12),
-                    invoiceListAsync.when(
-                      data: (invoices) =>
-                          _invoiceListSection(context, invoices),
-                      loading: () =>
-                          const Center(child: CircularProgressIndicator()),
-                      error: (e, s) => const SizedBox(),
-                    ),
+                    if (userAsync.value?.hasPermission('invoices-read') ?? false) ...[
+                      const SizedBox(height: 12),
+                      invoiceListAsync.when(
+                        data: (invoices) =>
+                            _invoiceListSection(context, invoices),
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (e, s) => const SizedBox(),
+                      ),
+                    ],
                     const SizedBox(height: 70),
                   ],
                 ),
@@ -110,7 +115,7 @@ class SalesOrderDetailPage extends ConsumerWidget {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: _bottomActions(context, data),
+                child: _bottomActions(context, data, userAsync.value),
               ),
             ],
           );
@@ -190,65 +195,76 @@ class SalesOrderDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _bottomActions(BuildContext context, SalesOrderDetail data) {
+  Widget _bottomActions(
+    BuildContext context,
+    SalesOrderDetail data,
+    UserModel? user,
+  ) {
     if (data.salesStatus == 'closed') return const SizedBox.shrink();
+    final canCreateInvoice = user?.hasPermission('invoices-create') ?? false;
+    final canUpdateSO = user?.hasPermission('salesorder-update') ?? false;
+
+    if (!canCreateInvoice && !canUpdateSO) return const SizedBox.shrink();
+
     return Container(
       color: AppColors.white,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                context.push('/sales-order/create-invoice', extra: data);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+          if (canCreateInvoice)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  context.push('/sales-order/create-invoice', extra: data);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
                 ),
-                elevation: 0,
-              ),
-              child: const Text(
-                "Buat Nota",
-                style: AppTypography.mediumBoldWhite,
+                child: const Text(
+                  "Buat Nota",
+                  style: AppTypography.mediumBoldWhite,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          InkWell(
-            onTap: () {
-              context.push('/sales-order/edit', extra: data);
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              height: 56,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F4FF),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Edit Data",
-                    style: AppTypography.smallBoldPrimary.copyWith(
-                      color: Colors.blue.shade700,
+          if (canCreateInvoice && canUpdateSO) const SizedBox(height: 12),
+          if (canUpdateSO)
+            InkWell(
+              onTap: () {
+                context.push('/sales-order/edit', extra: data);
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                height: 56,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF2F4FF),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Edit Data",
+                      style: AppTypography.smallBoldPrimary.copyWith(
+                        color: Colors.blue.shade700,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.edit_rounded,
-                    color: Colors.blue.shade700,
-                    size: 20,
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.edit_rounded,
+                      color: Colors.blue.shade700,
+                      size: 20,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -400,6 +416,9 @@ class SalesOrderDetailPage extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Consumer(
                     builder: (context, ref, _) {
+                      final canDestroy = ref.watch(userProvider).value?.hasPermission('invoices-destroy') ?? false;
+                      if (!canDestroy) return const SizedBox.shrink();
+
                       return ElevatedButton(
                         onPressed: () {
                           showModalBottomSheet(

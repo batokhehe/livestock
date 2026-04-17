@@ -23,8 +23,9 @@ class OtherMenuButton extends StatelessWidget {
             Container(
               padding: EdgeInsets.symmetric(vertical: 16.0),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.0),
-                color: AppColors.baseBackground,
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.fieldBorder),
               ),
               child: Center(
                 child: image.endsWith('.svg')

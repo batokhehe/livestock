@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/card_wrapper.dart';
 import 'package:livestock/core/widgets/product_header_card.dart';
 import 'package:livestock/features/product/data/product_provider_tab.dart';
 import 'package:livestock/features/product/data/product_tab.dart';
+import 'package:livestock/features/user/providers/user_provider.dart';
 
 import '../../../../app/providers.dart';
 import '../../../../core/data/model/animal_profile_model.dart';
@@ -36,21 +38,29 @@ class ProductDetailPage extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text("Error: $e")),
         data: (animal) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                _ProductInfoCard(data: animal),
-                const SizedBox(height: 12),
-                _LocationInfoCard(data: animal),
-                const SizedBox(height: 12),
-                _PriceInfoCard(data: animal),
-                const SizedBox(height: 12),
-                _AnotherInfoCard(data: animal),
-                const SizedBox(height: 24),
-                const _UpdateButton(),
-              ],
-            ),
+          return Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _ProductInfoCard(data: animal),
+                      const SizedBox(height: 12),
+                      _LocationInfoCard(data: animal),
+                      const SizedBox(height: 12),
+                      _PriceInfoCard(data: animal),
+                      const SizedBox(height: 12),
+                      _AnotherInfoCard(data: animal),
+                    ],
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: _UpdateButton(),
+              ),
+            ],
           );
         },
       ),
@@ -144,6 +154,9 @@ class _PriceInfoCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tab = ref.watch(productTabProvider);
+    final userAsync = ref.watch(userProvider);
+    final canSeePurchasePrice =
+        userAsync.value?.hasPermission('animalprofile-update') ?? false;
 
     return _CardWrapper(
       title: "Informasi Harga",
@@ -151,14 +164,16 @@ class _PriceInfoCard extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Column(
           children: [
-            /*ProductHeaderCard(
-              title: 'Rp ${formatPrice(data.purchPrice)}',
-              subtitle: "Harga Beli",
-              image: AppImages.icMoneys,
-              isActive: false,
-            ),
-            SizedBox(height: 8),*/
-            Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+            if (canSeePurchasePrice) ...[
+              ProductHeaderCard(
+                title: 'Rp ${formatPrice(data.purchPrice)}',
+                subtitle: "Harga Beli",
+                image: AppImages.icMoneys,
+                isActive: false,
+              ),
+              const SizedBox(height: 8),
+              Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+            ],
             if (tab == ProductTab.product)
               TwoColumnRowCard(
                 leftValue: 'Rp ${formatPrice(data.refSalesPrice)}',
@@ -336,27 +351,34 @@ class _CardWrapper extends StatelessWidget {
   }
 }
 
-class _UpdateButton extends StatelessWidget {
+class _UpdateButton extends ConsumerWidget {
   const _UpdateButton();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(userProvider);
+    if (!(userAsync.value?.hasPermission('animalprofile-update') ?? false)) {
+      return const SizedBox.shrink();
+    }
+
     return SizedBox(
       width: double.infinity,
       height: 48,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryShade,
+          backgroundColor: AppColors.primary,
           foregroundColor: AppColors.primary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        onPressed: null,
-        /*onPressed: () {
+        onPressed: () {
           context.push("/product-update");
-        },*/
-        child: const Text("Perbarui Data"),
+        },
+        child: const Text(
+          "Perbarui Data",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
