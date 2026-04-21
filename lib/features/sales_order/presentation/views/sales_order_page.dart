@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:livestock/features/user/providers/user_provider.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppImages.dart';
@@ -57,6 +58,7 @@ class _SalesOrderPageState extends ConsumerState<SalesOrderPage> {
   Widget build(BuildContext context) {
     final dataAsync = ref.watch(salesOrderListProvider);
     final activeTab = ref.watch(salesOrderTabProvider);
+    final userAsync = ref.watch(userProvider);
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
@@ -142,12 +144,15 @@ class _SalesOrderPageState extends ConsumerState<SalesOrderPage> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomButton(
-        text: 'Tambah Penjualan',
-        onPressed: () {
-          showSalesTypeBottomSheet(context);
-        },
-      ),
+      bottomNavigationBar:
+          userAsync.value?.hasPermission('salesorder-create') ?? false
+          ? BottomButton(
+              text: 'Tambah Penjualan',
+              onPressed: () {
+                showSalesTypeBottomSheet(context);
+              },
+            )
+          : null,
     );
   }
 
