@@ -9,7 +9,7 @@ import '../../../../core/data/model/farm_location_model.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/custom_date_picker_sheet.dart';
-import '../../../../core/widgets/farm_location_bottom_sheet.dart';
+import '../../../../core/widgets/farm_location_paginated_bottom_sheet.dart';
 import '../../../../core/widgets/section_card.dart';
 import '../../../../core/widgets/select_field.dart';
 import '../../../../core/widgets/step_info_card.dart';
@@ -129,7 +129,10 @@ class _DispatchInfoSection extends ConsumerWidget {
             final result = await showModalBottomSheet<FarmLocation?>(
               context: context,
               isScrollControlled: true,
-              builder: (_) => const FarmLocationBottomSheet(),
+              backgroundColor: Colors.transparent,
+              builder: (_) => FarmLocationPaginatedBottomSheet(
+                initialSelectedId: form.farmLocation?.id,
+              ),
             );
 
             if (result != null) {

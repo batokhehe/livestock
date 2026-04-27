@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/farm_area_bottom_sheet.dart';
-import 'package:livestock/core/widgets/farm_location_bottom_sheet.dart';
+import 'package:livestock/core/widgets/farm_location_paginated_bottom_sheet.dart';
 import 'package:livestock/core/widgets/step_info_card.dart';
 import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
 
@@ -143,7 +144,7 @@ class _FarmInfoSection extends ConsumerWidget {
           label: "Lokasi peternakan",
           hint: selectedFarm?.name ?? "Pilih lokasi",
           icon: AppImages.icHomeHashTag,
-          onTap: () => _showFarmLocationPicker(context),
+          onTap: () => _showFarmLocationPicker(context, ref),
         ),
         if (activeTab == ReceivingTab.animal) ...[
           const SizedBox(height: 12),
@@ -151,26 +152,29 @@ class _FarmInfoSection extends ConsumerWidget {
             label: "Area peternakan",
             hint: selectedArea?.name ?? "Pilih area",
             icon: AppImages.icMap,
-            onTap: () => _showFarmAreaPicker(context),
+            onTap: () => _showFarmAreaPicker(context, ref),
           ),
         ],
       ],
     );
   }
 
-  void _showFarmLocationPicker(BuildContext context) {
-    showModalBottomSheet(
+  void _showFarmLocationPicker(BuildContext context, WidgetRef ref) async {
+    final result = await showModalBottomSheet<FarmLocation?>(
       context: context,
-      isScrollControlled: false,
-      backgroundColor: AppColors.greyBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => FarmLocationPaginatedBottomSheet(
+        initialSelectedId: ref.read(selectedFarmLocationProvider)?.id,
       ),
-      builder: (_) => const FarmLocationBottomSheet(),
     );
+
+    if (result != null) {
+      ref.read(selectedFarmLocationProvider.notifier).state = result;
+    }
   }
 
-  void _showFarmAreaPicker(BuildContext context) {
+  void _showFarmAreaPicker(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: false,
