@@ -18,8 +18,12 @@ import '../core/data/model/animal_class_model.dart';
 import '../core/data/model/base_response.dart';
 import '../core/domain/usecase/get_master_data_list_use_case.dart';
 import '../core/errors/unauthorized_exception.dart';
+import '../core/notifier/farm_location_notifier.dart';
+import '../core/notifier/farm_area_notifier.dart';
+import '../core/notifier/customer_notifier.dart';
 import '../core/network/dio_client.dart';
 import '../core/notifier/product_notifier.dart';
+import '../core/notifier/animal_notifier.dart';
 import '../features/dispatch/data/model/sales_order_dispatch_model.dart';
 import '../features/dispatch/dispatch_provider.dart';
 
@@ -50,6 +54,11 @@ final farmLocationListProvider = FutureProvider.autoDispose<List<FarmLocation>>(
     return ref.read(getMasterDataListUseCaseProvider).callFarmLocations();
   },
 );
+
+final paginatedFarmLocationProvider = AsyncNotifierProvider.autoDispose<
+    FarmLocationNotifier, BaseResponse<FarmLocation>>(
+  FarmLocationNotifier.new,
+);
 final selectedFarmLocationProvider = StateProvider<FarmLocation?>(
   (ref) => null,
 );
@@ -58,15 +67,19 @@ final farmLocationSearchProvider = StateProvider.autoDispose<String>(
 );
 
 // FARM AREA
-final farmAreaListProvider = FutureProvider.autoDispose<List<FarmArea>>((
-  ref,
-) async {
-  final farmLocationId = ref.watch(animalFarmLocationIdProvider);
-  if (farmLocationId == null) return [];
-  return ref
-      .read(getMasterDataListUseCaseProvider)
-      .callFarmAreas(farmLocationId: farmLocationId);
-});
+final farmAreaListProvider = FutureProvider.autoDispose<List<FarmArea>>(
+  (ref) async {
+    final farmLocationId = ref.watch(animalFarmLocationIdProvider);
+    return ref
+        .read(getMasterDataListUseCaseProvider)
+        .callFarmAreas(farmLocationId: farmLocationId);
+  },
+);
+
+final paginatedFarmAreaProvider = AsyncNotifierProvider.autoDispose<
+    FarmAreaNotifier, BaseResponse<FarmArea>>(
+  FarmAreaNotifier.new,
+);
 final selectedFarmAreaProvider = StateProvider<FarmArea?>((ref) => null);
 final farmAreaSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
@@ -76,21 +89,36 @@ final customerListProvider = FutureProvider.autoDispose<List<Customer>>((
 ) async {
   return ref.read(getMasterDataListUseCaseProvider).callCustomer();
 });
+
+final paginatedCustomerProvider = AsyncNotifierProvider.autoDispose<
+    CustomerNotifier, BaseResponse<Customer>>(
+  CustomerNotifier.new,
+);
+
 final selectedCustomerProvider = StateProvider<Customer?>((ref) => null);
 final customerSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+final customerStatusProvider = StateProvider.autoDispose<String>((ref) => '');
 
 // ANIMAL
 final animalListProvider = FutureProvider.autoDispose.family<
   BaseResponse<AnimalProfile>,
-  ({String? available, String? search})
+  ({String? available, String? search, int? farmLocationId})
 >((ref, arg) async {
   return ref.read(getMasterDataListUseCaseProvider).callAnimals(
     available: (arg.available?.isEmpty ?? true) ? null : arg.available,
     search: (arg.search?.length ?? 0) >= 2 ? arg.search : null,
+    farmLocationId: arg.farmLocationId,
     page: 1,
     perPage: 1000,
   );
 });
+final paginatedAnimalProvider = AsyncNotifierProvider.autoDispose.family<
+    AnimalNotifier,
+    BaseResponse<AnimalProfile>,
+    ({String? available, int? farmLocationId})>(
+  AnimalNotifier.new,
+);
+
 final selectedAnimalProvider = StateProvider<AnimalProfile?>((ref) => null);
 final animalSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 final animalStatusProvider = StateProvider.autoDispose<String>((ref) => '');
@@ -207,7 +235,7 @@ final animalClassStatusProvider = StateProvider.autoDispose<String>(
 );
 
 final productDataProvider =
-    AsyncNotifierProvider<ProductNotifier, BaseResponse<dynamic>>(
+    AsyncNotifierProvider.autoDispose<ProductNotifier, BaseResponse<dynamic>>(
       ProductNotifier.new,
     );
 

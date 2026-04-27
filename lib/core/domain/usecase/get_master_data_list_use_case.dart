@@ -24,12 +24,46 @@ class GetMasterDataListUseCase {
     return repository.getFarmLocations();
   }
 
+  Future<BaseResponse<FarmLocation>> callFarmLocationsPaginated({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) {
+    return repository.getFarmLocationsPaginated(page: page, perPage: perPage, search: search);
+  }
+
   Future<List<FarmArea>> callFarmAreas({int? farmLocationId}) {
     return repository.getFarmAreas(farmLocationId: farmLocationId);
   }
 
+  Future<BaseResponse<FarmArea>> callFarmAreasPaginated({
+    int? farmLocationId,
+    int page = 1,
+    int perPage = 10,
+  }) {
+    return repository.getFarmAreasPaginated(
+      farmLocationId: farmLocationId,
+      page: page,
+      perPage: perPage,
+    );
+  }
+
   Future<List<Customer>> callCustomer() {
     return repository.getCustomers();
+  }
+
+  Future<BaseResponse<Customer>> callCustomerPaginated({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+    String? status,
+  }) {
+    return repository.getCustomersPaginated(
+      page: page,
+      perPage: perPage,
+      search: search,
+      status: status,
+    );
   }
 
   Future<BaseResponse<AnimalProfile>> callAnimals({

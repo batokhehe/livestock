@@ -35,8 +35,8 @@ class MasterApi {
       queryParameters: {
         'page': page,
         'per_page': perPage,
-        if (search != null) 'search': search,
-      },
+        'search': search,
+      }..removeWhere((k, v) => v == null),
     );
 
     if (res.statusCode == 401) throw UnauthorizedException();
@@ -61,10 +61,10 @@ class MasterApi {
     final res = await dio.get(
       '/master/farm-area',
       queryParameters: {
-        if (farmLocationId != null) 'farm_location_id': farmLocationId,
+        'farm_location_id': farmLocationId,
         'page': page,
         'per_page': perPage,
-      },
+      }..removeWhere((k, v) => v == null),
     );
 
     if (res.statusCode == 401) throw UnauthorizedException();
@@ -82,14 +82,16 @@ class MasterApi {
     int page = 1,
     int perPage = 10,
     String? search,
+    String? status,
   }) async {
     final res = await dio.get(
       '/master/customer',
       queryParameters: {
         'page': page,
         'per_page': perPage,
-        if (search != null) 'search': search,
-      },
+        'search': search,
+        'status': status,
+      }..removeWhere((k, v) => v == null),
     );
 
     if (res.statusCode == 401) throw UnauthorizedException();
@@ -116,16 +118,15 @@ class MasterApi {
     final res = await dio.get(
       '/master/animal-profile',
       queryParameters: {
-        if (animalClassPriceId != null)
-          'animal_class_price_id': animalClassPriceId,
-        if (search != null && search.isNotEmpty) 'search': search,
-        if (status != null && status.isNotEmpty) 'status': status,
-        if (available != null && available.isNotEmpty) 'available': available,
-        if (farmLocationId != null) 'farm_location_id': farmLocationId,
-        if (farmAreaId != null) 'farm_area_id': farmAreaId,
+        'animal_class_price_id': animalClassPriceId,
+        'search': (search?.isNotEmpty ?? false) ? search : null,
+        'status': (status?.isNotEmpty ?? false) ? status : null,
+        'available': (available?.isNotEmpty ?? false) ? available : null,
+        'farm_location_id': farmLocationId,
+        'farm_area_id': farmAreaId,
         'page': page,
         'per_page': perPage,
-      },
+      }..removeWhere((k, v) => v == null),
     );
 
     if (res.statusCode == 401) throw UnauthorizedException();
@@ -288,11 +289,11 @@ class MasterApi {
     final res = await dio.get(
       '/master/animal-class-price',
       queryParameters: {
-        if (search != null && search.isNotEmpty) 'search': search,
-        if (status != null && status.isNotEmpty) 'status': status,
+        'search': (search?.isNotEmpty ?? false) ? search : null,
+        'status': (status?.isNotEmpty ?? false) ? status : null,
         'page': page,
         'per_page': perPage,
-      },
+      }..removeWhere((k, v) => v == null),
     );
 
     if (res.statusCode == 401) throw UnauthorizedException();
