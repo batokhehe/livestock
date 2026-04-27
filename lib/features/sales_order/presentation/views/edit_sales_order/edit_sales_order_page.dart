@@ -4,14 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
-import 'package:livestock/core/widgets/customer_bottom_sheet.dart';
 import 'package:livestock/core/widgets/input_field_card.dart';
 import 'package:livestock/features/sales_order/data/model/sales_order_request_model.dart';
 
 import '../../../../../core/theme/AppColors.dart';
 import '../../../../../core/theme/AppTypography.dart';
 import '../../../../../core/widgets/custom_date_picker_sheet.dart';
-import '../../../../../core/widgets/farm_location_bottom_sheet.dart';
+import 'package:livestock/core/widgets/customer_paginated_bottom_sheet.dart';
+import 'package:livestock/core/widgets/farm_location_paginated_bottom_sheet.dart';
 import '../../../../../core/widgets/section_card.dart';
 import '../../../../../core/widgets/select_field.dart';
 import '../../../../../core/widgets/step_info_card.dart';
@@ -151,12 +151,9 @@ class _EditSalesOrderPageState extends ConsumerState<EditSalesOrderPage> {
           onTap: () async {
             final customer = await showModalBottomSheet(
               context: context,
-              isScrollControlled: false,
-              backgroundColor: AppColors.greyBg,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              builder: (_) => const CustomerBottomSheet(),
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) => const CustomerPaginatedBottomSheet(),
             );
             if (customer != null) {
               _phoneController.text = customer.contactPhone ?? '';
@@ -259,8 +256,10 @@ class _EditSalesOrderPageState extends ConsumerState<EditSalesOrderPage> {
             final result = await showModalBottomSheet<FarmLocation?>(
               context: context,
               isScrollControlled: true,
-              backgroundColor: AppColors.greyBg,
-              builder: (_) => const FarmLocationBottomSheet(),
+              backgroundColor: Colors.transparent,
+              builder: (_) => FarmLocationPaginatedBottomSheet(
+                initialSelectedId: form.farmLocation?.id,
+              ),
             );
             if (result != null) {
               ref

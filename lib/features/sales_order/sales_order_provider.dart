@@ -117,7 +117,13 @@ class SalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
   }
 
   void setFarmLocation(FarmLocation location) {
-    state = state.copyWith(farmLocation: location);
+    if (state.farmLocation?.id != location.id) {
+      state = state.copyWith(
+        farmLocation: location,
+        items: [],
+        farmArea: null,
+      );
+    }
   }
 
   void setFarmArea(FarmArea area) {
@@ -341,7 +347,13 @@ class EditSalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
   }
 
   void setFarmLocation(FarmLocation location) {
-    state = state.copyWith(farmLocation: location);
+    if (state.farmLocation?.id != location.id) {
+      state = state.copyWith(
+        farmLocation: location,
+        items: [],
+        farmArea: null,
+      );
+    }
   }
 
   void setFarmArea(FarmArea area) {

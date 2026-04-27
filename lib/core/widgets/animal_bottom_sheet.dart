@@ -11,10 +11,12 @@ import '../theme/AppTypography.dart';
 class AnimalBottomSheet extends ConsumerStatefulWidget {
   final String? available;
   final List<int> excludedIds;
+  final int? farmLocationId;
   const AnimalBottomSheet({
     super.key,
     this.available,
     this.excludedIds = const [],
+    this.farmLocationId,
   });
 
   @override
@@ -22,41 +24,57 @@ class AnimalBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
+  final ScrollController _scrollController = ScrollController();
   late final TextEditingController searchCtrl;
   Timer? _debounce;
-  String _searchKeyword = '';
 
   @override
   void initState() {
     super.initState();
     searchCtrl = TextEditingController();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
+        ref
+            .read(
+              paginatedAnimalProvider((
+                available: widget.available,
+                farmLocationId: widget.farmLocationId,
+              )).notifier,
+            )
+            .loadMore();
+      }
+    });
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
     searchCtrl.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   void _onSearchChanged(String value) {
     _debounce?.cancel();
-    if (value.length < 2 && value.isNotEmpty) return;
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      setState(() => _searchKeyword = value);
+      ref.read(animalSearchProvider.notifier).state = value;
     });
   }
 
   void _clearSearch() {
     searchCtrl.clear();
     _debounce?.cancel();
-    setState(() => _searchKeyword = '');
+    ref.read(animalSearchProvider.notifier).state = '';
   }
 
   @override
   Widget build(BuildContext context) {
     final dataAsync = ref.watch(
-      animalListProvider((available: widget.available, search: _searchKeyword)),
+      paginatedAnimalProvider((
+        available: widget.available,
+        farmLocationId: widget.farmLocationId,
+      )),
     );
     final selectedItem = ref.watch(selectedAnimalProvider);
 
@@ -70,7 +88,9 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
         ),
       ),
       data: (d) {
-        final filtered = d.data;
+        final items = d.data;
+        final total = d.total ?? 0;
+        final hasMore = items.length < total;
 
         return Padding(
           padding: const EdgeInsets.all(16),
@@ -85,15 +105,15 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
                     onPressed: () => Navigator.pop(context),
                     elevation: 1.0,
                     constraints: BoxConstraints(minWidth: 0.0),
-                    padding: EdgeInsets.all(8.0),
-                    shape: CircleBorder(
-                      side: const BorderSide(
+                    padding: const EdgeInsets.all(8.0),
+                    shape: const CircleBorder(
+                      side: BorderSide(
                         color: AppColors.iconColor,
                         width: 2.0,
                         style: BorderStyle.solid,
                       ),
                     ),
-                    child: Icon(Icons.close_rounded, size: 14.0),
+                    child: const Icon(Icons.close_rounded, size: 14.0),
                   ),
                 ],
               ),
@@ -111,7 +131,7 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
 
               // ===== LIST =====
               Expanded(
-                child: filtered.isEmpty
+                child: items.isEmpty
                     ? Center(
                         child: Text(
                           "Hewan tidak ditemukan",
@@ -119,9 +139,16 @@ class _AnimalBottomSheetState extends ConsumerState<AnimalBottomSheet> {
                         ),
                       )
                     : ListView.builder(
-                        itemCount: filtered.length,
+                        controller: _scrollController,
+                        itemCount: items.length + (hasMore ? 1 : 0),
                         itemBuilder: (_, i) {
-                          final e = filtered[i];
+                          if (i == items.length) {
+                            return const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+                          final e = items[i];
                           final isExcluded = widget.excludedIds.contains(e.id);
                           final isSelected = selectedItem?.id == e.id;
 

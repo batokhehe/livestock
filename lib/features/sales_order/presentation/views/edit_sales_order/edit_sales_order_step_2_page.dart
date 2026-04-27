@@ -123,7 +123,7 @@ class _EditSalesOrderStep2PageState
     final code =
         isAnimal ? item.animalProfile!.animalCode : item.feedMedicine!.code;
     final secondValue = isAnimal
-        ? "${item.animalProfile!.weight} Kg"
+        ? "${item.weight ?? item.animalProfile!.weight} Kg"
         : item.feedMedicine!.feedType;
     final useForecast =
         ref.read(editSalesOrderFormProvider).useForecast ?? true;

@@ -124,7 +124,7 @@ class _AddSalesOrderStep2PageState
         : item.feedMedicine!.code;
 
     final secondValue = isAnimal
-        ? "${item.animalProfile!.weight} Kg"
+        ? "${item.weight ?? item.animalProfile!.weight} Kg"
         : item.feedMedicine!.feedType;
     final useForecast = ref.read(salesOrderFormProvider).useForecast ?? true;
 
@@ -313,11 +313,16 @@ class _AddSalesOrderStep2PageState
   }
 }
 
-class _NextButton extends StatelessWidget {
+class _NextButton extends ConsumerWidget {
   const _NextButton();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final form = ref.watch(salesOrderFormProvider);
+    final items = form.items ?? [];
+
+    final bool isEnabled = items.isNotEmpty;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -326,14 +331,16 @@ class _NextButton extends StatelessWidget {
           height: 48,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              backgroundColor: isEnabled ? AppColors.primary : AppColors.grey,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: () {
-              context.push("/sales-order/add/confirmation");
-            },
+            onPressed: isEnabled
+                ? () {
+                    context.push("/sales-order/add/confirmation");
+                  }
+                : null,
             child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
           ),
         ),
