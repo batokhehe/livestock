@@ -33,7 +33,7 @@ class ApiInterceptor extends Interceptor {
     print("RESPONSE DATA: ${err.response?.data}");
     final appError = ErrorParser.parse(err);
     handler.reject(
-      DioException(requestOptions: err.requestOptions, error: appError.message),
+      err.copyWith(error: appError.message),
     );
   }
 }
@@ -44,6 +44,17 @@ class AuthInterceptor extends Interceptor {
   AuthInterceptor(this.ref);
 
   @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    if (response.statusCode == 401) {
+      final path = response.requestOptions.path;
+      if (!path.contains('/login')) {
+        ref.read(unauthorizedProvider.notifier).state = UnauthorizedException();
+      }
+    }
+    super.onResponse(response, handler);
+  }
+
+  @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final path = err.requestOptions.path;
     if (path.contains('/login')) {
@@ -52,6 +63,7 @@ class AuthInterceptor extends Interceptor {
     }
     if (err.response?.statusCode == 401) {
       ref.read(unauthorizedProvider.notifier).state = UnauthorizedException();
+      return handler.resolve(err.response!);
     }
     super.onError(err, handler);
   }
