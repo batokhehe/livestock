@@ -5,7 +5,7 @@ import '../../features/product/data/product_provider_tab.dart';
 import '../../features/product/data/product_tab.dart';
 import '../data/model/base_response.dart';
 
-class ProductNotifier extends AsyncNotifier<BaseResponse<dynamic>> {
+class ProductNotifier extends AutoDisposeAsyncNotifier<BaseResponse<dynamic>> {
   int _page = 1;
   bool _loadingMore = false;
 
