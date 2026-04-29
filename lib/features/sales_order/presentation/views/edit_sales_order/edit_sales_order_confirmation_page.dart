@@ -266,7 +266,7 @@ class _ProductInfoCard extends StatelessWidget {
         isAnimal ? data.animalProfile!.animalCode : data.feedMedicine!.code;
 
     final secondValue = isAnimal
-        ? "${data.animalProfile!.weight} Kg"
+        ? "${data.weight ?? data.animalProfile!.weight} Kg"
         : data.feedMedicine!.feedType;
 
     return SectionCard(

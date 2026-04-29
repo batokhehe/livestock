@@ -26,14 +26,48 @@ class MasterRepository {
     return res.data;
   }
 
+  Future<BaseResponse<FarmLocation>> getFarmLocationsPaginated({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
+    return await api.getFarmLocations(page: page, perPage: perPage, search: search);
+  }
+
   Future<List<FarmArea>> getFarmAreas({int? farmLocationId}) async {
     final res = await api.getFarmAreas(farmLocationId: farmLocationId);
     return res.data;
   }
 
+  Future<BaseResponse<FarmArea>> getFarmAreasPaginated({
+    int? farmLocationId,
+    int page = 1,
+    int perPage = 10,
+  }) async {
+    return await api.getFarmAreas(
+      farmLocationId: farmLocationId,
+      page: page,
+      perPage: perPage,
+    );
+  }
+
   Future<List<Customer>> getCustomers() async {
     final res = await api.getCustomers();
     return res.data;
+  }
+
+  Future<BaseResponse<Customer>> getCustomersPaginated({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+    String? status,
+  }) async {
+    return await api.getCustomers(
+      page: page,
+      perPage: perPage,
+      search: search,
+      status: status,
+    );
   }
 
   Future<BaseResponse<AnimalProfile>> getAnimals(

@@ -20,6 +20,9 @@ import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../data/product_provider_tab.dart';
 import '../widgets/product_group_bottom_sheet.dart';
+import '../widgets/farm_area_bottom_sheet.dart';
+import '../../../../core/widgets/farm_location_paginated_bottom_sheet.dart';
+import '../../../../core/helpers/snackbar_helper.dart';
 
 class ProductPage extends ConsumerStatefulWidget {
   const ProductPage({super.key});
@@ -278,89 +281,73 @@ class _ProductPage extends ConsumerState<ProductPage> {
           const SizedBox(width: 8),
           SizedBox(
             width: 170,
-            child: farmLocationsAsync.when(
-              loading: () => const Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-              error: (_, __) => const Text('Error'),
-              data: (farmLocations) {
-                final selectedLocationLabel = selectedFarmLocationId == null
-                    ? 'Semua Lokasi'
-                    : farmLocations
-                          .firstWhere(
-                            (e) => e.id == selectedFarmLocationId,
-                            orElse: () =>
-                                FarmLocation(id: 0, name: 'Semua Lokasi'),
-                          )
-                          .name;
+            child: Consumer(
+              builder: (context, ref, child) {
+                final selectedFarmLocationId = ref.watch(
+                  animalFarmLocationIdProvider,
+                );
+                final farmLocationsAsync = ref.watch(farmLocationListProvider);
 
-                return DropdownButtonFormField2<String>(
-                  isExpanded: true,
-                  hint: Text(
-                    selectedLocationLabel,
-                    style: AppTypography.smallNormalBlack,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
-                    alignLabelWithHint: true,
-                    filled: true,
-                    fillColor: Colors.white,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.fieldBorder),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: AppColors.primaryDark,
-                        width: 2.0,
+                String label = "Semua Lokasi";
+                if (selectedFarmLocationId != null) {
+                  label = farmLocationsAsync.when(
+                    data: (list) => list
+                        .firstWhere(
+                          (e) => e.id == selectedFarmLocationId,
+                          orElse: () => FarmLocation(id: 0, name: "Lokasi"),
+                        )
+                        .name,
+                    loading: () => "Memuat...",
+                    error: (_, __) => "Error",
+                  );
+                }
+
+                return GestureDetector(
+                  onTap: () async {
+                    final result = await showModalBottomSheet<FarmLocation>(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) => FarmLocationPaginatedBottomSheet(
+                        initialSelectedId: selectedFarmLocationId,
+                        showAllOption: true,
+                        showSearch: false,
                       ),
-                    ),
-                  ),
-                  iconStyleData: const IconStyleData(
-                    icon: Icon(Icons.keyboard_arrow_down),
-                  ),
-                  style: AppTypography.smallNormalBlack,
-                  items: [
-                    DropdownItem<String>(
-                      value: '',
-                      child: Text(
-                        'Semua Lokasi',
-                        style: AppTypography.smallNormalBlack,
-                      ),
-                    ),
-                    ...farmLocations.map(
-                      (loc) => DropdownItem<String>(
-                        value: loc.id.toString(),
-                        child: Text(
-                          loc.name,
-                          style: AppTypography.smallNormalBlack,
-                        ),
-                      ),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    ref
-                        .read(animalFarmLocationIdProvider.notifier)
-                        .state = (value == null || value.isEmpty)
-                        ? null
-                        : int.tryParse(value);
-                    ref.read(animalFarmAreaIdProvider.notifier).state = null;
+                    );
+
+                    if (result != null) {
+                      ref.read(animalFarmLocationIdProvider.notifier).state =
+                          result.id == -1 ? null : result.id;
+                      ref.read(animalFarmAreaIdProvider.notifier).state = null;
+                    }
                   },
-                  dropdownStyleData: DropdownStyleData(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
                       color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.fieldBorder),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            label,
+                            style: AppTypography.smallNormalBlack,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: AppColors.grey,
+                        ),
+                      ],
                     ),
                   ),
-                  onMenuStateChange: (isOpen) {
-                    if (!isOpen) FocusScope.of(context).unfocus();
-                  },
                 );
               },
             ),
@@ -368,87 +355,84 @@ class _ProductPage extends ConsumerState<ProductPage> {
           const SizedBox(width: 8),
           SizedBox(
             width: 170,
-            child: farmAreasAsync.when(
-              loading: () => const Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-              error: (_, __) => const Text('Error'),
-              data: (farmAreas) {
-                final selectedAreaLabel = selectedFarmAreaId == null
-                    ? 'Semua Area'
-                    : farmAreas
-                          .firstWhere(
-                            (e) => e.id == selectedFarmAreaId,
-                            orElse: () => FarmArea(id: 0, name: 'Semua Area'),
-                          )
-                          .name;
+            child: Consumer(
+              builder: (context, ref, child) {
+                final selectedFarmAreaId = ref.watch(animalFarmAreaIdProvider);
+                final farmAreasAsync = ref.watch(farmAreaListProvider);
+                final selectedFarmLocationId = ref.watch(
+                  animalFarmLocationIdProvider,
+                );
+                final isLocationSelected = selectedFarmLocationId != null;
 
-                return DropdownButtonFormField2<String>(
-                  isExpanded: true,
-                  hint: Text(
-                    selectedAreaLabel,
-                    style: AppTypography.smallNormalBlack,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
-                    alignLabelWithHint: true,
-                    filled: true,
-                    fillColor: Colors.white,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.fieldBorder),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: AppColors.primaryDark,
-                        width: 2.0,
-                      ),
-                    ),
-                  ),
-                  iconStyleData: const IconStyleData(
-                    icon: Icon(Icons.keyboard_arrow_down),
-                  ),
-                  style: AppTypography.smallNormalBlack,
-                  items: [
-                    DropdownItem<String>(
-                      value: '',
-                      child: Text(
-                        'Semua Area',
-                        style: AppTypography.smallNormalBlack,
-                      ),
-                    ),
-                    ...farmAreas.map(
-                      (area) => DropdownItem<String>(
-                        value: area.id.toString(),
-                        child: Text(
-                          area.name,
-                          style: AppTypography.smallNormalBlack,
-                        ),
-                      ),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    ref
-                        .read(animalFarmAreaIdProvider.notifier)
-                        .state = (value == null || value.isEmpty)
-                        ? null
-                        : int.tryParse(value);
+                String label = "Semua Area";
+                if (selectedFarmAreaId != null) {
+                  label = farmAreasAsync.when(
+                    data: (list) => list
+                        .firstWhere(
+                          (e) => e.id == selectedFarmAreaId,
+                          orElse: () => FarmArea(id: 0, name: "Area"),
+                        )
+                        .name,
+                    loading: () => "Memuat...",
+                    error: (_, __) => "Error",
+                  );
+                }
+
+                return GestureDetector(
+                  onTap: () {
+                    if (!isLocationSelected) {
+                      SnackBarHelper.showInfo(
+                        context,
+                        "Pilih lokasi peternakan terlebih dahulu",
+                      );
+                      return;
+                    }
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) => const FarmAreaBottomSheet(),
+                    );
                   },
-                  dropdownStyleData: DropdownStyleData(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
+                      color: isLocationSelected
+                          ? Colors.white
+                          : AppColors.greyBg,
                       borderRadius: BorderRadius.circular(12),
-                      color: Colors.white,
+                      border: Border.all(
+                        color: isLocationSelected
+                            ? AppColors.fieldBorder
+                            : Colors.transparent,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            label,
+                            style: AppTypography.smallNormalBlack.copyWith(
+                              color: isLocationSelected
+                                  ? Colors.black
+                                  : AppColors.grey,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Icon(
+                          Icons.keyboard_arrow_down,
+                          color: isLocationSelected
+                              ? AppColors.grey
+                              : AppColors.grey.withOpacity(0.5),
+                        ),
+                      ],
                     ),
                   ),
-                  onMenuStateChange: (isOpen) {
-                    if (!isOpen) FocusScope.of(context).unfocus();
-                  },
                 );
               },
             ),

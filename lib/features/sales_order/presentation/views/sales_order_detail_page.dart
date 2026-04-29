@@ -97,7 +97,8 @@ class SalesOrderDetailPage extends ConsumerWidget {
                       amountRemainder: data.amountRemainder.toDouble(),
                       formatCurrency: formatCurrency,
                     ),
-                    if (userAsync.value?.hasPermission('invoices-read') ?? false) ...[
+                    if (userAsync.value?.hasPermission('invoices-read') ??
+                        false) ...[
                       const SizedBox(height: 12),
                       invoiceListAsync.when(
                         data: (invoices) =>
@@ -115,7 +116,12 @@ class SalesOrderDetailPage extends ConsumerWidget {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: _bottomActions(context, data, userAsync.value),
+                child: _bottomActions(
+                  context,
+                  data,
+                  userAsync.value,
+                  invoiceListAsync.value ?? [],
+                ),
               ),
             ],
           );
@@ -199,10 +205,18 @@ class SalesOrderDetailPage extends ConsumerWidget {
     BuildContext context,
     SalesOrderDetail data,
     UserModel? user,
+    List<SalesInvoice> invoices,
   ) {
-    if (data.salesStatus == 'closed') return const SizedBox.shrink();
+    if (data.salesStatus == 'closed' || data.salesStatus == 'canceled') {
+      return const SizedBox.shrink();
+    }
     final canCreateInvoice = user?.hasPermission('invoices-create') ?? false;
-    final canUpdateSO = user?.hasPermission('salesorder-update') ?? false;
+    bool canUpdateSO = user?.hasPermission('salesorder-update') ?? false;
+
+    // Validasi: Hide tombol edit jika status confirmed dan sudah ada nota (minimal 1)
+    if (data.salesStatus == 'confirmed' && invoices.isNotEmpty) {
+      canUpdateSO = false;
+    }
 
     if (!canCreateInvoice && !canUpdateSO) return const SizedBox.shrink();
 
@@ -416,7 +430,12 @@ class SalesOrderDetailPage extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Consumer(
                     builder: (context, ref, _) {
-                      final canDestroy = ref.watch(userProvider).value?.hasPermission('invoices-destroy') ?? false;
+                      final canDestroy =
+                          ref
+                              .watch(userProvider)
+                              .value
+                              ?.hasPermission('invoices-destroy') ??
+                          false;
                       if (!canDestroy) return const SizedBox.shrink();
 
                       return ElevatedButton(
@@ -603,7 +622,7 @@ class _ProductInfoCard extends StatelessWidget {
         : data.feedMedicineCode;
 
     final secondValue = isAnimal
-        ? "${data.animalProfile!.weight} Kg"
+        ? "${data.weight} Kg"
         : '-'; //data.feedMedicine!.feedType;
 
     return SectionCard(

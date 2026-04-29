@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:livestock/core/data/model/animal_class_model.dart';
 import 'package:livestock/core/data/model/animal_group_model.dart';
@@ -9,6 +10,7 @@ import 'package:livestock/core/data/model/feed_medicine_model.dart';
 import 'package:livestock/core/data/model/province_model.dart';
 import 'package:livestock/core/data/model/supplier_model.dart';
 import 'package:livestock/core/data/model/village_model.dart';
+import 'package:livestock/core/errors/unauthorized_exception.dart';
 import 'package:livestock/features/dispatch/data/model/sales_order_dispatch_model.dart';
 
 import 'package:livestock/core/data/model/shipping_cost_model.dart';
@@ -23,9 +25,21 @@ class MasterApi {
 
   MasterApi(this.dio);
 
-  Future<BaseResponse<FarmLocation>> getFarmLocations() async {
-    final res = await dio.get('/master/farm-location');
+  Future<BaseResponse<FarmLocation>> getFarmLocations({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
+    final res = await dio.get(
+      '/master/farm-location',
+      queryParameters: {
+        'page': page,
+        'per_page': perPage,
+        'search': search,
+      }..removeWhere((k, v) => v == null),
+    );
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -39,14 +53,21 @@ class MasterApi {
     );
   }
 
-  Future<BaseResponse<FarmArea>> getFarmAreas({int? farmLocationId}) async {
+  Future<BaseResponse<FarmArea>> getFarmAreas({
+    int? farmLocationId,
+    int page = 1,
+    int perPage = 10,
+  }) async {
     final res = await dio.get(
       '/master/farm-area',
       queryParameters: {
-        if (farmLocationId != null) 'farm_location_id': farmLocationId,
-      },
+        'farm_location_id': farmLocationId,
+        'page': page,
+        'per_page': perPage,
+      }..removeWhere((k, v) => v == null),
     );
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -57,9 +78,23 @@ class MasterApi {
     return BaseResponse.fromJson(res.data, (json) => FarmArea.fromJson(json));
   }
 
-  Future<BaseResponse<Customer>> getCustomers() async {
-    final res = await dio.get('/master/customer');
+  Future<BaseResponse<Customer>> getCustomers({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+    String? status,
+  }) async {
+    final res = await dio.get(
+      '/master/customer',
+      queryParameters: {
+        'page': page,
+        'per_page': perPage,
+        'search': search,
+        'status': status,
+      }..removeWhere((k, v) => v == null),
+    );
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -83,18 +118,18 @@ class MasterApi {
     final res = await dio.get(
       '/master/animal-profile',
       queryParameters: {
-        if (animalClassPriceId != null)
-          'animal_class_price_id': animalClassPriceId,
-        if (search != null && search.isNotEmpty) 'search': search,
-        if (status != null && status.isNotEmpty) 'status': status,
-        if (available != null && available.isNotEmpty) 'available': available,
-        if (farmLocationId != null) 'farm_location_id': farmLocationId,
-        if (farmAreaId != null) 'farm_area_id': farmAreaId,
+        'animal_class_price_id': animalClassPriceId,
+        'search': (search?.isNotEmpty ?? false) ? search : null,
+        'status': (status?.isNotEmpty ?? false) ? status : null,
+        'available': (available?.isNotEmpty ?? false) ? available : null,
+        'farm_location_id': farmLocationId,
+        'farm_area_id': farmAreaId,
         'page': page,
         'per_page': perPage,
-      },
+      }..removeWhere((k, v) => v == null),
     );
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -111,6 +146,7 @@ class MasterApi {
   Future<BaseResponse<FeedMedicine>> getFeedMedicines() async {
     final res = await dio.get('/master/feed-medicine');
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -127,6 +163,7 @@ class MasterApi {
   Future<List<Province>> getProvinces() async {
     final res = await dio.get('/transaction/list-provinces');
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -143,6 +180,7 @@ class MasterApi {
   Future<List<City>> getCities(String param) async {
     final res = await dio.get('/transaction/list-cities/$param');
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -159,6 +197,7 @@ class MasterApi {
   Future<List<District>> getDistricts(String param) async {
     final res = await dio.get('/transaction/list-districts/$param');
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -175,6 +214,7 @@ class MasterApi {
   Future<List<Village>> getVillages(String param) async {
     final res = await dio.get('/transaction/list-villages/$param');
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -191,6 +231,7 @@ class MasterApi {
   Future<BaseResponse<AnimalGroup>> getAnimalGroups() async {
     final res = await dio.get('/master/animal-group');
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -210,6 +251,7 @@ class MasterApi {
       queryParameters: {if (type != null) 'type': type},
     );
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -223,6 +265,7 @@ class MasterApi {
   Future<BaseResponseSingle<AnimalProfile>> getAnimalDetail(String id) async {
     final res = await dio.get('/master/animal-profile/$id');
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -246,13 +289,14 @@ class MasterApi {
     final res = await dio.get(
       '/master/animal-class-price',
       queryParameters: {
-        if (search != null && search.isNotEmpty) 'search': search,
-        if (status != null && status.isNotEmpty) 'status': status,
+        'search': (search?.isNotEmpty ?? false) ? search : null,
+        'status': (status?.isNotEmpty ?? false) ? status : null,
         'page': page,
         'per_page': perPage,
-      },
+      }..removeWhere((k, v) => v == null),
     );
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -281,6 +325,7 @@ class MasterApi {
       queryParameters: query.isNotEmpty ? query : null,
     );
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -301,12 +346,10 @@ class MasterApi {
   }) async {
     final res = await dio.get(
       '/master/shipping-cost',
-      queryParameters: {
-        'city_id': ?cityId,
-        'farm_location_id': ?farmLocationId,
-      },
+      queryParameters: {'city_id': cityId, 'farm_location_id': farmLocationId},
     );
 
+    if (res.statusCode == 401) throw UnauthorizedException();
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,

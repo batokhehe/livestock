@@ -18,7 +18,7 @@ final dioProvider = Provider<Dio>((ref) {
       },
       responseType: ResponseType.json,
       validateStatus: (status) =>
-          status != null && status >= 200 && status < 300,
+          status != null && (status >= 200 && status < 300 || status == 401),
     ),
   );
   dio.interceptors.add(
@@ -31,8 +31,8 @@ final dioProvider = Provider<Dio>((ref) {
     ),
   );
   dio.interceptors.add(ChuckerDioInterceptor());
-  dio.interceptors.add(AuthInterceptor(ref));
   dio.interceptors.add(ApiInterceptor(ref));
+  dio.interceptors.add(AuthInterceptor(ref));
 
   return dio;
 });

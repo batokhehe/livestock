@@ -192,12 +192,13 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
             title: form.customer?.name ?? '-',
             subtitle: form.customer?.contactPhone.toString() ?? '-',
           ),
-          InfoItemCard(
-            label: 'Nama Penerima:',
-            icon: AppImages.icDirectBoxReceive,
-            title: form.recipientName ?? '-',
-            subtitle: form.recipientNumber ?? '-',
-          ),
+          if (form.salesItemType != 'feed')
+            InfoItemCard(
+              label: 'Nama Penerima:',
+              icon: AppImages.icDirectBoxReceive,
+              title: form.recipientName ?? '-',
+              subtitle: form.recipientNumber ?? '-',
+            ),
         ],
       ),
     );
@@ -279,7 +280,7 @@ class _ProductInfoCard extends StatelessWidget {
         : data.feedMedicine!.code;
 
     final secondValue = isAnimal
-        ? "${data.animalProfile!.weight} Kg"
+        ? "${data.weight ?? data.animalProfile!.weight} Kg"
         : data.feedMedicine!.feedType;
 
     return SectionCard(

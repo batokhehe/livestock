@@ -4,18 +4,18 @@ import 'package:go_router/go_router.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
-import 'package:livestock/core/widgets/customer_bottom_sheet.dart';
 import 'package:livestock/core/widgets/input_field_card.dart';
 import 'package:livestock/features/sales_order/data/model/sales_order_request_model.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/custom_date_picker_sheet.dart';
-import '../../../../core/widgets/farm_location_bottom_sheet.dart';
 import '../../../../core/widgets/section_card.dart';
 import '../../../../core/widgets/select_field.dart';
 import '../../../../core/widgets/step_info_card.dart';
 import '../../sales_order_provider.dart';
+import 'package:livestock/core/widgets/customer_paginated_bottom_sheet.dart';
+import 'package:livestock/core/widgets/farm_location_paginated_bottom_sheet.dart';
 
 class AddSalesOrderPage extends ConsumerStatefulWidget {
   final String? type;
@@ -158,12 +158,9 @@ class _SalesOrderInfoSection extends ConsumerWidget {
           onTap: () async {
             final customer = await showModalBottomSheet(
               context: context,
-              isScrollControlled: false,
-              backgroundColor: AppColors.greyBg,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              builder: (_) => const CustomerBottomSheet(),
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) => const CustomerPaginatedBottomSheet(status: 'active'),
             );
             if (customer != null) {
               ref.read(salesOrderFormProvider.notifier).setCustomer(customer);
@@ -177,6 +174,7 @@ class _SalesOrderInfoSection extends ConsumerWidget {
           isMandatoryField: true,
           prefixIcon: AppImages.icCalling,
           controller: phoneController,
+          enabled: form.customer == null,
         ),
         if (form.salesItemType == 'animal') ...[
           SizedBox(height: 12),
@@ -189,9 +187,8 @@ class _SalesOrderInfoSection extends ConsumerWidget {
                   value: form.category ?? "kg",
                   options: const ['kg', 'Kelas'],
                   labelBuilder: (v) => v,
-                  onChanged: (v) => ref
-                      .read(salesOrderFormProvider.notifier)
-                      .setCategory(v),
+                  onChanged: (v) =>
+                      ref.read(salesOrderFormProvider.notifier).setCategory(v),
                 ),
               ),
               const SizedBox(width: 12),
@@ -303,8 +300,10 @@ class _CustomerInfoSectionState extends ConsumerState<_CustomerInfoSection> {
             final result = await showModalBottomSheet<FarmLocation?>(
               context: context,
               isScrollControlled: true,
-              backgroundColor: AppColors.greyBg,
-              builder: (_) => const FarmLocationBottomSheet(),
+              backgroundColor: Colors.transparent,
+              builder: (_) => FarmLocationPaginatedBottomSheet(
+                initialSelectedId: form.farmLocation?.id,
+              ),
             );
 
             if (result != null) {

@@ -272,10 +272,23 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                                     top: Radius.circular(20),
                                   ),
                                 ),
-                                builder: (_) => AnimalBottomSheet(
-                                  available: 'available',
-                                  excludedIds: excludedIds,
-                                ),
+                                builder: (_) {
+                                  final farmLocationId = widget.isEdit
+                                      ? ref
+                                          .read(editSalesOrderFormProvider)
+                                          .farmLocation
+                                          ?.id
+                                      : ref
+                                          .read(salesOrderFormProvider)
+                                          .farmLocation
+                                          ?.id;
+
+                                  return AnimalBottomSheet(
+                                    available: 'available',
+                                    excludedIds: excludedIds,
+                                    farmLocationId: farmLocationId,
+                                  );
+                                },
                               );
 
                           if (result != null) {
@@ -371,7 +384,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                             isMandatoryField: true,
                             prefixText: 'Rp ',
                             controller: finalPriceCtrl,
-                            enabled: selectedAnimal != null,
+                            enabled: false,
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
@@ -687,6 +700,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                               dlvDate: deliveryDate,
                               deliveryAddress: addressCtrl.text,
                               shippingCost: _parsePrice(shippingCostCtrl.text),
+                              weight: _parsePrice(animalWeightCtrl.text),
                               forecastWeight: forecastData?.forecastWeight,
                               stateId: selectedProvince.code,
                               state: selectedProvince.name,
