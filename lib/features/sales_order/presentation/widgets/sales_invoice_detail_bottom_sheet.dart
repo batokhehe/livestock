@@ -17,6 +17,8 @@ class SalesInvoiceDetailBottomSheet extends StatelessWidget {
         return 'Pembayaran Sebagian';
       case 'full_payment':
         return 'Pelunasan';
+      case 'canceled':
+        return 'Dibatalkan';
       default:
         return status;
     }

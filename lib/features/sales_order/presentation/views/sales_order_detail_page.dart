@@ -213,9 +213,13 @@ class SalesOrderDetailPage extends ConsumerWidget {
     final canCreateInvoice = user?.hasPermission('invoices-create') ?? false;
     bool canUpdateSO = user?.hasPermission('salesorder-update') ?? false;
 
-    // Validasi: Hide tombol edit jika status confirmed dan sudah ada nota (minimal 1)
+    // Validasi: Hide tombol edit jika status confirmed dan sudah ada nota
+    // KECUALI jika semua nota statusnya canceled, maka boleh edit
     if (data.salesStatus == 'confirmed' && invoices.isNotEmpty) {
-      canUpdateSO = false;
+      final allCanceled = invoices.every((inv) => inv.paymentStatus == 'canceled');
+      if (!allCanceled) {
+        canUpdateSO = false;
+      }
     }
 
     if (!canCreateInvoice && !canUpdateSO) return const SizedBox.shrink();
@@ -310,8 +314,10 @@ class SalesOrderDetailPage extends ConsumerWidget {
         return 'Pembayaran Sebagian';
       case 'full_payment':
         return 'Pelunasan';
+      case 'canceled':
+        return 'Dibatalkan';
       default:
-        return status;
+        return "-";
     }
   }
 
@@ -360,7 +366,7 @@ class SalesOrderDetailPage extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      _getPaymentStatus(inv.paymentStatus).toUpperCase(),
+                      _getPaymentStatus(inv.paymentStatus),
                       style: inv.paymentStatus == 'canceled'
                           ? AppTypography.xSmallBoldBlack.copyWith(
                               color: AppColors.danger,
