@@ -13,4 +13,12 @@ class AuthApi {
     );
     return LoginResponse.fromJson(response.data);
   }
+
+  Future<LoginResponse> refreshToken(String refreshToken) async {
+    final response = await dio.post(
+      '/auth/refresh',
+      data: {"refresh_token": refreshToken},
+    );
+    return LoginResponse.fromJson(response.data);
+  }
 }

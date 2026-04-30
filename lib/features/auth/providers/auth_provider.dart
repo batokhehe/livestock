@@ -7,7 +7,7 @@ import '../domain/login_usecase.dart';
 import 'login_viewmodel.dart';
 
 final authApiProvider = Provider<AuthApi>((ref) {
-  return AuthApi(ref.read(dioProvider));
+  return AuthApi(ref.read(baseDioProvider));
 });
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
