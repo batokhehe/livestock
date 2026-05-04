@@ -38,33 +38,50 @@ class ApiInterceptor extends Interceptor {
   }
 }
 
-class AuthInterceptor extends Interceptor {
+class AuthInterceptor extends QueuedInterceptor {
   final Ref ref;
 
   AuthInterceptor(this.ref);
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    if (response.statusCode == 401) {
-      final path = response.requestOptions.path;
-      if (!path.contains('/login')) {
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
+    final path = err.requestOptions.path;
+
+    if (err.response?.statusCode == 401) {
+      print("AUTH_INTERCEPTOR: 401 Unauthorized caught at $path");
+      
+      if (path.contains('/login') || path.contains('/refresh')) {
+        print("AUTH_INTERCEPTOR: 401 on login/refresh, logging out...");
+        await ref.read(authRepositoryProvider).logout();
+        ref.read(unauthorizedProvider.notifier).state = UnauthorizedException();
+        return handler.next(err);
+      }
+
+      print("AUTH_INTERCEPTOR: Attempting token refresh...");
+      final repo = ref.read(authRepositoryProvider);
+      final isRefreshed = await repo.refreshToken();
+
+      if (isRefreshed) {
+        print("AUTH_INTERCEPTOR: Refresh success, retrying request...");
+        final token = await repo.getToken();
+        final options = err.requestOptions;
+        options.headers['Authorization'] = 'Bearer $token';
+
+        final dio = ref.read(baseDioProvider);
+        try {
+          final response = await dio.fetch(options);
+          return handler.resolve(response);
+        } on DioException catch (e) {
+          print("AUTH_INTERCEPTOR: Retry failed: ${e.message}");
+          return handler.next(e);
+        }
+      } else {
+        print("AUTH_INTERCEPTOR: Refresh failed, logging out...");
+        await repo.logout();
         ref.read(unauthorizedProvider.notifier).state = UnauthorizedException();
       }
     }
-    super.onResponse(response, handler);
-  }
 
-  @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    final path = err.requestOptions.path;
-    if (path.contains('/login')) {
-      handler.next(err);
-      return;
-    }
-    if (err.response?.statusCode == 401) {
-      ref.read(unauthorizedProvider.notifier).state = UnauthorizedException();
-      return handler.resolve(err.response!);
-    }
     super.onError(err, handler);
   }
 }

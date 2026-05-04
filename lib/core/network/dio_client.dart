@@ -4,11 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'interceptors.dart';
 
-final dioProvider = Provider<Dio>((ref) {
-  final dio = Dio(
+final baseDioProvider = Provider<Dio>((ref) {
+  return Dio(
     BaseOptions(
-      // baseUrl: "http://72.61.214.163:6621/api",
-      // baseUrl: "http://72.61.214.163:6622/api",
       baseUrl: "https://dev.livestock.seavihive.com/api",
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
@@ -17,22 +15,25 @@ final dioProvider = Provider<Dio>((ref) {
         'Content-Type': 'application/json',
       },
       responseType: ResponseType.json,
-      validateStatus: (status) =>
-          status != null && (status >= 200 && status < 300 || status == 401),
     ),
-  );
-  dio.interceptors.add(
-    LogInterceptor(
-      request: true,
-      requestBody: true,
-      responseBody: true,
-      responseHeader: false,
-      error: true,
-    ),
-  );
-  dio.interceptors.add(ChuckerDioInterceptor());
-  dio.interceptors.add(ApiInterceptor(ref));
-  dio.interceptors.add(AuthInterceptor(ref));
+  )..interceptors.add(
+      LogInterceptor(
+        request: true,
+        requestBody: true,
+        responseBody: true,
+        error: true,
+      ),
+    );
+});
 
-  return dio;
+final dioProvider = Provider<Dio>((ref) {
+  final dio = ref.read(baseDioProvider);
+
+  final authenticatedDio = Dio(dio.options);
+  authenticatedDio.interceptors.addAll(dio.interceptors);
+  authenticatedDio.interceptors.add(ChuckerDioInterceptor());
+  authenticatedDio.interceptors.add(AuthInterceptor(ref));
+  authenticatedDio.interceptors.add(ApiInterceptor(ref));
+
+  return authenticatedDio;
 });

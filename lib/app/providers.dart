@@ -29,6 +29,7 @@ import '../features/dispatch/dispatch_provider.dart';
 
 export '../features/auth/data/auth_repository.dart';
 export '../features/auth/providers/auth_provider.dart';
+export '../core/network/dio_client.dart';
 export 'router.dart';
 
 final itemFilterProvider = StateProvider<ItemFilter>((ref) {

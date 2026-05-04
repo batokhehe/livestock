@@ -74,10 +74,8 @@ class OtherMenu extends ConsumerWidget {
   Widget _buildMenu(List<OtherMenuItem> menus) {
     return Container(
       padding: const EdgeInsets.only(
-        left: 12.0,
-        right: 12.0,
         top: 16.0,
-        bottom: 8.0,
+        bottom: 16.0,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -88,26 +86,33 @@ class OtherMenu extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 12.0,
         children: [
-          const Text("Menu Lainnya", style: AppTypography.mediumNormalBlack),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              childAspectRatio: 3 / 4,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14.0),
+            child: const Text("Menu Lainnya", style: AppTypography.mediumNormalBlack),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final itemWidth = constraints.maxWidth / 4;
+                return Wrap(
+                  runSpacing: 12,
+                  children: menus.map((menu) {
+                    final child = OtherMenuButton(
+                      menu.image,
+                      menu.label,
+                      onTap: menu.onTap,
+                    );
+                    return SizedBox(
+                      width: itemWidth,
+                      child: menu.isMaintenance
+                          ? Opacity(opacity: 0.6, child: child)
+                          : child,
+                    );
+                  }).toList(),
+                );
+              },
             ),
-            itemCount: menus.length,
-            itemBuilder: (_, i) {
-              final menu = menus[i];
-              final child = OtherMenuButton(
-                menu.image,
-                menu.label,
-                onTap: menu.onTap,
-              );
-              return menu.isMaintenance
-                  ? Opacity(opacity: 0.6, child: child)
-                  : child;
-            },
           ),
         ],
       ),

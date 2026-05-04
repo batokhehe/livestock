@@ -39,7 +39,7 @@ class MasterApi {
       }..removeWhere((k, v) => v == null),
     );
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -67,7 +67,7 @@ class MasterApi {
       }..removeWhere((k, v) => v == null),
     );
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -94,7 +94,7 @@ class MasterApi {
       }..removeWhere((k, v) => v == null),
     );
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -129,7 +129,7 @@ class MasterApi {
       }..removeWhere((k, v) => v == null),
     );
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -146,7 +146,7 @@ class MasterApi {
   Future<BaseResponse<FeedMedicine>> getFeedMedicines() async {
     final res = await dio.get('/master/feed-medicine');
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -163,7 +163,7 @@ class MasterApi {
   Future<List<Province>> getProvinces() async {
     final res = await dio.get('/transaction/list-provinces');
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -180,7 +180,7 @@ class MasterApi {
   Future<List<City>> getCities(String param) async {
     final res = await dio.get('/transaction/list-cities/$param');
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -197,7 +197,7 @@ class MasterApi {
   Future<List<District>> getDistricts(String param) async {
     final res = await dio.get('/transaction/list-districts/$param');
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -214,7 +214,7 @@ class MasterApi {
   Future<List<Village>> getVillages(String param) async {
     final res = await dio.get('/transaction/list-villages/$param');
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -231,7 +231,7 @@ class MasterApi {
   Future<BaseResponse<AnimalGroup>> getAnimalGroups() async {
     final res = await dio.get('/master/animal-group');
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -251,7 +251,7 @@ class MasterApi {
       queryParameters: {if (type != null) 'type': type},
     );
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -265,7 +265,7 @@ class MasterApi {
   Future<BaseResponseSingle<AnimalProfile>> getAnimalDetail(String id) async {
     final res = await dio.get('/master/animal-profile/$id');
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -296,7 +296,7 @@ class MasterApi {
       }..removeWhere((k, v) => v == null),
     );
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -325,7 +325,7 @@ class MasterApi {
       queryParameters: query.isNotEmpty ? query : null,
     );
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -349,7 +349,7 @@ class MasterApi {
       queryParameters: {'city_id': cityId, 'farm_location_id': farmLocationId},
     );
 
-    if (res.statusCode == 401) throw UnauthorizedException();
+    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,

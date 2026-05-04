@@ -216,32 +216,38 @@ class AppRadioGroup<T> extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: AppTypography.smallBoldBlack),
+          SizedBox(height: 8.0),
           Container(
+            width: double.infinity,
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.fieldBorder, width: 1),
             ),
-            child: Row(
-              children: options.map((item) {
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Radio<T>(
-                      value: item,
-                      groupValue: value,
-                      activeColor: AppColors.primary,
-                      onChanged: (val) {
-                        if (val != null) onChanged(val);
-                      },
-                    ),
-                    Text(
-                      labelBuilder(item),
-                      style: AppTypography.smallNormalBlack,
-                    ),
-                  ],
-                );
-              }).toList(),
+            child: RadioGroup<T>(
+              groupValue: value,
+              onChanged: (val) {
+                if (val != null) onChanged(val);
+              },
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: options.map((item) {
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Radio<T>(
+                        value: item,
+                        activeColor: AppColors.primary,
+                      ),
+                      Text(
+                        labelBuilder(item),
+                        style: AppTypography.smallNormalBlack,
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  );
+                }).toList(),
+              ),
             ),
           ),
         ],
