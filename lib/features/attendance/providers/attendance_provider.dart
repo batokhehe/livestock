@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:livestock/features/attendance/data/model/attendance_detail.dart';
 import 'package:livestock/features/attendance/data/model/attendance_request.dart';
+import 'package:livestock/core/data/model/farm_location_model.dart';
 
 import '../../../core/network/dio_client.dart';
 import '../../attendance/data/api/attendance_api.dart';
@@ -112,6 +113,8 @@ final attendancePageProvider = StateProvider<int>((ref) => 1);
 
 final attendanceSearchProvider = StateProvider<String?>((ref) => null);
 
+final attendanceLocationProvider = StateProvider<FarmLocation?>((ref) => null);
+
 /// =====================================================
 /// QUERY (DERIVED STATE - 🔥 PALING PENTING)
 /// =====================================================
@@ -121,13 +124,14 @@ final attendanceQueryProvider = Provider<AttendanceRequest>((ref) {
   final month = ref.watch(attendanceMonthProvider);
   final page = ref.watch(attendancePageProvider);
   final search = ref.watch(attendanceSearchProvider);
+  final location = ref.watch(attendanceLocationProvider);
 
   return AttendanceRequest(
     type: tab == AttendanceTab.attendance ? 'regular' : 'overnight',
     month: month,
     page: page,
     perPage: 10,
-    search: search,
+    search: location?.name ?? search,
   );
 });
 

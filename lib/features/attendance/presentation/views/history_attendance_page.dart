@@ -8,6 +8,8 @@ import 'package:livestock/core/widgets/item_double_card.dart';
 import '../../../../core/helpers/utils.dart';
 import '../../../../core/theme/AppImages.dart';
 import '../../../../core/widgets/date_group_card.dart';
+import '../../../../core/data/model/farm_location_model.dart';
+import '../../../../core/widgets/farm_location_paginated_bottom_sheet.dart';
 import '../../providers/attendance_provider.dart';
 
 class HistoryAttendancePage extends ConsumerStatefulWidget {
@@ -155,26 +157,64 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
   // ================= UI =================
 
   Widget _locationFilter(BuildContext context) {
+    final selectedLocation = ref.watch(attendanceLocationProvider);
+
     return Row(
       children: [
         Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.fieldBorder),
-            ),
-            child: Row(
-              children: const [
-                Icon(Icons.location_on, size: 18, color: AppColors.primary),
-                SizedBox(width: 8),
-                Expanded(child: Text("Semua lokasi peternakan")),
-                Icon(Icons.chevron_right),
-              ],
+          child: InkWell(
+            onTap: () async {
+              final result = await showModalBottomSheet<FarmLocation?>(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => FarmLocationPaginatedBottomSheet(
+                  initialSelectedId: selectedLocation?.id,
+                ),
+              );
+
+              if (result != null) {
+                ref.read(attendanceLocationProvider.notifier).state = result;
+              }
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.fieldBorder),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.location_on,
+                    size: 18,
+                    color: AppColors.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      selectedLocation?.name ?? "Semua lokasi peternakan",
+                    ),
+                  ),
+                  selectedLocation != null
+                      ? GestureDetector(
+                          onTap: () {
+                            ref
+                                    .read(attendanceLocationProvider.notifier)
+                                    .state =
+                                null;
+                          },
+                          child: const Icon(Icons.close),
+                        )
+                      : const Icon(Icons.chevron_right),
+                ],
+              ),
             ),
           ),
         ),
+
         const SizedBox(width: 8),
         Material(
           color: Colors.transparent,
