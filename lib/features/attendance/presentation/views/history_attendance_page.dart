@@ -130,15 +130,24 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
                         }
 
                         /// ================= TAB ABSENSI =================
-                        final attendance = items.first;
+                        return DateGroupCard(
+                          dateLabel: formatDateString(date),
+                          children: items.map<Widget>((item) {
+                            // final detail = item['detail'];
+                            // final employee = detail['employee'];
 
-                        return _attendanceCard(
-                          date: attendance['transdate'],
-                          area: "Area simpang ciheulang",
-                          pic:
-                              "${attendance['recorder']['name']} · Kepala Kandang",
-                          present: countPresent(attendance['details']),
-                          absent: countAbsent(attendance['details']),
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: _attendanceCard(
+                                date: item['transdate'],
+                                area: "Area simpang ciheulang",
+                                pic:
+                                    "${item['recorder']['name']} · Kepala Kandang",
+                                present: countPresent(item['details']),
+                                absent: countAbsent(item['details']),
+                              ),
+                            );
+                          }).toList(),
                         );
                       },
                     );
@@ -257,15 +266,15 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(formatDateString(date), style: AppTypography.smallNormalBlack),
+          // Text(formatDateString(date), style: AppTypography.smallNormalBlack),
           const SizedBox(height: 6),
           Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.fieldBorder),
-            ),
+            padding: const EdgeInsets.all(0),
+            // decoration: BoxDecoration(
+            //   color: AppColors.white,
+            //   borderRadius: BorderRadius.circular(16),
+            //   border: Border.all(color: AppColors.fieldBorder),
+            // ),
             child: Row(
               children: [
                 Expanded(
