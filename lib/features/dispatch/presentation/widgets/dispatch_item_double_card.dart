@@ -20,13 +20,17 @@ class DispatchItemDoubleCard extends StatelessWidget {
         statusColor = AppColors.primary;
         statusText = 'Siap Dikirim';
         break;
+      case 'in_transit':
+        statusColor = AppColors.info;
+        statusText = 'Sedang Dikirm';
+        break;
       case 'delivered':
         statusColor = AppColors.success;
         statusText = 'Selesai Dikirim';
         break;
       default:
-        statusColor = AppColors.grey2;
-        statusText = 'Sedang Dikirim';
+        statusColor = AppColors.danger;
+        statusText = "Dibatalkan";
     }
 
     return Container(

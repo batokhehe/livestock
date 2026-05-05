@@ -76,11 +76,17 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
                 const SizedBox(height: 12),
 
                 ...items.asMap().entries.map(
-                  (entry) => _ProductInfoCard(
-                    counter: entry.key + 1,
-                    data: entry.value,
-                    useForecast: form.useForecast ?? true,
-                    forecastDate: form.forecastDate,
+                  (entry) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _ProductInfoCard(
+                        counter: entry.key + 1,
+                        data: entry.value,
+                        useForecast: form.useForecast ?? true,
+                        forecastDate: form.forecastDate,
+                      ),
+                      SizedBox(height: 8.0),
+                    ],
                   ),
                 ),
 
@@ -90,6 +96,10 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
                   totalItem: items.length,
                   subtotal: subtotal,
                   discount: discount,
+                  shippingCost: items.fold<double>(
+                    0,
+                    (sum, item) => sum + (item.shippingCost ?? 0),
+                  ),
                   total: total,
                   formatCurrency: formatCurrency,
                 ),
@@ -212,6 +222,7 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
     required int totalItem,
     required double subtotal,
     required double discount,
+    required double shippingCost,
     required double total,
     required String Function(double) formatCurrency,
   }) {
@@ -228,6 +239,7 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
               formatCurrency(total),
               isBold: true,
             ),
+            _rowSummary("Biaya Pengiriman", formatCurrency(shippingCost)),
           ],
         ),
       ],
