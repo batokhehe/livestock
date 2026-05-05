@@ -49,6 +49,10 @@ final employeeSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
 String get todayDate => DateFormat('yyyy-MM-dd').format(DateTime.now());
 
+final attendanceDateProvider = StateProvider.autoDispose<DateTime?>(
+  (ref) => null,
+);
+
 class AttendanceStatusNotifier extends StateNotifier<Map<int, bool>> {
   AttendanceStatusNotifier() : super({});
 

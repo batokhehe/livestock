@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 import 'package:livestock/core/widgets/card_wrapper.dart';
+import 'package:livestock/core/widgets/custom_date_picker_sheet.dart';
 import 'package:livestock/core/widgets/section_card.dart';
 import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
 import 'package:livestock/features/user/providers/user_provider.dart';
@@ -96,28 +97,31 @@ class _EmployeeAttendancePageState
 
   // ================= INFORMASI ABSENSI =================
   Widget _attendanceInfo(BuildContext context) {
-    final dateText = DateFormat('dd MMM yyyy', 'id_ID').format(DateTime.now());
+    final selectedDate = ref.watch(attendanceDateProvider);
 
     return SectionCard(
       title: 'Informasi Absensi',
       children: [
         Dropdowns(
           label: 'Tanggal Absensi',
-          value: dateText,
+          value: DateFormat(
+            'dd MMM yyyy',
+            'id_ID',
+          ).format(selectedDate ?? DateTime.now()),
           icon: AppImages.icCalendarSearch,
-          enabled: false,
-          // onTap: () async {
-          //   final pickedDate = await showModalBottomSheet<DateTime?>(
-          //     context: context,
-          //     isScrollControlled: true,
-          //     backgroundColor: Colors.transparent,
-          //     builder: (_) => const CustomDatePickerSheet(),
-          //   );
-          //
-          //   if (pickedDate != null) {
-          //     ref.read(attendanceDateProvider.notifier).state = pickedDate;
-          //   }
-          // },
+          // enabled: false,
+          onTap: () async {
+            final pickedDate = await showModalBottomSheet<DateTime?>(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) => const CustomDatePickerSheet(),
+            );
+
+            if (pickedDate != null) {
+              ref.read(attendanceDateProvider.notifier).state = pickedDate;
+            }
+          },
         ),
         const SizedBox(height: 12),
         TextFieldWithInnerCounter(
@@ -351,13 +355,12 @@ class _EmployeeAttendancePageState
   }
 
   Map<String, dynamic> _buildAttendancePayload(List<Employee> employees) {
-    // final selectedDate = ref.read(attendanceDateProvider);
+    final selectedDate = ref.read(attendanceDateProvider);
     final statuses = ref.read(attendanceStatusProvider);
     final farmId = ref.watch(userFarmProvider);
 
     return {
-      // "trans_date": DateFormat('yyyy-MM-dd').format(selectedDate!),
-      "trans_date": todayDate,
+      "trans_date": DateFormat('yyyy-MM-dd').format(selectedDate!),
       "additional_information": noteCtrl.text,
       "farm_location_id": farmId,
       "record_by": 1,
