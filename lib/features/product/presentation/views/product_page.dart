@@ -73,6 +73,21 @@ class _ProductPage extends ConsumerState<ProductPage> {
     super.dispose();
   }
 
+  Future<void> _onRefresh() async {
+    _resetFilters();
+    ref.invalidate(productDataProvider);
+    await ref.read(productDataProvider.future);
+  }
+
+  void _resetFilters() {
+    searchCtrl.clear();
+    ref.read(animalSearchProvider.notifier).state = '';
+    ref.read(animalAvailableProvider.notifier).state = '';
+    ref.read(animalFarmLocationIdProvider.notifier).state = null;
+    ref.read(animalFarmAreaIdProvider.notifier).state = null;
+    ref.read(animalClassStatusProvider.notifier).state = '';
+  }
+
   @override
   Widget build(BuildContext context) {
     final tab = ref.watch(productTabProvider);
@@ -110,27 +125,29 @@ class _ProductPage extends ConsumerState<ProductPage> {
           ),
         ),
         data: (data) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                _searchBar(),
-                const SizedBox(height: 12),
-                _tabMenu(ref, tab),
-                const SizedBox(height: 12),
-
-                Expanded(
-                  child: tab == ProductTab.product
-                      ? _buildAnimalList(
-                          data.data.cast<AnimalProfile>(),
-                          data.total ?? 0,
-                        )
-                      : _buildAnimalClassList(
-                          data.data.cast<AnimalClass>(),
-                          data.total ?? 0,
-                        ),
-                ),
-              ],
+          return RefreshIndicator(
+            onRefresh: _onRefresh,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  _searchBar(),
+                  const SizedBox(height: 12),
+                  _tabMenu(ref, tab),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: tab == ProductTab.product
+                        ? _buildAnimalList(
+                            data.data.cast<AnimalProfile>(),
+                            data.total ?? 0,
+                          )
+                        : _buildAnimalClassList(
+                            data.data.cast<AnimalClass>(),
+                            data.total ?? 0,
+                          ),
+                  ),
+                ],
+              ),
             ),
           );
         },
