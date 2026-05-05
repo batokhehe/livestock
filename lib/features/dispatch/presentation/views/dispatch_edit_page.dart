@@ -8,6 +8,7 @@ import 'package:livestock/core/widgets/section_card.dart';
 import 'package:livestock/features/dispatch/data/model/dispatch_list_model.dart';
 import 'package:livestock/features/dispatch/data/model/dispatch_request_model.dart';
 import 'package:livestock/features/dispatch/presentation/widgets/dispatch_item_double_card.dart';
+import '../../../../core/widgets/success_notification.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
@@ -135,13 +136,12 @@ class _DispatchEditPageState extends ConsumerState<DispatchEditPage> {
                                 .read(dispatchFormProvider.notifier)
                                 .updateDispatch(widget.id);
 
+                            ref.invalidate(dispatchListProvider);
                             ref.read(dispatchFormProvider.notifier).reset();
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Pengiriman berhasil disimpan"),
-                                backgroundColor: Colors.green,
-                              ),
+                            SuccessNotification.show(
+                              title: "Pengiriman Berhasil",
+                              subtitle: "Perubahan data pengiriman berhasil disimpan",
                             );
 
                             context.go('/dispatch');

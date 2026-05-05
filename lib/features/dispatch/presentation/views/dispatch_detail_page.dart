@@ -43,29 +43,33 @@ class DispatchDetailPage extends ConsumerWidget {
           return Scaffold(
             backgroundColor: AppColors.greyBg,
             body: _body(context, detail),
-            bottomNavigationBar: Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+            bottomNavigationBar:
+                (detail.dispatchStatus == 'delivered' ||
+                    detail.dispatchStatus == 'in_transit')
+                ? null
+                : Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SizedBox(
+                      height: 48,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          context.push('/dispatch/edit/${detail.id}');
+                        },
+                        child: Text(
+                          "Perbarui Pengiriman",
+                          style: AppTypography.mediumBoldWhite,
+                        ),
+                      ),
                     ),
                   ),
-                  onPressed: () {
-                    context.push('/dispatch/edit/${detail.id}');
-                  },
-                  child: Text(
-                    "Perbarui Pengiriman",
-                    style: AppTypography.mediumBoldWhite,
-                  ),
-                ),
-              ),
-            ),
           );
         },
       ),
@@ -76,7 +80,15 @@ class DispatchDetailPage extends ConsumerWidget {
     final items = detail.items;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        16,
+        16,
+        (detail.dispatchStatus == 'delivered' ||
+                detail.dispatchStatus == 'in_transit')
+            ? 16
+            : 120,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
