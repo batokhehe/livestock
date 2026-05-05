@@ -201,22 +201,99 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
           ),
           const SizedBox(height: 12),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          TwoColumnRowCard(
-            leftValue: item.city,
-            leftLabel: "Kota Tujuan",
-            rightValue: item.dlvDate,
-            rightLabel: "Tanggal Kirim",
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: TwoColumnRowCard(
+              leftValue: item.city,
+              leftLabel: "Kota Tujuan",
+              rightValue: item.dlvDate,
+              rightLabel: "Tanggal Kirim",
+            ),
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           Padding(
-            padding: EdgeInsetsGeometry.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
+            child: Column(
               children: [
-                Text("Biaya Kirim", style: AppTypography.smallNormalGrey),
-                Text(
-                  "Rp ${formatPrice(item.shippingCost as num)}",
-                  style: AppTypography.mediumBoldPrimary,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Biaya Kirim",
+                      style: AppTypography.smallNormalGrey.copyWith(
+                        fontSize: 12,
+                      ),
+                    ),
+                    Text(
+                      "Rp ${formatPrice(item.shippingCost as num)}",
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.mediumBoldPrimary.copyWith(
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Jumlah Harus Dibayar",
+                      style: AppTypography.smallNormalGrey.copyWith(
+                        fontSize: 12,
+                      ),
+                    ),
+                    Text(
+                      "Rp ${formatPrice(item.amountTotal)}",
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.mediumBoldPrimary.copyWith(
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Total Sudah Dibayar",
+                      style: AppTypography.smallNormalGrey.copyWith(
+                        fontSize: 12,
+                      ),
+                    ),
+                    Text(
+                      "Rp ${formatPrice(item.amountPaid)}",
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.mediumBoldPrimary.copyWith(
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Sisa Harus Dibayar",
+                      style: AppTypography.smallNormalGrey.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      "Rp ${formatPrice(item.amountRemainder)}",
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.mediumBoldPrimary.copyWith(
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

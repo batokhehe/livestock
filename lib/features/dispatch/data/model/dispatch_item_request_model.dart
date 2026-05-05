@@ -22,6 +22,9 @@ class DispatchItemRequest {
   final int totalShippingCost;
   final int salesOrderId;
   final int salesOrderDetailId;
+  final int amountRemainder;
+  final int amountPaid;
+  final int amountTotal;
 
   DispatchItemRequest({
     required this.animalProfileId,
@@ -47,6 +50,9 @@ class DispatchItemRequest {
     required this.totalShippingCost,
     required this.salesOrderId,
     required this.salesOrderDetailId,
+    required this.amountRemainder,
+    required this.amountPaid,
+    required this.amountTotal,
   });
 
   Map<String, dynamic> toJson() {
@@ -71,6 +77,9 @@ class DispatchItemRequest {
       "total_shipping_cost": totalShippingCost,
       "sales_order_id": salesOrderId,
       "sales_order_detail_id": salesOrderDetailId,
+      "amount_remainder": amountRemainder,
+      "amount_paid": amountPaid,
+      "amount_total": amountTotal,
     };
   }
 }

@@ -53,7 +53,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
         final selectedItems = ref.watch(dispatchFormProvider).items ?? [];
         final selectedIds = selectedItems.map((e) => e.orderId).toSet();
         final list = d.where((item) {
-          return !selectedIds.contains(item.orderId);
+          return !selectedIds.contains(item.orderId) && item.items.isNotEmpty;
         }).toList();
 
         return Padding(
@@ -206,6 +206,9 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheet> {
                             recipientName: selectedItem.recipientName,
                             recipientNumber: selectedItem.recipientNumber,
                             orderId: selectedItem.orderId,
+                            orderRemainder: selectedItem.amountRemainder.toInt(),
+                            orderPaid: selectedItem.amountPaid.toInt(),
+                            orderTotal: selectedItem.amountTotal.toInt(),
                           ),
                         ),
                   child: const Text(

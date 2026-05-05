@@ -43,6 +43,8 @@ class SalesOrderDispatchItem {
   final String deliveryAddress;
 
   final int shippingCost;
+  final int amountPaid;
+  final int amountTotal;
 
   SalesOrderDispatchItem({
     required this.id,
@@ -75,6 +77,8 @@ class SalesOrderDispatchItem {
     required this.village,
     required this.deliveryAddress,
     required this.shippingCost,
+    required this.amountPaid,
+    required this.amountTotal,
   });
 
   factory SalesOrderDispatchItem.fromJson(Map<String, dynamic> json) {
@@ -97,8 +101,9 @@ class SalesOrderDispatchItem {
       remainingQty: json['remaining_qty'] ?? 0,
       qtyInvoiced: json['qty_invoiced'] ?? 0,
       unitPrice: json['unit_price'] ?? 0,
-      amountRemainder: json['amount_remainder'] ?? 0,
-      subtotal: json['subtotal'] ?? 0,
+      amountRemainder:
+          double.tryParse(json['amount_remainder'].toString())?.toInt() ?? 0,
+      subtotal: double.tryParse(json['subtotal'].toString())?.toInt() ?? 0,
       stateId: json['state_id'] ?? '',
       state: json['state'] ?? '',
       cityId: json['city_id'] ?? '',
@@ -108,7 +113,10 @@ class SalesOrderDispatchItem {
       villageId: json['village_id'] ?? '',
       village: json['village'] ?? '',
       deliveryAddress: json['delivery_address'] ?? '',
-      shippingCost: json['shipping_cost'] ?? 0,
+      shippingCost: double.tryParse(json['shipping_cost'].toString())?.toInt() ?? 0,
+      amountPaid: double.tryParse(json['amount_paid'].toString())?.toInt() ?? 0,
+      amountTotal:
+          double.tryParse(json['amount_total'].toString())?.toInt() ?? 0,
     );
   }
 }

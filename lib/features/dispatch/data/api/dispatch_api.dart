@@ -13,6 +13,8 @@ class DispatchApi {
   Future<List<DispatchList>> getDispatch({
     required String status,
     String? search,
+    int? page,
+    int? perPage,
   }) async {
     final query = <String, dynamic>{};
     if (status != 'all') {
@@ -20,6 +22,12 @@ class DispatchApi {
     }
     if (search != null && search.isNotEmpty) {
       query['search'] = search;
+    }
+    if (page != null) {
+      query['page'] = page;
+    }
+    if (perPage != null) {
+      query['per_page'] = perPage;
     }
     final res = await dio.get(
       '/inventory/dispatch',
