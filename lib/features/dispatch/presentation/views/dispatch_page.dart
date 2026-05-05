@@ -19,16 +19,26 @@ class DispatchPage extends ConsumerStatefulWidget {
 
 class _DispatchPageState extends ConsumerState<DispatchPage> {
   late TextEditingController searchCtrl;
+  late ScrollController scrollCtrl;
 
   @override
   void initState() {
     super.initState();
     searchCtrl = TextEditingController();
+    scrollCtrl = ScrollController()..addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (scrollCtrl.position.pixels >=
+        scrollCtrl.position.maxScrollExtent - 200) {
+      ref.read(dispatchListProvider.notifier).fetch();
+    }
   }
 
   @override
   void dispose() {
     searchCtrl.dispose();
+    scrollCtrl.dispose();
     super.dispose();
   }
 
@@ -58,7 +68,7 @@ class _DispatchPageState extends ConsumerState<DispatchPage> {
           Padding(
             padding: EdgeInsetsGeometry.all(8),
             child: SearchBarCard(
-              hint: 'Cari Apapun',
+              hint: 'Cari Pengiriman',
               controller: searchCtrl,
               onChanged: (value) {
                 ref
@@ -83,6 +93,8 @@ class _DispatchPageState extends ConsumerState<DispatchPage> {
                   _tabItem(ref, DispatchTab.inTransit, activeTab),
                   const SizedBox(width: 8),
                   _tabItem(ref, DispatchTab.delivered, activeTab),
+                  const SizedBox(width: 8),
+                  _tabItem(ref, DispatchTab.canceled, activeTab),
                 ],
               ),
             ),
@@ -93,7 +105,7 @@ class _DispatchPageState extends ConsumerState<DispatchPage> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
-                await ref.refresh(dispatchListProvider.future);
+                await ref.read(dispatchListProvider.notifier).refresh();
               },
               child: dataAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -120,7 +132,7 @@ class _DispatchPageState extends ConsumerState<DispatchPage> {
                     ),
                   );
                 },
-                data: (list) => _DispatchList(list),
+                data: (list) => _DispatchList(list, scrollCtrl),
               ),
             ),
           ),
@@ -163,13 +175,14 @@ class _DispatchPageState extends ConsumerState<DispatchPage> {
   }
 }
 
-class _DispatchList extends StatelessWidget {
+class _DispatchList extends ConsumerWidget {
   final List<DispatchList> list;
+  final ScrollController scrollController;
 
-  const _DispatchList(this.list);
+  const _DispatchList(this.list, this.scrollController);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (list.isEmpty) {
       return const Center(child: Text("Data kosong"));
     }
@@ -180,11 +193,25 @@ class _DispatchList extends StatelessWidget {
       grouped.putIfAbsent(item.dispatchDate, () => []).add(item);
     }
 
+    final notifier = ref.watch(dispatchListProvider.notifier);
+
     return ListView(
+      controller: scrollController,
       padding: const EdgeInsets.all(16),
-      children: grouped.entries.map((entry) {
-        return DispatchDateGroupCard(dateLabel: entry.key, items: entry.value);
-      }).toList(),
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        ...grouped.entries.map((entry) {
+          return DispatchDateGroupCard(
+            dateLabel: entry.key,
+            items: entry.value,
+          );
+        }),
+        if (notifier.isLoadingMore)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+      ],
     );
   }
 }
