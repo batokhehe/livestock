@@ -22,15 +22,32 @@ class HistoryAttendancePage extends ConsumerStatefulWidget {
 }
 
 class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
+  late final ScrollController _scrollController;
+
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
 
     /// 🔥 REFRESH DATA SETIAP PAGE DIBUKA
     Future.microtask(() {
-      ref.invalidate(attendanceHistoryProvider);
+      ref.invalidate(attendanceHistoryNotifierProvider);
+    });
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
+        ref.read(attendanceHistoryNotifierProvider.notifier).loadMore();
+      }
     });
   }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +55,8 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
     final query = ref.watch(attendanceQueryProvider);
 
     /// DATA DARI API
-    final attendanceAsync = ref.watch(attendanceHistoryProvider(query));
+    final attendanceAsync = ref.watch(attendanceHistoryNotifierProvider);
+
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
@@ -60,7 +78,8 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async {
-                  ref.invalidate(attendanceHistoryProvider);
+                  ref.invalidate(attendanceHistoryNotifierProvider);
+                  await ref.read(attendanceHistoryNotifierProvider.future);
                 },
                 child: attendanceAsync.when(
                   loading: () =>
@@ -73,7 +92,11 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
                     ),
                   ),
 
-                  data: (List data) {
+                  data: (Map<String, dynamic> response) {
+                    final List data = response['data'];
+                    final int total = response['total'] ?? 0;
+                    final bool hasMore = data.length < total;
+
                     if (data.isEmpty) {
                       return const Center(
                         child: Text("Belum ada riwayat absensi"),
@@ -105,12 +128,21 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
                     final dates = grouped.keys.toList();
 
                     return ListView.separated(
+                      controller: _scrollController,
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: dates.length,
+                      itemCount: dates.length + (hasMore ? 1 : 0),
                       separatorBuilder: (_, __) => const SizedBox(height: 16),
                       itemBuilder: (context, index) {
+                        if (index == dates.length) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
+
                         final date = dates[index];
                         final items = grouped[date]!;
+
 
                         /// ================= TAB NGINAP =================
                         if (activeTab == AttendanceTab.overnight) {
