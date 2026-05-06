@@ -12,6 +12,7 @@ import '../../../../core/widgets/date_group_card.dart';
 import '../../../../core/data/model/farm_location_model.dart';
 import '../../../../core/widgets/farm_location_paginated_bottom_sheet.dart';
 import '../../providers/attendance_provider.dart';
+import '../widgets/history_attendance_filter_bottom_sheet.dart';
 
 class HistoryAttendancePage extends ConsumerStatefulWidget {
   const HistoryAttendancePage({super.key});
@@ -48,7 +49,6 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     /// QUERY DERIVED DARI PROVIDER
@@ -56,7 +56,6 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
 
     /// DATA DARI API
     final attendanceAsync = ref.watch(attendanceHistoryNotifierProvider);
-
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
@@ -142,7 +141,6 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
 
                         final date = dates[index];
                         final items = grouped[date]!;
-
 
                         /// ================= TAB NGINAP =================
                         if (activeTab == AttendanceTab.overnight) {
@@ -262,7 +260,14 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: () {},
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => const HistoryAttendanceFilterBottomSheet(),
+              );
+            },
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(

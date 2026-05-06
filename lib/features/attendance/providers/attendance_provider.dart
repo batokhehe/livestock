@@ -109,9 +109,13 @@ final attendanceApiProvider = Provider(
 /// FILTER & PAGINATION (STATE KECIL)
 /// =====================================================
 
-final attendanceMonthProvider = StateProvider<String>((ref) {
-  return '';
-});
+final attendanceFilterTypeProvider = StateProvider<String>(
+  (ref) => 'Bulan Ini',
+);
+
+final attendanceDateRangeProvider = StateProvider<DateTimeRange?>(
+  (ref) => null,
+);
 
 final attendancePageProvider = StateProvider<int>((ref) => 1);
 
@@ -125,14 +129,35 @@ final attendanceLocationProvider = StateProvider<FarmLocation?>((ref) => null);
 
 final attendanceQueryProvider = Provider<AttendanceRequest>((ref) {
   final tab = ref.watch(attendanceTabProvider);
-  final month = ref.watch(attendanceMonthProvider);
+  final filterType = ref.watch(attendanceFilterTypeProvider);
+  final dateRange = ref.watch(attendanceDateRangeProvider);
   final page = ref.watch(attendancePageProvider);
   final search = ref.watch(attendanceSearchProvider);
   final location = ref.watch(attendanceLocationProvider);
 
+  String? dateStr;
+  String monthStr = '';
+
+  final now = DateTime.now();
+
+  if (filterType == 'Hari ini') {
+    dateStr = DateFormat('yyyy-MM-dd').format(now);
+  } else if (filterType == 'Minggu Ini') {
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final endOfWeek = startOfWeek.add(const Duration(days: 6));
+    dateStr =
+        '${DateFormat('yyyy-MM-dd').format(startOfWeek)},${DateFormat('yyyy-MM-dd').format(endOfWeek)}';
+  } else if (filterType == 'Rentang tanggal manual' && dateRange != null) {
+    dateStr =
+        '${DateFormat('yyyy-MM-dd').format(dateRange.start)},${DateFormat('yyyy-MM-dd').format(dateRange.end)}';
+  } else {
+    monthStr = DateFormat('yyyy-MM').format(now);
+  }
+
   return AttendanceRequest(
     type: tab == AttendanceTab.attendance ? 'regular' : 'overnight',
-    month: month,
+    month: monthStr,
+    date: dateStr,
     page: page,
     perPage: 10,
     search: location?.name ?? search,
