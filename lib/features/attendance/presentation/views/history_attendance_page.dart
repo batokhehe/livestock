@@ -4,6 +4,7 @@ import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 import 'package:livestock/core/widgets/card_wrapper.dart';
 import 'package:livestock/core/widgets/item_double_card.dart';
+import 'package:livestock/features/attendance/presentation/widgets/attendance_overnight_item_double_card.dart';
 
 import '../../../../core/helpers/utils.dart';
 import '../../../../core/theme/AppImages.dart';
@@ -121,7 +122,7 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
 
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 8),
-                                child: ItemDoubleCard(
+                                child: AttendanceOvernightItemDoubleCard(
                                   title: employee['name'],
                                   subTitle: employee['phone_number'] ?? "-",
                                   tag: item['note'] ?? "-",
