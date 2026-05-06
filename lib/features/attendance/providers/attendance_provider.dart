@@ -105,7 +105,7 @@ final attendanceApiProvider = Provider(
 /// =====================================================
 
 final attendanceMonthProvider = StateProvider<String>((ref) {
-  return '2026-01';
+  return '';
 });
 
 final attendancePageProvider = StateProvider<int>((ref) => 1);
