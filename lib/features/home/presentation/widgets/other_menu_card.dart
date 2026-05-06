@@ -62,8 +62,14 @@ class OtherMenu extends ConsumerWidget {
           OtherMenuItem(
             image: AppImages.icCalendarSearchSvg,
             label: 'Absensi Pekerja',
-            isMaintenance: true,
-            onTap: () => MaintenanceHelper.showMaintenanceSnackBar(context),
+            // isMaintenance: true,
+            // onTap: () => MaintenanceHelper.showMaintenanceSnackBar(context),
+            onTap: () => showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) => const EmployeeAttendanceBottomSheet(),
+            ),
           ),
         ];
         return _buildMenu(menus);
@@ -73,10 +79,7 @@ class OtherMenu extends ConsumerWidget {
 
   Widget _buildMenu(List<OtherMenuItem> menus) {
     return Container(
-      padding: const EdgeInsets.only(
-        top: 16.0,
-        bottom: 16.0,
-      ),
+      padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -88,7 +91,10 @@ class OtherMenu extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14.0),
-            child: const Text("Menu Lainnya", style: AppTypography.mediumNormalBlack),
+            child: const Text(
+              "Menu Lainnya",
+              style: AppTypography.mediumNormalBlack,
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
