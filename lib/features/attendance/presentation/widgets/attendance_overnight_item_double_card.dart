@@ -60,8 +60,6 @@ class AttendanceOvernightItemDoubleCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Notes', style: AppTypography.xSmallBoldPrimary),
-                      const SizedBox(height: 2),
                       Text(tag, style: AppTypography.smallNormalBlack),
                     ],
                   ),
