@@ -360,7 +360,9 @@ class _EmployeeAttendancePageState
     final farmId = ref.watch(userFarmProvider);
 
     return {
-      "trans_date": DateFormat('yyyy-MM-dd').format(selectedDate!),
+      "trans_date": DateFormat(
+        'yyyy-MM-dd',
+      ).format(selectedDate ?? DateTime.now()),
       "additional_information": noteCtrl.text,
       "farm_location_id": farmId,
       "record_by": 1,
