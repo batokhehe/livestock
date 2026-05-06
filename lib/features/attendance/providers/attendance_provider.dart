@@ -160,6 +160,8 @@ final attendanceQueryProvider = Provider<AttendanceRequest>((ref) {
     date: dateStr,
     page: page,
     perPage: 10,
+    sortBy: 'transdate',
+    sortDir: 'desc',
     search: location?.name ?? search,
   );
 });

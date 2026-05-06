@@ -13,6 +13,7 @@ import '../../../../core/widgets/select_field.dart';
 import '../../../../core/widgets/text_field_with_inner_counter.dart';
 import '../../../receiving/presentation/widgets/confirmation_bottom_sheet.dart';
 import '../../../user/providers/user_provider.dart';
+import '../../../../core/widgets/custom_date_picker_sheet.dart';
 import '../../data/model/employee_model.dart';
 import '../../providers/attendance_provider.dart';
 
@@ -81,29 +82,40 @@ class _EmployeeAttendancePageState
 
   // ================= INFORMASI ABSENSI =================
   Widget _attendanceInfo(BuildContext context) {
-    // final selectedDate = ref.watch(attendanceDateProvider);
+    final selectedDate = ref.watch(attendanceDateProvider);
     final selectedEmployeeId = ref.watch(selectedEmployeeIdProvider);
     final employeesAsync = ref.watch(employeeListProvider);
 
     String employeeLabel = "Pilih karyawan";
 
     employeesAsync.whenData((employees) {
-      final selected = employees
-          .where((e) => e.id == selectedEmployeeId)
-          .toList();
+      final selected =
+          employees.where((e) => e.id == selectedEmployeeId).toList();
       if (selected.isNotEmpty) employeeLabel = selected.first.name;
     });
-
-    final dateText = DateFormat('dd MMM yyyy', 'id_ID').format(DateTime.now());
 
     return SectionCard(
       title: 'Informasi Absensi',
       children: [
         Dropdowns(
           label: 'Tanggal Absensi',
-          value: dateText,
+          value: DateFormat(
+            'dd MMM yyyy',
+            'id_ID',
+          ).format(selectedDate ?? DateTime.now()),
           icon: AppImages.icCalendarSearch,
-          enabled: true,
+          onTap: () async {
+            final pickedDate = await showModalBottomSheet<DateTime?>(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) => const CustomDatePickerSheet(),
+            );
+
+            if (pickedDate != null) {
+              ref.read(attendanceDateProvider.notifier).state = pickedDate;
+            }
+          },
         ),
         const SizedBox(height: 12),
 
@@ -315,15 +327,8 @@ class _EmployeeAttendancePageState
   }
 
   Future<void> _submitAttendance() async {
-    // final selectedDate = ref.read(attendanceDateProvider);
     final employeesAsync = ref.read(employeeListProvider);
 
-    // if (selectedDate == null) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(content: Text("Tanggal absensi wajib diisi")),
-    //   );
-    //   return;
-    // }
 
     final isConfirmed = await showModalBottomSheet<bool>(
       context: context,
@@ -353,13 +358,14 @@ class _EmployeeAttendancePageState
   }
 
   Map<String, dynamic> _buildAttendancePayload(List<Employee> employees) {
-    // final selectedDate = ref.read(attendanceDateProvider);
+    final selectedDate = ref.read(attendanceDateProvider);
     final statuses = ref.read(attendanceStatusProvider);
     final farmId = ref.watch(userFarmProvider);
 
     return {
-      // "trans_date": DateFormat('yyyy-MM-dd').format(selectedDate!),
-      "trans_date": todayDate,
+      "trans_date": DateFormat(
+        'yyyy-MM-dd',
+      ).format(selectedDate ?? DateTime.now()),
       "additional_information": noteCtrl.text,
       "farm_location_id": farmId,
       "record_by": 1,
