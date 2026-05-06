@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:livestock/features/auth/data/model/login_response.dart';
+import 'package:livestock/features/auth/data/model/refresh_token_response.dart';
 
 class AuthApi {
   final Dio dio;
@@ -14,11 +15,12 @@ class AuthApi {
     return LoginResponse.fromJson(response.data);
   }
 
-  Future<LoginResponse> refreshToken(String refreshToken) async {
+  Future<RefreshTokenResponse> refreshToken(String refreshToken) async {
     final response = await dio.post(
       '/auth/refresh',
       data: {"refresh_token": refreshToken},
     );
-    return LoginResponse.fromJson(response.data);
+    return RefreshTokenResponse.fromJson(response.data);
   }
 }
+

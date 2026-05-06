@@ -67,6 +67,7 @@ class AuthRepository {
       await storage.write(key: _keyRefreshToken, value: res.refreshToken);
       return true;
     } catch (e) {
+      print('REFRESH_TOKEN error: $e');
       return false;
     }
   }

@@ -108,6 +108,9 @@ extension SalesOrderDispatchItemMapper on SalesOrderDispatchItem {
     required String recipientName,
     required String recipientNumber,
     required String orderId,
+    required int orderRemainder,
+    required int orderPaid,
+    required int orderTotal,
   }) {
     return DispatchItemRequest(
       animalProfileId: animalProfileId,
@@ -133,6 +136,9 @@ extension SalesOrderDispatchItemMapper on SalesOrderDispatchItem {
       totalShippingCost: 0,
       salesOrderId: salesOrderId,
       salesOrderDetailId: salesOrderDetailId,
+      amountRemainder: orderRemainder,
+      amountPaid: orderPaid,
+      amountTotal: orderTotal,
     );
   }
 }

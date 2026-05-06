@@ -25,6 +25,9 @@ class DispatchLine {
   final String shippingCost;
   final String shippingCostTotal;
   final int? salesOrderId;
+  final int? amountRemainder;
+  final int? amountPaid;
+  final int? amountTotal;
 
   DispatchLine({
     required this.id,
@@ -49,6 +52,9 @@ class DispatchLine {
     required this.shippingCost,
     required this.shippingCostTotal,
     this.salesOrderId,
+    this.amountRemainder,
+    this.amountPaid,
+    this.amountTotal,
   });
 
   factory DispatchLine.fromJson(Map<String, dynamic> json) {
@@ -93,6 +99,12 @@ class DispatchLine {
       shippingCost: json['shipping_cost']?.toString() ?? "0",
       shippingCostTotal: json['shipping_cost_total']?.toString() ?? "0",
       salesOrderId: json['sales_order_id'] ?? 0,
+      amountRemainder:
+          double.tryParse(json['amount_remainder']?.toString() ?? '')?.toInt(),
+      amountPaid:
+          double.tryParse(json['amount_paid']?.toString() ?? '')?.toInt(),
+      amountTotal:
+          double.tryParse(json['amount_total']?.toString() ?? '')?.toInt(),
     );
   }
 }
@@ -123,6 +135,9 @@ extension DispatchLineMapper on DispatchLine {
       totalShippingCost: int.tryParse(shippingCostTotal) ?? 0,
       salesOrderId: salesOrderId ?? 0,
       salesOrderDetailId: id,
+      amountRemainder: amountRemainder ?? 0,
+      amountPaid: amountPaid ?? 0,
+      amountTotal: amountTotal ?? 0,
     );
   }
 }

@@ -70,14 +70,33 @@ class DispatchRequest {
   }
 
   int get totalShipping {
-    return items?.fold(0, (sum, e) => sum! + e.shippingCost) ?? 0;
+    if (items == null || items!.isEmpty) return 0;
+
+    final uniqueOrders = <String, int>{};
+    for (var item in items!) {
+      uniqueOrders[item.orderId] = item.shippingCost;
+    }
+
+    return uniqueOrders.values.fold(0, (sum, val) => sum + val);
+  }
+
+  int get totalItemRemainder {
+    if (items == null || items!.isEmpty) return 0;
+
+    final uniqueOrders = <String, int>{};
+    for (var item in items!) {
+      uniqueOrders[item.orderId] = item.amountRemainder;
+    }
+
+    return uniqueOrders.values.fold(0, (sum, val) => sum + val);
   }
 
   int get remainingPayment {
+    final itemRemainder = totalItemRemainder;
     final shipping = totalShipping;
     final dp = downPayment ?? 0;
     final additional = additionalCost ?? 0;
 
-    return shipping + additional - dp;
+    return itemRemainder + shipping + additional - dp;
   }
 }

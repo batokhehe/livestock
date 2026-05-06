@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
@@ -12,7 +13,7 @@ import 'data/model/dispatch_lines_model.dart';
 import 'data/model/dispatch_request_model.dart';
 import 'data/repository/dispatch_repository.dart';
 
-enum DispatchTab { all, ready, inTransit, delivered }
+enum DispatchTab { all, ready, inTransit, delivered, canceled }
 
 extension DispatchTabX on DispatchTab {
   String get apiValue {
@@ -25,6 +26,8 @@ extension DispatchTabX on DispatchTab {
         return 'in_transit';
       case DispatchTab.delivered:
         return 'delivered';
+      case DispatchTab.canceled:
+        return 'canceled';
     }
   }
 
@@ -38,6 +41,8 @@ extension DispatchTabX on DispatchTab {
         return 'Sedang Dikirim';
       case DispatchTab.delivered:
         return 'Selesai Dikirim';
+      case DispatchTab.canceled:
+        return 'Dibatalkan';
     }
   }
 }
@@ -51,6 +56,8 @@ extension DispatchTabParser on DispatchTab {
         return DispatchTab.inTransit;
       case 'delivered':
         return DispatchTab.delivered;
+      case 'canceled':
+        return DispatchTab.canceled;
       default:
         return DispatchTab.all;
     }
@@ -84,7 +91,7 @@ extension DispatchSOTabX on DispatchSOTab {
 }
 
 final dispatchSearchProvider =
-    StateNotifierProvider<DispatchSearchNotifier, String>((ref) {
+    StateNotifierProvider.autoDispose<DispatchSearchNotifier, String>((ref) {
       return DispatchSearchNotifier();
     });
 
@@ -108,7 +115,7 @@ class DispatchSearchNotifier extends StateNotifier<String> {
   }
 }
 
-final dispatchTabProvider = StateProvider<DispatchTab>((ref) {
+final dispatchTabProvider = StateProvider.autoDispose<DispatchTab>((ref) {
   return DispatchTab.all;
 });
 
@@ -116,18 +123,90 @@ final dispatchSoTabProvider = StateProvider<DispatchSOTab>((ref) {
   return DispatchSOTab.all;
 });
 
+
 final dispatchApiProvider = Provider((ref) {
   return DispatchApi(ref.read(dioProvider));
 });
 
-final dispatchListProvider = FutureProvider((ref) async {
-  final api = ref.read(dispatchApiProvider);
-  final tab = ref.watch(dispatchTabProvider);
+final dispatchListProvider =
+    StateNotifierProvider.autoDispose<DispatchListNotifier, AsyncValue<List<DispatchList>>>(
+      (ref) => DispatchListNotifier(ref),
+    );
 
-  final search = ref.watch(dispatchSearchProvider);
+class DispatchListNotifier
+    extends StateNotifier<AsyncValue<List<DispatchList>>> {
+  final Ref ref;
+  int _page = 1;
+  final int _perPage = 15;
+  bool _hasMore = true;
+  bool _isLoadingMore = false;
 
-  return api.getDispatch(status: tab.apiValue, search: search);
-});
+  DispatchListNotifier(this.ref) : super(const AsyncLoading()) {
+    _init();
+  }
+
+  void _init() {
+    // Listen to tab and search changes to reset pagination
+    ref.listen(dispatchTabProvider, (previous, next) {
+      refresh();
+    });
+    ref.listen(dispatchSearchProvider, (previous, next) {
+      refresh();
+    });
+
+    fetch();
+  }
+
+  Future<void> fetch({bool isRefresh = false}) async {
+    if (isRefresh) {
+      _page = 1;
+      _hasMore = true;
+      _isLoadingMore = false;
+    }
+
+    if (!_hasMore || _isLoadingMore) return;
+
+    if (_page > 1) {
+      _isLoadingMore = true;
+    } else {
+      state = const AsyncLoading();
+    }
+
+    try {
+      final api = ref.read(dispatchApiProvider);
+      final tab = ref.read(dispatchTabProvider);
+      final search = ref.read(dispatchSearchProvider);
+
+      final items = await api.getDispatch(
+        status: tab.apiValue,
+        search: search,
+        page: _page,
+        perPage: _perPage,
+      );
+
+      if (isRefresh) {
+        state = AsyncData(items);
+      } else {
+        final currentItems = state.value ?? [];
+        state = AsyncData([...currentItems, ...items]);
+      }
+
+      _hasMore = items.length == _perPage;
+      _page++;
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    } finally {
+      _isLoadingMore = false;
+    }
+  }
+
+  Future<void> refresh() async {
+    await fetch(isRefresh: true);
+  }
+
+  bool get hasMore => _hasMore;
+  bool get isLoadingMore => _isLoadingMore;
+}
 
 final dispatchFormProvider =
     StateNotifierProvider<DispatchFormNotifier, DispatchRequest>(
@@ -237,6 +316,8 @@ class DispatchFormNotifier extends StateNotifier<DispatchRequest> {
     if (state.items == null || state.items!.isEmpty) {
       throw Exception("Item tidak boleh kosong");
     }
+
+    print("iqballl ${jsonEncode(state)}");
 
     await api.submitDispatch(state);
   }

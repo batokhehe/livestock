@@ -10,6 +10,7 @@ import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/card_wrapper.dart';
 import '../../../../core/widgets/info_item_card.dart';
 import '../../../../core/widgets/step_info_card.dart';
+import '../../../../core/widgets/success_notification.dart';
 import '../../../../core/widgets/two_column_row_card.dart';
 import '../../../receiving/presentation/widgets/confirmation_bottom_sheet.dart';
 import '../../data/model/dispatch_item_request_model.dart';
@@ -51,14 +52,14 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
                 _infoDispatch(form),
                 const SizedBox(height: 12),
 
-                _infoItem(form.items!),
+                _infoItem(form.items ?? []),
                 const SizedBox(height: 12),
 
                 _summaryCard(
                   totalItem: items.length,
-                  deliveryFee: form.shippingCostTotal!.toDouble(),
-                  downPayment: form.downPayment!.toDouble(),
-                  additionalFee: form.additionalCost!.toDouble(),
+                  deliveryFee: (form.shippingCostTotal ?? 0).toDouble(),
+                  downPayment: (form.downPayment ?? 0).toDouble(),
+                  additionalFee: (form.additionalCost ?? 0).toDouble(),
                   total: form.remainingPayment.toDouble(),
                 ),
               ],
@@ -102,15 +103,12 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
                                 .read(dispatchFormProvider.notifier)
                                 .submitDispatch();
 
+                            ref.invalidate(dispatchListProvider);
                             ref.read(dispatchFormProvider.notifier).reset();
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                  "Pengiriman berhasil disimpan",
-                                ),
-                                backgroundColor: Colors.green,
-                              ),
+                            SuccessNotification.show(
+                              title: "Pengiriman Berhasil",
+                              subtitle: "Data pengiriman berhasil disimpan ke sistem",
                             );
 
                             context.go('/dispatch');
@@ -217,11 +215,14 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          TwoColumnRowCard(
-            leftValue: item.city,
-            leftLabel: "Kota Tujuan",
-            rightValue: item.dlvDate,
-            rightLabel: "Tanggal Kirim",
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: TwoColumnRowCard(
+              leftValue: item.city,
+              leftLabel: "Kota Tujuan",
+              rightValue: item.dlvDate,
+              rightLabel: "Tanggal Kirim",
+            ),
           ),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           Padding(
