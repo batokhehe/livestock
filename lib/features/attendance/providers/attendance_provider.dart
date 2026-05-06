@@ -261,25 +261,23 @@ final attendanceHistoryProvider =
 final attendanceDetailProvider =
     FutureProvider.family<
       Map<String, dynamic>,
-      ({String type, String transDate})
+      ({String type, String transDate, String id})
     >((ref, param) async {
       final api = ref.read(attendanceApiProvider);
 
-      final response = await api.getAttendance(
+      final response = await api.getAttendanceDetail(
         type: param.type,
-        month: param.transDate.substring(0, 7),
-        date: param.transDate,
-        page: 1,
-        perPage: 1,
+        transDate: param.transDate,
+        attendanceLogId: param.id,
       );
 
       final List data = response['data'];
 
-      if (data.isEmpty) {
-        throw Exception('Data absensi tidak ditemukan');
-      }
-
-      return data.first;
+      return {
+        'id': param.id,
+        'transdate': param.transDate,
+        'details': data,
+      };
     });
 
 final attendanceInitProvider = FutureProvider.autoDispose<void>((ref) async {

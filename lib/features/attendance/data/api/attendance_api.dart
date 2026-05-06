@@ -57,6 +57,23 @@ class AttendanceApi {
     return response.data;
   }
 
+  Future<Map<String, dynamic>> getAttendanceDetail({
+    required String type,
+    required String transDate,
+    required String attendanceLogId,
+  }) async {
+    final response = await dio.get(
+      '/attendance/detail',
+      queryParameters: {
+        'type': type,
+        'trans_date': transDate,
+        'attendance_log_id': attendanceLogId,
+      },
+    );
+
+    return response.data;
+  }
+
   Future<List<AttendanceDetail>> getAttendanceEmployeeDetail({
     required String transDate,
   }) async {

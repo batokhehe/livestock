@@ -186,15 +186,21 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const HistoryAttendancePage(),
           ),
           GoRoute(
-            path: 'history-detail-attendance/:type/:transdate',
+            path: 'history-detail-attendance/:type/:transdate/:id',
             name: 'history-detail-attendance',
             builder: (context, state) {
               final String type = state.pathParameters['type']!;
               final String transDate = state.pathParameters['transdate']!;
+              final String id = state.pathParameters['id']!;
+
+              final extra = state.extra as Map<String, dynamic>?;
+              final String? additionalInformation = extra?['additional_information'];
 
               return HistoryDetailAttendancePage(
                 type: type,
                 transDate: transDate,
+                id: id,
+                additionalInformation: additionalInformation,
               );
             },
           ),

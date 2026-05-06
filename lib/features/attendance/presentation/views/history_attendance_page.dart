@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 import 'package:livestock/core/widgets/card_wrapper.dart';
@@ -152,10 +153,13 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
 
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 8),
-                                child: AttendanceOvernightItemDoubleCard(
-                                  title: employee['name'],
-                                  subTitle: employee['phone_number'] ?? "-",
-                                  tag: item['note'] ?? "-",
+                                child: GestureDetector(
+                                  onTap: () {},
+                                  child: AttendanceOvernightItemDoubleCard(
+                                    title: employee['name'],
+                                    subTitle: employee['phone_number'] ?? "-",
+                                    tag: item['note'] ?? "-",
+                                  ),
                                 ),
                               );
                             }).toList(),
@@ -178,6 +182,20 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
                                     "${item['recorder']['name']} · Kepala Kandang",
                                 present: countPresent(item['details']),
                                 absent: countAbsent(item['details']),
+                                onTap: () {
+                                  context.pushNamed(
+                                    'history-detail-attendance',
+                                    pathParameters: {
+                                      'type': 'regular',
+                                      'transdate': item['transdate'],
+                                      'id': item['id'].toString(),
+                                    },
+                                    extra: {
+                                      'additional_information':
+                                          item['additional_information'],
+                                    },
+                                  );
+                                },
                               ),
                             );
                           }).toList(),
@@ -339,50 +357,54 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
     required String pic,
     required int present,
     required int absent,
+    VoidCallback? onTap,
   }) {
-    return CardWrapper(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Text(formatDateString(date), style: AppTypography.smallNormalBlack),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.all(0),
-            // decoration: BoxDecoration(
-            //   color: AppColors.white,
-            //   borderRadius: BorderRadius.circular(16),
-            //   border: Border.all(color: AppColors.fieldBorder),
-            // ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: onTap,
+      child: CardWrapper(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Text(formatDateString(date), style: AppTypography.smallNormalBlack),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.all(0),
+              // decoration: BoxDecoration(
+              //   color: AppColors.white,
+              //   borderRadius: BorderRadius.circular(16),
+              //   border: Border.all(color: AppColors.fieldBorder),
+              // ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(area, style: AppTypography.smallBoldBlack),
+                        const SizedBox(height: 4),
+                        Text(pic, style: AppTypography.xSmallNormalGrey),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(area, style: AppTypography.smallBoldBlack),
+                      Text(
+                        "$present hadir",
+                        style: AppTypography.xSmallNormalGreen,
+                      ),
                       const SizedBox(height: 4),
-                      Text(pic, style: AppTypography.xSmallNormalGrey),
+                      Text(
+                        "$absent tidak hadir",
+                        style: AppTypography.xSmallNormalRed,
+                      ),
                     ],
                   ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      "$present hadir",
-                      style: AppTypography.xSmallNormalGreen,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      "$absent tidak hadir",
-                      style: AppTypography.xSmallNormalRed,
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
