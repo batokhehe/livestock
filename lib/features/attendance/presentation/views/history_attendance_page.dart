@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 import 'package:livestock/core/widgets/card_wrapper.dart';
@@ -12,6 +13,7 @@ import '../../../../core/widgets/date_group_card.dart';
 import '../../../../core/data/model/farm_location_model.dart';
 import '../../../../core/widgets/farm_location_paginated_bottom_sheet.dart';
 import '../../providers/attendance_provider.dart';
+import '../widgets/history_attendance_filter_bottom_sheet.dart';
 
 class HistoryAttendancePage extends ConsumerStatefulWidget {
   const HistoryAttendancePage({super.key});
@@ -22,14 +24,30 @@ class HistoryAttendancePage extends ConsumerStatefulWidget {
 }
 
 class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
+  late final ScrollController _scrollController;
+
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
 
     /// 🔥 REFRESH DATA SETIAP PAGE DIBUKA
     Future.microtask(() {
-      ref.invalidate(attendanceHistoryProvider);
+      ref.invalidate(attendanceHistoryNotifierProvider);
     });
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
+        ref.read(attendanceHistoryNotifierProvider.notifier).loadMore();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -38,7 +56,7 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
     final query = ref.watch(attendanceQueryProvider);
 
     /// DATA DARI API
-    final attendanceAsync = ref.watch(attendanceHistoryProvider(query));
+    final attendanceAsync = ref.watch(attendanceHistoryNotifierProvider);
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
@@ -60,7 +78,8 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async {
-                  ref.invalidate(attendanceHistoryProvider);
+                  ref.invalidate(attendanceHistoryNotifierProvider);
+                  await ref.read(attendanceHistoryNotifierProvider.future);
                 },
                 child: attendanceAsync.when(
                   loading: () =>
@@ -73,7 +92,11 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
                     ),
                   ),
 
-                  data: (List data) {
+                  data: (Map<String, dynamic> response) {
+                    final List data = response['data'];
+                    final int total = response['total'] ?? 0;
+                    final bool hasMore = data.length < total;
+
                     if (data.isEmpty) {
                       return const Center(
                         child: Text("Belum ada riwayat absensi"),
@@ -105,10 +128,18 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
                     final dates = grouped.keys.toList();
 
                     return ListView.separated(
+                      controller: _scrollController,
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: dates.length,
+                      itemCount: dates.length + (hasMore ? 1 : 0),
                       separatorBuilder: (_, __) => const SizedBox(height: 16),
                       itemBuilder: (context, index) {
+                        if (index == dates.length) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
+
                         final date = dates[index];
                         final items = grouped[date]!;
 
@@ -122,10 +153,13 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
 
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 8),
-                                child: AttendanceOvernightItemDoubleCard(
-                                  title: employee['name'],
-                                  subTitle: employee['phone_number'] ?? "-",
-                                  tag: item['note'] ?? "-",
+                                child: GestureDetector(
+                                  onTap: () {},
+                                  child: AttendanceOvernightItemDoubleCard(
+                                    title: employee['name'],
+                                    subTitle: employee['phone_number'] ?? "-",
+                                    tag: item['note'] ?? "-",
+                                  ),
                                 ),
                               );
                             }).toList(),
@@ -148,6 +182,20 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
                                     "${item['recorder']['name']} · Kepala Kandang",
                                 present: countPresent(item['details']),
                                 absent: countAbsent(item['details']),
+                                onTap: () {
+                                  context.pushNamed(
+                                    'history-detail-attendance',
+                                    pathParameters: {
+                                      'type': 'regular',
+                                      'transdate': item['transdate'],
+                                      'id': item['id'].toString(),
+                                    },
+                                    extra: {
+                                      'additional_information':
+                                          item['additional_information'],
+                                    },
+                                  );
+                                },
                               ),
                             );
                           }).toList(),
@@ -230,7 +278,14 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: () {},
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => const HistoryAttendanceFilterBottomSheet(),
+              );
+            },
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -302,50 +357,54 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
     required String pic,
     required int present,
     required int absent,
+    VoidCallback? onTap,
   }) {
-    return CardWrapper(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Text(formatDateString(date), style: AppTypography.smallNormalBlack),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.all(0),
-            // decoration: BoxDecoration(
-            //   color: AppColors.white,
-            //   borderRadius: BorderRadius.circular(16),
-            //   border: Border.all(color: AppColors.fieldBorder),
-            // ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: onTap,
+      child: CardWrapper(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Text(formatDateString(date), style: AppTypography.smallNormalBlack),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.all(0),
+              // decoration: BoxDecoration(
+              //   color: AppColors.white,
+              //   borderRadius: BorderRadius.circular(16),
+              //   border: Border.all(color: AppColors.fieldBorder),
+              // ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(area, style: AppTypography.smallBoldBlack),
+                        const SizedBox(height: 4),
+                        Text(pic, style: AppTypography.xSmallNormalGrey),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(area, style: AppTypography.smallBoldBlack),
+                      Text(
+                        "$present hadir",
+                        style: AppTypography.xSmallNormalGreen,
+                      ),
                       const SizedBox(height: 4),
-                      Text(pic, style: AppTypography.xSmallNormalGrey),
+                      Text(
+                        "$absent tidak hadir",
+                        style: AppTypography.xSmallNormalRed,
+                      ),
                     ],
                   ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      "$present hadir",
-                      style: AppTypography.xSmallNormalGreen,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      "$absent tidak hadir",
-                      style: AppTypography.xSmallNormalRed,
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

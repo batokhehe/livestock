@@ -13,11 +13,15 @@ import '../../providers/attendance_provider.dart';
 class HistoryDetailAttendancePage extends ConsumerStatefulWidget {
   final String type;
   final String transDate;
+  final String id;
+  final String? additionalInformation;
 
   const HistoryDetailAttendancePage({
     super.key,
     required this.type,
     required this.transDate,
+    required this.id,
+    this.additionalInformation,
   });
 
   @override
@@ -33,6 +37,7 @@ class _HistoryDetailAttendancePageState
       attendanceDetailProvider((
         type: widget.type,
         transDate: widget.transDate,
+        id: widget.id,
       )),
     );
 
@@ -97,7 +102,7 @@ class _HistoryDetailAttendancePageState
         CardWrapper(
           child: ProductHeaderCard(
             subtitle: 'Catatan',
-            title: data['additional_information'] ?? '-',
+            title: widget.additionalInformation ?? data['additional_information'] ?? '-',
             image: AppImages.icNote,
             isActive: false,
           ),

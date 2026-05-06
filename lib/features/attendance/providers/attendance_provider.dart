@@ -109,9 +109,13 @@ final attendanceApiProvider = Provider(
 /// FILTER & PAGINATION (STATE KECIL)
 /// =====================================================
 
-final attendanceMonthProvider = StateProvider<String>((ref) {
-  return '';
-});
+final attendanceFilterTypeProvider = StateProvider<String>(
+  (ref) => 'Bulan Ini',
+);
+
+final attendanceDateRangeProvider = StateProvider<DateTimeRange?>(
+  (ref) => null,
+);
 
 final attendancePageProvider = StateProvider<int>((ref) => 1);
 
@@ -125,19 +129,107 @@ final attendanceLocationProvider = StateProvider<FarmLocation?>((ref) => null);
 
 final attendanceQueryProvider = Provider<AttendanceRequest>((ref) {
   final tab = ref.watch(attendanceTabProvider);
-  final month = ref.watch(attendanceMonthProvider);
+  final filterType = ref.watch(attendanceFilterTypeProvider);
+  final dateRange = ref.watch(attendanceDateRangeProvider);
   final page = ref.watch(attendancePageProvider);
   final search = ref.watch(attendanceSearchProvider);
   final location = ref.watch(attendanceLocationProvider);
 
+  String? dateStr;
+  String monthStr = '';
+
+  final now = DateTime.now();
+
+  if (filterType == 'Hari ini') {
+    dateStr = DateFormat('yyyy-MM-dd').format(now);
+  } else if (filterType == 'Minggu Ini') {
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final endOfWeek = startOfWeek.add(const Duration(days: 6));
+    dateStr =
+        '${DateFormat('yyyy-MM-dd').format(startOfWeek)},${DateFormat('yyyy-MM-dd').format(endOfWeek)}';
+  } else if (filterType == 'Rentang tanggal manual' && dateRange != null) {
+    dateStr =
+        '${DateFormat('yyyy-MM-dd').format(dateRange.start)},${DateFormat('yyyy-MM-dd').format(dateRange.end)}';
+  } else {
+    monthStr = DateFormat('yyyy-MM').format(now);
+  }
+
   return AttendanceRequest(
     type: tab == AttendanceTab.attendance ? 'regular' : 'overnight',
-    month: month,
+    month: monthStr,
+    date: dateStr,
     page: page,
     perPage: 10,
+    sortBy: 'transdate',
+    sortDir: 'desc',
     search: location?.name ?? search,
   );
 });
+
+class AttendanceHistoryNotifier
+    extends AutoDisposeAsyncNotifier<Map<String, dynamic>> {
+  int _page = 1;
+  bool _loadingMore = false;
+
+  @override
+  Future<Map<String, dynamic>> build() async {
+    _page = 1;
+    final query = ref.watch(attendanceQueryProvider);
+    final api = ref.read(attendanceApiProvider);
+
+    return await api.getAttendance(
+      type: query.type,
+      month: query.month,
+      date: query.date,
+      employeeName: query.employeeName,
+      page: _page,
+      perPage: 10,
+      search: query.search,
+      sortBy: query.sortBy,
+      sortDir: query.sortDir,
+    );
+  }
+
+  Future<void> loadMore() async {
+    final current = state.value;
+    if (current == null || _loadingMore) return;
+
+    final data = current['data'] as List;
+    final total = current['total'] ?? 0;
+
+    if (data.length >= total) return;
+
+    _loadingMore = true;
+    _page++;
+
+    final query = ref.read(attendanceQueryProvider);
+    final api = ref.read(attendanceApiProvider);
+
+    final result = await api.getAttendance(
+      type: query.type,
+      month: query.month,
+      date: query.date,
+      employeeName: query.employeeName,
+      page: _page,
+      perPage: 10,
+      search: query.search,
+      sortBy: query.sortBy,
+      sortDir: query.sortDir,
+    );
+
+    final merged = [...data, ...result['data']];
+
+    state = AsyncData({...result, 'data': merged});
+
+    _loadingMore = false;
+  }
+}
+
+final attendanceHistoryNotifierProvider =
+    AutoDisposeAsyncNotifierProvider<
+      AttendanceHistoryNotifier,
+      Map<String, dynamic>
+    >(() => AttendanceHistoryNotifier());
 
 /// =====================================================
 /// HISTORY LIST
@@ -169,25 +261,23 @@ final attendanceHistoryProvider =
 final attendanceDetailProvider =
     FutureProvider.family<
       Map<String, dynamic>,
-      ({String type, String transDate})
+      ({String type, String transDate, String id})
     >((ref, param) async {
       final api = ref.read(attendanceApiProvider);
 
-      final response = await api.getAttendance(
+      final response = await api.getAttendanceDetail(
         type: param.type,
-        month: param.transDate.substring(0, 7),
-        date: param.transDate,
-        page: 1,
-        perPage: 1,
+        transDate: param.transDate,
+        attendanceLogId: param.id,
       );
 
       final List data = response['data'];
 
-      if (data.isEmpty) {
-        throw Exception('Data absensi tidak ditemukan');
-      }
-
-      return data.first;
+      return {
+        'id': param.id,
+        'transdate': param.transDate,
+        'details': data,
+      };
     });
 
 final attendanceInitProvider = FutureProvider.autoDispose<void>((ref) async {
