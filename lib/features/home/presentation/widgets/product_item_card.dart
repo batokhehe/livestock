@@ -11,6 +11,8 @@ class ProductCardItem extends StatelessWidget {
   final String weight;
   final String grade;
   final String price;
+  final Color? statusColor;
+  final Color? statusBgColor;
 
   const ProductCardItem({
     super.key,
@@ -19,13 +21,15 @@ class ProductCardItem extends StatelessWidget {
     required this.weight,
     required this.grade,
     required this.price,
+    this.statusColor,
+    this.statusBgColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 300,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -43,7 +47,25 @@ class ProductCardItem extends StatelessWidget {
                   children: [
                     Text(title, style: AppTypography.smallNormalBlack),
                     const SizedBox(height: 4),
-                    Text(status, style: AppTypography.xSmallNormalGreen),
+                    if (statusBgColor != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: statusBgColor,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          status,
+                          style: AppTypography.xSmallNormalPrimary.copyWith(
+                            color: statusColor,
+                          ),
+                        ),
+                      )
+                    else
+                      Text(status, style: AppTypography.xSmallNormalGreen),
                   ],
                 ),
               ),
