@@ -19,6 +19,7 @@ class ProfilePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userName = ref.watch(userNameProvider);
+    final userRole = ref.watch(userRoleProvider);
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
@@ -39,7 +40,7 @@ class ProfilePage extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  _profileCard(userName),
+                  _profileCard(userName, userRole),
                   const SizedBox(height: 16),
                   _infoSection(context, userName),
                   const SizedBox(height: 24),
@@ -54,7 +55,7 @@ class ProfilePage extends ConsumerWidget {
   }
 
   // ================= PROFILE CARD =================
-  Widget _profileCard(String userName) {
+  Widget _profileCard(String userName, String userRole) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -80,7 +81,7 @@ class ProfilePage extends ConsumerWidget {
               children: [
                 Text(userName, style: AppTypography.smallBoldBlack),
                 const SizedBox(height: 2),
-                Text("kepala kandang", style: AppTypography.xSmallNormalGrey),
+                Text(userRole, style: AppTypography.xSmallNormalGrey),
               ],
             ),
           ),
