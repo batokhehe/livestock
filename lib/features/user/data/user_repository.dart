@@ -43,4 +43,20 @@ class UserRepository {
       throw ErrorParser.parse(e);
     }
   }
+
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    try {
+      await api.changePassword(
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      );
+    } catch (e) {
+      throw ErrorParser.parse(e);
+    }
+  }
 }

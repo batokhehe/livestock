@@ -161,23 +161,8 @@ class ProfilePage extends ConsumerWidget {
             icon: AppImages.icLock,
             title: "Perubahan Kata sandi",
             subtitle: "Ganti kata sandi?",
-
-            onTap: () async {
-              final result = await showModalBottomSheet<String>(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => UpdateNameBottomSheet(currentName: userName),
-              );
-
-              if (result != null) {
-                // 🔥 HIT API UPDATE DI SINI
-                await Future.delayed(
-                  const Duration(milliseconds: 800),
-                ); // simulasi API
-
-                showSuccessBanner(context);
-              }
+            onTap: () {
+              context.push('/change-password');
             },
           ),
         ],
