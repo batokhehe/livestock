@@ -147,22 +147,35 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
                         if (activeTab == AttendanceTab.overnight) {
                           return DateGroupCard(
                             dateLabel: formatDateString(date),
-                            children: items.map<Widget>((item) {
-                              final detail = item['detail'];
-                              final employee = detail['employee'];
-
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: GestureDetector(
-                                  onTap: () {},
-                                  child: AttendanceOvernightItemDoubleCard(
-                                    title: employee['name'],
-                                    subTitle: employee['phone_number'] ?? "-",
-                                    tag: item['note'] ?? "-",
+                            children: items.isEmpty
+                                ? [
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8),
+                                    child: Center(
+                                      child: Text(
+                                        "Tidak ada data detail",
+                                        style: AppTypography.smallNormalGrey,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              );
-                            }).toList(),
+                                ]
+                                : items.map<Widget>((item) {
+                                  final detail = item['detail'];
+                                  final employee = detail['employee'];
+
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: GestureDetector(
+                                      onTap: () {},
+                                      child: AttendanceOvernightItemDoubleCard(
+                                        title: employee['name'],
+                                        subTitle:
+                                            employee['phone_number'] ?? "-",
+                                        tag: item['note'] ?? "-",
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                           );
                         }
 
@@ -177,9 +190,9 @@ class _HistoryAttendancePageState extends ConsumerState<HistoryAttendancePage> {
                               padding: const EdgeInsets.only(bottom: 8),
                               child: _attendanceCard(
                                 date: item['transdate'],
-                                area: "Area simpang ciheulang",
+                                area: item['farm_location_name'] ?? "-",
                                 pic:
-                                    "${item['recorder']['name']} · Kepala Kandang",
+                                    "${item['recorder']['name']} · ${item['recorder']['role']['name']}",
                                 present: countPresent(item['details']),
                                 absent: countAbsent(item['details']),
                                 onTap: () {

@@ -9,6 +9,10 @@ class AttendanceRequest {
   final String sortBy;
   final String sortDir;
 
+  final int? farmLocationId;
+  final String? startDate;
+  final String? endDate;
+
   AttendanceRequest({
     required this.type,
     required this.month,
@@ -19,5 +23,8 @@ class AttendanceRequest {
     this.search,
     this.sortBy = 'created_at',
     this.sortDir = 'desc',
+    this.farmLocationId,
+    this.startDate,
+    this.endDate,
   });
 }

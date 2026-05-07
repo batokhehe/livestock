@@ -37,6 +37,9 @@ class AttendanceApi {
     String? search,
     String sortBy = 'created_at',
     String sortDir = 'desc',
+    int? farmLocationId,
+    String? startDate,
+    String? endDate,
   }) async {
     final response = await dio.get(
       '/attendance',
@@ -51,6 +54,9 @@ class AttendanceApi {
         if (search != null && search.isNotEmpty) 'search': search,
         'sort_by': sortBy,
         'sort_dir': sortDir,
+        if (farmLocationId != null) 'farm_location_id': farmLocationId,
+        if (startDate != null) 'start_date': startDate,
+        if (endDate != null) 'end_date': endDate,
       },
     );
 
