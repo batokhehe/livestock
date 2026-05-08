@@ -58,10 +58,7 @@ class _ConfirmUpdateBottomSheet extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          Text(
-            title,
-            style: AppTypography.mediumBoldBlack,
-          ),
+          Text(title, style: AppTypography.mediumBoldBlack),
           const SizedBox(height: 8),
           Text(
             subtitle,

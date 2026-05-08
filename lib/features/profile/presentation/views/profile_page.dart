@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/info_item_card.dart';
+import 'package:livestock/features/user/providers/user_repository_provider.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
@@ -10,6 +11,8 @@ import '../../../user/providers/user_provider.dart';
 import '../widgets/logout_confirmation_bottom_sheet.dart';
 import '../widgets/success_banner.dart';
 import '../widgets/update_name_bottom_sheet.dart';
+import '../widgets/update_phone_bottom_sheet.dart';
+import '../widgets/update_confirmation_bottom_sheet.dart';
 
 import '../../../home/presentation/providers/home_navigation_provider.dart';
 
@@ -19,7 +22,10 @@ class ProfilePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userName = ref.watch(userNameProvider);
+    final userPhone = ref.watch(userPhoneProvider);
     final userRole = ref.watch(userRoleProvider);
+    final userEmail = ref.watch(userEmailProvider);
+    final userFarm = ref.watch(userFarmProvider);
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
@@ -42,7 +48,14 @@ class ProfilePage extends ConsumerWidget {
                 children: [
                   _profileCard(userName, userRole),
                   const SizedBox(height: 16),
-                  _infoSection(context, userName),
+                  _infoSection(
+                    context,
+                    ref,
+                    userName != "" ? userName : "-",
+                    userPhone != "" ? userPhone : "-",
+                    userEmail != "" ? userEmail : "-",
+                    userFarm != 0 ? userFarm.toString() : "-",
+                  ),
                   const SizedBox(height: 24),
                   _logoutButton(context),
                 ],
@@ -106,7 +119,14 @@ class ProfilePage extends ConsumerWidget {
   }
 
   // ================= INFO SECTION =================
-  Widget _infoSection(BuildContext context, String userName) {
+  Widget _infoSection(
+    BuildContext context,
+    WidgetRef ref,
+    String userName,
+    String userPhone,
+    String userEmail,
+    String userFarm,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -132,29 +152,58 @@ class ProfilePage extends ConsumerWidget {
               );
 
               if (result != null) {
-                // 🔥 HIT API UPDATE DI SINI
-                await Future.delayed(
-                  const Duration(milliseconds: 800),
-                ); // simulasi API
+                try {
+                  await ref
+                      .read(userRepositoryProvider)
+                      .changeProfile(columnType: "name", newValue: result);
 
-                showSuccessBanner(context);
+                  ref.invalidate(userProvider);
+                  showSuccessBanner(context);
+                } catch (e) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(e.toString())));
+                }
               }
             },
           ),
 
           InfoItemCard(
             icon: AppImages.icCalling,
-            title: "0861-2345-6789",
+            title: userPhone,
             subtitle: "Nomor Telepon",
+            onTap: () async {
+              final result = await showModalBottomSheet<String>(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => UpdatePhoneBottomSheet(currentPhone: userPhone),
+              );
+
+              if (result != null) {
+                try {
+                  await ref
+                      .read(userRepositoryProvider)
+                      .changeProfile(columnType: "phone", newValue: result);
+
+                  ref.invalidate(userProvider);
+                  showSuccessBanner(context);
+                } catch (e) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(e.toString())));
+                }
+              }
+            },
           ),
           InfoItemCard(
             icon: AppImages.icMessageTick,
-            title: "ninaputri@gmail.com",
+            title: userEmail,
             subtitle: "Alamat Email",
           ),
           InfoItemCard(
             icon: AppImages.icField,
-            title: "Sapi Agri Banten",
+            title: userFarm,
             subtitle: "Lokasi Peternakan",
           ),
           InfoItemCard(

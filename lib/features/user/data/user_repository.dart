@@ -59,4 +59,16 @@ class UserRepository {
       throw ErrorParser.parse(e);
     }
   }
+
+  Future<void> changeProfile({
+    required String columnType,
+    required String newValue,
+  }) async {
+    try {
+      await api.changeProfile(columnType: columnType, newValue: newValue);
+      await fetchUserFromApi(); // Refresh local data
+    } catch (e) {
+      throw ErrorParser.parse(e);
+    }
+  }
 }

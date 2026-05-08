@@ -27,4 +27,19 @@ class UserApi {
 
     return response.data;
   }
+
+  Future<Map<String, dynamic>?> changeProfile({
+    required String columnType,
+    required String newValue,
+  }) async {
+    final response = await dio.post(
+      '/auth/change-profile',
+      data: {
+        'column_type': columnType,
+        'new_value': newValue,
+      },
+    );
+
+    return response.data;
+  }
 }

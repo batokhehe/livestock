@@ -26,10 +26,15 @@ final userRoleProvider = Provider<String>((ref) {
 
 final userEmailProvider = Provider<String>((ref) {
   final user = ref.watch(userProvider).value;
-  return user?.email ?? "..";
+  return user?.email ?? "";
 });
 
 final userFarmProvider = Provider<int>((ref) {
   final user = ref.watch(userProvider).value;
   return user?.farmLocationId ?? 0;
+});
+
+final userPhoneProvider = Provider<String>((ref) {
+  final user = ref.watch(userProvider).value;
+  return user?.phone ?? "";
 });
