@@ -27,6 +27,8 @@ class SalesOrderItemRequest {
   final String? village;
   final String? deliveryAddress;
   final String? isForecast;
+  final String? note;
+
 
   SalesOrderItemRequest({
     this.animalProfile,
@@ -51,7 +53,9 @@ class SalesOrderItemRequest {
     this.village,
     this.deliveryAddress,
     this.isForecast,
+    this.note,
   });
+
 
   factory SalesOrderItemRequest.fromJson(Map<String, dynamic> json) {
     return SalesOrderItemRequest(
@@ -77,7 +81,9 @@ class SalesOrderItemRequest {
       village: json['village'],
       deliveryAddress: json['delivery_address'],
       isForecast: json['is_forecast'],
+      note: json['note'],
     );
+
   }
 
   Map<String, dynamic> toJson() {
@@ -104,7 +110,9 @@ class SalesOrderItemRequest {
       "village": village,
       "delivery_address": deliveryAddress,
       "is_forecast": isForecast,
+      "note": note,
     };
+
   }
 
   SalesOrderItemRequest copyWith({
@@ -130,7 +138,9 @@ class SalesOrderItemRequest {
     String? village,
     String? deliveryAddress,
     String? isForecast,
+    String? note,
   }) {
+
     return SalesOrderItemRequest(
       animalProfile: animalProfile ?? this.animalProfile,
       feedMedicine: feedMedicine ?? this.feedMedicine,
@@ -154,6 +164,8 @@ class SalesOrderItemRequest {
       village: village ?? this.village,
       deliveryAddress: deliveryAddress ?? this.deliveryAddress,
       isForecast: isForecast ?? this.isForecast,
+      note: note ?? this.note,
     );
+
   }
 }
