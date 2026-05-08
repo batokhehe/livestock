@@ -80,11 +80,17 @@ class SalesOrderDetailPage extends ConsumerWidget {
                     const SizedBox(height: 12),
 
                     ...items.asMap().entries.map(
-                      (entry) => _ProductInfoCard(
-                        counter: entry.key + 1,
-                        detailData: data,
-                        data: entry.value,
-                      ),
+                      (entry) => entry.value.animalProfile != null
+                          ? _ProductInfoCard(
+                              counter: entry.key + 1,
+                              detailData: data,
+                              data: entry.value,
+                            )
+                          : _FeedProductInfoCard(
+                              counter: entry.key + 1,
+                              detailData: data,
+                              data: entry.value,
+                            ),
                     ),
 
                     const SizedBox(height: 12),
@@ -149,12 +155,13 @@ class SalesOrderDetailPage extends ConsumerWidget {
             title: data.customer.name.toString(),
             subtitle: data.customer.contactPhone ?? '-',
           ),
-          InfoItemCard(
-            label: 'Nama Penerima:',
-            icon: AppImages.icDirectBoxReceive,
-            title: data.recipientName,
-            subtitle: data.recipientNumber,
-          ),
+          if (data.salesItemType != 'feed')
+            InfoItemCard(
+              label: 'Nama Penerima:',
+              icon: AppImages.icDirectBoxReceive,
+              title: data.recipientName,
+              subtitle: data.recipientNumber,
+            ),
         ],
       ),
     );
@@ -216,7 +223,9 @@ class SalesOrderDetailPage extends ConsumerWidget {
     // Validasi: Hide tombol edit jika status confirmed dan sudah ada nota
     // KECUALI jika semua nota statusnya canceled, maka boleh edit
     if (data.salesStatus == 'confirmed' && invoices.isNotEmpty) {
-      final allCanceled = invoices.every((inv) => inv.paymentStatus == 'canceled');
+      final allCanceled = invoices.every(
+        (inv) => inv.paymentStatus == 'canceled',
+      );
       if (!allCanceled) {
         canUpdateSO = false;
       }
@@ -637,7 +646,7 @@ class _ProductInfoCard extends StatelessWidget {
         SectionCard(
           children: [
             ProductHeaderCard(
-              title: code,
+              title: code ?? "-",
               subtitle: '${data.animalProfile?.name} • $secondValue',
               image: AppImages.icNavCow,
             ),
@@ -722,6 +731,70 @@ class _ProductInfoCard extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+class _FeedProductInfoCard extends StatelessWidget {
+  final SalesOrderDetail detailData;
+  final SalesOrderItem data;
+  final int counter;
+
+  const _FeedProductInfoCard({
+    required this.detailData,
+    required this.data,
+    required this.counter,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionCard(
+      title: 'Item ${counter.toString()}',
+      children: [
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: data.feedMedicineCode ?? "-",
+              subtitle: data.item,
+              image: AppImages.icProduct,
+            ),
+            const SizedBox(height: 12),
+            Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+            const SizedBox(height: 12),
+            _rowInfo("Jumlah", "${data.qty}"),
+            _rowInfo("Harga Satuan", "Rp ${formatPrice(data.unitPrice)}"),
+            const Divider(color: AppColors.fieldBorder),
+            _rowInfo(
+              "Total Harga",
+              "Rp ${formatPrice(data.subtotal)}",
+              isBold: true,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _rowInfo(String title, String value, {bool isBold = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: isBold
+                ? AppTypography.xSmallBoldBlack
+                : AppTypography.xSmallNormalBlack,
+          ),
+          Text(
+            value,
+            style: isBold
+                ? AppTypography.smallBoldPrimary
+                : AppTypography.smallBoldBlack,
+          ),
+        ],
+      ),
     );
   }
 }
