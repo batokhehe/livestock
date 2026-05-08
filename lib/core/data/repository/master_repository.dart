@@ -31,7 +31,11 @@ class MasterRepository {
     int perPage = 10,
     String? search,
   }) async {
-    return await api.getFarmLocations(page: page, perPage: perPage, search: search);
+    return await api.getFarmLocations(
+      page: page,
+      perPage: perPage,
+      search: search,
+    );
   }
 
   Future<List<FarmArea>> getFarmAreas({int? farmLocationId}) async {
@@ -109,8 +113,20 @@ class MasterRepository {
   }
 
   Future<List<FeedMedicine>> getFeedMedicines() async {
-    final res = await api.getFeedMedicines();
+    final res = await api.getFeedMedicines(page: 1, perPage: 1000);
     return res.data;
+  }
+
+  Future<BaseResponse<FeedMedicine>> getFeedMedicinesPaginated({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
+    return await api.getFeedMedicines(
+      page: page,
+      perPage: perPage,
+      search: search,
+    );
   }
 
   Future<List<AnimalGroup>> getAnimalGroups() async {
@@ -142,7 +158,10 @@ class MasterRepository {
     );
   }
 
-  Future<List<SalesOrderDispatch>> getSoDispatch(String paymentStatus, String search) async {
+  Future<List<SalesOrderDispatch>> getSoDispatch(
+    String paymentStatus,
+    String search,
+  ) async {
     final res = await api.getSoDispatch(paymentStatus, search);
     return res.data;
   }

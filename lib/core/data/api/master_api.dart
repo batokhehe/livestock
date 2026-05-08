@@ -143,10 +143,20 @@ class MasterApi {
     );
   }
 
-  Future<BaseResponse<FeedMedicine>> getFeedMedicines() async {
-    final res = await dio.get('/master/feed-medicine');
+  Future<BaseResponse<FeedMedicine>> getFeedMedicines({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
+    final res = await dio.get(
+      '/master/feed-medicine',
+      queryParameters: {
+        'page': page,
+        'per_page': perPage,
+        'search': search,
+      }..removeWhere((k, v) => v == null),
+    );
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
