@@ -51,4 +51,24 @@ class UserModel {
   bool hasPermission(String key) {
     return permissions.contains(key);
   }
+
+  UserModel copyWith({
+    String? name,
+    String? email,
+    int? roleId,
+    String? roleName,
+    int? farmLocationId,
+    String? phone,
+    List<String>? permissions,
+  }) {
+    return UserModel(
+      name: name ?? this.name,
+      email: email ?? this.email,
+      roleId: roleId ?? this.roleId,
+      roleName: roleName ?? this.roleName,
+      farmLocationId: farmLocationId ?? this.farmLocationId,
+      phone: phone ?? this.phone,
+      permissions: permissions ?? this.permissions,
+    );
+  }
 }

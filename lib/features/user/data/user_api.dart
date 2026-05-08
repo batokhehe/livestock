@@ -6,7 +6,7 @@ class UserApi {
   UserApi(this.dio);
 
   Future<Map<String, dynamic>?> current() async {
-    final response = await dio.get('/auth/current');
+    final response = await dio.get('/auth/current-profile');
 
     return response.data;
   }
@@ -34,10 +34,7 @@ class UserApi {
   }) async {
     final response = await dio.post(
       '/auth/change-profile',
-      data: {
-        'column_type': columnType,
-        'new_value': newValue,
-      },
+      data: {'column_type': columnType, 'new_value': newValue},
     );
 
     return response.data;

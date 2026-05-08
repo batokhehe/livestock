@@ -27,6 +27,8 @@ class ProfilePage extends ConsumerWidget {
     final userEmail = ref.watch(userEmailProvider);
     final userFarm = ref.watch(userFarmProvider);
 
+    ref.watch(profilePageInitProvider);
+
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(

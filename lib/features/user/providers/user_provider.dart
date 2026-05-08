@@ -38,3 +38,8 @@ final userPhoneProvider = Provider<String>((ref) {
   final user = ref.watch(userProvider).value;
   return user?.phone ?? "";
 });
+
+final profilePageInitProvider = FutureProvider.autoDispose<void>((ref) async {
+  await ref.read(userRepositoryProvider).fetchUserFromApi();
+  ref.invalidate(userProvider);
+});
