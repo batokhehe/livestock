@@ -79,13 +79,18 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
                   (entry) => Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _ProductInfoCard(
-                        counter: entry.key + 1,
-                        data: entry.value,
-                        useForecast: form.useForecast ?? true,
-                        forecastDate: form.forecastDate,
-                      ),
-                      SizedBox(height: 8.0),
+                      entry.value.animalProfile != null
+                          ? _ProductInfoCard(
+                              counter: entry.key + 1,
+                              data: entry.value,
+                              useForecast: form.useForecast ?? true,
+                              forecastDate: form.forecastDate,
+                            )
+                          : _FeedProductInfoCard(
+                              counter: entry.key + 1,
+                              data: entry.value,
+                            ),
+                      const SizedBox(height: 8.0),
                     ],
                   ),
                 ),
@@ -408,6 +413,77 @@ class _ProductInfoCard extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+class _FeedProductInfoCard extends StatelessWidget {
+  final SalesOrderItemRequest data;
+  final int counter;
+
+  const _FeedProductInfoCard({required this.data, required this.counter});
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionCard(
+      title: 'Item ${counter.toString()}',
+      children: [
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: data.feedMedicine?.code ?? '-',
+              subtitle:
+                  '${data.feedMedicine?.name ?? '-'} • ${data.feedMedicine?.feedType ?? '-'}',
+              image: AppImages.icProduct,
+            ),
+
+            const SizedBox(height: 12),
+            Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+            const SizedBox(height: 12),
+            _rowInfo("Jumlah", "${data.qty ?? 0} ${data.uom ?? '-'}"),
+            _rowInfo("Harga Satuan", "Rp ${formatPrice(data.unitPrice ?? 0)}"),
+            const Divider(color: AppColors.fieldBorder),
+            _rowInfo(
+              "Total Harga",
+              "Rp ${formatPrice(data.subtotal ?? 0)}",
+              isBold: true,
+            ),
+          ],
+        ),
+        if (data.note != null && data.note!.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          SectionCard(
+            children: [
+              const Text("Catatan", style: AppTypography.smallNormalGrey),
+              const SizedBox(height: 4),
+              Text(data.note!, style: AppTypography.smallNormalBlack),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _rowInfo(String title, String value, {bool isBold = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: isBold
+                ? AppTypography.xSmallBoldBlack
+                : AppTypography.xSmallNormalBlack,
+          ),
+          Text(
+            value,
+            style: isBold
+                ? AppTypography.smallBoldPrimary
+                : AppTypography.smallBoldBlack,
+          ),
+        ],
+      ),
     );
   }
 }
