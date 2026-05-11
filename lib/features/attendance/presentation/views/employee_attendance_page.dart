@@ -171,9 +171,6 @@ class _EmployeeAttendancePageState
                     child: _employeeItem(e),
                   ),
                 ),
-
-                const SizedBox(height: 12),
-                _noteField(maxLength: 40),
               ],
             );
           },
@@ -189,7 +186,10 @@ class _EmployeeAttendancePageState
     int absent = 0;
 
     for (final e in employees) {
-      final isPresent = statuses[e.id] ?? false; // default tidak hadir
+      final attendanceState =
+          statuses[e.id] ??
+          EmployeeAttendanceState(isPresent: false, note: 'Tidak hadir');
+      final isPresent = attendanceState.isPresent;
       if (isPresent) {
         present++;
       } else {
@@ -229,8 +229,10 @@ class _EmployeeAttendancePageState
   }
 
   Widget _employeeItem(Employee item) {
-    final statuses = ref.watch(attendanceStatusProvider);
-    final isPresent = statuses[item.id] ?? false;
+    final attendanceState =
+        ref.watch(attendanceStatusProvider)[item.id] ??
+        EmployeeAttendanceState(isPresent: false, note: 'Tidak hadir');
+    final isPresent = attendanceState.isPresent;
 
     return CardWrapper(
       child: Row(
@@ -251,6 +253,51 @@ class _EmployeeAttendancePageState
               children: [
                 Text(item.name, style: AppTypography.smallBoldBlack),
                 Text(item.position, style: AppTypography.xSmallNormalGrey),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () => _showNoteBottomSheet(item),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              AppImages.icNote,
+                              width: 16,
+                              color:
+                                  attendanceState.note.isNotEmpty &&
+                                      attendanceState.note !=
+                                          (isPresent ? 'Hadir' : 'Tidak hadir')
+                                  ? AppColors.primary
+                                  : AppColors.hint,
+                            ),
+                            const SizedBox(width: 4),
+                            if (attendanceState.note.isNotEmpty &&
+                                attendanceState.note !=
+                                    (isPresent ? 'Hadir' : 'Tidak hadir'))
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.3,
+                                child: Text(
+                                  attendanceState.note,
+                                  style: AppTypography.xSmallNormalPrimary,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              )
+                            else
+                              Text(
+                                "Tambah catatan",
+                                style: AppTypography.xSmallNormalGrey.copyWith(
+                                  fontSize: 10,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -263,6 +310,72 @@ class _EmployeeAttendancePageState
             },
           ),
         ],
+      ),
+    );
+  }
+
+  void _showNoteBottomSheet(Employee item) {
+    final state = ref.read(attendanceStatusProvider)[item.id];
+    final controller = TextEditingController(text: state?.note);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Catatan untuk ${item.name}",
+                style: AppTypography.mediumBoldBlack,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  hintText: "Masukkan catatan",
+                  border: OutlineInputBorder(),
+                ),
+                maxLength: 80,
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    ref
+                        .read(attendanceStatusProvider.notifier)
+                        .setNote(item.id, controller.text);
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    "Simpan Catatan",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -372,12 +485,14 @@ class _EmployeeAttendancePageState
       "record_by": 1,
       "type": "regular",
       "details": employees.map((e) {
-        final isPresent = statuses[e.id] ?? true;
+        final attendanceState =
+            statuses[e.id] ??
+            EmployeeAttendanceState(isPresent: false, note: 'Tidak hadir');
         return {
           "employee_id": e.id,
           "farm_location_id": farmId,
-          "status": isPresent ? "present" : "absent",
-          "note": isPresent ? "Hadir" : "Tidak hadir",
+          "status": attendanceState.isPresent ? "present" : "absent",
+          "note": attendanceState.note,
         };
       }).toList(),
     };

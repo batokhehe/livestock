@@ -54,7 +54,22 @@ final attendanceDateProvider = StateProvider.autoDispose<DateTime?>(
   (ref) => null,
 );
 
-class AttendanceStatusNotifier extends StateNotifier<Map<int, bool>> {
+class EmployeeAttendanceState {
+  final bool isPresent;
+  final String note;
+
+  EmployeeAttendanceState({required this.isPresent, required this.note});
+
+  EmployeeAttendanceState copyWith({bool? isPresent, String? note}) {
+    return EmployeeAttendanceState(
+      isPresent: isPresent ?? this.isPresent,
+      note: note ?? this.note,
+    );
+  }
+}
+
+class AttendanceStatusNotifier
+    extends StateNotifier<Map<int, EmployeeAttendanceState>> {
   AttendanceStatusNotifier() : super({});
 
   bool _initialized = false;
@@ -62,10 +77,13 @@ class AttendanceStatusNotifier extends StateNotifier<Map<int, bool>> {
   void initFromEmployees(List<Employee> employees) {
     if (_initialized) return; // ⛔ STOP overwrite
 
-    final newState = <int, bool>{};
+    final newState = <int, EmployeeAttendanceState>{};
 
     for (final e in employees) {
-      newState[e.id] = false; // default tidak hadir
+      newState[e.id] = EmployeeAttendanceState(
+        isPresent: false,
+        note: 'Tidak hadir',
+      );
     }
 
     state = newState;
@@ -76,20 +94,51 @@ class AttendanceStatusNotifier extends StateNotifier<Map<int, bool>> {
     final newState = {...state};
 
     for (final h in histories) {
-      newState[h.employeeId] = h.status == 'present';
+      final isPresent = h.status == 'present';
+      newState[h.employeeId] = EmployeeAttendanceState(
+        isPresent: isPresent,
+        note: isPresent ? 'Hadir' : 'Tidak hadir',
+      );
     }
 
     state = newState;
   }
 
   void setStatus(int employeeId, bool isPresent) {
-    state = {...state, employeeId: isPresent};
+    final current = state[employeeId];
+    if (current == null) return;
+
+    final isDefaultNote = current.note == 'Hadir' || current.note == 'Tidak hadir';
+    final nextNote =
+        isDefaultNote ? (isPresent ? 'Hadir' : 'Tidak hadir') : current.note;
+
+    state = {
+      ...state,
+      employeeId: current.copyWith(
+        isPresent: isPresent,
+        note: nextNote,
+      ),
+    };
+  }
+
+  void setNote(int employeeId, String note) {
+    final current = state[employeeId];
+    if (current == null) return;
+
+    state = {...state, employeeId: current.copyWith(note: note)};
   }
 
   void setAllStatus(bool isPresent) {
-    final newState = <int, bool>{};
+    final newState = <int, EmployeeAttendanceState>{};
     state.forEach((key, value) {
-      newState[key] = isPresent;
+      final isDefaultNote = value.note == 'Hadir' || value.note == 'Tidak hadir';
+      final nextNote =
+          isDefaultNote ? (isPresent ? 'Hadir' : 'Tidak hadir') : value.note;
+
+      newState[key] = value.copyWith(
+        isPresent: isPresent,
+        note: nextNote,
+      );
     });
     state = newState;
   }
@@ -101,7 +150,7 @@ class AttendanceStatusNotifier extends StateNotifier<Map<int, bool>> {
 }
 
 final attendanceStatusProvider =
-    StateNotifierProvider<AttendanceStatusNotifier, Map<int, bool>>(
+    StateNotifierProvider<AttendanceStatusNotifier, Map<int, EmployeeAttendanceState>>(
       (ref) => AttendanceStatusNotifier(),
     );
 
