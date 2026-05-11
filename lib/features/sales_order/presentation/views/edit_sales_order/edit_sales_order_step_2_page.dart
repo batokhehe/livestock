@@ -15,6 +15,7 @@ import '../../../sales_order_provider.dart';
 import '../../widgets/add_item_bottom_sheet_animal.dart';
 import '../../widgets/add_item_bottom_sheet_feed.dart';
 import '../../widgets/sales_order_item_detail_bottom_sheet.dart';
+import '../../widgets/sales_order_feed_item_detail_bottom_sheet.dart';
 
 class EditSalesOrderStep2Page extends ConsumerStatefulWidget {
   final SalesOrderDetail detail;
@@ -56,7 +57,9 @@ class _EditSalesOrderStep2PageState
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => SalesOrderItemDetailBottomSheet(item: item),
+      builder: (_) => item.animalProfile != null
+          ? SalesOrderItemDetailBottomSheet(item: item)
+          : SalesOrderFeedItemDetailBottomSheet(item: item),
     );
   }
 
@@ -119,12 +122,14 @@ class _EditSalesOrderStep2PageState
   }
 
   Widget _itemCard(SalesOrderItemRequest item) {
-    final isAnimal = item.animalProfile != null;
-    final code =
-        isAnimal ? item.animalProfile!.animalCode : item.feedMedicine!.code;
-    final secondValue = isAnimal
-        ? "${item.weight ?? item.animalProfile!.weight} Kg"
-        : item.feedMedicine!.feedType;
+    if (item.animalProfile != null) {
+      return _animalItemCard(item);
+    } else {
+      return _feedItemCard(item);
+    }
+  }
+
+  Widget _animalItemCard(SalesOrderItemRequest item) {
     final useForecast =
         ref.read(editSalesOrderFormProvider).useForecast ?? true;
 
@@ -149,40 +154,22 @@ class _EditSalesOrderStep2PageState
                     mainAxisSize: MainAxisSize.min,
                     spacing: 8.0,
                     children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: AppColors.greyBg,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: SvgPicture.asset(
-                            AppImages.icNavCow,
-                            fit: BoxFit.contain,
-                            width: 24,
-                            height: 24,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.primary,
-                              BlendMode.srcIn,
+                      _itemIcon(AppImages.icNavCow, isSvg: true),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.animalProfile?.animalCode ?? "-",
+                              style: AppTypography.smallBoldBlack,
                             ),
-                          ),
+                            Text(
+                              "${item.animalProfile?.name ?? "-"} • ${item.weight ?? item.animalProfile?.weight ?? 0} Kg",
+                              style: AppTypography.smallNormalGrey,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.animalProfile?.name ??
-                                item.feedMedicine!.name,
-                            style: AppTypography.smallBoldBlack,
-                          ),
-                          Text(
-                            "$code • $secondValue",
-                            style: AppTypography.smallNormalGrey,
-                          ),
-                        ],
                       ),
                     ],
                   ),
@@ -199,13 +186,18 @@ class _EditSalesOrderStep2PageState
             ),
             const SizedBox(height: 12),
             const Divider(
-                height: 1, thickness: 1, color: AppColors.fieldBorder),
+              height: 1,
+              thickness: 1,
+              color: AppColors.fieldBorder,
+            ),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Rp ${formatPrice(item.unitPrice ?? 0)}',
+                  useForecast
+                      ? 'Rp ${formatPrice(item.unitPrice ?? 0)}'
+                      : formatDateTime(item.dlvDate),
                   style: AppTypography.smallBoldBlack,
                 ),
                 Text(
@@ -214,18 +206,130 @@ class _EditSalesOrderStep2PageState
                 ),
               ],
             ),
-            if (useForecast)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text('Harga/kg Forecast',
-                      style: AppTypography.xSmallNormalBlack),
-                  Text('Total Forecast',
-                      style: AppTypography.xSmallNormalBlack),
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  useForecast ? 'Harga/kg Forecast' : 'Tanggal Pengiriman',
+                  style: AppTypography.xSmallNormalBlack,
+                ),
+                Text(
+                  useForecast ? 'Total Forecast' : 'Subtotal',
+                  style: AppTypography.xSmallNormalBlack,
+                ),
+              ],
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _feedItemCard(SalesOrderItemRequest item) {
+    return InkWell(
+      onTap: () => _showItemDetailSheet(item),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.fieldBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 8.0,
+                    children: [
+                      _itemIcon(AppImages.icProduct, isSvg: false),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.feedMedicine?.code ?? "-",
+                              style: AppTypography.smallBoldBlack,
+                            ),
+                            Text(
+                              "${item.feedMedicine?.name ?? "-"} • ${item.feedMedicine?.feedType ?? "-"}",
+                              style: AppTypography.smallNormalGrey,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                _iconAction(
+                  icon: Icons.delete,
+                  color: AppColors.danger,
+                  backColor: AppColors.danger.withOpacity(0.08),
+                  onTap: () => _showDeleteConfirmSheet(item),
+                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.navigate_next_rounded),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: AppColors.fieldBorder,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "${item.qty}",
+                  style: AppTypography.smallBoldBlack,
+                ),
+                Text(
+                  'Rp ${formatPrice(item.subtotal ?? 0)}',
+                  style: AppTypography.smallBoldBlack,
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Text('Jumlah', style: AppTypography.xSmallNormalBlack),
+                Text('Total Harga', style: AppTypography.xSmallNormalBlack),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _itemIcon(String icon, {required bool isSvg}) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: AppColors.greyBg,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: isSvg
+            ? SvgPicture.asset(
+                icon,
+                fit: BoxFit.contain,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.primary,
+                  BlendMode.srcIn,
+                ),
+              )
+            : Image.asset(icon, fit: BoxFit.contain),
       ),
     );
   }
@@ -331,8 +435,10 @@ class _EditSalesOrderStep2PageState
                 extra: widget.detail,
               );
             },
-            child: const Text("Selanjutnya",
-                style: AppTypography.mediumBoldWhite),
+            child: const Text(
+              "Selanjutnya",
+              style: AppTypography.mediumBoldWhite,
+            ),
           ),
         ),
       ),
@@ -356,13 +462,11 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding:
-                const EdgeInsets.only(left: 20.0, right: 20.0, top: 16.0),
+            padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Hapus Item",
-                    style: AppTypography.largeBoldBlack),
+                const Text("Hapus Item", style: AppTypography.largeBoldBlack),
                 RawMaterialButton(
                   onPressed: () => Navigator.pop(context),
                   elevation: 1.0,
@@ -383,8 +487,7 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
           const SizedBox(height: 12),
           Image.asset(AppImages.icDeleteConfirmation, height: 120),
           const SizedBox(height: 20),
-          const Text("Hapus Item Ini?",
-              style: AppTypography.mediumBoldBlack),
+          const Text("Hapus Item Ini?", style: AppTypography.mediumBoldBlack),
           const SizedBox(height: 8),
           const Padding(
             padding: EdgeInsets.all(16.0),

@@ -29,7 +29,11 @@ class GetMasterDataListUseCase {
     int perPage = 10,
     String? search,
   }) {
-    return repository.getFarmLocationsPaginated(page: page, perPage: perPage, search: search);
+    return repository.getFarmLocationsPaginated(
+      page: page,
+      perPage: perPage,
+      search: search,
+    );
   }
 
   Future<List<FarmArea>> callFarmAreas({int? farmLocationId}) {
@@ -106,6 +110,18 @@ class GetMasterDataListUseCase {
 
   Future<List<FeedMedicine>> callFeedMedicines() {
     return repository.getFeedMedicines();
+  }
+
+  Future<BaseResponse<FeedMedicine>> callFeedMedicinesPaginated({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) {
+    return repository.getFeedMedicinesPaginated(
+      page: page,
+      perPage: perPage,
+      search: search,
+    );
   }
 
   Future<List<AnimalGroup>> callAnimalGroups() {

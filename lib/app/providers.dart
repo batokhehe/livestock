@@ -24,6 +24,7 @@ import '../core/notifier/customer_notifier.dart';
 import '../core/network/dio_client.dart';
 import '../core/notifier/product_notifier.dart';
 import '../core/notifier/animal_notifier.dart';
+import '../core/notifier/feed_medicine_notifier.dart';
 import '../features/dispatch/data/model/sales_order_dispatch_model.dart';
 import '../features/dispatch/dispatch_provider.dart';
 
@@ -191,6 +192,10 @@ final feedMedicineListProvider = FutureProvider.autoDispose<List<FeedMedicine>>(
   (ref) async {
     return ref.read(getMasterDataListUseCaseProvider).callFeedMedicines();
   },
+);
+final paginatedFeedMedicineProvider = AsyncNotifierProvider.autoDispose<
+    FeedMedicineNotifier, BaseResponse<FeedMedicine>>(
+  FeedMedicineNotifier.new,
 );
 final selectedFeedMedicineProvider = StateProvider<FeedMedicine?>(
   (ref) => null,

@@ -11,7 +11,7 @@ class SalesOrderItem {
   final int? no;
   final String item;
   final int? feedMedicineId;
-  final String feedMedicineCode;
+  final String? feedMedicineCode;
 
   final String salesStatus;
   final String? salesItemType;

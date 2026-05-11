@@ -14,6 +14,7 @@ import '../../sales_order_provider.dart';
 import '../widgets/add_item_bottom_sheet_animal.dart';
 import '../widgets/add_item_bottom_sheet_feed.dart';
 import '../widgets/sales_order_item_detail_bottom_sheet.dart';
+import '../widgets/sales_order_feed_item_detail_bottom_sheet.dart';
 
 class AddSalesOrderStep2Page extends ConsumerStatefulWidget {
   const AddSalesOrderStep2Page({super.key});
@@ -54,7 +55,9 @@ class _AddSalesOrderStep2PageState
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => SalesOrderItemDetailBottomSheet(item: item),
+      builder: (_) => item.animalProfile != null
+          ? SalesOrderItemDetailBottomSheet(item: item)
+          : SalesOrderFeedItemDetailBottomSheet(item: item),
     );
   }
 
@@ -117,15 +120,14 @@ class _AddSalesOrderStep2PageState
   }
 
   Widget _itemCard(SalesOrderItemRequest item) {
-    final isAnimal = item.animalProfile != null;
+    if (item.animalProfile != null) {
+      return _animalItemCard(item);
+    } else {
+      return _feedItemCard(item);
+    }
+  }
 
-    final code = isAnimal
-        ? item.animalProfile!.animalCode
-        : item.feedMedicine!.code;
-
-    final secondValue = isAnimal
-        ? "${item.weight ?? item.animalProfile!.weight} Kg"
-        : item.feedMedicine!.feedType;
+  Widget _animalItemCard(SalesOrderItemRequest item) {
     final useForecast = ref.read(salesOrderFormProvider).useForecast ?? true;
 
     return InkWell(
@@ -149,36 +151,22 @@ class _AddSalesOrderStep2PageState
                     mainAxisSize: MainAxisSize.min,
                     spacing: 8.0,
                     children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: AppColors.greyBg,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: SvgPicture.asset(
-                            AppImages.icNavCow,
-                            fit: BoxFit.contain,
-                            width: 24,
-                            height: 24,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.primary,
-                              BlendMode.srcIn,
+                      _itemIcon(AppImages.icNavCow, isSvg: true),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.animalProfile!.animalCode,
+                              style: AppTypography.smallBoldBlack,
                             ),
-                          ),
+                            Text(
+                              "${item.animalProfile?.name} • ${item.weight ?? item.animalProfile!.weight} Kg",
+                              style: AppTypography.smallNormalGrey,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(code, style: AppTypography.smallBoldBlack),
-                          Text(
-                            "${item.animalProfile?.name} • $secondValue",
-                            style: AppTypography.smallNormalGrey,
-                          ),
-                        ],
                       ),
                     ],
                   ),
@@ -211,7 +199,6 @@ class _AddSalesOrderStep2PageState
                 ),
               ],
             ),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -227,6 +214,114 @@ class _AddSalesOrderStep2PageState
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _feedItemCard(SalesOrderItemRequest item) {
+    return InkWell(
+      onTap: () => _showItemDetailSheet(item),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.fieldBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 8.0,
+                    children: [
+                      _itemIcon(AppImages.icProduct, isSvg: false),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.feedMedicine!.code,
+                              style: AppTypography.smallBoldBlack,
+                            ),
+                            Text(
+                              "${item.feedMedicine!.name} • ${item.feedMedicine!.feedType}",
+                              style: AppTypography.smallNormalGrey,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                _iconAction(
+                  icon: Icons.delete,
+                  color: AppColors.danger,
+                  backColor: AppColors.danger.withOpacity(0.08),
+                  onTap: () => _showDeleteConfirmSheet(item),
+                ),
+                const SizedBox(width: 8),
+                Icon(Icons.navigate_next_rounded),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "${item.qty} ${item.uom}",
+                  style: AppTypography.smallBoldBlack,
+                ),
+                Text(
+                  'Rp ${formatPrice(item.subtotal ?? 0)}',
+                  style: AppTypography.smallBoldBlack,
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Jumlah', style: AppTypography.xSmallNormalBlack),
+                const Text(
+                  'Total Harga',
+                  style: AppTypography.xSmallNormalBlack,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _itemIcon(String icon, {required bool isSvg}) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: AppColors.greyBg,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: isSvg
+            ? SvgPicture.asset(
+                icon,
+                fit: BoxFit.contain,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.primary,
+                  BlendMode.srcIn,
+                ),
+              )
+            : Image.asset(icon, fit: BoxFit.contain),
       ),
     );
   }
