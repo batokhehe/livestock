@@ -10,6 +10,7 @@ class TextFieldWithInnerCounter extends StatefulWidget {
   final int maxLength;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
+  final bool enabled;
 
   const TextFieldWithInnerCounter({
     super.key,
@@ -19,6 +20,7 @@ class TextFieldWithInnerCounter extends StatefulWidget {
     required this.maxLength,
     this.controller,
     this.onChanged,
+    this.enabled = true,
   });
 
   @override
@@ -74,11 +76,16 @@ class _TextFieldWithInnerCounterState extends State<TextFieldWithInnerCounter> {
               controller: _controller,
               maxLength: widget.maxLength,
               maxLines: 3,
-              style: AppTypography.xSmallNormalBlack,
+              enabled: widget.enabled,
+              style: widget.enabled
+                  ? AppTypography.xSmallNormalBlack
+                  : AppTypography.xSmallNormalGrey,
               decoration: InputDecoration(
                 hintText: widget.hint,
                 counterText: '',
                 contentPadding: const EdgeInsets.fromLTRB(12, 12, 48, 28),
+                filled: true,
+                fillColor: widget.enabled ? AppColors.white : AppColors.greyBg,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: AppColors.fieldBorder),
@@ -86,6 +93,10 @@ class _TextFieldWithInnerCounterState extends State<TextFieldWithInnerCounter> {
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: AppColors.fieldBorder),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.grey2, width: 1),
                 ),
               ),
             ),
