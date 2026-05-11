@@ -4,6 +4,7 @@ class UserModel {
   final int roleId;
   final String roleName;
   final int? farmLocationId;
+  final String phone;
   final List<String> permissions;
 
   UserModel({
@@ -12,6 +13,7 @@ class UserModel {
     required this.roleId,
     required this.roleName,
     this.farmLocationId,
+    required this.phone,
     required this.permissions,
   });
 
@@ -22,6 +24,7 @@ class UserModel {
       roleId: _parseInt(json['role_id']) ?? 0,
       roleName: (json['role_name'] ?? '').toString(),
       farmLocationId: _parseInt(json['farm_location_id']),
+      phone: (json['phone'] ?? '').toString(),
       permissions: List<String>.from(json['permissions'] ?? []),
     );
   }
@@ -33,6 +36,7 @@ class UserModel {
       "role_id": roleId,
       "role_name": roleName,
       "farm_location_id": farmLocationId,
+      "phone": phone,
       "permissions": permissions,
     };
   }
@@ -46,5 +50,25 @@ class UserModel {
 
   bool hasPermission(String key) {
     return permissions.contains(key);
+  }
+
+  UserModel copyWith({
+    String? name,
+    String? email,
+    int? roleId,
+    String? roleName,
+    int? farmLocationId,
+    String? phone,
+    List<String>? permissions,
+  }) {
+    return UserModel(
+      name: name ?? this.name,
+      email: email ?? this.email,
+      roleId: roleId ?? this.roleId,
+      roleName: roleName ?? this.roleName,
+      farmLocationId: farmLocationId ?? this.farmLocationId,
+      phone: phone ?? this.phone,
+      permissions: permissions ?? this.permissions,
+    );
   }
 }

@@ -27,7 +27,6 @@ class UserRepository {
     return UserModel.fromJson(data);
   }
 
-  // Hapus user dari storage (logout)
   Future<void> clearUser() async {
     await storage.delete(key: _keyUser);
   }
@@ -36,9 +35,48 @@ class UserRepository {
     try {
       final response = await api.current();
       final json = response?["data"];
-      final user = UserModel.fromJson(json);
+      if (json == null) return;
 
-      await saveUser(user);
+      final currentUser = await getUser();
+      if (currentUser != null) {
+        final updatedUser = currentUser.copyWith(
+          name: (json['name'] ?? currentUser.name).toString(),
+          email: (json['email'] ?? currentUser.email).toString(),
+          phone: (json['phone'] ?? currentUser.phone).toString(),
+        );
+        await saveUser(updatedUser);
+      } else {
+        final user = UserModel.fromJson(json);
+        await saveUser(user);
+      }
+    } catch (e) {
+      throw ErrorParser.parse(e);
+    }
+  }
+
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    try {
+      await api.changePassword(
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      );
+    } catch (e) {
+      throw ErrorParser.parse(e);
+    }
+  }
+
+  Future<void> changeProfile({
+    required String columnType,
+    required String newValue,
+  }) async {
+    try {
+      await api.changeProfile(columnType: columnType, newValue: newValue);
+      await fetchUserFromApi();
     } catch (e) {
       throw ErrorParser.parse(e);
     }

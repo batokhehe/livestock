@@ -3,17 +3,28 @@ import 'package:livestock/core/theme/AppImages.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 
-Future<bool?> showConfirmUpdateBottomSheet(BuildContext context) {
+Future<bool?> showConfirmUpdateBottomSheet(
+  BuildContext context, {
+  String title = "Perbarui Data Profil?",
+  String subtitle =
+      "Data profil yang anda ubah akan diperbarui pada informasi dan detail profil.",
+}) {
   return showModalBottomSheet<bool>(
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
-    builder: (_) => const _ConfirmUpdateBottomSheet(),
+    builder: (_) => _ConfirmUpdateBottomSheet(title: title, subtitle: subtitle),
   );
 }
 
 class _ConfirmUpdateBottomSheet extends StatelessWidget {
-  const _ConfirmUpdateBottomSheet();
+  final String title;
+  final String subtitle;
+
+  const _ConfirmUpdateBottomSheet({
+    required this.title,
+    required this.subtitle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,13 +58,10 @@ class _ConfirmUpdateBottomSheet extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          const Text(
-            "Perbarui Data Profil?",
-            style: AppTypography.mediumBoldBlack,
-          ),
+          Text(title, style: AppTypography.mediumBoldBlack),
           const SizedBox(height: 8),
-          const Text(
-            "Data profil yang anda ubah akan diperbarui pada informasi dan detail profil.",
+          Text(
+            subtitle,
             textAlign: TextAlign.center,
             style: AppTypography.smallNormalGrey,
           ),
@@ -88,8 +96,8 @@ class _ConfirmUpdateBottomSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {},
-                  child: Text(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text(
                     "Simpan Perubahan",
                     style: AppTypography.mediumBoldWhite,
                   ),

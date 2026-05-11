@@ -4,6 +4,7 @@ import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:livestock/features/profile/presentation/views/change_password_page.dart';
 import 'package:livestock/features/attendance/presentation/views/employee_attendance_page.dart';
 import 'package:livestock/features/attendance/presentation/views/employee_overnight_page.dart';
 import 'package:livestock/features/dashboard/presentation/views/dashboard_page.dart';
@@ -264,6 +265,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 },
               ),
             ],
+          ),
+          GoRoute(
+            path: 'change-password',
+            builder: (context, state) => const ChangePasswordPage(),
           ),
         ],
       ),

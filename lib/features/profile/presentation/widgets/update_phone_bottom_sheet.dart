@@ -3,22 +3,22 @@ import 'package:livestock/features/profile/presentation/widgets/update_confirmat
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 
-class UpdateNameBottomSheet extends StatefulWidget {
-  final String currentName;
+class UpdatePhoneBottomSheet extends StatefulWidget {
+  final String currentPhone;
 
-  const UpdateNameBottomSheet({super.key, required this.currentName});
+  const UpdatePhoneBottomSheet({super.key, required this.currentPhone});
 
   @override
-  State<UpdateNameBottomSheet> createState() => _UpdateNameBottomSheetState();
+  State<UpdatePhoneBottomSheet> createState() => _UpdatePhoneBottomSheetState();
 }
 
-class _UpdateNameBottomSheetState extends State<UpdateNameBottomSheet> {
+class _UpdatePhoneBottomSheetState extends State<UpdatePhoneBottomSheet> {
   late final TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.currentName);
+    _controller = TextEditingController(text: widget.currentPhone);
   }
 
   @override
@@ -62,14 +62,15 @@ class _UpdateNameBottomSheetState extends State<UpdateNameBottomSheet> {
             // ===== FIELD =====
             Align(
               alignment: Alignment.centerLeft,
-              child: Text("Nama Akun", style: AppTypography.smallBoldBlack),
+              child: Text("Nomor Telepon", style: AppTypography.smallBoldBlack),
             ),
             const SizedBox(height: 6),
 
             TextField(
               controller: _controller,
+              keyboardType: TextInputType.phone,
               decoration: InputDecoration(
-                hintText: "Masukkan nama akun",
+                hintText: "Masukkan nomor telepon",
                 filled: true,
                 fillColor: Colors.white,
                 contentPadding: const EdgeInsets.symmetric(
@@ -105,13 +106,13 @@ class _UpdateNameBottomSheetState extends State<UpdateNameBottomSheet> {
                   ),
                 ),
                 onPressed: () async {
-                  final newName = _controller.text.trim();
-                  if (newName.isEmpty) return;
+                  final newPhone = _controller.text.trim();
+                  if (newPhone.isEmpty) return;
 
                   final confirmed = await showConfirmUpdateBottomSheet(context);
 
                   if (confirmed == true) {
-                    Navigator.pop(context, newName); // lanjut ke API
+                    Navigator.pop(context, newPhone);
                   }
                 },
                 child: const Text(
