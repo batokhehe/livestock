@@ -128,8 +128,34 @@ class GetMasterDataListUseCase {
     return repository.getAnimalGroups();
   }
 
+  Future<BaseResponse<AnimalGroup>> callAnimalGroupsPaginated({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) {
+    return repository.getAnimalGroupsPaginated(
+      page: page,
+      perPage: perPage,
+      search: search,
+    );
+  }
+
   Future<List<Supplier>> callSuppliers({String? type}) {
     return repository.getSuppliers(type: type);
+  }
+
+  Future<BaseResponse<Supplier>> callSuppliersPaginated({
+    String? type,
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) {
+    return repository.getSuppliersPaginated(
+      type: type,
+      page: page,
+      perPage: perPage,
+      search: search,
+    );
   }
 
   Future<AnimalProfile> callAnimalDetail(String id) {
