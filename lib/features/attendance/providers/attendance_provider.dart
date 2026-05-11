@@ -86,6 +86,14 @@ class AttendanceStatusNotifier extends StateNotifier<Map<int, bool>> {
     state = {...state, employeeId: isPresent};
   }
 
+  void setAllStatus(bool isPresent) {
+    final newState = <int, bool>{};
+    state.forEach((key, value) {
+      newState[key] = isPresent;
+    });
+    state = newState;
+  }
+
   void reset() {
     state = {};
     _initialized = false;

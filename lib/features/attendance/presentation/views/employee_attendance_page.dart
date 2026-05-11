@@ -141,6 +141,10 @@ class _EmployeeAttendancePageState
 
     return SectionCard(
       title: 'Informasi Pekerja',
+      actionLabel: 'Pilih Semua Hadir',
+      onActionTap: () {
+        ref.read(attendanceStatusProvider.notifier).setAllStatus(true);
+      },
       children: [
         employeesAsync.when(
           loading: () => const Padding(
