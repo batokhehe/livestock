@@ -136,6 +136,8 @@ final attendanceQueryProvider = Provider<AttendanceRequest>((ref) {
   final location = ref.watch(attendanceLocationProvider);
 
   String? dateStr;
+  String? startDate;
+  String? endDate;
   String monthStr = '';
 
   final now = DateTime.now();
@@ -145,11 +147,11 @@ final attendanceQueryProvider = Provider<AttendanceRequest>((ref) {
   } else if (filterType == 'Minggu Ini') {
     final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
     final endOfWeek = startOfWeek.add(const Duration(days: 6));
-    dateStr =
-        '${DateFormat('yyyy-MM-dd').format(startOfWeek)},${DateFormat('yyyy-MM-dd').format(endOfWeek)}';
+    startDate = DateFormat('yyyy-MM-dd').format(startOfWeek);
+    endDate = DateFormat('yyyy-MM-dd').format(endOfWeek);
   } else if (filterType == 'Rentang tanggal manual' && dateRange != null) {
-    dateStr =
-        '${DateFormat('yyyy-MM-dd').format(dateRange.start)},${DateFormat('yyyy-MM-dd').format(dateRange.end)}';
+    startDate = DateFormat('yyyy-MM-dd').format(dateRange.start);
+    endDate = DateFormat('yyyy-MM-dd').format(dateRange.end);
   } else {
     monthStr = DateFormat('yyyy-MM').format(now);
   }
@@ -162,7 +164,10 @@ final attendanceQueryProvider = Provider<AttendanceRequest>((ref) {
     perPage: 10,
     sortBy: 'transdate',
     sortDir: 'desc',
-    search: location?.name ?? search,
+    search: search,
+    farmLocationId: location?.id,
+    startDate: startDate,
+    endDate: endDate,
   );
 });
 
@@ -187,6 +192,9 @@ class AttendanceHistoryNotifier
       search: query.search,
       sortBy: query.sortBy,
       sortDir: query.sortDir,
+      farmLocationId: query.farmLocationId,
+      startDate: query.startDate,
+      endDate: query.endDate,
     );
   }
 
@@ -215,6 +223,9 @@ class AttendanceHistoryNotifier
       search: query.search,
       sortBy: query.sortBy,
       sortDir: query.sortDir,
+      farmLocationId: query.farmLocationId,
+      startDate: query.startDate,
+      endDate: query.endDate,
     );
 
     final merged = [...data, ...result['data']];
@@ -249,6 +260,9 @@ final attendanceHistoryProvider =
         search: query.search,
         sortBy: query.sortBy,
         sortDir: query.sortDir,
+        farmLocationId: query.farmLocationId,
+        startDate: query.startDate,
+        endDate: query.endDate,
       );
 
       return response['data'];
