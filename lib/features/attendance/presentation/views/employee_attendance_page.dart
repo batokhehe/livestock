@@ -185,7 +185,7 @@ class _EmployeeAttendancePageState
     int absent = 0;
 
     for (final e in employees) {
-      final isPresent = statuses[e.id] ?? true; // default hadir
+      final isPresent = statuses[e.id] ?? false; // default tidak hadir
       if (isPresent) {
         present++;
       } else {
@@ -226,7 +226,7 @@ class _EmployeeAttendancePageState
 
   Widget _employeeItem(Employee item) {
     final statuses = ref.watch(attendanceStatusProvider);
-    final isPresent = statuses[item.id] ?? true;
+    final isPresent = statuses[item.id] ?? false;
 
     return CardWrapper(
       child: Row(

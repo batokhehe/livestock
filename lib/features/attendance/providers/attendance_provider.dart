@@ -65,7 +65,7 @@ class AttendanceStatusNotifier extends StateNotifier<Map<int, bool>> {
     final newState = <int, bool>{};
 
     for (final e in employees) {
-      newState[e.id] = true; // default hadir
+      newState[e.id] = false; // default tidak hadir
     }
 
     state = newState;
