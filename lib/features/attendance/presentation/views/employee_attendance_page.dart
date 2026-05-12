@@ -10,6 +10,9 @@ import 'package:livestock/core/widgets/section_card.dart';
 import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
 import 'package:livestock/features/user/providers/user_provider.dart';
 
+import 'package:livestock/core/widgets/select_field.dart';
+import 'package:livestock/core/widgets/farm_location_paginated_bottom_sheet.dart';
+import 'package:livestock/core/data/model/farm_location_model.dart';
 import '../../../../core/theme/AppImages.dart';
 import '../../../../core/widgets/input_field_card.dart';
 import '../../../receiving/presentation/widgets/confirmation_bottom_sheet.dart';
@@ -44,6 +47,7 @@ class _EmployeeAttendancePageState
   @override
   Widget build(BuildContext context) {
     ref.watch(attendanceInitProvider);
+    ref.watch(attendanceLogIdProvider);
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
@@ -98,10 +102,32 @@ class _EmployeeAttendancePageState
   // ================= INFORMASI ABSENSI =================
   Widget _attendanceInfo(BuildContext context) {
     final selectedDate = ref.watch(attendanceDateProvider);
+    final selectedFarm = ref.watch(attendanceFormFarmLocationProvider);
 
     return SectionCard(
       title: 'Informasi Absensi',
       children: [
+        SelectField(
+          label: "Lokasi peternakan",
+          hint: selectedFarm?.name ?? "Pilih lokasi",
+          icon: AppImages.icHomeHashTag,
+          onTap: () async {
+            final result = await showModalBottomSheet<FarmLocation?>(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) => FarmLocationPaginatedBottomSheet(
+                initialSelectedId: selectedFarm?.id,
+              ),
+            );
+
+            if (result != null) {
+              ref.read(attendanceFormFarmLocationProvider.notifier).state =
+                  result;
+            }
+          },
+        ),
+        const SizedBox(height: 12),
         Dropdowns(
           label: 'Tanggal Absensi',
           value: DateFormat(
@@ -421,6 +447,18 @@ class _EmployeeAttendancePageState
 
   Future<void> _submitAttendance() async {
     final employeesAsync = ref.read(employeeListProvider);
+    final selectedFarm = ref.read(attendanceFormFarmLocationProvider);
+
+    if (selectedFarm == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Lokasi peternakan wajib diisi"),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
 
     // if (selectedDate == null) {
     //   ScaffoldMessenger.of(context).showSnackBar(
@@ -447,8 +485,15 @@ class _EmployeeAttendancePageState
       data: (employees) async {
         try {
           final payload = _buildAttendancePayload(employees);
+          final attendanceLogId = ref.read(attendanceLogIdProvider);
 
-          await ref.read(attendanceApiProvider).submitAttendance(payload);
+          if (attendanceLogId != null) {
+            await ref
+                .read(attendanceApiProvider)
+                .updateAttendance(attendanceLogId, payload);
+          } else {
+            await ref.read(attendanceApiProvider).submitAttendance(payload);
+          }
 
           if (!context.mounted) return;
           context.pushReplacement('/history-attendance');
@@ -474,7 +519,8 @@ class _EmployeeAttendancePageState
   Map<String, dynamic> _buildAttendancePayload(List<Employee> employees) {
     final selectedDate = ref.read(attendanceDateProvider);
     final statuses = ref.read(attendanceStatusProvider);
-    final farmId = ref.watch(userFarmProvider);
+    final selectedFarm = ref.read(attendanceFormFarmLocationProvider);
+    final farmId = selectedFarm?.id ?? ref.watch(userFarmProvider);
 
     return {
       "trans_date": DateFormat(

@@ -6,8 +6,8 @@ class EmployeeRepository {
 
   EmployeeRepository(this.api);
 
-  Future<List<Employee>> getEmployees() async {
-    final res = await api.getEmployees();
+  Future<List<Employee>> getEmployees({int? farmLocationId}) async {
+    final res = await api.getEmployees(farmLocationId: farmLocationId);
     return res.data;
   }
 }
