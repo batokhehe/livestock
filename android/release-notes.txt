@@ -1,1 +1,5 @@
-initial firebase app distribution 2
+📱 Release Notes
+🔧 Perbaikan & Peningkatan
+
+- Pembelian
+- Attendance
