@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
@@ -6,7 +7,7 @@ import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/animal_group_bottom_sheet.dart';
 import 'package:livestock/core/widgets/input_field_card.dart';
-import 'package:livestock/core/widgets/supplier_bottom_sheet.dart';
+import 'package:livestock/core/widgets/supplier_paginated_bottom_sheet.dart';
 import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
 
 import '../../../../core/theme/AppColors.dart';
@@ -124,6 +125,7 @@ class _PurchaseOrderInfoSection extends ConsumerWidget {
           label: "Tanggal Pembelian",
           hint: formatDateTime(form.purchDate),
           icon: AppImages.icCalendarSearch,
+          isMandatoryField: true,
           onTap: () async {
             final pickedDate = await showModalBottomSheet<DateTime?>(
               context: context,
@@ -144,14 +146,12 @@ class _PurchaseOrderInfoSection extends ConsumerWidget {
           label: "Grup Hewan",
           hint: form.animalGroup?.name ?? "Pilih Grup Hewan",
           icon: AppImages.icProduct,
+          isMandatoryField: true,
           onTap: () async {
             final animalGroup = await showModalBottomSheet(
               context: context,
-              isScrollControlled: false,
-              backgroundColor: AppColors.greyBg,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
               builder: (_) => const AnimalGroupBottomSheet(),
             );
             if (animalGroup != null) {
@@ -166,15 +166,14 @@ class _PurchaseOrderInfoSection extends ConsumerWidget {
           label: "Pemasok",
           hint: form.supplier?.name ?? "Pilih Pemasok",
           icon: AppImages.icUserTag,
+          isMandatoryField: true,
           onTap: () async {
             final supplier = await showModalBottomSheet(
               context: context,
-              isScrollControlled: false,
-              backgroundColor: AppColors.greyBg,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              builder: (_) => SupplierBottomSheet(type: form.purchaseItemType),
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) =>
+                  SupplierPaginatedBottomSheet(type: form.purchaseItemType),
             );
             if (supplier != null) {
               ref
@@ -189,6 +188,7 @@ class _PurchaseOrderInfoSection extends ConsumerWidget {
           hint: "Masukkan nama Pemasok",
           prefixIcon: AppImages.icUser,
           controller: supplierNameController,
+          enabled: false,
         ),
         TextFieldWithInnerCounter(
           label: "Alamat Pemasok",
@@ -221,6 +221,7 @@ class _CustomerInfoSection extends ConsumerWidget {
           label: "Lokasi peternakan",
           hint: form.farmLocation?.name ?? "Pilih lokasi",
           icon: AppImages.icHomeHashTag,
+          isMandatoryField: true,
           onTap: () async {
             final result = await showModalBottomSheet<FarmLocation?>(
               context: context,
@@ -244,10 +245,16 @@ class _CustomerInfoSection extends ConsumerWidget {
             label: "Biaya Pengiriman",
             hint: "Masukkan biaya",
             prefixIcon: AppImages.icMoneys,
+            prefixText: 'Rp ',
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              CurrencyInputFormatter(),
+            ],
             onChanged: (value) {
               ref
                   .read(purchaseOrderFormProvider.notifier)
-                  .setShippingCost(value);
+                  .setShippingCost(value.replaceAll('.', ''));
             },
           ),
           SizedBox(height: 12),
@@ -255,10 +262,16 @@ class _CustomerInfoSection extends ConsumerWidget {
             label: "Biaya Lainnya",
             hint: "Masukkan biaya lainnya",
             prefixIcon: AppImages.icMoneyTick,
+            prefixText: 'Rp ',
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              CurrencyInputFormatter(),
+            ],
             onChanged: (value) {
               ref
                   .read(purchaseOrderFormProvider.notifier)
-                  .setAdditionalCost(value);
+                  .setAdditionalCost(value.replaceAll('.', ''));
             },
           ),
         ],

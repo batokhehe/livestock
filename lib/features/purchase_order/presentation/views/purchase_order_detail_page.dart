@@ -65,9 +65,15 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
                     const SizedBox(height: 12),
 
                     ...items.asMap().entries.map(
-                      (entry) => _ProductInfoCard(
-                        counter: entry.key + 1,
-                        data: entry.value,
+                      (entry) => Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _ProductInfoCard(
+                            counter: entry.key + 1,
+                            data: entry.value,
+                          ),
+                          SizedBox(height: 12.0),
+                        ],
                       ),
                     ),
 

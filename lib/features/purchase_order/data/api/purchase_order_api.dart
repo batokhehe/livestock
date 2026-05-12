@@ -11,10 +11,18 @@ class PurchaseOrderApi {
 
   Future<List<PurchaseOrderList>> getPurchaseOrder({
     required String type,
+    String? search,
+    int? page,
+    int? perPage,
   }) async {
     final res = await dio.get(
       '/transaction/purch-order',
-      queryParameters: {'type': type},
+      queryParameters: {
+        'type': type,
+        'search': search,
+        'page': page,
+        'per_page': perPage,
+      }..removeWhere((k, v) => v == null || v == ''),
     );
 
     if (res.statusCode != 200) {

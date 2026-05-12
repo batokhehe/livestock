@@ -130,13 +130,39 @@ class MasterRepository {
   }
 
   Future<List<AnimalGroup>> getAnimalGroups() async {
-    final res = await api.getAnimalGroups();
+    final res = await api.getAnimalGroups(page: 1, perPage: 1000);
     return res.data;
   }
 
+  Future<BaseResponse<AnimalGroup>> getAnimalGroupsPaginated({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
+    return await api.getAnimalGroups(
+      page: page,
+      perPage: perPage,
+      search: search,
+    );
+  }
+
   Future<List<Supplier>> getSuppliers({String? type}) async {
-    final res = await api.getSuppliers(type: type);
+    final res = await api.getSuppliers(type: type, page: 1, perPage: 1000);
     return res.data;
+  }
+
+  Future<BaseResponse<Supplier>> getSuppliersPaginated({
+    String? type,
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
+    return await api.getSuppliers(
+      type: type,
+      page: page,
+      perPage: perPage,
+      search: search,
+    );
   }
 
   Future<AnimalProfile> getAnimalDetail(String id) async {

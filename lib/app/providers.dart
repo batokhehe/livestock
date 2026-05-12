@@ -25,6 +25,8 @@ import '../core/network/dio_client.dart';
 import '../core/notifier/product_notifier.dart';
 import '../core/notifier/animal_notifier.dart';
 import '../core/notifier/feed_medicine_notifier.dart';
+import '../core/notifier/animal_group_notifier.dart';
+import '../core/notifier/supplier_notifier.dart';
 import '../features/dispatch/data/model/sales_order_dispatch_model.dart';
 import '../features/dispatch/dispatch_provider.dart';
 
@@ -210,6 +212,10 @@ final animalGroupListProvider = FutureProvider.autoDispose<List<AnimalGroup>>((
 ) async {
   return ref.read(getMasterDataListUseCaseProvider).callAnimalGroups();
 });
+final paginatedAnimalGroupProvider = AsyncNotifierProvider.autoDispose<
+    AnimalGroupNotifier, BaseResponse<AnimalGroup>>(
+  AnimalGroupNotifier.new,
+);
 final selectedAnimalGroupProvider = StateProvider<AnimalGroup?>((ref) => null);
 final animalGroupSearchProvider = StateProvider.autoDispose<String>(
   (ref) => '',
@@ -222,6 +228,10 @@ final supplierListProvider = FutureProvider.autoDispose
           .read(getMasterDataListUseCaseProvider)
           .callSuppliers(type: type);
     });
+final paginatedSupplierProvider = AsyncNotifierProvider.autoDispose
+    .family<SupplierNotifier, BaseResponse<Supplier>, String?>(
+      SupplierNotifier.new,
+    );
 final selectedSupplierProvider = StateProvider<Supplier?>((ref) => null);
 final supplierSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 

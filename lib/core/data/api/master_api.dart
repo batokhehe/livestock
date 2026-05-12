@@ -238,8 +238,19 @@ class MasterApi {
     return data.map((e) => Village.fromJson(e)).toList();
   }
 
-  Future<BaseResponse<AnimalGroup>> getAnimalGroups() async {
-    final res = await dio.get('/master/animal-group');
+  Future<BaseResponse<AnimalGroup>> getAnimalGroups({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
+    final res = await dio.get(
+      '/master/animal-group',
+      queryParameters: {
+        'page': page,
+        'per_page': perPage,
+        'search': search,
+      }..removeWhere((k, v) => v == null),
+    );
 
     
     if (res.statusCode != 200) {
@@ -255,10 +266,20 @@ class MasterApi {
     );
   }
 
-  Future<BaseResponse<Supplier>> getSuppliers({String? type}) async {
+  Future<BaseResponse<Supplier>> getSuppliers({
+    String? type,
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
     final res = await dio.get(
       '/master/supplier',
-      queryParameters: {if (type != null) 'type': type},
+      queryParameters: {
+        'type': type,
+        'page': page,
+        'per_page': perPage,
+        'search': search,
+      }..removeWhere((k, v) => v == null || v == ''),
     );
 
     

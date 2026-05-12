@@ -81,15 +81,27 @@ class SalesOrderDetailPage extends ConsumerWidget {
 
                     ...items.asMap().entries.map(
                       (entry) => entry.value.animalProfile != null
-                          ? _ProductInfoCard(
-                              counter: entry.key + 1,
-                              detailData: data,
-                              data: entry.value,
+                          ? Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _ProductInfoCard(
+                                  counter: entry.key + 1,
+                                  detailData: data,
+                                  data: entry.value,
+                                ),
+                                SizedBox(height: 12.0),
+                              ],
                             )
-                          : _FeedProductInfoCard(
-                              counter: entry.key + 1,
-                              detailData: data,
-                              data: entry.value,
+                          : Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _FeedProductInfoCard(
+                                  counter: entry.key + 1,
+                                  detailData: data,
+                                  data: entry.value,
+                                ),
+                                SizedBox(height: 12.0),
+                              ],
                             ),
                     ),
 

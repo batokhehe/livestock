@@ -35,23 +35,97 @@ extension PurchaseOrderTabX on PurchaseOrderTab {
   }
 }
 
-final purchaseOrderSearchProvider = StateProvider<String>((ref) => '');
+final purchaseOrderSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
-final purchaseOrderTabProvider = StateProvider<PurchaseOrderTab>((ref) {
-  return PurchaseOrderTab.animal;
-});
+final purchaseOrderTabProvider =
+    StateProvider.autoDispose<PurchaseOrderTab>((ref) {
+      return PurchaseOrderTab.animal;
+    });
 
 final purchaseOrderApiProvider = Provider((ref) {
   return PurchaseOrderApi(ref.read(dioProvider));
 });
 
 final purchaseOrderListProvider =
-    FutureProvider.autoDispose<List<PurchaseOrderList>>((ref) async {
-      final api = ref.read(purchaseOrderApiProvider);
-      final tab = ref.watch(purchaseOrderTabProvider);
+    StateNotifierProvider.autoDispose<
+      PurchaseOrderListNotifier,
+      AsyncValue<List<PurchaseOrderList>>
+    >((ref) => PurchaseOrderListNotifier(ref));
 
-      return api.getPurchaseOrder(type: tab.apiValue);
+class PurchaseOrderListNotifier
+    extends StateNotifier<AsyncValue<List<PurchaseOrderList>>> {
+  final Ref ref;
+  int _page = 1;
+  final int _perPage = 10;
+  bool _hasMore = true;
+  bool _isLoadingMore = false;
+
+  PurchaseOrderListNotifier(this.ref) : super(const AsyncLoading()) {
+    _init();
+  }
+
+  void _init() {
+    ref.listen(purchaseOrderTabProvider, (previous, next) {
+      refresh();
     });
+    ref.listen(purchaseOrderSearchProvider, (previous, next) {
+      refresh();
+    });
+
+    fetch();
+  }
+
+  Future<void> fetch({bool isRefresh = false}) async {
+    if (isRefresh) {
+      _page = 1;
+      _hasMore = true;
+      _isLoadingMore = false;
+    }
+
+    if (!_hasMore || _isLoadingMore) return;
+
+    if (_page > 1) {
+      _isLoadingMore = true;
+      state = AsyncData(state.value ?? []);
+    } else {
+      state = const AsyncLoading();
+    }
+
+    try {
+      final api = ref.read(purchaseOrderApiProvider);
+      final tab = ref.read(purchaseOrderTabProvider);
+      final search = ref.read(purchaseOrderSearchProvider);
+
+      final items = await api.getPurchaseOrder(
+        type: tab.apiValue,
+        search: search,
+        page: _page,
+        perPage: _perPage,
+      );
+
+      if (isRefresh) {
+        state = AsyncData(items);
+      } else {
+        final currentItems = state.value ?? [];
+        state = AsyncData([...currentItems, ...items]);
+      }
+
+      _hasMore = items.length == _perPage;
+      _page++;
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    } finally {
+      _isLoadingMore = false;
+    }
+  }
+
+  Future<void> refresh() async {
+    await fetch(isRefresh: true);
+  }
+
+  bool get hasMore => _hasMore;
+  bool get isLoadingMore => _isLoadingMore;
+}
 
 final purchaseOrderFormProvider =
     StateNotifierProvider.autoDispose<

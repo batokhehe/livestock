@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/AppColors.dart';
+import '../../../../core/theme/AppImages.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/bottom_button.dart';
 import '../../../../core/widgets/search_bar_card.dart';
@@ -10,13 +11,46 @@ import '../../data/model/purchase_order_list_model.dart';
 import '../../purchase_order_provider.dart';
 import '../widgets/purchase_order_date_group_card.dart';
 
-class PurchaseOrderPage extends ConsumerWidget {
+class PurchaseOrderPage extends ConsumerStatefulWidget {
   const PurchaseOrderPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PurchaseOrderPage> createState() => _PurchaseOrderPageState();
+}
+
+class _PurchaseOrderPageState extends ConsumerState<PurchaseOrderPage> {
+  final searchCtrl = TextEditingController();
+  final scrollCtrl = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    searchCtrl.addListener(() {
+      final value = searchCtrl.text;
+      // Hit API only if empty (clear) or >= 2 chars
+      if (value.isEmpty || value.length >= 2) {
+        ref.read(purchaseOrderSearchProvider.notifier).state = value;
+      }
+    });
+
+    scrollCtrl.addListener(() {
+      if (scrollCtrl.position.pixels >=
+          scrollCtrl.position.maxScrollExtent - 200) {
+        ref.read(purchaseOrderListProvider.notifier).fetch();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    searchCtrl.dispose();
+    scrollCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final dataAsync = ref.watch(purchaseOrderListProvider);
-    final searchCtrl = TextEditingController();
     final activeTab = ref.watch(purchaseOrderTabProvider);
 
     return Scaffold(
@@ -37,33 +71,30 @@ class PurchaseOrderPage extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          SearchBarCard(hint: 'Cari Apapun', controller: searchCtrl),
-
-          /// 🔥 TABS
+          SearchBarCard(hint: 'Cari Pembelian', controller: searchCtrl),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                _tabItem(ref, PurchaseOrderTab.animal, activeTab),
+                _tabItem(PurchaseOrderTab.animal, activeTab),
                 const SizedBox(width: 8),
-                _tabItem(ref, PurchaseOrderTab.feed, activeTab),
+                _tabItem(PurchaseOrderTab.feed, activeTab),
                 const SizedBox(width: 8),
-                _tabItem(ref, PurchaseOrderTab.equipment, activeTab),
+                _tabItem(PurchaseOrderTab.equipment, activeTab),
               ],
             ),
           ),
-
           const SizedBox(height: 12),
-
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
-                await ref.refresh(purchaseOrderListProvider.future);
+                await ref.read(purchaseOrderListProvider.notifier).refresh();
               },
               child: dataAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (err, stack) {
                   return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,14 +116,13 @@ class PurchaseOrderPage extends ConsumerWidget {
                     ),
                   );
                 },
-                data: (list) => _PurchaseOrderList(list),
+                data: (list) => _PurchaseOrderList(list, scrollCtrl: scrollCtrl),
               ),
             ),
           ),
           BottomButton(
             text: 'Tambah Pembelian',
             onPressed: () {
-              Navigator.pop(context);
               context.push('/purchase-order/add?type=${activeTab.apiValue}');
             },
           ),
@@ -101,11 +131,7 @@ class PurchaseOrderPage extends ConsumerWidget {
     );
   }
 
-  Widget _tabItem(
-    WidgetRef ref,
-    PurchaseOrderTab value,
-    PurchaseOrderTab active,
-  ) {
+  Widget _tabItem(PurchaseOrderTab value, PurchaseOrderTab active) {
     final isActive = value == active;
 
     return GestureDetector(
@@ -132,15 +158,47 @@ class PurchaseOrderPage extends ConsumerWidget {
   }
 }
 
-class _PurchaseOrderList extends StatelessWidget {
+class _PurchaseOrderList extends ConsumerWidget {
   final List<PurchaseOrderList> list;
+  final ScrollController scrollCtrl;
 
-  const _PurchaseOrderList(this.list);
+  const _PurchaseOrderList(this.list, {required this.scrollCtrl});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (list.isEmpty) {
-      return const Center(child: Text("Data kosong"));
+      return Center(
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 8.0,
+            children: [
+              Image.asset(
+                AppImages.icEmptyDefault,
+                width: 250,
+                height: 250,
+                fit: BoxFit.fitWidth,
+              ),
+              Text(
+                "Belum Ada Data yang Tersedia",
+                style: AppTypography.mediumBoldBlack,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  "Tambahkan data baru atau sesuaikan filter untuk\nmelihat informasi di kategori ini",
+                  textAlign: TextAlign.center,
+                  style: AppTypography.smallNormalWhite.copyWith(
+                    color: AppColors.black,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     final Map<String, List<PurchaseOrderList>> grouped = {};
@@ -149,14 +207,28 @@ class _PurchaseOrderList extends StatelessWidget {
       grouped.putIfAbsent(item.purchDate.toString(), () => []).add(item);
     }
 
+    final isLoadingMore =
+        ref.watch(purchaseOrderListProvider.notifier).isLoadingMore;
+
     return ListView(
+      controller: scrollCtrl,
       padding: const EdgeInsets.all(16),
-      children: grouped.entries.map((entry) {
-        return PurchaseOrderDateGroupCard(
-          dateLabel: entry.key,
-          items: entry.value,
-        );
-      }).toList(),
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        ...grouped.entries.map((entry) {
+          return PurchaseOrderDateGroupCard(
+            dateLabel: entry.key,
+            items: entry.value,
+          );
+        }),
+        if (isLoadingMore)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(),
+            ),
+          ),
+      ],
     );
   }
 }

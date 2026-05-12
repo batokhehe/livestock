@@ -30,9 +30,12 @@ class MyApp extends ConsumerWidget {
       routerConfig: router,
       theme: ThemeData(useMaterial3: true, fontFamily: 'Manrope'),
       builder: (context, child) {
-        return SafeArea(
-          bottom: true,
-          child: GlobalAuthListener(child: child!),
+        return GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: SafeArea(
+            bottom: true,
+            child: GlobalAuthListener(child: child!),
+          ),
         );
       },
     );

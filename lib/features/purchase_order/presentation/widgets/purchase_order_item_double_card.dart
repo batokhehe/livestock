@@ -29,6 +29,12 @@ class PurchaseOrderItemDoubleCard extends StatelessWidget {
         statusText = 'Tutup';
     }
 
+    final typeLabel = item.feedType == 'feed'
+        ? 'pakan'
+        : item.feedType == 'equipment'
+            ? 'peralatan'
+            : 'hewan';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
@@ -75,7 +81,7 @@ class PurchaseOrderItemDoubleCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${item.details.first.quantity} hewan • ${item.details.first.animalName}',
+                      '${item.details.length} $typeLabel',
                       style: AppTypography.xSmallNormalBlack,
                     ),
                     Text(
