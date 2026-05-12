@@ -9,8 +9,14 @@ class AttendanceApi {
 
   AttendanceApi(this.dio);
 
-  Future<BaseResponse<Employee>> getEmployees() async {
-    final res = await dio.get('/attendance/employee-list');
+  Future<BaseResponse<Employee>> getEmployees({int? farmLocationId}) async {
+    final res = await dio.get(
+      '/attendance/employee-list',
+      queryParameters: {
+        if (farmLocationId != null && farmLocationId != 0)
+          'farm_location_id': farmLocationId,
+      },
+    );
 
     if (res.statusCode != 200) {
       throw DioException(
@@ -25,6 +31,10 @@ class AttendanceApi {
 
   Future<void> submitAttendance(Map<String, dynamic> body) async {
     await dio.post('/attendance', data: body);
+  }
+
+  Future<void> updateAttendance(int id, Map<String, dynamic> body) async {
+    await dio.put('/attendance/$id', data: body);
   }
 
   Future<Map<String, dynamic>> getAttendance({
@@ -82,10 +92,15 @@ class AttendanceApi {
 
   Future<List<AttendanceDetail>> getAttendanceEmployeeDetail({
     required String transDate,
+    int? farmLocationId,
   }) async {
     final res = await dio.get(
       '/attendance/detail',
-      queryParameters: {'trans_date': transDate},
+      queryParameters: {
+        'trans_date': transDate,
+        if (farmLocationId != null && farmLocationId != 0)
+          'farm_location_id': farmLocationId,
+      },
     );
 
     final List list = res.data['data'];

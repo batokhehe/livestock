@@ -10,6 +10,9 @@ import 'package:livestock/core/widgets/section_card.dart';
 import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
 import 'package:livestock/features/user/providers/user_provider.dart';
 
+import 'package:livestock/core/widgets/select_field.dart';
+import 'package:livestock/core/widgets/farm_location_paginated_bottom_sheet.dart';
+import 'package:livestock/core/data/model/farm_location_model.dart';
 import '../../../../core/theme/AppImages.dart';
 import '../../../../core/widgets/input_field_card.dart';
 import '../../../receiving/presentation/widgets/confirmation_bottom_sheet.dart';
@@ -44,6 +47,7 @@ class _EmployeeAttendancePageState
   @override
   Widget build(BuildContext context) {
     ref.watch(attendanceInitProvider);
+    ref.watch(attendanceLogIdProvider);
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
@@ -98,10 +102,32 @@ class _EmployeeAttendancePageState
   // ================= INFORMASI ABSENSI =================
   Widget _attendanceInfo(BuildContext context) {
     final selectedDate = ref.watch(attendanceDateProvider);
+    final selectedFarm = ref.watch(attendanceFormFarmLocationProvider);
 
     return SectionCard(
       title: 'Informasi Absensi',
       children: [
+        SelectField(
+          label: "Lokasi peternakan",
+          hint: selectedFarm?.name ?? "Pilih lokasi",
+          icon: AppImages.icHomeHashTag,
+          onTap: () async {
+            final result = await showModalBottomSheet<FarmLocation?>(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) => FarmLocationPaginatedBottomSheet(
+                initialSelectedId: selectedFarm?.id,
+              ),
+            );
+
+            if (result != null) {
+              ref.read(attendanceFormFarmLocationProvider.notifier).state =
+                  result;
+            }
+          },
+        ),
+        const SizedBox(height: 12),
         Dropdowns(
           label: 'Tanggal Absensi',
           value: DateFormat(
@@ -141,6 +167,10 @@ class _EmployeeAttendancePageState
 
     return SectionCard(
       title: 'Informasi Pekerja',
+      actionLabel: 'Pilih Semua Hadir',
+      onActionTap: () {
+        ref.read(attendanceStatusProvider.notifier).setAllStatus(true);
+      },
       children: [
         employeesAsync.when(
           loading: () => const Padding(
@@ -167,9 +197,6 @@ class _EmployeeAttendancePageState
                     child: _employeeItem(e),
                   ),
                 ),
-
-                const SizedBox(height: 12),
-                _noteField(maxLength: 40),
               ],
             );
           },
@@ -185,7 +212,10 @@ class _EmployeeAttendancePageState
     int absent = 0;
 
     for (final e in employees) {
-      final isPresent = statuses[e.id] ?? true; // default hadir
+      final attendanceState =
+          statuses[e.id] ??
+          EmployeeAttendanceState(isPresent: false, note: 'Tidak hadir');
+      final isPresent = attendanceState.isPresent;
       if (isPresent) {
         present++;
       } else {
@@ -225,8 +255,10 @@ class _EmployeeAttendancePageState
   }
 
   Widget _employeeItem(Employee item) {
-    final statuses = ref.watch(attendanceStatusProvider);
-    final isPresent = statuses[item.id] ?? true;
+    final attendanceState =
+        ref.watch(attendanceStatusProvider)[item.id] ??
+        EmployeeAttendanceState(isPresent: false, note: 'Tidak hadir');
+    final isPresent = attendanceState.isPresent;
 
     return CardWrapper(
       child: Row(
@@ -247,6 +279,51 @@ class _EmployeeAttendancePageState
               children: [
                 Text(item.name, style: AppTypography.smallBoldBlack),
                 Text(item.position, style: AppTypography.xSmallNormalGrey),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () => _showNoteBottomSheet(item),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              AppImages.icNote,
+                              width: 16,
+                              color:
+                                  attendanceState.note.isNotEmpty &&
+                                      attendanceState.note !=
+                                          (isPresent ? 'Hadir' : 'Tidak hadir')
+                                  ? AppColors.primary
+                                  : AppColors.hint,
+                            ),
+                            const SizedBox(width: 4),
+                            if (attendanceState.note.isNotEmpty &&
+                                attendanceState.note !=
+                                    (isPresent ? 'Hadir' : 'Tidak hadir'))
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.3,
+                                child: Text(
+                                  attendanceState.note,
+                                  style: AppTypography.xSmallNormalPrimary,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              )
+                            else
+                              Text(
+                                "Tambah catatan",
+                                style: AppTypography.xSmallNormalGrey.copyWith(
+                                  fontSize: 10,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -259,6 +336,72 @@ class _EmployeeAttendancePageState
             },
           ),
         ],
+      ),
+    );
+  }
+
+  void _showNoteBottomSheet(Employee item) {
+    final state = ref.read(attendanceStatusProvider)[item.id];
+    final controller = TextEditingController(text: state?.note);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Catatan untuk ${item.name}",
+                style: AppTypography.mediumBoldBlack,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  hintText: "Masukkan catatan",
+                  border: OutlineInputBorder(),
+                ),
+                maxLength: 80,
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    ref
+                        .read(attendanceStatusProvider.notifier)
+                        .setNote(item.id, controller.text);
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    "Simpan Catatan",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -304,6 +447,18 @@ class _EmployeeAttendancePageState
 
   Future<void> _submitAttendance() async {
     final employeesAsync = ref.read(employeeListProvider);
+    final selectedFarm = ref.read(attendanceFormFarmLocationProvider);
+
+    if (selectedFarm == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Lokasi peternakan wajib diisi"),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
 
     // if (selectedDate == null) {
     //   ScaffoldMessenger.of(context).showSnackBar(
@@ -330,8 +485,15 @@ class _EmployeeAttendancePageState
       data: (employees) async {
         try {
           final payload = _buildAttendancePayload(employees);
+          final attendanceLogId = ref.read(attendanceLogIdProvider);
 
-          await ref.read(attendanceApiProvider).submitAttendance(payload);
+          if (attendanceLogId != null) {
+            await ref
+                .read(attendanceApiProvider)
+                .updateAttendance(attendanceLogId, payload);
+          } else {
+            await ref.read(attendanceApiProvider).submitAttendance(payload);
+          }
 
           if (!context.mounted) return;
           context.pushReplacement('/history-attendance');
@@ -357,7 +519,8 @@ class _EmployeeAttendancePageState
   Map<String, dynamic> _buildAttendancePayload(List<Employee> employees) {
     final selectedDate = ref.read(attendanceDateProvider);
     final statuses = ref.read(attendanceStatusProvider);
-    final farmId = ref.watch(userFarmProvider);
+    final selectedFarm = ref.read(attendanceFormFarmLocationProvider);
+    final farmId = selectedFarm?.id ?? ref.watch(userFarmProvider);
 
     return {
       "trans_date": DateFormat(
@@ -368,12 +531,14 @@ class _EmployeeAttendancePageState
       "record_by": 1,
       "type": "regular",
       "details": employees.map((e) {
-        final isPresent = statuses[e.id] ?? true;
+        final attendanceState =
+            statuses[e.id] ??
+            EmployeeAttendanceState(isPresent: false, note: 'Tidak hadir');
         return {
           "employee_id": e.id,
           "farm_location_id": farmId,
-          "status": isPresent ? "present" : "absent",
-          "note": isPresent ? "Hadir" : "Tidak hadir",
+          "status": attendanceState.isPresent ? "present" : "absent",
+          "note": attendanceState.note,
         };
       }).toList(),
     };

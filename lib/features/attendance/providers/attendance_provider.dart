@@ -5,6 +5,10 @@ import 'package:livestock/features/attendance/data/model/attendance_detail.dart'
 import 'package:livestock/features/attendance/data/model/attendance_request.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
 
+import '../../user/providers/user_provider.dart';
+import '../../../app/providers.dart';
+import 'package:collection/collection.dart';
+
 import '../../../core/network/dio_client.dart';
 import '../../attendance/data/api/attendance_api.dart';
 import '../../attendance/data/model/employee_model.dart';
@@ -37,7 +41,10 @@ final getEmployeeListUseCaseProvider = Provider((ref) {
 final employeeListProvider = FutureProvider.autoDispose<List<Employee>>((
   ref,
 ) async {
-  return ref.read(getEmployeeListUseCaseProvider).call();
+  final farmLocation = ref.watch(attendanceFormFarmLocationProvider);
+  return ref
+      .read(getEmployeeListUseCaseProvider)
+      .call(farmLocationId: farmLocation?.id);
 });
 
 final selectedEmployeeIdProvider = StateProvider<int?>((ref) => null);
@@ -54,7 +61,27 @@ final attendanceDateProvider = StateProvider.autoDispose<DateTime?>(
   (ref) => null,
 );
 
-class AttendanceStatusNotifier extends StateNotifier<Map<int, bool>> {
+final attendanceFormFarmLocationProvider =
+    StateProvider.autoDispose<FarmLocation?>((ref) => null);
+
+final attendanceLogIdProvider = StateProvider.autoDispose<int?>((ref) => null);
+
+class EmployeeAttendanceState {
+  final bool isPresent;
+  final String note;
+
+  EmployeeAttendanceState({required this.isPresent, required this.note});
+
+  EmployeeAttendanceState copyWith({bool? isPresent, String? note}) {
+    return EmployeeAttendanceState(
+      isPresent: isPresent ?? this.isPresent,
+      note: note ?? this.note,
+    );
+  }
+}
+
+class AttendanceStatusNotifier
+    extends StateNotifier<Map<int, EmployeeAttendanceState>> {
   AttendanceStatusNotifier() : super({});
 
   bool _initialized = false;
@@ -62,10 +89,13 @@ class AttendanceStatusNotifier extends StateNotifier<Map<int, bool>> {
   void initFromEmployees(List<Employee> employees) {
     if (_initialized) return; // ⛔ STOP overwrite
 
-    final newState = <int, bool>{};
+    final newState = <int, EmployeeAttendanceState>{};
 
     for (final e in employees) {
-      newState[e.id] = true; // default hadir
+      newState[e.id] = EmployeeAttendanceState(
+        isPresent: false,
+        note: 'Tidak hadir',
+      );
     }
 
     state = newState;
@@ -76,14 +106,51 @@ class AttendanceStatusNotifier extends StateNotifier<Map<int, bool>> {
     final newState = {...state};
 
     for (final h in histories) {
-      newState[h.employeeId] = h.status == 'present';
+      final isPresent = h.status == 'present';
+      newState[h.employeeId] = EmployeeAttendanceState(
+        isPresent: isPresent,
+        note: isPresent ? 'Hadir' : 'Tidak hadir',
+      );
     }
 
     state = newState;
   }
 
   void setStatus(int employeeId, bool isPresent) {
-    state = {...state, employeeId: isPresent};
+    final current = state[employeeId];
+    if (current == null) return;
+
+    final isDefaultNote =
+        current.note == 'Hadir' || current.note == 'Tidak hadir';
+    final nextNote = isDefaultNote
+        ? (isPresent ? 'Hadir' : 'Tidak hadir')
+        : current.note;
+
+    state = {
+      ...state,
+      employeeId: current.copyWith(isPresent: isPresent, note: nextNote),
+    };
+  }
+
+  void setNote(int employeeId, String note) {
+    final current = state[employeeId];
+    if (current == null) return;
+
+    state = {...state, employeeId: current.copyWith(note: note)};
+  }
+
+  void setAllStatus(bool isPresent) {
+    final newState = <int, EmployeeAttendanceState>{};
+    state.forEach((key, value) {
+      final isDefaultNote =
+          value.note == 'Hadir' || value.note == 'Tidak hadir';
+      final nextNote = isDefaultNote
+          ? (isPresent ? 'Hadir' : 'Tidak hadir')
+          : value.note;
+
+      newState[key] = value.copyWith(isPresent: isPresent, note: nextNote);
+    });
+    state = newState;
   }
 
   void reset() {
@@ -93,9 +160,10 @@ class AttendanceStatusNotifier extends StateNotifier<Map<int, bool>> {
 }
 
 final attendanceStatusProvider =
-    StateNotifierProvider<AttendanceStatusNotifier, Map<int, bool>>(
-      (ref) => AttendanceStatusNotifier(),
-    );
+    StateNotifierProvider<
+      AttendanceStatusNotifier,
+      Map<int, EmployeeAttendanceState>
+    >((ref) => AttendanceStatusNotifier());
 
 /// =====================================================
 /// API
@@ -287,32 +355,51 @@ final attendanceDetailProvider =
 
       final List data = response['data'];
 
-      return {
-        'id': param.id,
-        'transdate': param.transDate,
-        'details': data,
-      };
+      return {'id': param.id, 'transdate': param.transDate, 'details': data};
     });
 
 final attendanceInitProvider = FutureProvider.autoDispose<void>((ref) async {
-  debugPrint('🔥 INIT START');
-
-  // 1️⃣ fetch employee
   final employees = await ref.watch(employeeListProvider.future);
-  debugPrint('🔥 EMPLOYEE FETCHED');
 
   final statusNotifier = ref.read(attendanceStatusProvider.notifier);
   statusNotifier.reset();
   statusNotifier.initFromEmployees(employees);
 
-  // 2️⃣ fetch attendance detail MANUAL (TANPA provider)
+  final farmLocationNotifier = ref.read(
+    attendanceFormFarmLocationProvider.notifier,
+  );
+  if (farmLocationNotifier.state == null) {
+    try {
+      final farms = await ref.read(farmLocationListProvider.future);
+      final userFarmId = ref.read(userFarmProvider);
+      final defaultFarm = farms.firstWhereOrNull((f) => f.id == userFarmId);
+      if (defaultFarm != null) {
+        farmLocationNotifier.state = defaultFarm;
+      }
+    } catch (e) {
+      debugPrint('🔥 FAILED TO SET DEFAULT FARM: $e');
+    }
+  }
+
   final api = ref.read(attendanceApiProvider);
-  debugPrint('🔥 FETCH ATTENDANCE DETAIL');
 
-  final histories = await api.getAttendanceEmployeeDetail(transDate: todayDate);
+  final selectedDate = ref.watch(attendanceDateProvider);
+  final formattedDate = DateFormat(
+    'yyyy-MM-dd',
+  ).format(selectedDate ?? DateTime.now());
+  final selectedFarm = ref.watch(attendanceFormFarmLocationProvider);
 
-  debugPrint('🔥 DETAIL FETCHED: ${histories.length}');
+  final histories = await api.getAttendanceEmployeeDetail(
+    transDate: formattedDate,
+    farmLocationId: selectedFarm?.id,
+  );
 
-  // 3️⃣ merge
+  if (histories.isNotEmpty && histories.first.attendanceLogId != null) {
+    ref.read(attendanceLogIdProvider.notifier).state =
+        histories.first.attendanceLogId;
+  } else {
+    ref.read(attendanceLogIdProvider.notifier).state = null;
+  }
+
   statusNotifier.mergeFromHistory(histories);
 });

@@ -256,8 +256,12 @@ class _EmployeeAttendancePageState
                                           .read(
                                             selectedEmployeeIdProvider.notifier,
                                           )
-                                          .state = e
-                                          .id;
+                                          .state = e.id;
+                                      ref
+                                          .read(
+                                            attendanceStatusProvider.notifier,
+                                          )
+                                          .setStatus(e.id, true);
                                     },
                                     child: Container(
                                       margin: const EdgeInsets.only(bottom: 10),
@@ -371,12 +375,13 @@ class _EmployeeAttendancePageState
       "record_by": 1,
       "type": "overnight",
       "details": employees.map((e) {
-        final isPresent = statuses[e.id] ?? true;
+        final attendanceState = statuses[e.id] ??
+            EmployeeAttendanceState(isPresent: true, note: 'Hadir');
         return {
           "employee_id": e.id,
           "farm_location_id": farmId,
-          "status": isPresent ? "present" : "absent",
-          "note": isPresent ? "Hadir" : "Tidak hadir",
+          "status": attendanceState.isPresent ? "present" : "absent",
+          "note": attendanceState.note,
         };
       }).toList(),
     };
