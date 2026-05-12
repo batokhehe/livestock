@@ -6,14 +6,42 @@ import 'package:livestock/features/receiving/receiving_provider.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 
-class SelectReceivingItemSheet extends ConsumerWidget {
+import 'package:livestock/features/receiving/presentation/notifier/receiving_po_notifier.dart';
+
+class SelectReceivingItemSheet extends ConsumerStatefulWidget {
   final ReceivingTab tab;
 
   const SelectReceivingItemSheet({super.key, required this.tab});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final itemsAsync = ref.watch(receivingPoListProvider);
+  ConsumerState<SelectReceivingItemSheet> createState() =>
+      _SelectReceivingItemSheetState();
+}
+
+class _SelectReceivingItemSheetState
+    extends ConsumerState<SelectReceivingItemSheet> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
+        ref.read(paginatedReceivingPoProvider.notifier).loadMore();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final itemsAsync = ref.watch(paginatedReceivingPoProvider);
 
     return Container(
       padding: EdgeInsets.only(
@@ -47,6 +75,9 @@ class SelectReceivingItemSheet extends ConsumerWidget {
 
           /// SEARCH
           TextField(
+            onChanged: (val) {
+              ref.read(receivingPoSearchProvider.notifier).state = val;
+            },
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white,
@@ -62,20 +93,32 @@ class SelectReceivingItemSheet extends ConsumerWidget {
 
           /// LIST
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.5,
+            height: MediaQuery.of(context).size.height * 0.6,
             child: itemsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(child: Text("Error: ${e.toString()}")),
-              data: (items) {
+              data: (res) {
+                final items = res.data;
+                final total = res.total ?? 0;
+                final hasMore = items.length < total;
+
                 if (items.isEmpty) {
                   return const Center(child: Text("Tidak ada item"));
                 }
 
                 return ListView.builder(
-                  itemCount: items.length,
+                  controller: _scrollController,
+                  itemCount: items.length + (hasMore ? 1 : 0),
                   itemBuilder: (_, i) {
+                    if (i == items.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
                     final item = items[i];
-                    return PohItemCard(item: item, tab: tab);
+                    return PohItemCard(item: item, tab: widget.tab);
                   },
                 );
               },

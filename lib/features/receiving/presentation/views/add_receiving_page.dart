@@ -37,6 +37,7 @@ class _AddReceivingPageState extends ConsumerState<AddReceivingPage> {
       ref.read(selectedFarmLocationProvider.notifier).state = null;
       ref.read(selectedFarmAreaProvider.notifier).state = null;
       ref.read(animalFarmLocationIdProvider.notifier).state = null;
+      ref.read(animalFarmAreaIdProvider.notifier).state = null;
 
       ref.read(receivingFormProvider).setRemarks('');
     });
@@ -182,6 +183,7 @@ class _FarmInfoSection extends ConsumerWidget {
 
       // Clear area if location changes
       ref.read(selectedFarmAreaProvider.notifier).state = null;
+      ref.read(animalFarmAreaIdProvider.notifier).state = null;
     }
   }
 
@@ -197,6 +199,7 @@ class _FarmInfoSection extends ConsumerWidget {
 
     if (result != null) {
       ref.read(selectedFarmAreaProvider.notifier).state = result;
+      ref.read(animalFarmAreaIdProvider.notifier).state = result.id;
     }
   }
 }
@@ -233,6 +236,7 @@ class _NextButton extends ConsumerWidget {
             ),
             onPressed: isValid
                 ? () {
+                    ref.read(receivingPoSearchProvider.notifier).state = '';
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,

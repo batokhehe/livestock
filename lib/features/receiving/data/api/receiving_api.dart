@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:livestock/core/data/model/base_response.dart';
 import 'package:livestock/features/receiving/data/model/receiving_detail_model.dart';
 import 'package:livestock/features/receiving/data/model/receiving_po_model.dart';
 
@@ -30,11 +31,29 @@ class ReceivingApi {
     return list.map((e) => ReceivingList.fromJson(e)).toList();
   }
 
-  Future<List<ReceivingPo>> getReceivingPo({required String type}) async {
-    final res = await dio.get('/inventory/receiving/purchase-orders/$type');
+  Future<BaseResponse<ReceivingPo>> getReceivingPo({
+    required String type,
+    int? farmLocationId,
+    int? farmAreaId,
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
+    final res = await dio.get(
+      '/inventory/receiving/purchase-orders/$type',
+      queryParameters: {
+        'farm_location_id': farmLocationId,
+        'farm_area_id': farmAreaId,
+        'page': page,
+        'per_page': perPage,
+        'search': search,
+      }..removeWhere((k, v) => v == null || v == ''),
+    );
 
-    final List list = res.data['data'];
-    return list.map((e) => ReceivingPo.fromJson(e)).toList();
+    return BaseResponse.fromJson(
+      res.data,
+      (json) => ReceivingPo.fromJson(json),
+    );
   }
 
   Future<void> submitReceiving({
