@@ -11,12 +11,14 @@ class FarmAreaNotifier extends AutoDisposeAsyncNotifier<BaseResponse<FarmArea>> 
   Future<BaseResponse<FarmArea>> build() async {
     _page = 1;
     final farmLocationId = ref.watch(animalFarmLocationIdProvider);
+    final search = ref.watch(farmAreaSearchProvider);
     final useCase = ref.read(getMasterDataListUseCaseProvider);
-    
+
     return await useCase.callFarmAreasPaginated(
       farmLocationId: farmLocationId,
-      page: _page, 
+      page: _page,
       perPage: 10,
+      search: search.isEmpty ? null : search,
     );
   }
 
@@ -31,12 +33,14 @@ class FarmAreaNotifier extends AutoDisposeAsyncNotifier<BaseResponse<FarmArea>> 
     _page++;
 
     final farmLocationId = ref.read(animalFarmLocationIdProvider);
+    final search = ref.read(farmAreaSearchProvider);
     final useCase = ref.read(getMasterDataListUseCaseProvider);
-    
+
     final result = await useCase.callFarmAreasPaginated(
       farmLocationId: farmLocationId,
-      page: _page, 
+      page: _page,
       perPage: 10,
+      search: search.isEmpty ? null : search,
     );
 
     state = AsyncData(

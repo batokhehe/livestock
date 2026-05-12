@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/farm_area_bottom_sheet.dart';
 import 'package:livestock/core/widgets/farm_location_paginated_bottom_sheet.dart';
+import 'package:livestock/features/receiving/presentation/widgets/farm_area_paginated_bottom_sheet.dart';
 import 'package:livestock/core/widgets/step_info_card.dart';
 import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
 
@@ -34,6 +36,7 @@ class _AddReceivingPageState extends ConsumerState<AddReceivingPage> {
     Future.microtask(() {
       ref.read(selectedFarmLocationProvider.notifier).state = null;
       ref.read(selectedFarmAreaProvider.notifier).state = null;
+      ref.read(animalFarmLocationIdProvider.notifier).state = null;
 
       ref.read(receivingFormProvider).setRemarks('');
     });
@@ -97,6 +100,7 @@ class _ReceivingInfoSection extends ConsumerWidget {
       children: [
         SelectField(
           label: "Tanggal penerimaan",
+          isMandatoryField: true,
           hint: dateText,
           icon: AppImages.icCalendarSearch,
           onTap: () async {
@@ -142,6 +146,7 @@ class _FarmInfoSection extends ConsumerWidget {
       children: [
         SelectField(
           label: "Lokasi peternakan",
+          isMandatoryField: true,
           hint: selectedFarm?.name ?? "Pilih lokasi",
           icon: AppImages.icHomeHashTag,
           onTap: () => _showFarmLocationPicker(context, ref),
@@ -150,8 +155,10 @@ class _FarmInfoSection extends ConsumerWidget {
           const SizedBox(height: 12),
           SelectField(
             label: "Area peternakan",
+            isMandatoryField: true,
             hint: selectedArea?.name ?? "Pilih area",
             icon: AppImages.icMap,
+            enabled: selectedFarm != null,
             onTap: () => _showFarmAreaPicker(context, ref),
           ),
         ],
@@ -171,29 +178,45 @@ class _FarmInfoSection extends ConsumerWidget {
 
     if (result != null) {
       ref.read(selectedFarmLocationProvider.notifier).state = result;
+      ref.read(animalFarmLocationIdProvider.notifier).state = result.id;
+
+      // Clear area if location changes
+      ref.read(selectedFarmAreaProvider.notifier).state = null;
     }
   }
 
-  void _showFarmAreaPicker(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet(
+  void _showFarmAreaPicker(BuildContext context, WidgetRef ref) async {
+    final result = await showModalBottomSheet<FarmArea?>(
       context: context,
-      isScrollControlled: false,
-      backgroundColor: AppColors.greyBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => FarmAreaPaginatedBottomSheet(
+        initialSelectedId: ref.read(selectedFarmAreaProvider)?.id,
       ),
-      builder: (_) => const FarmAreaBottomSheet(),
     );
+
+    if (result != null) {
+      ref.read(selectedFarmAreaProvider.notifier).state = result;
+    }
   }
 }
 
-class _NextButton extends StatelessWidget {
+class _NextButton extends ConsumerWidget {
   final ReceivingTab type;
 
   const _NextButton(this.type);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedDate = ref.watch(receivingDateProvider);
+    final selectedFarm = ref.watch(selectedFarmLocationProvider);
+    final selectedArea = ref.watch(selectedFarmAreaProvider);
+
+    bool isValid = selectedDate != null && selectedFarm != null;
+    if (type == ReceivingTab.animal) {
+      isValid = isValid && selectedArea != null;
+    }
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -202,20 +225,28 @@ class _NextButton extends StatelessWidget {
           height: 48,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              backgroundColor: isValid ? AppColors.primary : AppColors.grey3,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
+              elevation: isValid ? 2 : 0,
             ),
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => SelectReceivingItemSheet(tab: type),
-              );
-            },
-            child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
+            onPressed: isValid
+                ? () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) => SelectReceivingItemSheet(tab: type),
+                    );
+                  }
+                : null,
+            child: Text(
+              "Selanjutnya",
+              style: AppTypography.mediumBoldWhite.copyWith(
+                color: isValid ? Colors.white : Colors.white.withOpacity(0.6),
+              ),
+            ),
           ),
         ),
       ),

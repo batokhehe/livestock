@@ -12,12 +12,19 @@ class PohItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () {
-        context.push('/receiving/add/step-2', extra: item);
-      },
-      child: ReceivingItemDoubleCard(item: item, tab: tab),
+    final bool isEmpty = item.items.isEmpty;
+
+    return Opacity(
+      opacity: isEmpty ? 0.5 : 1.0,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: isEmpty
+            ? null
+            : () {
+                context.push('/receiving/add/step-2', extra: item);
+              },
+        child: ReceivingItemDoubleCard(item: item, tab: tab),
+      ),
     );
   }
 }

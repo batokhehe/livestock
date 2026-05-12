@@ -47,11 +47,13 @@ class MasterRepository {
     int? farmLocationId,
     int page = 1,
     int perPage = 10,
+    String? search,
   }) async {
     return await api.getFarmAreas(
       farmLocationId: farmLocationId,
       page: page,
       perPage: perPage,
+      search: search,
     );
   }
 
