@@ -6,6 +6,7 @@ import 'package:livestock/features/receiving/data/model/receiving_detail_model.d
 import 'package:livestock/features/receiving/data/model/receiving_list_model.dart';
 import 'package:livestock/features/receiving/data/model/receiving_po_model.dart';
 
+import '../../core/data/model/farm_location_model.dart';
 import '../../core/network/dio_client.dart';
 import 'data/api/receiving_api.dart';
 import 'data/model/receiving_item_model.dart';
@@ -49,6 +50,7 @@ extension ReceivingTabX on ReceivingTab {
 
 final receivingSearchProvider = StateProvider<String>((ref) => '');
 final receivingPoSearchProvider = StateProvider<String>((ref) => '');
+final receivingLocationFilterProvider = StateProvider<FarmLocation?>((ref) => null);
 
 final receivingTabProvider = StateProvider<ReceivingTab>((ref) {
   return ReceivingTab.animal;
@@ -56,15 +58,6 @@ final receivingTabProvider = StateProvider<ReceivingTab>((ref) {
 
 final receivingApiProvider = Provider((ref) {
   return ReceivingApi(ref.read(dioProvider));
-});
-
-final receivingListProvider = FutureProvider.autoDispose<List<ReceivingList>>((
-  ref,
-) async {
-  final api = ref.read(receivingApiProvider);
-  final tab = ref.watch(receivingTabProvider);
-
-  return api.getReceiving(receiveType: tab.name);
 });
 
 final receivingDateProvider = StateProvider<DateTime?>((ref) => DateTime.now());

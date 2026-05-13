@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:livestock/core/data/model/farm_location_model.dart';
+import 'package:livestock/core/widgets/farm_location_paginated_bottom_sheet.dart';
+import 'package:livestock/features/receiving/presentation/notifier/receiving_list_notifier.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
@@ -10,13 +13,40 @@ import '../../data/model/receiving_list_model.dart';
 import '../../receiving_provider.dart';
 import '../widgets/receiving_date_group_card.dart';
 
-class ReceivingPage extends ConsumerWidget {
+class ReceivingPage extends ConsumerStatefulWidget {
   const ReceivingPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final dataAsync = ref.watch(receivingListProvider);
-    final searchCtrl = TextEditingController();
+  ConsumerState<ReceivingPage> createState() => _ReceivingPageState();
+}
+
+class _ReceivingPageState extends ConsumerState<ReceivingPage> {
+  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
+        ref.read(paginatedReceivingListProvider.notifier).loadMore();
+      }
+    });
+
+    _searchCtrl.text = ref.read(receivingSearchProvider);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dataAsync = ref.watch(paginatedReceivingListProvider);
     final activeTab = ref.watch(receivingTabProvider);
 
     return Scaffold(
@@ -37,18 +67,34 @@ class ReceivingPage extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          SearchBarCard(hint: 'Cari Apapun', controller: searchCtrl),
+          SearchBarCard(
+            hint: 'Cari Apapun',
+            controller: _searchCtrl,
+            onChanged: (val) {
+              ref.read(receivingSearchProvider.notifier).state = val;
+            },
+            onClear: () {
+              ref.read(receivingSearchProvider.notifier).state = '';
+            },
+          ),
+
+          /// 🔥 LOCATION FILTER
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _locationFilter(context),
+          ),
+          const SizedBox(height: 12),
 
           /// 🔥 TABS
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                _tabItem(ref, ReceivingTab.animal, activeTab),
+                _tabItem(ReceivingTab.animal, activeTab),
                 const SizedBox(width: 8),
-                _tabItem(ref, ReceivingTab.feed, activeTab),
+                _tabItem(ReceivingTab.feed, activeTab),
                 const SizedBox(width: 8),
-                _tabItem(ref, ReceivingTab.equipment, activeTab),
+                _tabItem(ReceivingTab.equipment, activeTab),
               ],
             ),
           ),
@@ -58,12 +104,13 @@ class ReceivingPage extends ConsumerWidget {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
-                ref.invalidate(receivingListProvider);
+                ref.invalidate(paginatedReceivingListProvider);
               },
               child: dataAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (err, stack) {
                   return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +132,17 @@ class ReceivingPage extends ConsumerWidget {
                     ),
                   );
                 },
-                data: (list) => _ReceivingList(list),
+                data: (response) {
+                  final list = response.data;
+                  final total = response.total ?? 0;
+                  final hasMore = list.length < total;
+
+                  return _ReceivingList(
+                    list: list,
+                    scrollController: _scrollController,
+                    hasMore: hasMore,
+                  );
+                },
               ),
             ),
           ),
@@ -95,7 +152,62 @@ class ReceivingPage extends ConsumerWidget {
     );
   }
 
-  Widget _tabItem(WidgetRef ref, ReceivingTab value, ReceivingTab active) {
+  Widget _locationFilter(BuildContext context) {
+    final selectedLocation = ref.watch(receivingLocationFilterProvider);
+
+    return InkWell(
+      onTap: () async {
+        final result = await showModalBottomSheet<FarmLocation?>(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (_) => FarmLocationPaginatedBottomSheet(
+            initialSelectedId: selectedLocation?.id,
+          ),
+        );
+
+        if (result != null) {
+          ref.read(receivingLocationFilterProvider.notifier).state = result;
+        }
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.fieldBorder),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.location_on,
+              size: 18,
+              color: AppColors.primary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                selectedLocation?.name ?? "Semua lokasi peternakan",
+                style: AppTypography.smallNormalBlack,
+              ),
+            ),
+            selectedLocation != null
+                ? GestureDetector(
+                    onTap: () {
+                      ref.read(receivingLocationFilterProvider.notifier).state =
+                          null;
+                    },
+                    child: const Icon(Icons.close),
+                  )
+                : const Icon(Icons.chevron_right),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tabItem(ReceivingTab value, ReceivingTab active) {
     final isActive = value == active;
 
     return GestureDetector(
@@ -124,8 +236,14 @@ class ReceivingPage extends ConsumerWidget {
 
 class _ReceivingList extends StatelessWidget {
   final List<ReceivingList> list;
+  final ScrollController scrollController;
+  final bool hasMore;
 
-  const _ReceivingList(this.list);
+  const _ReceivingList({
+    required this.list,
+    required this.scrollController,
+    required this.hasMore,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -139,11 +257,23 @@ class _ReceivingList extends StatelessWidget {
       grouped.putIfAbsent(item.dateLabel, () => []).add(item);
     }
 
-    return ListView(
+    final entries = grouped.entries.toList();
+
+    return ListView.builder(
+      controller: scrollController,
       padding: const EdgeInsets.all(16),
-      children: grouped.entries.map((entry) {
+      itemCount: entries.length + (hasMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == entries.length) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final entry = entries[index];
         return ReceivingDateGroupCard(dateLabel: entry.key, items: entry.value);
-      }).toList(),
+      },
     );
   }
 }
