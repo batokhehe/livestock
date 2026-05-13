@@ -48,6 +48,7 @@ extension ReceivingTabX on ReceivingTab {
 }
 
 final receivingSearchProvider = StateProvider<String>((ref) => '');
+final receivingPoSearchProvider = StateProvider<String>((ref) => '');
 
 final receivingTabProvider = StateProvider<ReceivingTab>((ref) {
   return ReceivingTab.animal;
@@ -67,15 +68,6 @@ final receivingListProvider = FutureProvider.autoDispose<List<ReceivingList>>((
 });
 
 final receivingDateProvider = StateProvider<DateTime?>((ref) => DateTime.now());
-
-final receivingPoListProvider = FutureProvider.autoDispose<List<ReceivingPo>>((
-  ref,
-) async {
-  final api = ref.read(receivingApiProvider);
-  final tab = ref.watch(receivingTabProvider);
-
-  return api.getReceivingPo(type: tab.apiValue);
-});
 
 final receivingFormProvider = ChangeNotifierProvider<ReceivingProvider>((ref) {
   return ReceivingProvider();

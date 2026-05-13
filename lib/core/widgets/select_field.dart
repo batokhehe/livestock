@@ -9,6 +9,7 @@ class SelectField extends StatelessWidget {
   final String hint;
   final dynamic icon;
   final bool isMandatoryField;
+  final bool enabled;
   final VoidCallback? onTap;
 
   const SelectField({
@@ -17,6 +18,7 @@ class SelectField extends StatelessWidget {
     required this.hint,
     required this.icon,
     this.isMandatoryField = false,
+    this.enabled = true,
     this.onTap,
   });
 
@@ -36,12 +38,12 @@ class SelectField extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         InkWell(
-          onTap: onTap,
+          onTap: enabled ? onTap : null,
           borderRadius: BorderRadius.circular(12),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: enabled ? Colors.white : AppColors.greyBg,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.fieldBorder),
             ),
@@ -52,11 +54,11 @@ class SelectField extends StatelessWidget {
                 Expanded(
                   child: Text(
                     hint,
-                    style: AppTypography.hint,
+                    style: enabled ? AppTypography.hint : AppTypography.smallNormalGrey,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Icon(Icons.chevron_right, color: AppColors.grey),
+                Icon(Icons.chevron_right, color: enabled ? AppColors.grey : AppColors.grey.withOpacity(0.5)),
               ],
             ),
           ),

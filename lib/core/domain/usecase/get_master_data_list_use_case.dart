@@ -44,11 +44,13 @@ class GetMasterDataListUseCase {
     int? farmLocationId,
     int page = 1,
     int perPage = 10,
+    String? search,
   }) {
     return repository.getFarmAreasPaginated(
       farmLocationId: farmLocationId,
       page: page,
       perPage: perPage,
+      search: search,
     );
   }
 

@@ -43,7 +43,7 @@ class ReceivingItemCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
-                  item.receiveStatus,
+                  isReceived ? 'Diterima' : item.receiveStatus,
                   style: AppTypography.xSmallNormalPrimary.copyWith(
                     color: statusColor,
                   ),
@@ -57,7 +57,7 @@ class ReceivingItemCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${item.quantity} • ${item.locationName}',
+                '${item.locationName} • ${item.areaName}',
                 style: AppTypography.xSmallNormalBlack,
               ),
               Text(

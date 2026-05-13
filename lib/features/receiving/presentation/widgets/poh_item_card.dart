@@ -7,17 +7,30 @@ import 'package:livestock/features/receiving/receiving_provider.dart';
 class PohItemCard extends StatelessWidget {
   final ReceivingPo item;
   final ReceivingTab tab;
+  final bool isClickable;
 
-  const PohItemCard({super.key, required this.item, required this.tab});
+  const PohItemCard({
+    super.key,
+    required this.item,
+    required this.tab,
+    this.isClickable = true,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () {
-        context.push('/receiving/add/step-2', extra: item);
-      },
-      child: ReceivingItemDoubleCard(item: item, tab: tab),
+    final bool isEmpty = item.items.isEmpty;
+
+    return Opacity(
+      opacity: isEmpty ? 0.5 : 1.0,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: (isEmpty || !isClickable)
+            ? null
+            : () {
+                context.push('/receiving/add/step-2', extra: item);
+              },
+        child: ReceivingItemDoubleCard(item: item, tab: tab),
+      ),
     );
   }
 }

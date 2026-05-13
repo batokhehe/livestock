@@ -66,7 +66,7 @@ class _AddReceivingStep2PageState extends ConsumerState<AddReceivingStep2Page> {
                   totalStep: 3,
                 ),
                 const SizedBox(height: 12),
-                PohItemCard(item: widget.item, tab: type),
+                PohItemCard(item: widget.item, tab: type, isClickable: false),
                 const SizedBox(height: 12),
 
                 /// INFO ITEM

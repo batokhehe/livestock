@@ -127,10 +127,10 @@ final selectedAnimalProvider = StateProvider<AnimalProfile?>((ref) => null);
 final animalSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 final animalStatusProvider = StateProvider.autoDispose<String>((ref) => '');
 final animalAvailableProvider = StateProvider.autoDispose<String>((ref) => '');
-final animalFarmLocationIdProvider = StateProvider.autoDispose<int?>(
+final animalFarmLocationIdProvider = StateProvider<int?>(
   (ref) => null,
 );
-final animalFarmAreaIdProvider = StateProvider.autoDispose<int?>((ref) => null);
+final animalFarmAreaIdProvider = StateProvider<int?>((ref) => null);
 final animalDetailProvider = FutureProvider.autoDispose
     .family<AnimalProfile, String>((ref, id) async {
       return ref.read(getMasterDataListUseCaseProvider).callAnimalDetail(id);

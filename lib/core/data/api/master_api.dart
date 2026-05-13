@@ -57,6 +57,7 @@ class MasterApi {
     int? farmLocationId,
     int page = 1,
     int perPage = 10,
+    String? search,
   }) async {
     final res = await dio.get(
       '/master/farm-area',
@@ -64,6 +65,7 @@ class MasterApi {
         'farm_location_id': farmLocationId,
         'page': page,
         'per_page': perPage,
+        'search': search,
       }..removeWhere((k, v) => v == null),
     );
 
