@@ -25,7 +25,7 @@ class ReceivingItemDoubleCard extends StatelessWidget {
         ? AppColors.success
         : AppColors.primary;
 
-    final String statusText = isReceived ? 'Diterima' : 'Menunggu';
+    final String statusText = isReceived ? 'Tersedia' : 'Menunggu';
     final double totalQty = item.items.fold<double>(
       0,
       (sum, e) => sum + (double.tryParse(e.qty ?? '0') ?? 0),
