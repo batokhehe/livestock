@@ -8,6 +8,13 @@ A Flutter project for livestock management, built with Clean Architecture and Ri
 - **State Management:** Riverpod (`flutter_riverpod`)
 - **Architecture:** Clean Architecture
 
+## Versioning
+This project follows Semantic Versioning: `major.minor.patch+build`
+- **MAJOR**: Breaking changes.
+- **MINOR**: New features (backward compatible).
+- **PATCH**: Bug fixes (backward compatible).
+- **BUILD**: Version Code for Stores (increments on every release).
+
 ## Getting Started
 
 1.  **Dependencies**: Run `flutter pub get`
@@ -30,13 +37,7 @@ Ensure the following files are present in the `android/` directory (these are us
 Run the following command from the root directory to build and upload:
 
 ```bash
-./gradlew -p android assembleRelease appDistributionUploadRelease
-```
-
-Or navigate to the android directory:
-```bash
-cd android
-./gradlew assembleRelease appDistributionUploadRelease
+fvm flutter build apk --release && cd android && ./gradlew appDistributionUploadRelease
 ```
 
 > [!IMPORTANT]
