@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 import 'package:livestock/core/widgets/info_tag.dart';
 import 'package:livestock/core/widgets/input_field.dart';
+import 'package:livestock/core/widgets/input_field_card.dart';
 import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
 
 import '../../../../core/helpers/utils.dart';
@@ -98,20 +100,27 @@ class ReceivingDetailFormCard extends StatelessWidget {
                 child: Column(
                   children: [
                     if (onItemCodeChanged != null)
-                      InputField(
+                      TextFields(
                         label: "Kode Hewan",
                         hint: "Masukkan kode",
                         onChanged: onItemCodeChanged,
-                        initialValue: item.itemCode,
+                        initial: item.itemCode,
                       ),
 
                     if (onWeightChanged != null) ...[
                       const SizedBox(height: 8),
-                      InputField(
+                      TextFields(
                         label: "Berat Diterima",
                         hint: "Berat",
-                        suffix: "Kg",
-                        keyboardType: TextInputType.number,
+                        suffix: "kg",
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'[0-9\.\,]'),
+                          ),
+                        ],
                         onChanged: onWeightChanged,
                       ),
                     ],
