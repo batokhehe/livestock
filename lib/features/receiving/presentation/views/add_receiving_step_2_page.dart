@@ -110,7 +110,6 @@ class _AddReceivingStep2PageState extends ConsumerState<AddReceivingStep2Page> {
                 ),
 
                 const SizedBox(height: 12),
-                const UploadFileCard(),
               ],
             ),
           ),
@@ -151,14 +150,6 @@ class _NextButtonStep2 extends ConsumerWidget {
                 return;
               }
 
-              if (!provider.hasProofImage) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Bukti penerimaan wajib diunggah"),
-                  ),
-                );
-                return;
-              }
 
               final invalidItems = provider.selectedItems.where((e) {
                 final codeEmpty = (e.itemCode ?? '').trim().isEmpty;

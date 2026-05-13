@@ -1,3 +1,5 @@
+import 'dart:io';
+
 class ReceivingItem {
   final int id;
   final int supplierId;
@@ -29,6 +31,7 @@ class ReceivingItem {
   String? notes;
   String? feedType;
   String? type;
+  File? proofImage;
 
   ReceivingItem({
     required this.id,
@@ -58,6 +61,7 @@ class ReceivingItem {
     required this.selected,
     this.receivedWeight,
     this.notes,
+    this.proofImage,
   });
 
   factory ReceivingItem.fromJson(Map<String, dynamic> json) {

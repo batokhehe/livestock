@@ -1,16 +1,20 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:livestock/core/theme/AppColors.dart';
+import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 import 'package:livestock/core/widgets/info_tag.dart';
-import 'package:livestock/core/widgets/input_field.dart';
 import 'package:livestock/core/widgets/input_field_card.dart';
-import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
+import 'package:livestock/features/receiving/receiving_provider.dart';
 
 import '../../../../core/helpers/utils.dart';
 import '../../data/model/receiving_item_model.dart';
 
-class ReceivingDetailFormCard extends StatelessWidget {
+class ReceivingDetailFormCard extends ConsumerWidget {
   final ReceivingItem item;
   final VoidCallback onToggle;
   final ValueChanged<String>? onItemCodeChanged;
@@ -27,7 +31,7 @@ class ReceivingDetailFormCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final bool hasInput =
         onItemCodeChanged != null ||
         onWeightChanged != null ||
@@ -125,22 +129,281 @@ class ReceivingDetailFormCard extends StatelessWidget {
                       ),
                     ],
 
-                    if (onNotesChanged != null) ...[
-                      const SizedBox(height: 8),
-                      TextFieldWithInnerCounter(
-                        label: 'Catatan',
-                        subLabel: '(Optional)',
-                        hint: 'Masukkan Catatan',
-                        maxLength: 80,
-                        onChanged: onNotesChanged,
-                      ),
-                    ],
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => _showNoteBottomSheet(context, ref),
+                            child: Row(
+                              children: [
+                                Image.asset(
+                                  AppImages.icNote,
+                                  width: 18,
+                                  color: (item.notes ?? '').isNotEmpty
+                                      ? AppColors.primary
+                                      : AppColors.hint,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    (item.notes ?? '').isNotEmpty
+                                        ? item.notes!
+                                        : "Tambah catatan",
+                                    style: (item.notes ?? '').isNotEmpty
+                                        ? AppTypography.xSmallNormalPrimary
+                                        : AppTypography.xSmallNormalGrey,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 12),
+                        _uploadWidget(context, ref),
+                      ],
+                    ),
                   ],
                 ),
               ),
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _uploadWidget(BuildContext context, WidgetRef ref) {
+    final hasImage = item.proofImage != null;
+
+    return GestureDetector(
+      onTap: () => _showUploadOptions(context, ref),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: hasImage
+              ? AppColors.success.withOpacity(0.1)
+              : AppColors.primaryShade,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: hasImage
+                ? AppColors.success.withOpacity(0.3)
+                : AppColors.primary.withOpacity(0.3),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              hasImage ? Icons.image : Icons.camera_alt,
+              size: 14,
+              color: hasImage ? AppColors.success : AppColors.primary,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              hasImage ? "Lihat Bukti" : "Unggah",
+              style: AppTypography.xSmallBoldPrimary.copyWith(
+                color: hasImage ? AppColors.success : AppColors.primary,
+                fontSize: 10,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showNoteBottomSheet(BuildContext context, WidgetRef ref) {
+    final controller = TextEditingController(text: item.notes);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Catatan untuk ${item.itemName}",
+                style: AppTypography.mediumBoldBlack,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  hintText: "Masukkan catatan",
+                  border: OutlineInputBorder(),
+                ),
+                maxLength: 80,
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    ref
+                        .read(receivingFormProvider)
+                        .updateNotes(item.id, controller.text);
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    "Simpan Catatan",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showUploadOptions(BuildContext context, WidgetRef ref) {
+    if (item.proofImage != null) {
+      _showPreviewDialog(context, ref);
+      return;
+    }
+
+    _pickImageOptions(context, ref);
+  }
+
+  void _pickImageOptions(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.camera_alt),
+            title: const Text("Ambil dari Kamera"),
+            onTap: () {
+              Navigator.pop(context);
+              _pickImage(ImageSource.camera, ref);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library),
+            title: const Text("Ambil dari Galeri"),
+            onTap: () {
+              Navigator.pop(context);
+              _pickImage(ImageSource.gallery, ref);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source, WidgetRef ref) async {
+    final picker = ImagePicker();
+    try {
+      final XFile? picked = await picker.pickImage(
+        source: source,
+        imageQuality: 70,
+      );
+
+      if (picked != null) {
+        ref
+            .read(receivingFormProvider)
+            .updateProofImage(item.id, File(picked.path));
+      }
+    } catch (_) {}
+  }
+
+  void _showPreviewDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                children: [
+                  Image.file(item.proofImage!, fit: BoxFit.contain),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.red,
+                              side: const BorderSide(color: Colors.red),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: () {
+                              ref
+                                  .read(receivingFormProvider)
+                                  .updateProofImage(item.id, null);
+                              Navigator.pop(dialogContext);
+                            },
+                            child: const Text("Hapus"),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(dialogContext);
+                              _pickImageOptions(context, ref);
+                            },
+                            child: const Text("Ganti"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              icon: const Icon(Icons.close, color: Colors.white, size: 32),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -81,7 +81,6 @@ class ReceivingProvider extends ChangeNotifier {
 
   void reset() {
     items = [];
-    proofImage = null;
     notifyListeners();
   }
 
@@ -108,6 +107,12 @@ class ReceivingProvider extends ChangeNotifier {
   void updateWeight(int id, String value) {
     final item = items.firstWhere((e) => e.id == id);
     item.receivedWeight = double.tryParse(value);
+    notifyListeners();
+  }
+
+  void updateProofImage(int id, File? file) {
+    final item = items.firstWhere((e) => e.id == id);
+    item.proofImage = file;
     notifyListeners();
   }
 
