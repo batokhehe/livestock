@@ -114,9 +114,14 @@ class ReceivingDetailFormCard extends ConsumerWidget {
                     if (onWeightChanged != null) ...[
                       const SizedBox(height: 8),
                       TextFields(
-                        label: "Berat Diterima",
-                        hint: "Berat",
-                        suffix: "kg",
+                        label: onItemCodeChanged != null
+                            ? "Berat Diterima"
+                            : "Jumlah Diterima",
+                        hint: onItemCodeChanged != null ? "Berat" : "Jumlah",
+                        suffix: onItemCodeChanged != null ? "kg" : null,
+                        initial: onItemCodeChanged != null
+                            ? item.receivedWeight?.toString()
+                            : item.qty,
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),

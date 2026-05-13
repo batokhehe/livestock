@@ -33,7 +33,7 @@ class ReceivingDetail {
 
   factory ReceivingDetail.fromJson(Map<String, dynamic> json) {
     return ReceivingDetail(
-      id: json['id'],
+      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       stockCode: json['stock_code'] ?? '-',
       receiveType: json['receive_type'] ?? '-',
       receiveStatus: json['receive_status'] ?? '-',

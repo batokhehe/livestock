@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/widgets/text_field_disabled.dart';
+import 'package:livestock/core/theme/AppImages.dart';
+import 'package:livestock/core/widgets/info_item_card.dart';
 import 'package:livestock/features/receiving/receiving_provider.dart';
 
 import '../../../../app/providers.dart';
@@ -50,7 +52,7 @@ class AddReceivingConfirmationPage extends ConsumerWidget {
                 const SizedBox(height: 12),
                 _infoItem(selectedItems),
                 const SizedBox(height: 12),
-                const UploadFileCard(),
+                // const UploadFileCard(),
               ],
             ),
           ),
@@ -179,7 +181,11 @@ class AddReceivingConfirmationPage extends ConsumerWidget {
   }
 
   Widget _infoReceiving(WidgetRef ref) {
-    final receiveDate = ref.read(receivingDateProvider);
+    final receiveDate = ref.watch(receivingDateProvider);
+    final farmLocation = ref.watch(selectedFarmLocationProvider);
+    final farmArea = ref.watch(selectedFarmAreaProvider);
+    final remarks = ref.watch(receivingFormProvider).remarks;
+
     return CardWrapper(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +195,26 @@ class AddReceivingConfirmationPage extends ConsumerWidget {
             style: AppTypography.mediumNormalBlack,
           ),
           const SizedBox(height: 12),
-          TextFieldDisabled(value: formatDateTime(receiveDate)),
+          InfoItemCard(
+            label: 'Tanggal Penerimaan:',
+            icon: AppImages.icCalendarNew,
+            title: formatDateTime(receiveDate),
+            subtitle: farmLocation?.name ?? '-',
+          ),
+          if (farmArea != null)
+            InfoItemCard(
+              label: 'Area Peternakan:',
+              icon: AppImages.icMapSvg,
+              title: farmArea.name,
+              subtitle: 'Area Peternakan',
+            ),
+          if (remarks.isNotEmpty)
+            InfoItemCard(
+              label: 'Catatan:',
+              icon: AppImages.icNote,
+              title: remarks,
+              subtitle: 'Catatan Penerimaan',
+            ),
         ],
       ),
     );

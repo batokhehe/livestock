@@ -92,11 +92,17 @@ class _AddReceivingStep2PageState extends ConsumerState<AddReceivingStep2Page> {
                                     .updateCode(e.id, v)
                               : null,
 
-                          onWeightChanged: type == ReceivingTab.animal
-                              ? (v) => ref
-                                    .read(receivingFormProvider)
-                                    .updateWeight(e.id, v)
-                              : null,
+                          onWeightChanged: (v) {
+                            if (type == ReceivingTab.animal) {
+                              ref
+                                  .read(receivingFormProvider)
+                                  .updateWeight(e.id, v);
+                            } else {
+                              // ref
+                              //     .read(receivingFormProvider)
+                              //     .updateQty(e.id, v);
+                            }
+                          },
 
                           onNotesChanged: type == ReceivingTab.animal
                               ? (v) => ref
@@ -127,6 +133,28 @@ class _NextButtonStep2 extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final provider = ref.watch(receivingFormProvider);
+    final type = ref.watch(receivingTabProvider);
+    final selectedItems = provider.selectedItems;
+    final bool isSelectedEmpty = selectedItems.isEmpty;
+
+    bool isInvalid = isSelectedEmpty;
+
+    if (!isSelectedEmpty) {
+      isInvalid = selectedItems.any((item) {
+        if (type == ReceivingTab.animal) {
+          final bool codeEmpty = (item.itemCode ?? '').trim().isEmpty;
+          final bool weightEmpty =
+              item.receivedWeight == null || item.receivedWeight! <= 0;
+          return codeEmpty || weightEmpty;
+        } else {
+          // Untuk Pakan/Peralatan, qty wajib diisi > 0
+          final double? qtyVal = double.tryParse(item.qty ?? '');
+          return qtyVal == null || qtyVal <= 0;
+        }
+      });
+    }
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -135,42 +163,22 @@ class _NextButtonStep2 extends ConsumerWidget {
           height: 48,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
+              backgroundColor: isInvalid ? Colors.grey : Colors.orange,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: () {
-              final provider = ref.read(receivingFormProvider);
-
-              if (provider.selectedItems.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Pilih minimal 1 item")),
-                );
-                return;
-              }
-
-
-              final invalidItems = provider.selectedItems.where((e) {
-                final codeEmpty = (e.itemCode ?? '').trim().isEmpty;
-                final weightEmpty =
-                    e.receivedWeight == null || e.receivedWeight! <= 0;
-
-                return codeEmpty || weightEmpty;
-              }).toList();
-
-              if (invalidItems.isNotEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Kode hewan dan berat wajib diisi"),
-                  ),
-                );
-                return;
-              }
-
-              context.push('/receiving/add/confirmation');
-            },
-            child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
+            onPressed: isInvalid
+                ? null
+                : () {
+                    context.push('/receiving/add/confirmation');
+                  },
+            child: Text(
+              "Selanjutnya",
+              style: AppTypography.mediumBoldWhite.copyWith(
+                color: isInvalid ? Colors.white70 : Colors.white,
+              ),
+            ),
           ),
         ),
       ),

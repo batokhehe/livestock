@@ -33,9 +33,9 @@ class ReceivingDetailItem {
 
   factory ReceivingDetailItem.fromJson(Map<String, dynamic> json) {
     return ReceivingDetailItem(
-      id: json['id'],
-      purchOrderNo: json['purch_order_no'],
-      supplierName: json['supplier_name'],
+      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      purchOrderNo: json['purch_order_no'] ?? '-',
+      supplierName: json['supplier_name'] ?? '-',
       itemName:
           json['animal_name'] ??
           json['feed_medicine_name'] ??
@@ -46,15 +46,15 @@ class ReceivingDetailItem {
           json['feed_medicine_code'] ??
           json['equipment_code'] ??
           '-',
-      quantity: json['quantity'] ?? '0',
-      weight: json['weight'] ?? '0',
-      initialWeight: json['initial_weight'],
-      ageCategory: json['age_category'],
+      quantity: json['quantity']?.toString() ?? '0',
+      weight: json['weight']?.toString() ?? '0',
+      initialWeight: json['initial_weight']?.toString(),
+      ageCategory: int.tryParse(json['age_category']?.toString() ?? ''),
       isVaccinated: json['is_vaccinated'] ?? false,
-      vaccineDate: json['vaccine_date'],
-      gender: json['gender'],
-      poel: json['poel'],
-      codeRef: json['code_ref'],
+      vaccineDate: json['vaccine_date']?.toString(),
+      gender: json['gender']?.toString(),
+      poel: json['poel']?.toString(),
+      codeRef: json['code_ref']?.toString(),
     );
   }
 }
