@@ -8,6 +8,7 @@ import 'data/api/purchase_order_api.dart';
 import 'data/model/purchase_order_item_request_model.dart';
 import 'data/model/purchase_order_list_model.dart';
 import 'data/model/purchase_order_request_model.dart';
+import 'data/model/purchase_invoice_model.dart';
 
 enum PurchaseOrderTab { animal, feed, equipment }
 
@@ -209,28 +210,126 @@ class PurchaseOrderFormNotifier extends StateNotifier<PurchaseOrderRequest> {
 
     await api.submitPurchaseOrder(state);
   }
+
+  Future<void> updatePurchaseOrder(int id) async {
+    final api = ref.read(purchaseOrderApiProvider);
+    if (state.supplier == null) {
+      throw Exception("Suplier belum dipilih");
+    }
+
+    if (state.items == null || state.items!.isEmpty) {
+      throw Exception("Item tidak boleh kosong");
+    }
+
+    await api.updatePurchaseOrder(id, state);
+  }
 }
 
 extension PurchaseOrderValidation on PurchaseOrderRequest {
   bool get isValid {
     final isBasicFilled =
         purchDate != null &&
-        animalGroup != null &&
         supplier != null &&
         supplierAddress != null &&
         supplierAddress!.trim().isNotEmpty;
 
     if (purchaseItemType == 'animal') {
-      return isBasicFilled && farmLocation != null;
+      return isBasicFilled && animalGroup != null && farmLocation != null;
     }
 
     return isBasicFilled;
   }
 }
 
-final purchaseOrderDetailProvider =
-    FutureProvider.family<PurchaseOrderList, int>((ref, id) async {
+final purchaseOrderDetailProvider = FutureProvider.family
+    .autoDispose<PurchaseOrderList, int>((ref, id) async {
       final api = ref.read(purchaseOrderApiProvider);
       final res = await api.getPurchaseOrderDetail(id);
       return res.data;
     });
+
+
+class PurchaseInvoiceState {
+  final List<PurchaseInvoice> invoices;
+  final bool isLoading;
+  final bool hasMore;
+  final int currentPage;
+  final bool isExpanded;
+
+  PurchaseInvoiceState({
+    this.invoices = const [],
+    this.isLoading = false,
+    this.hasMore = false,
+    this.currentPage = 1,
+    this.isExpanded = true,
+  });
+
+  PurchaseInvoiceState copyWith({
+    List<PurchaseInvoice>? invoices,
+    bool? isLoading,
+    bool? hasMore,
+    int? currentPage,
+    bool? isExpanded,
+  }) {
+    return PurchaseInvoiceState(
+      invoices: invoices ?? this.invoices,
+      isLoading: isLoading ?? this.isLoading,
+      hasMore: hasMore ?? this.hasMore,
+      currentPage: currentPage ?? this.currentPage,
+      isExpanded: isExpanded ?? this.isExpanded,
+    );
+  }
+}
+
+class PurchaseInvoiceListNotifier extends StateNotifier<PurchaseInvoiceState> {
+  final Ref ref;
+  final int poId;
+
+  PurchaseInvoiceListNotifier(this.ref, this.poId) : super(PurchaseInvoiceState()) {
+    fetchInvoices();
+  }
+
+  Future<void> fetchInvoices() async {
+    state = state.copyWith(isLoading: true);
+    try {
+      final api = ref.read(purchaseOrderApiProvider);
+      final result = await api.getPurchaseInvoices(poId, page: 1);
+      state = state.copyWith(
+        invoices: result.invoices,
+        hasMore: result.hasMore,
+        currentPage: 1,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoading || !state.hasMore) return;
+
+    state = state.copyWith(isLoading: true);
+    try {
+      final api = ref.read(purchaseOrderApiProvider);
+      final nextPage = state.currentPage + 1;
+      final result = await api.getPurchaseInvoices(poId, page: nextPage);
+      state = state.copyWith(
+        invoices: [...state.invoices, ...result.invoices],
+        hasMore: result.hasMore,
+        currentPage: nextPage,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  void toggleExpand() {
+    state = state.copyWith(isExpanded: !state.isExpanded);
+  }
+}
+
+final purchaseInvoiceListProvider = StateNotifierProvider.family
+    .autoDispose<PurchaseInvoiceListNotifier, PurchaseInvoiceState, int>((ref, id) {
+  return PurchaseInvoiceListNotifier(ref, id);
+});
