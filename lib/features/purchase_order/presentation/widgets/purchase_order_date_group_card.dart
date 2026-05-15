@@ -5,7 +5,7 @@ import 'package:livestock/core/theme/AppTypography.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../data/model/purchase_order_list_model.dart';
-import 'purchase_order_item_double_card.dart';
+import 'purchase_order_list_item_card.dart';
 
 class PurchaseOrderDateGroupCard extends StatelessWidget {
   final String dateLabel;
@@ -41,7 +41,11 @@ class PurchaseOrderDateGroupCard extends StatelessWidget {
               onTap: () {
                 context.push('/purchase-order/detail/${e.id}');
               },
-              child: PurchaseOrderItemDoubleCard(item: e),
+              child: e.animalGroup != null
+                  ? PurchaseOrderAnimalCard(item: e)
+                  : e.feedType == 'feed'
+                      ? PurchaseOrderFeedCard(item: e)
+                      : PurchaseOrderEquipmentCard(item: e),
             ),
           ),
         ],
