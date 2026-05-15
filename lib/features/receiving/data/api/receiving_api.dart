@@ -10,25 +10,28 @@ class ReceivingApi {
 
   ReceivingApi(this.dio);
 
-  Future<List<ReceivingList>> getReceiving({
+  Future<BaseResponse<ReceivingList>> getReceiving({
     required String receiveType,
+    int? farmLocationId,
+    int page = 1,
+    int perPage = 10,
+    String? search,
   }) async {
     final res = await dio.get(
       '/inventory/receiving',
-      queryParameters: {'receive_type': receiveType},
+      queryParameters: {
+        'receive_type': receiveType,
+        'farm_location_id': farmLocationId,
+        'page': page,
+        'per_page': perPage,
+        'search': search,
+      }..removeWhere((k, v) => v == null || v == ''),
     );
 
-    if (res.statusCode != 200) {
-      throw DioException(
-        requestOptions: res.requestOptions,
-        response: res,
-        type: DioExceptionType.badResponse,
-      );
-    }
-    final data = res.data;
-    final List list = data['data'];
-
-    return list.map((e) => ReceivingList.fromJson(e)).toList();
+    return BaseResponse.fromJson(
+      res.data,
+      (json) => ReceivingList.fromJson(json),
+    );
   }
 
   Future<BaseResponse<ReceivingPo>> getReceivingPo({

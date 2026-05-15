@@ -6,7 +6,21 @@ class ReceivingRepository {
 
   ReceivingRepository(this.api);
 
-  Future<List<ReceivingList>> getReceiving({required String receiveType}) async {
-    return api.getReceiving(receiveType: receiveType);
+  Future<List<ReceivingList>> getReceiving({
+    required String receiveType,
+    int? farmLocationId,
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
+    final res = await api.getReceiving(
+      receiveType: receiveType,
+      farmLocationId: farmLocationId,
+      page: page,
+      perPage: perPage,
+      search: search,
+    );
+
+    return res.data;
   }
 }
