@@ -4,7 +4,12 @@ import '../../../core/theme/AppColors.dart';
 import '../../../core/theme/AppTypography.dart';
 
 class CustomDatePickerSheet extends StatefulWidget {
-  const CustomDatePickerSheet({super.key});
+  final String title;
+
+  const CustomDatePickerSheet({
+    super.key,
+    this.title = "Select date",
+  });
 
   @override
   State<CustomDatePickerSheet> createState() => _CustomDatePickerSheetState();
@@ -60,7 +65,7 @@ class _CustomDatePickerSheetState extends State<CustomDatePickerSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Select date", style: AppTypography.xSmallBoldBlack),
+        Text(widget.title, style: AppTypography.xSmallBoldBlack),
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

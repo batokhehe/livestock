@@ -198,6 +198,7 @@ class AppRadioGroup<T> extends StatelessWidget {
   final List<T> options;
   final String Function(T) labelBuilder;
   final ValueChanged<T> onChanged;
+  final bool isMandatoryField;
 
   const AppRadioGroup({
     super.key,
@@ -206,6 +207,7 @@ class AppRadioGroup<T> extends StatelessWidget {
     required this.options,
     required this.labelBuilder,
     required this.onChanged,
+    this.isMandatoryField = false,
   });
 
   @override
@@ -215,8 +217,15 @@ class AppRadioGroup<T> extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTypography.smallBoldBlack),
-          SizedBox(height: 8.0),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(title, style: AppTypography.smallBoldBlack),
+              if (isMandatoryField)
+                Text('*', style: AppTypography.smallBoldRed),
+            ],
+          ),
+          const SizedBox(height: 8.0),
           Container(
             width: double.infinity,
             decoration: BoxDecoration(

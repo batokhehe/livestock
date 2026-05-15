@@ -131,7 +131,9 @@ class _PurchaseOrderInfoSection extends ConsumerWidget {
               context: context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
-              builder: (_) => const CustomDatePickerSheet(),
+              builder: (_) => const CustomDatePickerSheet(
+                title: "Pilih Tanggal Pembelian",
+              ),
             );
 
             if (pickedDate != null) {
@@ -141,27 +143,28 @@ class _PurchaseOrderInfoSection extends ConsumerWidget {
             }
           },
         ),
-        SizedBox(height: 12),
-        SelectField(
-          label: "Grup Hewan",
-          hint: form.animalGroup?.name ?? "Pilih Grup Hewan",
-          icon: AppImages.icProduct,
-          isMandatoryField: true,
-          onTap: () async {
-            final animalGroup = await showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (_) => const AnimalGroupBottomSheet(),
-            );
-            if (animalGroup != null) {
-              ref
-                  .read(purchaseOrderFormProvider.notifier)
-                  .setAnimalGroup(animalGroup);
-            }
-          },
-        ),
-        SizedBox(height: 12),
+        if (form.purchaseItemType == 'animal') ...[
+          SelectField(
+            label: "Grup Hewan",
+            hint: form.animalGroup?.name ?? "Pilih Grup Hewan",
+            icon: AppImages.icProduct,
+            isMandatoryField: true,
+            onTap: () async {
+              final animalGroup = await showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => const AnimalGroupBottomSheet(),
+              );
+              if (animalGroup != null) {
+                ref
+                    .read(purchaseOrderFormProvider.notifier)
+                    .setAnimalGroup(animalGroup);
+              }
+            },
+          ),
+          SizedBox(height: 12),
+        ],
         SelectField(
           label: "Pemasok",
           hint: form.supplier?.name ?? "Pilih Pemasok",
@@ -214,6 +217,8 @@ class _CustomerInfoSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (form.purchaseItemType != 'animal') return const SizedBox.shrink();
+
     return SectionCard(
       title: "Informasi Pengiriman",
       children: [
@@ -239,42 +244,40 @@ class _CustomerInfoSection extends ConsumerWidget {
             }
           },
         ),
-        if (form.purchaseItemType == 'animal') ...[
-          SizedBox(height: 12),
-          TextFields(
-            label: "Biaya Pengiriman",
-            hint: "Masukkan biaya",
-            prefixIcon: AppImages.icMoneys,
-            prefixText: 'Rp ',
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              CurrencyInputFormatter(),
-            ],
-            onChanged: (value) {
-              ref
-                  .read(purchaseOrderFormProvider.notifier)
-                  .setShippingCost(value.replaceAll('.', ''));
-            },
-          ),
-          SizedBox(height: 12),
-          TextFields(
-            label: "Biaya Lainnya",
-            hint: "Masukkan biaya lainnya",
-            prefixIcon: AppImages.icMoneyTick,
-            prefixText: 'Rp ',
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              CurrencyInputFormatter(),
-            ],
-            onChanged: (value) {
-              ref
-                  .read(purchaseOrderFormProvider.notifier)
-                  .setAdditionalCost(value.replaceAll('.', ''));
-            },
-          ),
-        ],
+        SizedBox(height: 12),
+        TextFields(
+          label: "Biaya Pengiriman",
+          hint: "Masukkan biaya",
+          prefixIcon: AppImages.icMoneys,
+          prefixText: 'Rp ',
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            CurrencyInputFormatter(),
+          ],
+          onChanged: (value) {
+            ref
+                .read(purchaseOrderFormProvider.notifier)
+                .setShippingCost(value.replaceAll('.', ''));
+          },
+        ),
+        SizedBox(height: 12),
+        TextFields(
+          label: "Biaya Lainnya",
+          hint: "Masukkan biaya lainnya",
+          prefixIcon: AppImages.icMoneyTick,
+          prefixText: 'Rp ',
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            CurrencyInputFormatter(),
+          ],
+          onChanged: (value) {
+            ref
+                .read(purchaseOrderFormProvider.notifier)
+                .setAdditionalCost(value.replaceAll('.', ''));
+          },
+        ),
       ],
     );
   }

@@ -8,6 +8,7 @@ class SectionCard extends StatelessWidget {
   final List<Widget> children;
   final String? actionLabel;
   final VoidCallback? onActionTap;
+  final Widget? trailing;
 
   const SectionCard({
     super.key,
@@ -15,6 +16,7 @@ class SectionCard extends StatelessWidget {
     required this.children,
     this.actionLabel,
     this.onActionTap,
+    this.trailing,
   });
 
   @override
@@ -67,6 +69,7 @@ class SectionCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  if (trailing != null) trailing!,
                 ],
               ),
             if (hasHeader) const SizedBox(height: 12),

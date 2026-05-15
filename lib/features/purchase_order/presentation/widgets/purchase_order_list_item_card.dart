@@ -1,15 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:livestock/core/helpers/utils.dart';
+import 'package:livestock/core/theme/AppColors.dart';
+import 'package:livestock/core/theme/AppTypography.dart';
 import 'package:livestock/core/widgets/info_tag.dart';
-
-import '../../../../core/helpers/utils.dart';
-import '../../../../core/theme/AppColors.dart';
-import '../../../../core/theme/AppTypography.dart';
 import '../../data/model/purchase_order_list_model.dart';
 
-class PurchaseOrderItemDoubleCard extends StatelessWidget {
+class PurchaseOrderAnimalCard extends StatelessWidget {
   final PurchaseOrderList item;
+  const PurchaseOrderAnimalCard({super.key, required this.item});
 
-  const PurchaseOrderItemDoubleCard({super.key, required this.item});
+  @override
+  Widget build(BuildContext context) {
+    return _BasePurchaseOrderCard(
+      item: item,
+      typeLabel: 'hewan',
+      tags: [
+        InfoTag(label: item.supplierName.toString()),
+      ],
+    );
+  }
+}
+
+class PurchaseOrderFeedCard extends StatelessWidget {
+  final PurchaseOrderList item;
+  const PurchaseOrderFeedCard({super.key, required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return _BasePurchaseOrderCard(
+      item: item,
+      typeLabel: 'pakan',
+      tags: [
+        InfoTag(label: item.supplierName.toString()),
+      ],
+    );
+  }
+}
+
+class PurchaseOrderEquipmentCard extends StatelessWidget {
+  final PurchaseOrderList item;
+  const PurchaseOrderEquipmentCard({super.key, required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return _BasePurchaseOrderCard(
+      item: item,
+      typeLabel: 'peralatan',
+      tags: [
+        InfoTag(label: item.supplierName.toString()),
+      ],
+    );
+  }
+}
+
+class _BasePurchaseOrderCard extends StatelessWidget {
+  final PurchaseOrderList item;
+  final String typeLabel;
+  final List<Widget> tags;
+
+  const _BasePurchaseOrderCard({
+    required this.item,
+    required this.typeLabel,
+    required this.tags,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,16 +77,18 @@ class PurchaseOrderItemDoubleCard extends StatelessWidget {
         statusColor = AppColors.primary;
         statusText = 'Terjual';
         break;
+      case 'draft':
+        statusColor = AppColors.grey2;
+        statusText = 'Draft';
+        break;
+      case 'canceled':
+        statusColor = AppColors.danger;
+        statusText = 'Batal';
+        break;
       default:
         statusColor = AppColors.grey2;
-        statusText = 'Tutup';
+        statusText = '-';
     }
-
-    final typeLabel = item.feedType == 'feed'
-        ? 'pakan'
-        : item.feedType == 'equipment'
-            ? 'peralatan'
-            : 'hewan';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -63,7 +118,7 @@ class PurchaseOrderItemDoubleCard extends StatelessWidget {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.15),
+                        color: statusColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
@@ -75,7 +130,6 @@ class PurchaseOrderItemDoubleCard extends StatelessWidget {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -85,7 +139,7 @@ class PurchaseOrderItemDoubleCard extends StatelessWidget {
                       style: AppTypography.xSmallNormalBlack,
                     ),
                     Text(
-                      'Rp. ${formatPrice(item.amountTotal.toInt())}',
+                      'Rp ${formatPrice(item.amountTotal.toInt())}',
                       style: AppTypography.xSmallNormalBlack,
                     ),
                   ],
@@ -93,24 +147,12 @@ class PurchaseOrderItemDoubleCard extends StatelessWidget {
               ],
             ),
           ),
-          Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           Container(
             padding: const EdgeInsets.all(12),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                InfoTag(label: item.supplierName.toString()),
-                InfoTag(
-                  label: item.details.isNotEmpty
-                      ? '${item.details.first.initialWeight} kg'
-                      : '-',
-                ),
-                InfoTag(
-                  label: item.details.isNotEmpty
-                      ? (item.details.first.subtotal.toString() )
-                      : '-',
-                ),
-              ],
+              children: tags,
             ),
           ),
         ],

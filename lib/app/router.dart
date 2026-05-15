@@ -20,7 +20,12 @@ import 'package:livestock/features/product/presentation/views/update_product_pag
 import 'package:livestock/features/purchase_order/presentation/views/add_purchase_order_confirmation_page.dart';
 import 'package:livestock/features/purchase_order/presentation/views/add_purchase_order_page.dart';
 import 'package:livestock/features/purchase_order/presentation/views/add_purchase_order_step_2_page.dart';
+import 'package:livestock/features/purchase_order/data/model/purchase_order_list_model.dart';
+import 'package:livestock/features/purchase_order/presentation/views/edit_purchase_order/edit_purchase_order_confirmation_page.dart';
+import 'package:livestock/features/purchase_order/presentation/views/edit_purchase_order/edit_purchase_order_page.dart';
+import 'package:livestock/features/purchase_order/presentation/views/edit_purchase_order/edit_purchase_order_step_2_page.dart';
 import 'package:livestock/features/purchase_order/presentation/views/purchase_order_page.dart';
+import 'package:livestock/features/purchase_order/presentation/views/create_invoice/create_purchase_order_invoice_page.dart';
 import 'package:livestock/features/receiving/presentation/views/add_receiving_confirmation_page.dart';
 import 'package:livestock/features/receiving/presentation/views/receiving_detail_page.dart';
 import 'package:livestock/features/sales_order/data/model/sales_order_detail_model.dart';
@@ -298,6 +303,34 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = int.parse(state.pathParameters['id']!);
           return PurchaseOrderDetailPage(id: id);
+        },
+      ),
+      GoRoute(
+        path: '/purchase-order/edit',
+        builder: (context, state) {
+          final data = state.extra as PurchaseOrderList;
+          return EditPurchaseOrderPage(data: data);
+        },
+      ),
+      GoRoute(
+        path: '/purchase-order/edit/step-2',
+        builder: (context, state) {
+          final data = state.extra as PurchaseOrderList;
+          return EditPurchaseOrderStep2Page(data: data);
+        },
+      ),
+      GoRoute(
+        path: '/purchase-order/edit/confirmation',
+        builder: (context, state) {
+          final data = state.extra as PurchaseOrderList;
+          return EditPurchaseOrderConfirmationPage(data: data);
+        },
+      ),
+      GoRoute(
+        path: '/purchase-order/create-invoice',
+        builder: (context, state) {
+          final data = state.extra as PurchaseOrderList;
+          return CreatePurchaseOrderInvoicePage(item: data);
         },
       ),
 

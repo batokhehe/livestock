@@ -6,19 +6,22 @@ import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/section_card.dart';
 
-import '../../../../core/theme/AppColors.dart';
-import '../../../../core/theme/AppTypography.dart';
-import '../../../../core/widgets/card_wrapper.dart';
-import '../../../../core/widgets/info_item_card.dart';
-import '../../../../core/widgets/step_info_card.dart';
-import '../../../../core/widgets/success_notification.dart';
-import '../../../receiving/presentation/widgets/confirmation_bottom_sheet.dart';
-import '../../data/model/purchase_order_item_request_model.dart';
-import '../../data/model/purchase_order_request_model.dart';
-import '../../purchase_order_provider.dart';
+import '../../../../../core/theme/AppColors.dart';
+import '../../../../../core/theme/AppTypography.dart';
+import '../../../../../core/widgets/card_wrapper.dart';
+import '../../../../../core/widgets/info_item_card.dart';
+import '../../../../../core/widgets/step_info_card.dart';
+import '../../../../../core/widgets/success_notification.dart';
+import '../../../../receiving/presentation/widgets/confirmation_bottom_sheet.dart';
+import '../../../data/model/purchase_order_item_request_model.dart';
+import '../../../data/model/purchase_order_list_model.dart';
+import '../../../data/model/purchase_order_request_model.dart';
+import '../../../purchase_order_provider.dart';
 
-class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
-  const AddPurchaseOrderConfirmationPage({super.key});
+class EditPurchaseOrderConfirmationPage extends ConsumerWidget {
+  final PurchaseOrderList data;
+
+  const EditPurchaseOrderConfirmationPage({super.key, required this.data});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -41,7 +44,7 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Tambah Pembelian",
+          "Edit Pembelian",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -80,7 +83,6 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
             ),
           ),
 
-          /// BUTTON
           Positioned(
             left: 16,
             right: 16,
@@ -104,18 +106,18 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
                           isScrollControlled: true,
                           backgroundColor: Colors.transparent,
                           builder: (_) => const ConfirmationBottomSheet(
-                            header: "Konfirmasi Pembelian",
-                            title: "Lanjutkan Pembelian Item?",
+                            header: "Konfirmasi Edit Pembelian",
+                            title: "Simpan Perubahan?",
                             subTitle:
-                                "Mohon pastikan semua item dan detail sudah sesuai sebelum melanjutkan transaksi",
-                            saveText: "Simpan Pembelian",
+                                "Mohon pastikan semua item dan detail sudah sesuai sebelum menyimpan perubahan",
+                            saveText: "Simpan Perubahan",
                           ),
                         );
                         if (result == true) {
                           try {
                             await ref
                                 .read(purchaseOrderFormProvider.notifier)
-                                .submitPurchaseOrder();
+                                .updatePurchaseOrder(data.id);
 
                             ref
                                 .read(purchaseOrderFormProvider.notifier)
@@ -127,7 +129,7 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
 
                             SuccessNotification.show(
                               title: "Berhasil",
-                              subtitle: "Pembelian berhasil disimpan",
+                              subtitle: "Pembelian berhasil diperbarui",
                             );
 
                             context.go('/purchase-order');
@@ -138,9 +140,8 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
                           }
                         }
                       },
-
-                child: Text(
-                  "Selanjutnya",
+                child: const Text(
+                  "Simpan Perubahan",
                   style: AppTypography.mediumBoldWhite,
                 ),
               ),
@@ -150,10 +151,6 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
       ),
     );
   }
-
-  /// =========================
-  /// INFORMASI Pembelian
-  /// =========================
 
   Widget _infoPurchaseOrder(PurchaseOrderRequest form) {
     return CardWrapper(
@@ -176,10 +173,6 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
       ),
     );
   }
-
-  /// =========================
-  /// SUMMARY CARD
-  /// =========================
 
   Widget _summaryCard({
     required int totalItem,
@@ -256,8 +249,14 @@ class _AnimalItemCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("${item.initialWeight} kg", style: AppTypography.smallBoldBlack),
-            Text('Rp ${formatPrice(item.purchPrice ?? 0)}', style: AppTypography.smallBoldBlack),
+            Text(
+              "${item.initialWeight} kg",
+              style: AppTypography.smallBoldBlack,
+            ),
+            Text(
+              'Rp ${formatPrice(item.purchPrice ?? 0)}',
+              style: AppTypography.smallBoldBlack,
+            ),
           ],
         ),
         Row(
@@ -271,9 +270,12 @@ class _AnimalItemCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("${item.ageCategory}", style: AppTypography.smallBoldBlack),
+            Text("${item.ageCategory ?? "-"}", style: AppTypography.smallBoldBlack),
             if (item.isVaccinated == true && item.vaccineDate != null)
-              Text(formatDateTime(item.vaccineDate), style: AppTypography.smallBoldBlack),
+              Text(
+                formatDateTime(item.vaccineDate),
+                style: AppTypography.smallBoldBlack,
+              ),
           ],
         ),
         Row(
@@ -281,7 +283,10 @@ class _AnimalItemCard extends StatelessWidget {
           children: [
             const Text('Kategori Umur', style: AppTypography.xSmallNormalBlack),
             if (item.isVaccinated == true && item.vaccineDate != null)
-              const Text('Tanggal Vaksin', style: AppTypography.xSmallNormalBlack),
+              const Text(
+                'Tanggal Vaksin',
+                style: AppTypography.xSmallNormalBlack,
+              ),
           ],
         ),
       ],
@@ -306,7 +311,10 @@ class _FeedItemCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text("${item.quantity} item", style: AppTypography.smallBoldBlack),
-            Text('Rp ${formatPrice(item.purchPrice ?? 0)}', style: AppTypography.smallBoldBlack),
+            Text(
+              'Rp ${formatPrice(item.purchPrice ?? 0)}',
+              style: AppTypography.smallBoldBlack,
+            ),
           ],
         ),
         Row(
@@ -338,7 +346,10 @@ class _EquipmentItemCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text("${item.quantity} item", style: AppTypography.smallBoldBlack),
-            Text('Rp ${formatPrice(item.purchPrice ?? 0)}', style: AppTypography.smallBoldBlack),
+            Text(
+              'Rp ${formatPrice(item.purchPrice ?? 0)}',
+              style: AppTypography.smallBoldBlack,
+            ),
           ],
         ),
         Row(

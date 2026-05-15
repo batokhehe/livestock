@@ -6,7 +6,7 @@ import '../../../core/theme/AppTypography.dart';
 class InfoItemCard extends StatelessWidget {
   final String? icon;
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final String? label;
   final VoidCallback? onTap;
 
@@ -14,7 +14,7 @@ class InfoItemCard extends StatelessWidget {
     super.key,
     this.icon,
     required this.title,
-    required this.subtitle,
+    this.subtitle,
     this.label,
     this.onTap,
   });
@@ -77,13 +77,15 @@ class InfoItemCard extends StatelessWidget {
                     const SizedBox(height: 2),
                   ],
                   Text(title, style: AppTypography.smallBoldBlack),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: AppTypography.smallNormalBlack.copyWith(
-                      fontSize: 16,
+                  if (subtitle != null && subtitle!.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle!,
+                      style: AppTypography.smallNormalBlack.copyWith(
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),

@@ -11,6 +11,7 @@ class SuccessNotification {
   static void show({
     required String title,
     required String subtitle,
+    bool isError = false,
     Duration duration = const Duration(seconds: 5),
   }) {
     final overlay = rootNavigatorKey.currentState?.overlay;
@@ -22,6 +23,7 @@ class SuccessNotification {
       builder: (context) => _NotificationWidget(
         title: title,
         subtitle: subtitle,
+        isError: isError,
         onDismiss: dismiss,
       ),
     );
@@ -31,6 +33,19 @@ class SuccessNotification {
     _timer = Timer(duration, () {
       dismiss();
     });
+  }
+
+  static void showError({
+    required String title,
+    required String subtitle,
+    Duration duration = const Duration(seconds: 5),
+  }) {
+    show(
+      title: title,
+      subtitle: subtitle,
+      isError: true,
+      duration: duration,
+    );
   }
 
   static void dismiss() {
@@ -46,11 +61,13 @@ class SuccessNotification {
 class _NotificationWidget extends StatefulWidget {
   final String title;
   final String subtitle;
+  final bool isError;
   final VoidCallback onDismiss;
 
   const _NotificationWidget({
     required this.title,
     required this.subtitle,
+    this.isError = false,
     required this.onDismiss,
   });
 
@@ -118,12 +135,14 @@ class _NotificationWidgetState extends State<_NotificationWidget>
                   children: [
                     Container(
                       padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
-                        color: AppColors.success,
+                      decoration: BoxDecoration(
+                        color: widget.isError
+                            ? AppColors.danger
+                            : AppColors.success,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.check,
+                      child: Icon(
+                        widget.isError ? Icons.close : Icons.check,
                         color: Colors.white,
                         size: 20,
                       ),

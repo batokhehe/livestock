@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
-import 'package:livestock/core/widgets/item_double_card.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/card_wrapper.dart';
-import '../../../../core/widgets/info_tag.dart';
 import '../../../../core/widgets/step_info_card.dart';
 import '../../data/model/purchase_order_item_request_model.dart';
 import '../../purchase_order_provider.dart';
@@ -90,19 +89,19 @@ class _AddPurchaseOrderStep2PageState
     );
   }
 
-  Widget _emptyState() {
+  Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(AppImages.icNoItem),
-          SizedBox(height: 24),
-          Text(
+          Image.asset(AppImages.icNoItem, width: 120),
+          const SizedBox(height: 16),
+          const Text(
             "Belum Ada Item yang Ditambahkan",
             style: AppTypography.mediumBoldBlack,
           ),
-          SizedBox(height: 4),
-          Text(
+          const SizedBox(height: 4),
+          const Text(
             "Tambahkan minimal satu item untuk melanjutkan proses Pembelian",
             textAlign: TextAlign.center,
             style: AppTypography.smallNormalGrey,
@@ -113,103 +112,25 @@ class _AddPurchaseOrderStep2PageState
   }
 
   Widget _itemCard(PurchaseOrderItemRequest item, int index) {
-    final isAnimal = item.animalName != null;
-
-    final code = isAnimal
-        ? item.animalName
-        : item.feedMedicine?.name ?? item.equipmentName;
-
-    final secondValue = isAnimal
-        ? "${item.animalCode}"
-        : item.feedMedicine!.feedType;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.fieldBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.animalName ?? item.feedMedicine!.name,
-                      style: AppTypography.smallBoldBlack,
-                    ),
-                    Text(
-                      "$code • $secondValue",
-                      style: AppTypography.smallNormalGrey,
-                    ),
-                  ],
-                ),
-              ),
-              _iconAction(
-                icon: Icons.delete,
-                color: AppColors.danger,
-                backColor: AppColors.danger.withOpacity(0.08),
-                onTap: () => _showDeleteConfirmSheet(item),
-              ),
-              const SizedBox(width: 8),
-              _iconAction(
-                icon: Icons.edit,
-                color: AppColors.white,
-                backColor: AppColors.primary,
-                onTap: () => _openEditItemSheet(item, index),
-              ),
-            ],
-          ),
-          Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          Container(
-            padding: const EdgeInsets.all(12),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal, // 🔥 ini kuncinya
-              child: Row(
-                children: [
-                  InfoTag(label: "${item.ageCategory} bulan"),
-                  const SizedBox(width: 8),
-                  InfoTag(label: "${item.initialWeight} kg"),
-                  const SizedBox(width: 8),
-                  InfoTag(label: "Rp. ${formatPrice(item.purchPrice as num)}"),
-                  const SizedBox(width: 8),
-                  if (item.isVaccinated == true)
-                    InfoTag(
-                      label: "Vaksin ${formatDateTime(item.vaccineDate)}",
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _iconAction({
-    required IconData icon,
-    required Color color,
-    required Color backColor,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: backColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, size: 16, color: color),
-      ),
-    );
+    if (item.animalName != null || item.animalCode != null) {
+      return _AnimalItemCard(
+        item: item,
+        onDelete: () => _showDeleteConfirmSheet(item),
+        onEdit: () => _openEditItemSheet(item, index),
+      );
+    } else if (item.feedMedicine != null || item.feedMedicineName != null) {
+      return _FeedItemCard(
+        item: item,
+        onDelete: () => _showDeleteConfirmSheet(item),
+        onEdit: () => _openEditItemSheet(item, index),
+      );
+    } else {
+      return _EquipmentItemCard(
+        item: item,
+        onDelete: () => _showDeleteConfirmSheet(item),
+        onEdit: () => _openEditItemSheet(item, index),
+      );
+    }
   }
 
   Widget _infoItem(List<PurchaseOrderItemRequest> items) {
@@ -230,10 +151,7 @@ class _AddPurchaseOrderStep2PageState
           const SizedBox(height: 12),
           Expanded(
             child: items.isEmpty
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [_emptyState()],
-                  )
+                ? _buildEmptyState()
                 : ListView.builder(
                     itemCount: items.length,
                     itemBuilder: (_, i) => _itemCard(items[i], i),
@@ -285,7 +203,7 @@ class _AddPurchaseOrderStep2PageState
     Widget sheet;
 
     if (type == 'animal') {
-      sheet = AddItemBottomSheetAnimal(initialData: item); // 🔥 kirim data
+      sheet = AddItemBottomSheetAnimal(initialData: item);
     } else {
       sheet = AddItemBottomSheetFeed(initialData: item);
     }
@@ -301,7 +219,7 @@ class _AddPurchaseOrderStep2PageState
       final current = ref.read(purchaseOrderFormProvider);
       final updatedItems = [...?current.items];
 
-      updatedItems[index] = result; // 🔥 replace item
+      updatedItems[index] = result;
 
       ref.read(purchaseOrderFormProvider.notifier).state = current.copyWith(
         items: updatedItems,
@@ -340,6 +258,293 @@ class _NextButton extends ConsumerWidget {
             child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _AnimalItemCard extends StatelessWidget {
+  final PurchaseOrderItemRequest item;
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
+
+  const _AnimalItemCard({
+    required this.item,
+    required this.onDelete,
+    required this.onEdit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _BaseItemCard(
+      title: item.animalCode ?? "-",
+      subtitle: item.animalName ?? "-",
+      icon: AppImages.icNavCow,
+      isSvg: true,
+      onDelete: onDelete,
+      onEdit: onEdit,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "${item.initialWeight} kg",
+              style: AppTypography.smallBoldBlack,
+            ),
+            Text(
+              'Rp ${formatPrice(item.purchPrice ?? 0)}',
+              style: AppTypography.smallBoldBlack,
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            Text('Berat', style: AppTypography.xSmallNormalBlack),
+            Text('Harga Beli', style: AppTypography.xSmallNormalBlack),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("${item.ageCategory}", style: AppTypography.smallBoldBlack),
+            if (item.isVaccinated == true && item.vaccineDate != null)
+              Text(
+                formatDateTime(item.vaccineDate),
+                style: AppTypography.smallBoldBlack,
+              ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Kategori Umur', style: AppTypography.xSmallNormalBlack),
+            if (item.isVaccinated == true && item.vaccineDate != null)
+              const Text(
+                'Tanggal Vaksin',
+                style: AppTypography.xSmallNormalBlack,
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _FeedItemCard extends StatelessWidget {
+  final PurchaseOrderItemRequest item;
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
+
+  const _FeedItemCard({
+    required this.item,
+    required this.onDelete,
+    required this.onEdit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _BaseItemCard(
+      title: item.feedMedicineCode ?? "-",
+      subtitle: item.feedMedicineName ?? "-",
+      icon: AppImages.icProduct,
+      isSvg: false,
+      onDelete: onDelete,
+      onEdit: onEdit,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("${item.quantity} item", style: AppTypography.smallBoldBlack),
+            Text(
+              'Rp ${formatPrice(item.purchPrice ?? 0)}',
+              style: AppTypography.smallBoldBlack,
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            Text('Kuantitas', style: AppTypography.xSmallNormalBlack),
+            Text('Harga Beli', style: AppTypography.xSmallNormalBlack),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _EquipmentItemCard extends StatelessWidget {
+  final PurchaseOrderItemRequest item;
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
+
+  const _EquipmentItemCard({
+    required this.item,
+    required this.onDelete,
+    required this.onEdit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _BaseItemCard(
+      title: item.equipmentName ?? "-",
+      subtitle: item.equipmentCode ?? "-",
+      icon: AppImages.icBox,
+      isSvg: false,
+      onDelete: onDelete,
+      onEdit: onEdit,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("${item.quantity} item", style: AppTypography.smallBoldBlack),
+            Text(
+              'Rp ${formatPrice(item.purchPrice ?? 0)}',
+              style: AppTypography.smallBoldBlack,
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            Text('Kuantitas', style: AppTypography.xSmallNormalBlack),
+            Text('Harga Beli', style: AppTypography.xSmallNormalBlack),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _BaseItemCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String icon;
+  final bool isSvg;
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
+  final List<Widget> children;
+
+  const _BaseItemCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.isSvg,
+    required this.onDelete,
+    required this.onEdit,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.fieldBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      _itemIcon(icon, isSvg: isSvg),
+                      const SizedBox(width: 10.0),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: AppTypography.smallBoldBlack,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              subtitle,
+                              style: AppTypography.smallNormalGrey,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 8.0),
+                _iconAction(
+                  icon: Icons.delete,
+                  color: AppColors.danger,
+                  backColor: AppColors.danger.withOpacity(0.08),
+                  onTap: onDelete,
+                ),
+                const SizedBox(width: 8),
+                _iconAction(
+                  icon: Icons.edit,
+                  color: AppColors.white,
+                  backColor: AppColors.primary,
+                  onTap: onEdit,
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(children: children),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _itemIcon(String icon, {required bool isSvg}) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: AppColors.greyBg,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: isSvg
+            ? SvgPicture.asset(
+                icon,
+                fit: BoxFit.contain,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.primary,
+                  BlendMode.srcIn,
+                ),
+              )
+            : Image.asset(icon, fit: BoxFit.contain),
+      ),
+    );
+  }
+
+  Widget _iconAction({
+    required IconData icon,
+    required Color color,
+    required Color backColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: backColor,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: color, size: 20),
       ),
     );
   }

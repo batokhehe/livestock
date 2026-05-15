@@ -54,24 +54,44 @@ class PurchaseOrderRequest {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    final base = {
       "purch_date": purchDate?.toIso8601String().split('T').first,
-      "animal_group_id": animalGroup?.id ?? 0,
       "supplier_id": supplier?.id ?? 0,
       "supplier_name": supplier?.name ?? '',
       "supplier_address": supplierAddress ?? '',
-      "farm_location_id": farmLocation?.id ?? 0,
-      "state": state,
-      "city": city,
-      "state_id": stateId,
-      "city_id": cityId,
-      "feed_type": feedType,
-      "type": type,
-      "shipping_cost": shippingCost ?? 0,
-      "additional_cost": additionalCost ?? 0,
       "notes": notes,
       "items": items?.map((e) => e.toJson()).toList(),
-    }..removeWhere((key, value) => value == null);
+    };
+
+    if (purchaseItemType == 'animal') {
+      return {
+        ...base,
+        "animal_group_id": animalGroup?.id ?? 0,
+        "farm_location_id": farmLocation?.id ?? 0,
+        "state": state,
+        "city": city,
+        "state_id": stateId,
+        "city_id": cityId,
+        "shipping_cost": shippingCost ?? 0,
+        "additional_cost": additionalCost ?? 0,
+      }..removeWhere((key, value) => value == null);
+    }
+
+    if (purchaseItemType == 'feed') {
+      return {
+        ...base,
+        "feed_type": "feed",
+      }..removeWhere((key, value) => value == null);
+    }
+
+    if (purchaseItemType == 'equipment') {
+      return {
+        ...base,
+        "type": "equipment",
+      }..removeWhere((key, value) => value == null);
+    }
+
+    return base..removeWhere((key, value) => value == null);
   }
 
   PurchaseOrderRequest copyWith({

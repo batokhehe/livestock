@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 
+import '../../../../core/helpers/utils.dart';
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/custom_date_picker_sheet.dart';
@@ -29,30 +30,30 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
     }
 
     if (typeCtrl.text.trim().isEmpty) {
-      return "Jenis/Ras hewan wajib diisi";
-    }
-
-    if (categoryCtrl.text.trim().isEmpty) {
-      return "Kategori umur wajib diisi";
+      return "Jenis/Ras wajib diisi";
     }
 
     if (weightCtrl.text.trim().isEmpty) {
       return "Berat hewan wajib diisi";
     }
 
-    if (ageCtrl.text.trim().isEmpty) {
-      return "Umur hewan wajib diisi";
-    }
-
-    if (priceCtrl.text.trim().isEmpty) {
-      return "Harga wajib diisi";
+    if (categoryCtrl.text.trim().isEmpty) {
+      return "Kategori umur wajib diisi";
     }
 
     if (vaccine && vaccineDate == null) {
       return "Tanggal vaksin wajib diisi";
     }
 
-    return null; // ✅ valid
+    if (priceCtrl.text.trim().isEmpty) {
+      return "Harga wajib diisi";
+    }
+
+    if (gender.isEmpty) {
+      return "Jenis kelamin wajib dipilih";
+    }
+
+    return null;
   }
 
   final nameCtrl = TextEditingController();
@@ -82,9 +83,10 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
       poelCtrl.text = data.poel ?? "";
       weightCtrl.text = data.initialWeight?.toString() ?? "";
       ageCtrl.text = data.age?.toString() ?? "";
-      priceCtrl.text = data.purchPrice?.toString() ?? "";
+      priceCtrl.text =
+          data.purchPrice != null ? formatPrice(data.purchPrice!) : "";
       notesCtrl.text = data.notes ?? "";
-      categoryCtrl.text = data.ageCategory.toString() ?? "";
+      categoryCtrl.text = data.ageCategory?.toString() ?? "";
 
       gender = data.gender ?? "male";
       vaccine = data.isVaccinated ?? false;
@@ -116,208 +118,224 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
       builder: (_, controller) {
         return Container(
           padding: EdgeInsets.fromLTRB(
-            16,
-            16,
-            16,
+            24,
+            24,
+            24,
             MediaQuery.of(context).padding.bottom + 16,
           ),
           decoration: BoxDecoration(
             color: AppColors.greyBg,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          child: SingleChildScrollView(
-            controller: controller,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ===== HEADER =====
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      widget.initialData == null ? "Tambah Item" : "Edit Item",
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                TextFields(
-                  label: "Kode Ref.Hewan",
-                  hint: "Masukkan Kode",
-                  controller: codeCtrl,
-                ),
-                const SizedBox(height: 6),
-                TextFields(
-                  label: "Jenis/Ras Hewan",
-                  hint: "Masukkan jenis",
-                  controller: typeCtrl,
-                ),
-                const SizedBox(height: 6),
-                GestureDetector(
-                  onTap: () async {
-                    // open bottom sheet
-                    final result = await showModalBottomSheet<String>(
-                      context: context,
-                      backgroundColor: Colors.transparent,
-                      builder: (_) => GenderBottomSheet(selected: gender),
-                    );
-
-                    if (result != null) {
-                      setState(() {
-                        gender = result;
-                      });
-                    }
-                  },
-                  child: Dropdowns(
-                    label: "Jenis Kelamin",
-                    value: gender == "male" ? "Jantan" : "Betina",
-                    icon: AppImages.icMan,
-                    enabled: false,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.initialData == null ? "Tambah Item" : "Edit Item",
+                    style: AppTypography.largeBoldBlack,
                   ),
-                ),
-                const SizedBox(height: 6),
-                TextFields(
-                  label: "Kategori Umur Hewan",
-                  hint: "Masukkan kategori",
-                  controller: categoryCtrl,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                ),
-                const SizedBox(height: 6),
-                TextFields(
-                  label: "Berat Hewan",
-                  hint: "Masukkan berat",
-                  controller: weightCtrl,
-                  suffix: "kg",
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                ),
-                const SizedBox(height: 6),
-                TextFields(
-                  label: "Umur Hewan",
-                  hint: "Masukkan umur",
-                  controller: ageCtrl,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                ),
-                const SizedBox(height: 6),
-                AppRadioGroup<bool>(
-                  title: 'Sudah Vaksin?',
-                  value: vaccine,
-                  options: const [true, false],
-                  labelBuilder: (v) => v ? 'Ya' : 'Tidak',
-                  onChanged: (v) {
-                    setState(() {
-                      vaccine = v;
-                    });
-                  },
-                ),
-                if (vaccine) ...[
-                  const SizedBox(height: 6),
-                  SelectField(
-                    label: "Tanggal Vaksin",
-                    hint: vaccineDate != null
-                        ? "${vaccineDate!.day}/${vaccineDate!.month}/${vaccineDate!.year}"
-                        : "Pilih tanggal",
-                    icon: AppImages.icCalendarSearch,
-                    onTap: () async {
-                      final pickedDate = await showModalBottomSheet<DateTime?>(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (_) => const CustomDatePickerSheet(),
-                      );
-
-                      if (pickedDate != null) {
-                        setState(() {
-                          vaccineDate = pickedDate;
-                        });
-                      }
-                    },
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(Icons.close),
                   ),
                 ],
-                const SizedBox(height: 6),
-                TextFields(
-                  label: "Harga Beli Hewan",
-                  hint: "Masukkan harga",
-                  controller: priceCtrl,
-                  suffix: "Rp",
-                ),
-                const SizedBox(height: 6),
-                TextFields(
-                  label: "POEL",
-                  hint: "Masukkan POEL",
-                  controller: poelCtrl,
-                ),
-                const SizedBox(height: 6),
-                TextFieldWithInnerCounter(
-                  label: 'Catatan',
-                  subLabel: '(Optional)',
-                  hint: 'Masukkan Catatan',
-                  maxLength: 80,
-                  controller: notesCtrl,
-                ),
-
-                const SizedBox(height: 24),
-
-                // ===== BUTTON =====
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: controller,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextFields(
+                        label: "Kode Ref.Hewan",
+                        hint: "Masukkan kode",
+                        controller: codeCtrl,
+                        isMandatoryField: true,
+                        onChanged: (_) => setState(() {}),
                       ),
-                    ),
-                    onPressed: () {
-                      final error = validateForm();
-
-                      if (error != null) {
-                        final messenger = ScaffoldMessenger.of(context);
-
-                        messenger.clearSnackBars();
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Text(error),
-                            backgroundColor: Colors.red,
+                      TextFields(
+                        label: "Jenis/Ras",
+                        hint: "Masukkan jenis/ras",
+                        controller: typeCtrl,
+                        isMandatoryField: true,
+                        onChanged: (_) => setState(() {}),
+                      ),
+                      TextFields(
+                        label: "Berat",
+                        hint: "Masukkan berat",
+                        controller: weightCtrl,
+                        suffix: "kg",
+                        isMandatoryField: true,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'[0-9\.\,]'),
                           ),
-                        );
-                        return;
-                      }
+                        ],
+                        onChanged: (_) => setState(() {}),
+                      ),
+                      TextFields(
+                        label: "Kategori Umur",
+                        hint: "Masukkan kategori umur",
+                        controller: categoryCtrl,
+                        isMandatoryField: true,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        onChanged: (_) => setState(() {}),
+                      ),
+                      AppRadioGroup<bool>(
+                        title: 'Sudah Vaksin?',
+                        value: vaccine,
+                        isMandatoryField: true,
+                        options: const [true, false],
+                        labelBuilder: (v) => v ? 'Ya' : 'Tidak',
+                        onChanged: (v) {
+                          setState(() {
+                            vaccine = v;
+                          });
+                        },
+                      ),
+                      if (vaccine) ...[
+                        const SizedBox(height: 6),
+                        SelectField(
+                          label: "Tanggal Vaksin",
+                          hint: formatDateTime(vaccineDate),
+                          icon: AppImages.icCalendarSearch,
+                          isMandatoryField: true,
+                          onTap: () async {
+                            final pickedDate =
+                                await showModalBottomSheet<DateTime?>(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (_) => const CustomDatePickerSheet(
+                                    title: "Pilih Tanggal Vaksin",
+                                  ),
+                                );
 
-                      final item = PurchaseOrderItemRequest(
-                        animalCode: codeCtrl.text,
-                        animalName: typeCtrl.text,
-                        age: int.tryParse(ageCtrl.text),
-                        poel: poelCtrl.text,
-                        gender: gender,
-                        initialWeight: double.tryParse(weightCtrl.text),
-                        ageCategory: int.tryParse(categoryCtrl.text),
-                        isVaccinated: vaccine,
-                        vaccineDate: vaccineDate,
-                        purchPrice: double.tryParse(priceCtrl.text),
-                        subtotal: 0,
-                        total: 0,
-                        notes: notesCtrl.text,
-                      );
+                            if (pickedDate != null) {
+                              setState(() {
+                                vaccineDate = pickedDate;
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                      const SizedBox(height: 10),
+                      TextFields(
+                        label: "Harga Beli",
+                        hint: "0",
+                        isMandatoryField: true,
+                        prefixText: 'Rp ',
+                        controller: priceCtrl,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          CurrencyInputFormatter(),
+                        ],
+                        onChanged: (_) => setState(() {}),
+                      ),
+                      TextFieldWithInnerCounter(
+                        label: 'Catatan',
+                        subLabel: '(Optional)',
+                        hint: 'Masukkan Catatan',
+                        maxLength: 80,
+                        controller: notesCtrl,
+                      ),
+                      const SizedBox(height: 12),
+                      SelectField(
+                        label: "Jenis Kelamin",
+                        hint: gender == "male" ? "Jantan" : "Betina",
+                        icon: AppImages.icMan,
+                        isMandatoryField: true,
+                        onTap: () async {
+                          // open bottom sheet
+                          final result = await showModalBottomSheet<String>(
+                            context: context,
+                            backgroundColor: Colors.transparent,
+                            builder: (_) => GenderBottomSheet(selected: gender),
+                          );
 
-                      Navigator.pop(context, item);
-                    },
-                    child: Text(
-                      widget.initialData == null
-                          ? "Tambah Item"
-                          : "Simpan Perubahan",
-                      style: AppTypography.mediumBoldWhite,
-                    ),
+                          if (result != null) {
+                            setState(() {
+                              gender = result;
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      TextFields(
+                        label: "POEL",
+                        hint: "Masukkan POEL",
+                        controller: poelCtrl,
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 24),
+              Builder(
+                builder: (context) {
+                  final isValid = validateForm() == null;
+
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isValid
+                            ? AppColors.primary
+                            : AppColors.grey,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: isValid
+                          ? () {
+                              final price = double.tryParse(
+                                priceCtrl.text.replaceAll('.', ''),
+                              ) ?? 0;
+
+                              final item = PurchaseOrderItemRequest(
+                                animalCode: codeCtrl.text,
+                                animalName: typeCtrl.text,
+                                age: int.tryParse(ageCtrl.text),
+                                poel: poelCtrl.text,
+                                gender: gender,
+                                initialWeight: double.tryParse(
+                                  weightCtrl.text.replaceAll(',', '.'),
+                                ),
+                                ageCategory: int.tryParse(categoryCtrl.text),
+                                isVaccinated: vaccine,
+                                vaccineDate: vaccineDate,
+                                quantity: 1,
+                                purchPrice: price,
+                                subtotal: price,
+                                total: price,
+                                notes: notesCtrl.text,
+                              );
+
+                              Navigator.pop(context, item);
+                            }
+                          : null,
+                      child: Text(
+                        widget.initialData == null
+                            ? "Tambah Item"
+                            : "Simpan Perubahan",
+                        style: AppTypography.mediumBoldWhite,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         );
       },
