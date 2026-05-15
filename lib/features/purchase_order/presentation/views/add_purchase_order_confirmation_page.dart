@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/section_card.dart';
@@ -10,9 +10,8 @@ import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/card_wrapper.dart';
 import '../../../../core/widgets/info_item_card.dart';
-import '../../../../core/widgets/product_header_card.dart';
 import '../../../../core/widgets/step_info_card.dart';
-import '../../../../core/widgets/two_column_row_card.dart';
+import '../../../../core/widgets/success_notification.dart';
 import '../../../receiving/presentation/widgets/confirmation_bottom_sheet.dart';
 import '../../data/model/purchase_order_item_request_model.dart';
 import '../../data/model/purchase_order_request_model.dart';
@@ -25,10 +24,14 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final form = ref.watch(purchaseOrderFormProvider);
     final items = form.items ?? [];
+    final totalItem = items.fold<int>(
+      0,
+      (sum, item) => sum + (item.quantity ?? 1),
+    );
 
     final subtotal = items.fold<double>(
       0,
-      (sum, item) => sum + (item.purchPrice ?? 0),
+      (sum, item) => sum + ((item.purchPrice ?? 0) * (item.quantity ?? 1)),
     );
 
     final total = subtotal + (form.shippingCost ?? 0);
@@ -57,23 +60,21 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
 
-                if (form.purchaseItemType == 'animal') _infoPurchaseOrder(form),
+                _infoPurchaseOrder(form),
                 const SizedBox(height: 12),
 
                 ...items.asMap().entries.map(
-                  (entry) => _ProductInfoCard(
-                    counter: entry.key + 1,
-                    data: entry.value,
-                  ),
+                  (entry) => _itemCard(entry.value),
                 ),
 
                 const SizedBox(height: 12),
 
                 _summaryCard(
-                  totalItem: items.length,
+                  totalItem: totalItem,
                   subtotal: subtotal,
                   shippingCost: form.shippingCost ?? 0,
                   total: total,
+                  isAnimal: form.purchaseItemType == 'animal',
                 ),
               ],
             ),
@@ -120,13 +121,13 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
                                 .read(purchaseOrderFormProvider.notifier)
                                 .reset();
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                  "Pembelian berhasil disimpan",
-                                ),
-                                backgroundColor: Colors.green,
-                              ),
+                            ref
+                                .read(purchaseOrderListProvider.notifier)
+                                .refresh();
+
+                            SuccessNotification.show(
+                              title: "Berhasil",
+                              subtitle: "Pembelian berhasil disimpan",
                             );
 
                             context.go('/purchase-order');
@@ -164,17 +165,12 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
           InfoItemCard(
             icon: AppImages.icCalendarTick,
             title: formatDateTime(form.purchDate),
-            subtitle: form.farmLocation!.name,
+            subtitle: "Tanggal Pembelian",
           ),
           InfoItemCard(
             icon: AppImages.icUserTag,
-            title: form.supplier!.name,
-            subtitle: form.supplier!.name.toString(),
-          ),
-          InfoItemCard(
-            icon: AppImages.icMoneys,
-            title: form.shippingCost.toString(),
-            subtitle: form.additionalCost.toString(),
+            title: form.supplier?.name ?? '-',
+            subtitle: form.supplierAddress ?? '-',
           ),
         ],
       ),
@@ -190,15 +186,19 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
     required double subtotal,
     required double shippingCost,
     required double total,
+    required bool isAnimal,
   }) {
     return SectionCard(
       title: 'Rincian Bayar',
       children: [
         SectionCard(
           children: [
-            _rowSummary("Jumlah Item", totalItem.toString()),
+            _rowSummary(
+              isAnimal ? "Jumlah Hewan" : "Jumlah Item",
+              "$totalItem ${isAnimal ? 'ekor' : 'item'}",
+            ),
             _rowSummary("Subtotal", formatPrice(subtotal)),
-            _rowSummary("Biaya Pengiriman", formatPrice(shippingCost)),
+            if (isAnimal) _rowSummary("Biaya Pengiriman", formatPrice(shippingCost)),
             _rowSummary("Total Keseluruhan", formatPrice(total), isBold: true),
           ],
         ),
@@ -228,103 +228,222 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
       ),
     );
   }
+
+  Widget _itemCard(PurchaseOrderItemRequest item) {
+    if (item.animalName != null || item.animalCode != null) {
+      return _AnimalItemCard(item: item);
+    } else if (item.feedMedicine != null || item.feedMedicineName != null) {
+      return _FeedItemCard(item: item);
+    } else {
+      return _EquipmentItemCard(item: item);
+    }
+  }
 }
 
-class _ProductInfoCard extends StatelessWidget {
-  final PurchaseOrderItemRequest data;
-  final int counter;
+class _AnimalItemCard extends StatelessWidget {
+  final PurchaseOrderItemRequest item;
 
-  const _ProductInfoCard({required this.data, required this.counter});
+  const _AnimalItemCard({required this.item});
 
   @override
   Widget build(BuildContext context) {
-    final isAnimal = data.animalName != null;
-
-    final code = isAnimal ? data.animalCode : data.feedMedicine!.code;
-
-    final secondValue = isAnimal
-        ? "${data.animalCode}"
-        : data.feedMedicine!.feedType;
-
-    return SectionCard(
-      title: 'Item ${counter.toString()}',
+    return _BaseItemCard(
+      title: item.animalCode ?? "-",
+      subtitle: item.animalName ?? "-",
+      icon: AppImages.icNavCow,
+      isSvg: true,
       children: [
-        SectionCard(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            ProductHeaderCard(
-              title: data.animalName ?? data.feedMedicine!.name,
-              subtitle: '$code • $secondValue',
-              image: AppImages.icProduct,
-            ),
-            const SizedBox(height: 12),
-            Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-            TwoColumnRowCard(
-              leftValue: formatPrice(data.purchPrice as num),
-              leftLabel: "Harga/kg Forecast",
-              rightValue: formatPrice(data.subtotal),
-              rightLabel: "Total Forecast",
-            ),
+            Text("${item.initialWeight} kg", style: AppTypography.smallBoldBlack),
+            Text('Rp ${formatPrice(item.purchPrice ?? 0)}', style: AppTypography.smallBoldBlack),
           ],
         ),
-        // if (isAnimal) ...[
-        //   const SizedBox(height: 12),
-        //   SectionCard(
-        //     children: [
-        //       ProductHeaderCard(
-        //         title: data.subtotal.toString(),
-        //         subtitle: formatDateTime(data.dlvDate),
-        //         image: AppImages.icMoneys,
-        //       ),
-        //       Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-        //       TwoColumnRowCard(
-        //         leftValue: data.unitPrice.toString(),
-        //         leftLabel: "Harga jual",
-        //         rightValue: data.discount.toString(),
-        //         rightLabel: "Harga diskon",
-        //       ),
-        //     ],
-        //   ),
-        //   const SizedBox(height: 12),
-        //   SectionCard(
-        //     children: [
-        //       ProductHeaderCard(
-        //         title: 'Transaksi Forecast',
-        //         subtitle: 'kg • ${formatDateTime(data.dlvDate)}',
-        //         image: AppImages.icMoneys,
-        //       ),
-        //     ],
-        //   ),
-        //   const SizedBox(height: 12),
-        //   SectionCard(
-        //     children: [
-        //       ProductHeaderCard(
-        //         title: formatDateTime(data.dlvDate),
-        //         subtitle: 'Tanggal Pengiriman',
-        //         image: AppImages.icTruckFast,
-        //       ),
-        //     ],
-        //   ),
-        //   const SizedBox(height: 12),
-        //   SectionCard(
-        //     children: [
-        //       ProductHeaderCard(
-        //         title: '${data.state} • ${data.city}',
-        //         subtitle: '${data.district} • ${data.village}',
-        //         image: AppImages.icMap,
-        //       ),
-        //     ],
-        //   ),
-        //   const SizedBox(height: 12),
-        //   SectionCard(
-        //     children: [
-        //       ProductHeaderCard(
-        //         title: data.deliveryAddress!,
-        //         image: AppImages.icMap,
-        //       ),
-        //     ],
-        //   ),
-        // ],
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            Text('Berat', style: AppTypography.xSmallNormalBlack),
+            Text('Harga Beli', style: AppTypography.xSmallNormalBlack),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("${item.ageCategory}", style: AppTypography.smallBoldBlack),
+            if (item.isVaccinated == true && item.vaccineDate != null)
+              Text(formatDateTime(item.vaccineDate), style: AppTypography.smallBoldBlack),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Kategori Umur', style: AppTypography.xSmallNormalBlack),
+            if (item.isVaccinated == true && item.vaccineDate != null)
+              const Text('Tanggal Vaksin', style: AppTypography.xSmallNormalBlack),
+          ],
+        ),
       ],
+    );
+  }
+}
+
+class _FeedItemCard extends StatelessWidget {
+  final PurchaseOrderItemRequest item;
+
+  const _FeedItemCard({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return _BaseItemCard(
+      title: item.feedMedicineCode ?? "-",
+      subtitle: item.feedMedicineName ?? "-",
+      icon: AppImages.icProduct,
+      isSvg: false,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("${item.quantity} item", style: AppTypography.smallBoldBlack),
+            Text('Rp ${formatPrice(item.purchPrice ?? 0)}', style: AppTypography.smallBoldBlack),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            Text('Kuantitas', style: AppTypography.xSmallNormalBlack),
+            Text('Harga Beli', style: AppTypography.xSmallNormalBlack),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _EquipmentItemCard extends StatelessWidget {
+  final PurchaseOrderItemRequest item;
+
+  const _EquipmentItemCard({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return _BaseItemCard(
+      title: item.equipmentName ?? "-",
+      subtitle: item.equipmentCode ?? "-",
+      icon: AppImages.icBox,
+      isSvg: false,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("${item.quantity} item", style: AppTypography.smallBoldBlack),
+            Text('Rp ${formatPrice(item.purchPrice ?? 0)}', style: AppTypography.smallBoldBlack),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            Text('Kuantitas', style: AppTypography.xSmallNormalBlack),
+            Text('Harga Beli', style: AppTypography.xSmallNormalBlack),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _BaseItemCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String icon;
+  final bool isSvg;
+  final List<Widget> children;
+
+  const _BaseItemCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.isSvg,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.fieldBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      _itemIcon(icon, isSvg: isSvg),
+                      const SizedBox(width: 10.0),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: AppTypography.smallBoldBlack,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              subtitle,
+                              style: AppTypography.smallNormalGrey,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(children: children),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _itemIcon(String icon, {required bool isSvg}) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: AppColors.greyBg,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: isSvg
+            ? SvgPicture.asset(
+                icon,
+                fit: BoxFit.contain,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.primary,
+                  BlendMode.srcIn,
+                ),
+              )
+            : Image.asset(icon, fit: BoxFit.contain),
+      ),
     );
   }
 }
