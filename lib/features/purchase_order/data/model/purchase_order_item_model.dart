@@ -1,3 +1,5 @@
+import 'purchase_order_item_request_model.dart';
+
 class PurchaseOrderDetail {
   final int? id;
   final String? animalCode;
@@ -12,6 +14,10 @@ class PurchaseOrderDetail {
   final double subtotal;
   final double total;
 
+  final String? ageCategory;
+  final bool? isVaccinated;
+  final DateTime? vaccineDate;
+
   PurchaseOrderDetail({
     this.id,
     this.animalCode,
@@ -25,6 +31,9 @@ class PurchaseOrderDetail {
     required this.purchPrice,
     required this.subtotal,
     required this.total,
+    this.ageCategory,
+    this.isVaccinated,
+    this.vaccineDate,
   });
 
   factory PurchaseOrderDetail.fromJson(Map<String, dynamic> json) {
@@ -41,6 +50,30 @@ class PurchaseOrderDetail {
       purchPrice: (json['purch_price'] as num?)?.toDouble() ?? 0,
       subtotal: (json['subtotal'] as num?)?.toDouble() ?? 0,
       total: (json['total'] as num?)?.toDouble() ?? 0,
+      ageCategory: json['age_category']?.toString(),
+      isVaccinated: json['is_vaccinated'] == 1 || json['is_vaccinated'] == true,
+      vaccineDate: json['vaccine_date'] != null
+          ? DateTime.tryParse(json['vaccine_date'])
+          : null,
+    );
+  }
+
+  PurchaseOrderItemRequest toPurchaseOrderItemRequest() {
+    return PurchaseOrderItemRequest(
+      animalCode: animalCode,
+      animalName: animalName,
+      initialWeight: initialWeight,
+      ageCategory: ageCategory != null ? int.tryParse(ageCategory!) : null,
+      isVaccinated: isVaccinated,
+      vaccineDate: vaccineDate,
+      feedMedicineCode: feedMedicineCode,
+      feedMedicineName: feedMedicineName,
+      equipmentCode: equipmentCode,
+      equipmentName: equipmentName,
+      quantity: quantity,
+      purchPrice: purchPrice,
+      subtotal: subtotal,
+      total: total,
     );
   }
 }
