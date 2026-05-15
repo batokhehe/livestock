@@ -117,11 +117,11 @@ class ReceivingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // void updateQty(int id, String value) {
-  //   final item = items.firstWhere((e) => e.id == id);
-  //   item.qty = value;
-  //   notifyListeners();
-  // }
+  void updateQty(int id, String value) {
+    final item = items.firstWhere((e) => e.id == id);
+    item.qty = value;
+    notifyListeners();
+  }
 
   void updateProofImage(int id, File? file) {
     final item = items.firstWhere((e) => e.id == id);

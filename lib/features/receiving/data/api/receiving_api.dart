@@ -62,10 +62,7 @@ class ReceivingApi {
       endpoint = '/inventory/receiving/purchase-orders/equipment-supplies';
     }
 
-    final res = await dio.get(
-      endpoint,
-      queryParameters: queryParams,
-    );
+    final res = await dio.get(endpoint, queryParameters: queryParams);
 
     return BaseResponse.fromJson(
       res.data,
@@ -105,8 +102,15 @@ class ReceivingApi {
       }
     }
 
+    String endpoint = '/inventory/receiving/$type';
+    if (type == 'feed' || type == 'medicine') {
+      endpoint = '/inventory/receiving/feed-medicine';
+    } else if (type == 'equipment' || type == 'supplies') {
+      endpoint = '/inventory/receiving/equipment-supplies';
+    }
+
     await dio.post(
-      "/inventory/receiving/$type",
+      endpoint,
       data: payload,
       options: Options(contentType: Headers.jsonContentType),
     );

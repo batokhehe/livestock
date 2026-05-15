@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:livestock/features/receiving/receiving_provider.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
@@ -7,13 +9,15 @@ import '../../../../core/helpers/utils.dart';
 import '../../../../core/widgets/info_tag.dart';
 import '../../data/model/receiving_item_model.dart';
 
-class ReceivingDetailCard extends StatelessWidget {
+class ReceivingDetailCard extends ConsumerWidget {
   final ReceivingItem item;
 
   const ReceivingDetailCard({super.key, required this.item});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final type = ref.watch(receivingTabProvider);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -53,19 +57,33 @@ class ReceivingDetailCard extends StatelessWidget {
           const SizedBox(height: 4),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              InfoTag(label: item.ageCategory.toString()),
-              InfoTag(label: '${item.receivedWeight} kg'),
-              InfoTag(
-                label: 'Rp ${formatPrice(double.parse(item.subtotal).toInt())}',
-              ),
-              if (item.isVaccinated ?? false)
-                InfoTag(label: item.vaccineDate.toString()),
-            ],
-          ),
+          if (type == ReceivingTab.animal)
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                if (item.ageCategory != null && item.ageCategory! > 0)
+                  InfoTag(label: item.ageCategory.toString()),
+                if (item.receivedWeight != null && item.receivedWeight! > 0)
+                  InfoTag(label: '${item.receivedWeight} kg'),
+                if (double.tryParse(item.subtotal) != null && double.parse(item.subtotal) > 0)
+                  InfoTag(
+                    label:
+                        'Rp ${formatPrice(double.parse(item.subtotal).toInt())}',
+                  ),
+                if (item.isVaccinated ?? false)
+                  InfoTag(label: item.vaccineDate.toString()),
+              ],
+            )
+          else
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                if (item.qtyRemaining != null && double.tryParse(item.qtyRemaining!) != null && double.parse(item.qtyRemaining!) > 0)
+                  InfoTag(label: '${item.qtyRemaining} ${item.uom}')
+              ],
+            ),
 
           const SizedBox(height: 10),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
