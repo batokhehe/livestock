@@ -145,6 +145,16 @@ class _FarmInfoSection extends ConsumerWidget {
     return SectionCard(
       title: "Informasi Peternakan",
       children: [
+        if (activeTab == ReceivingTab.feed) ...[
+          SelectField(
+            label: "Jenis penerimaan",
+            isMandatoryField: true,
+            hint: ref.watch(receivingFeedTypeProvider) ?? "Pilih jenis",
+            icon: AppImages.icBox,
+            onTap: () => _showFeedTypePicker(context, ref),
+          ),
+          const SizedBox(height: 12),
+        ],
         SelectField(
           label: "Lokasi peternakan",
           isMandatoryField: true,
@@ -165,6 +175,45 @@ class _FarmInfoSection extends ConsumerWidget {
         ],
       ],
     );
+  }
+
+  void _showFeedTypePicker(BuildContext context, WidgetRef ref) async {
+    final result = await showModalBottomSheet<String?>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  "Pilih Jenis Penerimaan",
+                  style: AppTypography.mediumBoldBlack,
+                ),
+              ),
+              ListTile(
+                title: const Text("Pakan"),
+                onTap: () => Navigator.pop(context, "Pakan"),
+              ),
+              ListTile(
+                title: const Text("Obat"),
+                onTap: () => Navigator.pop(context, "Obat"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (result != null) {
+      ref.read(receivingFeedTypeProvider.notifier).state = result;
+    }
   }
 
   void _showFarmLocationPicker(BuildContext context, WidgetRef ref) async {
@@ -215,9 +264,13 @@ class _NextButton extends ConsumerWidget {
     final selectedFarm = ref.watch(selectedFarmLocationProvider);
     final selectedArea = ref.watch(selectedFarmAreaProvider);
 
+    final selectedFeedType = ref.watch(receivingFeedTypeProvider);
+
     bool isValid = selectedDate != null && selectedFarm != null;
     if (type == ReceivingTab.animal) {
       isValid = isValid && selectedArea != null;
+    } else if (type == ReceivingTab.feed) {
+      isValid = isValid && selectedFeedType != null;
     }
 
     return SafeArea(
