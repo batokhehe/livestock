@@ -19,9 +19,13 @@ extension ReceivingTabX on ReceivingTab {
       case ReceivingTab.animal:
         return 'animal';
       case ReceivingTab.feed:
-        return 'feed-medicine';
+        return 'feed';
       case ReceivingTab.equipment:
-        return 'equipment-supplies';
+        return 'equipment';
+      // case ReceivingTab.feed:
+      //   return 'feed-medicine';
+      // case ReceivingTab.equipment:
+      //   return 'equipment-supplies';
     }
   }
 
