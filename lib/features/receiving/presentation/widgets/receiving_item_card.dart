@@ -57,7 +57,11 @@ class ReceivingItemCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${item.locationName} • ${item.areaName}',
+                item.receiveType == 'feed' ||
+                        item.receiveType == 'medicine' ||
+                        item.areaName == null
+                    ? item.locationName
+                    : '${item.locationName} • ${item.areaName}',
                 style: AppTypography.xSmallNormalBlack,
               ),
               Text(

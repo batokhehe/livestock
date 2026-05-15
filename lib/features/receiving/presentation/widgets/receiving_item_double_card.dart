@@ -80,7 +80,7 @@ class ReceivingItemDoubleCard extends StatelessWidget {
                       '$totalQty ${tab.ext} • Lunas',
                       style: AppTypography.xSmallNormalBlack,
                     ),
-                    Text('0 Diterima', style: AppTypography.xSmallNormalBlack),
+                    // Text('0 Diterima', style: AppTypography.xSmallNormalBlack),
                   ],
                 ),
               ],

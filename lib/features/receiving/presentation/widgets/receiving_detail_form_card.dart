@@ -32,6 +32,7 @@ class ReceivingDetailFormCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final type = ref.watch(receivingTabProvider);
     final bool hasInput =
         onItemCodeChanged != null ||
         onWeightChanged != null ||
@@ -81,15 +82,23 @@ class ReceivingDetailFormCard extends ConsumerWidget {
           Text(item.itemName, style: AppTypography.xSmallNormalGrey),
 
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              InfoTag(
-                label: 'Rp ${formatPrice(double.parse(item.subtotal).toInt())}',
-              ),
-            ],
-          ),
+          if (type == ReceivingTab.animal)
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                InfoTag(
+                  label:
+                      'Rp ${formatPrice(double.parse(item.subtotal).toInt())}',
+                ),
+              ],
+            )
+          else
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [InfoTag(label: '${item.qtyRemaining} ${item.uom}')],
+            ),
 
           /// ✅ INPUT (HANYA JIKA ADA)
           if (hasInput) ...[
@@ -167,8 +176,10 @@ class ReceivingDetailFormCard extends ConsumerWidget {
                           ),
                         ),
 
-                        const SizedBox(width: 12),
-                        _uploadWidget(context, ref),
+                        if (type == ReceivingTab.animal) ...[
+                          const SizedBox(width: 12),
+                          _uploadWidget(context, ref),
+                        ],
                       ],
                     ),
                   ],
@@ -298,29 +309,76 @@ class ReceivingDetailFormCard extends ConsumerWidget {
   void _pickImageOptions(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.camera_alt),
-            title: const Text("Ambil dari Kamera"),
-            onTap: () {
-              Navigator.pop(context);
-              _pickImage(ImageSource.camera, ref);
-            },
+      builder: (_) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Pilih Sumber Gambar",
+                  style: AppTypography.mediumBoldBlack,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildUploadOption(
+                        icon: Icons.camera_alt_rounded,
+                        label: "Kamera",
+                        onTap: () {
+                          Navigator.pop(context);
+                          _pickImage(ImageSource.camera, ref);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildUploadOption(
+                        icon: Icons.photo_library_rounded,
+                        label: "Galeri",
+                        onTap: () {
+                          Navigator.pop(context);
+                          _pickImage(ImageSource.gallery, ref);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          ListTile(
-            leading: const Icon(Icons.photo_library),
-            title: const Text("Ambil dari Galeri"),
-            onTap: () {
-              Navigator.pop(context);
-              _pickImage(ImageSource.gallery, ref);
-            },
-          ),
-        ],
+        );
+      },
+    );
+  }
+
+  Widget _buildUploadOption({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF2F4FF),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: AppColors.primary, size: 32),
+            const SizedBox(height: 12),
+            Text(label, style: AppTypography.smallBoldBlack),
+          ],
+        ),
       ),
     );
   }

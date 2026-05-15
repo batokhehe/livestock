@@ -97,7 +97,11 @@ class _AddReceivingStep2PageState extends ConsumerState<AddReceivingStep2Page> {
                               ref
                                   .read(receivingFormProvider)
                                   .updateWeight(e.id, v);
-                            } else {}
+                            } else {
+                              ref
+                                  .read(receivingFormProvider)
+                                  .updateQty(e.id, v);
+                            }
                           },
 
                           onNotesChanged: type == ReceivingTab.animal
@@ -144,9 +148,14 @@ class _NextButtonStep2 extends ConsumerWidget {
               item.receivedWeight == null || item.receivedWeight! <= 0;
           return codeEmpty || weightEmpty;
         } else {
-          // Untuk Pakan/Peralatan, qty wajib diisi > 0
+          // Untuk Pakan/Peralatan, qty wajib diisi > 0 dan <= qtyRemaining
           final double? qtyVal = double.tryParse(item.qty ?? '');
-          return qtyVal == null || qtyVal <= 0;
+          final double? qtyRemaining = double.tryParse(item.qtyRemaining ?? '');
+          
+          if (qtyVal == null || qtyVal <= 0) return true;
+          if (qtyRemaining != null && qtyVal > qtyRemaining) return true;
+          
+          return false;
         }
       });
     }

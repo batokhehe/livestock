@@ -19,9 +19,13 @@ extension ReceivingTabX on ReceivingTab {
       case ReceivingTab.animal:
         return 'animal';
       case ReceivingTab.feed:
-        return 'feed-medicine';
+        return 'feed';
       case ReceivingTab.equipment:
-        return 'equipment-supplies';
+        return 'equipment';
+      // case ReceivingTab.feed:
+      //   return 'feed-medicine';
+      // case ReceivingTab.equipment:
+      //   return 'equipment-supplies';
     }
   }
 
@@ -53,6 +57,7 @@ final receivingPoSearchProvider = StateProvider<String>((ref) => '');
 final receivingLocationFilterProvider = StateProvider<FarmLocation?>(
   (ref) => null,
 );
+final receivingFeedTypeProvider = StateProvider<String?>((ref) => null);
 
 final receivingTabProvider = StateProvider<ReceivingTab>((ref) {
   return ReceivingTab.animal;
@@ -112,11 +117,11 @@ class ReceivingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // void updateQty(int id, String value) {
-  //   final item = items.firstWhere((e) => e.id == id);
-  //   item.qty = value;
-  //   notifyListeners();
-  // }
+  void updateQty(int id, String value) {
+    final item = items.firstWhere((e) => e.id == id);
+    item.qty = value;
+    notifyListeners();
+  }
 
   void updateProofImage(int id, File? file) {
     final item = items.firstWhere((e) => e.id == id);

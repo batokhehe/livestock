@@ -42,16 +42,27 @@ class ReceivingApi {
     int perPage = 10,
     String? search,
   }) async {
-    final res = await dio.get(
-      '/inventory/receiving/purchase-orders/$type',
-      queryParameters: {
-        'farm_location_id': farmLocationId,
-        'farm_area_id': farmAreaId,
-        'page': page,
-        'per_page': perPage,
-        'search': search,
-      }..removeWhere((k, v) => v == null || v == ''),
-    );
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'per_page': perPage,
+      'search': search,
+    };
+
+    if (type != 'feed' && type != 'medicine') {
+      queryParams['farm_location_id'] = farmLocationId;
+      queryParams['farm_area_id'] = farmAreaId;
+    }
+
+    queryParams.removeWhere((k, v) => v == null || v == '');
+
+    String endpoint = '/inventory/receiving/purchase-orders/$type';
+    if (type == 'feed' || type == 'medicine') {
+      endpoint = '/inventory/receiving/purchase-orders/feed-medicine';
+    } else if (type == 'equipment' || type == 'supplies') {
+      endpoint = '/inventory/receiving/purchase-orders/equipment-supplies';
+    }
+
+    final res = await dio.get(endpoint, queryParameters: queryParams);
 
     return BaseResponse.fromJson(
       res.data,
@@ -91,8 +102,15 @@ class ReceivingApi {
       }
     }
 
+    String endpoint = '/inventory/receiving/$type';
+    if (type == 'feed' || type == 'medicine') {
+      endpoint = '/inventory/receiving/feed-medicine';
+    } else if (type == 'equipment' || type == 'supplies') {
+      endpoint = '/inventory/receiving/equipment-supplies';
+    }
+
     await dio.post(
-      "/inventory/receiving/$type",
+      endpoint,
       data: payload,
       options: Options(contentType: Headers.jsonContentType),
     );

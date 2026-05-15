@@ -19,7 +19,7 @@ class ReceivingItem {
   final String? vaccineDate;
   final String? gender;
 
-  final String? qty;
+  String? qty;
   final String? unitPrice;
   final int amountRemainder;
   final String subtotal;
@@ -32,6 +32,9 @@ class ReceivingItem {
   String? feedType;
   String? type;
   File? proofImage;
+
+  String? uom;
+  String? qtyRemaining;
 
   ReceivingItem({
     required this.id,
@@ -62,6 +65,8 @@ class ReceivingItem {
     this.receivedWeight,
     this.notes,
     this.proofImage,
+    this.uom,
+    this.qtyRemaining,
   });
 
   factory ReceivingItem.fromJson(Map<String, dynamic> json) {
@@ -90,6 +95,8 @@ class ReceivingItem {
       codeRef: json['code_ref'] ?? '',
       feedType: json['feed_type'],
       type: json['type'],
+      uom: json['uom']?.toString() ?? '',
+      qtyRemaining: json['qty_remainder']?.toString() ?? '',
     );
   }
 
