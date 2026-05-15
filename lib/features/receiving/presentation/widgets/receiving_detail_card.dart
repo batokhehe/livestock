@@ -139,17 +139,6 @@ class ReceivingDetailCard extends StatelessWidget {
                 ),
             ],
           ),
-
-          // const SizedBox(height: 12),
-          // Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          // const SizedBox(height: 8),
-
-          // Text(item.itemCode, style: AppTypography.smallBoldBlack),
-          // const SizedBox(height: 2),
-          // Text(
-          //   '${item.receivedWeight} kg',
-          //   style: AppTypography.xSmallNormalGrey,
-          // ),
         ],
       ),
     );

@@ -97,11 +97,7 @@ class _AddReceivingStep2PageState extends ConsumerState<AddReceivingStep2Page> {
                               ref
                                   .read(receivingFormProvider)
                                   .updateWeight(e.id, v);
-                            } else {
-                              // ref
-                              //     .read(receivingFormProvider)
-                              //     .updateQty(e.id, v);
-                            }
+                            } else {}
                           },
 
                           onNotesChanged: type == ReceivingTab.animal
