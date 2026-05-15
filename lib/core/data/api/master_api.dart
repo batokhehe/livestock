@@ -10,7 +10,6 @@ import 'package:livestock/core/data/model/feed_medicine_model.dart';
 import 'package:livestock/core/data/model/province_model.dart';
 import 'package:livestock/core/data/model/supplier_model.dart';
 import 'package:livestock/core/data/model/village_model.dart';
-import 'package:livestock/core/errors/unauthorized_exception.dart';
 import 'package:livestock/features/dispatch/data/model/sales_order_dispatch_model.dart';
 
 import 'package:livestock/core/data/model/shipping_cost_model.dart';

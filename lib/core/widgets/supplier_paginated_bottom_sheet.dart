@@ -155,7 +155,7 @@ class _SupplierPaginatedBottomSheetState
                                     style: AppTypography.smallBoldBlack,
                                   ),
                                   Text(
-                                    supplier.contactPhone ?? "-",
+                                    supplier.contactPhone,
                                     style: AppTypography.xSmallNormalGrey,
                                   ),
                                 ],

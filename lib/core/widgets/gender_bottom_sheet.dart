@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 
+import '../theme/AppTypography.dart';
+
 class GenderBottomSheet extends StatefulWidget {
   final String? selected;
+  final String title;
+  final String description;
 
-  const GenderBottomSheet({super.key, this.selected});
+  const GenderBottomSheet({
+    super.key,
+    this.selected,
+    this.title = "Pilih Jenis Kelamin",
+    this.description = "Silakan pilih salah satu jenis kelamin.",
+  });
 
   @override
   State<GenderBottomSheet> createState() => _GenderBottomSheetState();
@@ -22,40 +31,27 @@ class _GenderBottomSheetState extends State<GenderBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(
-        16,
-        16,
-        16,
-        MediaQuery.of(context).padding.bottom + 16,
-      ),
+      height: MediaQuery.of(context).size.height * 0.3,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: const BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// HEADER
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Jenis Kelamin",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.close),
-              ),
-            ],
+          const SizedBox(height: 24),
+          Text(widget.title, style: AppTypography.largeBoldBlack),
+          const SizedBox(height: 8),
+          Text(widget.description, style: AppTypography.smallNormalGrey),
+          const SizedBox(height: 20),
+
+          Expanded(
+            child: ListView(
+              children: [_item("Jantan", "male"), _item("Betina", "female")],
+            ),
           ),
-
-          const SizedBox(height: 16),
-
-          /// OPTION LIST
-          _item("Jantan", "male"),
-          const SizedBox(height: 12),
-          _item("Betina", "female"),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -70,25 +66,35 @@ class _GenderBottomSheetState extends State<GenderBottomSheet> {
           selected = value;
         });
 
-        Navigator.pop(context, value); // 🔥 return value
+        Navigator.pop(context, value);
       },
       child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.greyBg,
-            width: 1.5,
+            color: isSelected ? AppColors.primary : AppColors.fieldBorder,
+            width: isSelected ? 2 : 1,
           ),
-          color: isSelected ? AppColors.primaryShade : AppColors.white,
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: isSelected ? AppColors.primary : AppColors.black,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: isSelected
+                  ? AppTypography.smallBoldBlack
+                  : AppTypography.smallNormalBlack,
+            ),
+            if (isSelected)
+              const Icon(
+                Icons.check_circle,
+                color: AppColors.primary,
+                size: 20,
+              ),
+          ],
         ),
       ),
     );
