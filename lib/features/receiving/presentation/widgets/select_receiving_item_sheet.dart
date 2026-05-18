@@ -62,7 +62,7 @@ class _SelectReceivingItemSheetState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Pilih Item Penerimaan",
+                "Pilih Item Pembelian",
                 style: AppTypography.mediumBoldBlack,
               ),
               GestureDetector(
@@ -81,7 +81,7 @@ class _SelectReceivingItemSheetState
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white,
-              hintText: "Cari item penerimaan",
+              hintText: "Cari item pembelian",
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),

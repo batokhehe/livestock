@@ -48,7 +48,10 @@ class ReceivingApi {
       'search': search,
     };
 
-    if (type != 'feed' && type != 'medicine') {
+    if (type != 'feed' &&
+        type != 'medicine' &&
+        type != 'equipment' &&
+        type != 'supplies') {
       queryParams['farm_location_id'] = farmLocationId;
       queryParams['farm_area_id'] = farmAreaId;
     }

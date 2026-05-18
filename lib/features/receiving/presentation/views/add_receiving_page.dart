@@ -155,6 +155,16 @@ class _FarmInfoSection extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
         ],
+        if (activeTab == ReceivingTab.equipment) ...[
+          SelectField(
+            label: "Jenis penerimaan",
+            isMandatoryField: true,
+            hint: ref.watch(receivingEquipmentTypeProvider) ?? "Pilih jenis",
+            icon: AppImages.icBox,
+            onTap: () => _showEquipmentTypePicker(context, ref),
+          ),
+          const SizedBox(height: 12),
+        ],
         SelectField(
           label: "Lokasi peternakan",
           isMandatoryField: true,
@@ -216,6 +226,45 @@ class _FarmInfoSection extends ConsumerWidget {
     }
   }
 
+  void _showEquipmentTypePicker(BuildContext context, WidgetRef ref) async {
+    final result = await showModalBottomSheet<String?>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  "Pilih Jenis Peralatan",
+                  style: AppTypography.mediumBoldBlack,
+                ),
+              ),
+              ListTile(
+                title: const Text("Peralatan"),
+                onTap: () => Navigator.pop(context, "Peralatan"),
+              ),
+              ListTile(
+                title: const Text("Perlengkapan"),
+                onTap: () => Navigator.pop(context, "Perlengkapan"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (result != null) {
+      ref.read(receivingEquipmentTypeProvider.notifier).state = result;
+    }
+  }
+
   void _showFarmLocationPicker(BuildContext context, WidgetRef ref) async {
     final result = await showModalBottomSheet<FarmLocation?>(
       context: context,
@@ -265,12 +314,15 @@ class _NextButton extends ConsumerWidget {
     final selectedArea = ref.watch(selectedFarmAreaProvider);
 
     final selectedFeedType = ref.watch(receivingFeedTypeProvider);
+    final selectedEquipmentType = ref.watch(receivingEquipmentTypeProvider);
 
     bool isValid = selectedDate != null && selectedFarm != null;
     if (type == ReceivingTab.animal) {
       isValid = isValid && selectedArea != null;
     } else if (type == ReceivingTab.feed) {
       isValid = isValid && selectedFeedType != null;
+    } else if (type == ReceivingTab.equipment) {
+      isValid = isValid && selectedEquipmentType != null;
     }
 
     return SafeArea(

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/features/receiving/receiving_provider.dart';
@@ -31,8 +33,27 @@ class ReceivingDetailCard extends ConsumerWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(item.purchOrderNo, style: AppTypography.smallBoldBlack),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.purchOrderNo,
+                      style: AppTypography.smallBoldBlack,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(item.itemName, style: AppTypography.smallNormalBlack),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${item.itemCode} • ${item.supplierName}',
+                      style: AppTypography.xSmallNormalGrey,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -51,10 +72,7 @@ class ReceivingDetailCard extends ConsumerWidget {
               ),
             ],
           ),
-
-          const SizedBox(height: 4),
-          Text(item.itemName, style: AppTypography.xSmallNormalGrey),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           const SizedBox(height: 8),
           if (type == ReceivingTab.animal)
@@ -66,7 +84,8 @@ class ReceivingDetailCard extends ConsumerWidget {
                   InfoTag(label: item.ageCategory.toString()),
                 if (item.receivedWeight != null && item.receivedWeight! > 0)
                   InfoTag(label: '${item.receivedWeight} kg'),
-                if (double.tryParse(item.subtotal) != null && double.parse(item.subtotal) > 0)
+                if (double.tryParse(item.subtotal) != null &&
+                    double.parse(item.subtotal) > 0)
                   InfoTag(
                     label:
                         'Rp ${formatPrice(double.parse(item.subtotal).toInt())}',
@@ -80,8 +99,15 @@ class ReceivingDetailCard extends ConsumerWidget {
               spacing: 6,
               runSpacing: 6,
               children: [
-                if (item.qtyRemaining != null && double.tryParse(item.qtyRemaining!) != null && double.parse(item.qtyRemaining!) > 0)
-                  InfoTag(label: '${item.qtyRemaining} ${item.uom}')
+                if (item.qty != null &&
+                    double.tryParse(item.qty!) != null &&
+                    double.parse(item.qty!) > 0)
+                  InfoTag(
+                    label:
+                        '${item.qty!.replaceAll(RegExp(r'\.0+$'), '')} ${item.uom}',
+                  ),
+                if (item.type != null && item.type!.isNotEmpty)
+                  InfoTag(label: item.type!),
               ],
             ),
 
@@ -179,7 +205,13 @@ class ReceivingDetailCard extends ConsumerWidget {
               clipBehavior: Clip.antiAlias,
               child: Column(
                 children: [
-                  Image.file(item.proofImage!, fit: BoxFit.contain),
+                  if (item.proofImage is File)
+                    Image.file(item.proofImage as File, fit: BoxFit.contain)
+                  else if (item.proofImage is String)
+                    Image.network(
+                      item.proofImage as String,
+                      fit: BoxFit.contain,
+                    ),
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: SizedBox(

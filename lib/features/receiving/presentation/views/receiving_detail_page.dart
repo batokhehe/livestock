@@ -82,6 +82,36 @@ class ReceivingDetailPage extends ConsumerWidget {
               title: data.remarks!,
               subtitle: 'Catatan Penerimaan',
             ),
+          if (data.receiveType != null && data.receiveType != 'animal')
+            Builder(
+              builder: (context) {
+                String typeLabel = data.receiveType!;
+                String typeIcon = AppImages.icNote;
+
+                if (data.receiveType == 'equipment') {
+                  typeLabel = 'Peralatan';
+                  typeIcon = AppImages.icClipboardSvg;
+                } else if (data.receiveType == 'supply' ||
+                    data.receiveType == 'supplies') {
+                  typeLabel = 'Perlengkapan';
+                  typeIcon = AppImages.icClipboardSvg;
+                } else if (data.receiveType == 'food' ||
+                    data.receiveType == 'feed') {
+                  typeLabel = 'Pakan';
+                  typeIcon = AppImages.icClipboardSvg;
+                } else if (data.receiveType == 'medicine') {
+                  typeLabel = 'Obat';
+                  typeIcon = AppImages.icClipboardSvg;
+                }
+
+                return InfoItemCard(
+                  label: 'Tipe Penerimaan:',
+                  icon: typeIcon,
+                  title: typeLabel,
+                  subtitle: 'Tipe Penerimaan',
+                );
+              },
+            ),
         ],
       ),
     );
@@ -121,8 +151,10 @@ class ReceivingDetailPage extends ConsumerWidget {
                   codeRef: e.codeRef ?? '',
                   selected: false,
                   receivedWeight: double.tryParse(e.weight),
-                  // notes: e.notes, // Tambahkan jika ada di ReceivingDetailItem
-                  // proofImage: e.proofImage, // Tambahkan jika ada di ReceivingDetailItem
+                  uom: e.uom,
+                  notes: e.notes, // Tambahkan jika ada di ReceivingDetailItem
+                  proofImage:
+                      e.proofImage, // Tambahkan jika ada di ReceivingDetailItem
                 ),
               ),
             ),

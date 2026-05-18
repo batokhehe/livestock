@@ -31,7 +31,7 @@ class ReceivingItem {
   String? notes;
   String? feedType;
   String? type;
-  File? proofImage;
+  dynamic proofImage;
 
   String? uom;
   String? qtyRemaining;

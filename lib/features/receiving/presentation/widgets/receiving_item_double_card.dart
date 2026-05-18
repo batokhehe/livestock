@@ -28,7 +28,11 @@ class ReceivingItemDoubleCard extends StatelessWidget {
     final String statusText = isReceived ? 'Tersedia' : 'Menunggu';
     final double totalQty = item.items.fold<double>(
       0,
-      (sum, e) => sum + (double.tryParse(e.qty ?? '0') ?? 0),
+      (sum, e) => sum + (double.tryParse(e.qtyRemaining ?? '0') ?? 0),
+    );
+    final String displayQty = totalQty.toString().replaceAll(
+      RegExp(r'\.0+$'),
+      '',
     );
 
     return Container(
@@ -77,7 +81,7 @@ class ReceivingItemDoubleCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '$totalQty ${tab.ext} • Lunas',
+                      '$displayQty ${tab.ext} • Tersedia',
                       style: AppTypography.xSmallNormalBlack,
                     ),
                     // Text('0 Diterima', style: AppTypography.xSmallNormalBlack),

@@ -97,7 +97,11 @@ class ReceivingDetailFormCard extends ConsumerWidget {
             Wrap(
               spacing: 6,
               runSpacing: 6,
-              children: [InfoTag(label: '${item.qtyRemaining} ${item.uom}')],
+              children: [
+                InfoTag(label: '${item.qtyRemaining} ${item.uom}'),
+                if (item.type != null && item.type!.isNotEmpty)
+                  InfoTag(label: '${item.type}'),
+              ],
             ),
 
           /// ✅ INPUT (HANYA JIKA ADA)
@@ -130,7 +134,7 @@ class ReceivingDetailFormCard extends ConsumerWidget {
                         suffix: onItemCodeChanged != null ? "kg" : null,
                         initial: onItemCodeChanged != null
                             ? item.receivedWeight?.toString()
-                            : item.qty,
+                            : null,
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
