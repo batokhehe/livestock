@@ -23,16 +23,20 @@ class FeedMedicine {
 
   factory FeedMedicine.fromJson(Map<String, dynamic> json) {
     return FeedMedicine(
-      id: json['id'],
-      name: json['name'],
-      code: json['code'],
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
+      code: json['code'] ?? '',
       description: json['description'],
-      feedType: json['feed_type'],
-      uom: json['uom'],
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      feedType: json['feed_type'] ?? '',
+      uom: json['uom'] ?? '',
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at']) ?? DateTime.now()
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.tryParse(json['updated_at']) ?? DateTime.now()
+          : DateTime.now(),
       deletedAt: json['deleted_at'] != null
-          ? DateTime.parse(json['deleted_at'])
+          ? DateTime.tryParse(json['deleted_at'])
           : null,
     );
   }

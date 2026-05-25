@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:livestock/core/theme/AppImages.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/widgets/card_wrapper.dart';
-import 'package:livestock/core/widgets/product_header_card.dart';
-import 'package:livestock/core/widgets/status_chips.dart';
-import 'package:livestock/features/monitoring/presentation/widgets/confirmation_item_double_card.dart';
+import 'package:livestock/core/widgets/success_notification.dart';
+import 'widgets/monitoring_weight_item_card.dart';
 
 import '../../../../../core/theme/AppColors.dart';
 import '../../../../../core/theme/AppTypography.dart';
@@ -11,12 +12,16 @@ import '../../../../../core/widgets/section_card.dart';
 import '../../../../../core/widgets/step_info_card.dart';
 import 'package:livestock/features/receiving/presentation/widgets/confirmation_bottom_sheet.dart';
 import '../../../monitoring_provider.dart';
+import '../../notifier/submit_weight_monitoring_notifier.dart';
+import '../../notifier/weight_monitoring_list_notifier.dart';
 
-class AddMonitoringWeightConfirmationPage extends StatelessWidget {
+class AddMonitoringWeightConfirmationPage extends ConsumerWidget {
   const AddMonitoringWeightConfirmationPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final items = ref.watch(addedMonitoringWeightItemsProvider);
+
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
@@ -33,11 +38,13 @@ class AddMonitoringWeightConfirmationPage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                const StepInfoCard(title: "Tinjau Pemantauan", step: 3, totalStep: 3),
+                const StepInfoCard(
+                  title: "Tinjau Pemantauan",
+                  step: 3,
+                  totalStep: 3,
+                ),
                 const SizedBox(height: 12),
                 const _MonitoringInfoSection(),
-                const SizedBox(height: 12),
-                const _FarmInfoSection(),
                 const SizedBox(height: 12),
                 CardWrapper(
                   child: Column(
@@ -48,7 +55,21 @@ class AddMonitoringWeightConfirmationPage extends StatelessWidget {
                         style: AppTypography.mediumNormalBlack,
                       ),
                       const SizedBox(height: 12),
-                      _itemCard(),
+                      items.isEmpty
+                          ? Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Text(
+                                  "Belum ada item",
+                                  style: AppTypography.smallNormalGrey,
+                                ),
+                              ),
+                            )
+                          : Column(
+                              children: items.map((item) {
+                                return MonitoringWeightItemCard(item: item);
+                              }).toList(),
+                            ),
                     ],
                   ),
                 ),
@@ -60,126 +81,61 @@ class AddMonitoringWeightConfirmationPage extends StatelessWidget {
       ),
     );
   }
-
-  Widget _itemCard() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.fieldBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Rumput Sinnoh", style: AppTypography.smallBoldBlack),
-                  Text("FD00001", style: AppTypography.smallNormalGrey),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: const [
-                  StatusChips(text: "400 Stock", color: AppColors.success),
-                  Text("Karung", style: AppTypography.smallNormalGrey),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("100", style: AppTypography.smallBoldBlack),
-                  Text("Kuantitas", style: AppTypography.smallNormalGrey),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: const [
-                  Text("33 ember", style: AppTypography.smallBoldBlack),
-                  Text("Rasio Kuantitas", style: AppTypography.smallNormalGrey),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text("Catatan", style: AppTypography.xSmallNormalGrey),
-              Text("Kasih Makan", style: AppTypography.smallBoldBlack),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-class _MonitoringInfoSection extends StatelessWidget {
+class _MonitoringInfoSection extends ConsumerWidget {
   const _MonitoringInfoSection();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedDate = ref.watch(selectedMonitoringDateProvider);
+    final selectedEmployee = ref.watch(selectedMonitoringEmployeeProvider);
+
+    final dateStr = selectedDate != null ? formatDateTime(selectedDate) : "-";
+    final employeeStr = selectedEmployee != null
+        ? "${selectedEmployee.name} • ${selectedEmployee.phone}"
+        : "-";
+
     return SectionCard(
       title: "Informasi Pemantauan",
-      children: [ConfirmationItemDoubleCard(item: dummyItem)],
-    );
-  }
-}
-
-class _FarmInfoSection extends StatelessWidget {
-  const _FarmInfoSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return SectionCard(
-      title: "Informasi Peternakan",
       children: [
-        CardWrapper(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text("Sapi Agri Bandung", style: AppTypography.smallBoldBlack),
-              Text("Area 3", style: AppTypography.smallBoldRed),
-            ],
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.fieldBorder),
           ),
-        ),
-        const SizedBox(height: 24),
-        const CardWrapper(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ProductHeaderCard(
-                title: "3 Hewan",
-                subtitle: "Hewan Tersedia",
-                image: AppImages.icProduct,
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      dateStr,
+                      style: AppTypography.smallBoldBlack.copyWith(
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      "Pemantauan Bobot",
+                      style: AppTypography.smallNormalGrey,
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: 8),
-              Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-              SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "satuan per hewan",
-                    style: AppTypography.smallNormalBlack,
-                  ),
-                  Text("30 Hewan", style: AppTypography.smallBoldBlack),
-                ],
+              const Divider(
+                height: 1,
+                thickness: 1,
+                color: AppColors.fieldBorder,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(employeeStr, style: AppTypography.smallBoldBlack),
               ),
             ],
           ),
@@ -189,11 +145,57 @@ class _FarmInfoSection extends StatelessWidget {
   }
 }
 
-class _NextButton extends StatelessWidget {
+class _NextButton extends ConsumerStatefulWidget {
   const _NextButton();
 
   @override
+  ConsumerState<_NextButton> createState() => _NextButtonState();
+}
+
+class _NextButtonState extends ConsumerState<_NextButton> {
+  Future<void> _onConfirmTap() async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const ConfirmationBottomSheet(
+        header: "Konfirmasi Pemantauan",
+        title: "Simpan Pemantauan?",
+        subTitle:
+            "Data Pemantauan Berat akan disimpan dan diterapkan ke seluruh hewan di area ini.",
+        saveText: "Simpan Pemantauan",
+      ),
+    );
+
+    if (confirmed != true) return;
+    if (!mounted) return;
+
+    final success = await ref
+        .read(submitWeightMonitoringProvider.notifier)
+        .submit();
+
+    if (!mounted) return;
+
+    if (success) {
+      ref.invalidate(weightMonitoringListProvider);
+      context.go('/monitoring');
+      SuccessNotification.show(
+        title: 'Data berhasil disimpan',
+        subtitle: 'Pemantauan tercatat di sistem.',
+      );
+    } else {
+      final err = ref.read(submitWeightMonitoringProvider).error;
+      SuccessNotification.showError(
+        title: 'Gagal menyimpan pemantauan',
+        subtitle: err?.toString() ?? 'Terjadi kesalahan, coba lagi.',
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isLoading = ref.watch(submitWeightMonitoringProvider).isLoading;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -203,28 +205,25 @@ class _NextButton extends StatelessWidget {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
+              disabledBackgroundColor: AppColors.grey3,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => const ConfirmationBottomSheet(
-                  header: "Konfirmasi Pemantauan",
-                  title: "Simpan Pemantauan?",
-                  subTitle:
-                      "Data Pemantauan Berat akan disimpan dan diterapkan ke seluruh hewan di area ini.",
-                  saveText: "Simpan Pemantauan",
-                ),
-              );
-            },
-            child: const Text(
-              "Konfirmasi Pemantauan",
-              style: AppTypography.mediumBoldWhite,
-            ),
+            onPressed: isLoading ? null : _onConfirmTap,
+            child: isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.white,
+                    ),
+                  )
+                : const Text(
+                    "Konfirmasi Pemantauan",
+                    style: AppTypography.mediumBoldWhite,
+                  ),
           ),
         ),
       ),
