@@ -2,8 +2,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/core/constant/enum.dart';
 
 import '../../app/providers.dart';
+import '../attendance/data/model/employee_model.dart';
 import 'data/monitoring_item_model.dart';
 import 'data/monitoring_model.dart';
+
+final selectedMonitoringEmployeeProvider = StateProvider.autoDispose<Employee?>((ref) => null);
+final selectedMonitoringDateProvider = StateProvider.autoDispose<DateTime?>((ref) => null);
 
 final monitoringSearchProvider = StateProvider<String>((ref) => '');
 

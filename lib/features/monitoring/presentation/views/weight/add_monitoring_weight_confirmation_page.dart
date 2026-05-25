@@ -5,15 +5,15 @@ import 'package:livestock/core/widgets/product_header_card.dart';
 import 'package:livestock/core/widgets/status_chips.dart';
 import 'package:livestock/features/monitoring/presentation/widgets/confirmation_item_double_card.dart';
 
-import '../../../../core/theme/AppColors.dart';
-import '../../../../core/theme/AppTypography.dart';
-import '../../../../core/widgets/section_card.dart';
-import '../../../../core/widgets/step_info_card.dart';
-import '../../../receiving/presentation/widgets/confirmation_bottom_sheet.dart';
-import '../../monitoring_provider.dart';
+import '../../../../../core/theme/AppColors.dart';
+import '../../../../../core/theme/AppTypography.dart';
+import '../../../../../core/widgets/section_card.dart';
+import '../../../../../core/widgets/step_info_card.dart';
+import 'package:livestock/features/receiving/presentation/widgets/confirmation_bottom_sheet.dart';
+import '../../../monitoring_provider.dart';
 
-class AddMonitoringConfirmationPage extends StatelessWidget {
-  const AddMonitoringConfirmationPage({super.key});
+class AddMonitoringWeightConfirmationPage extends StatelessWidget {
+  const AddMonitoringWeightConfirmationPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,21 +33,21 @@ class AddMonitoringConfirmationPage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                StepInfoCard(title: "Tinjau Pemantauan", step: 3, totalStep: 3),
-                SizedBox(height: 12),
-                _MonitoringInfoSection(),
-                SizedBox(height: 12),
-                _FarmInfoSection(),
-                SizedBox(height: 12),
+                const StepInfoCard(title: "Tinjau Pemantauan", step: 3, totalStep: 3),
+                const SizedBox(height: 12),
+                const _MonitoringInfoSection(),
+                const SizedBox(height: 12),
+                const _FarmInfoSection(),
+                const SizedBox(height: 12),
                 CardWrapper(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         "Informasi Item",
                         style: AppTypography.mediumNormalBlack,
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       _itemCard(),
                     ],
                   ),
@@ -78,14 +78,14 @@ class AddMonitoringConfirmationPage extends StatelessWidget {
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: const [
                   Text("Rumput Sinnoh", style: AppTypography.smallBoldBlack),
                   Text("FD00001", style: AppTypography.smallNormalGrey),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
+                children: const [
                   StatusChips(text: "400 Stock", color: AppColors.success),
                   Text("Karung", style: AppTypography.smallNormalGrey),
                 ],
@@ -93,21 +93,21 @@ class AddMonitoringConfirmationPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: const [
                   Text("100", style: AppTypography.smallBoldBlack),
                   Text("Kuantitas", style: AppTypography.smallNormalGrey),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
+                children: const [
                   Text("33 ember", style: AppTypography.smallBoldBlack),
                   Text("Rasio Kuantitas", style: AppTypography.smallNormalGrey),
                 ],
@@ -115,11 +115,11 @@ class AddMonitoringConfirmationPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            children: const [
               Text("Catatan", style: AppTypography.xSmallNormalGrey),
               Text("Kasih Makan", style: AppTypography.smallBoldBlack),
             ],
@@ -153,14 +153,14 @@ class _FarmInfoSection extends StatelessWidget {
         CardWrapper(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            children: const [
               Text("Sapi Agri Bandung", style: AppTypography.smallBoldBlack),
               Text("Area 3", style: AppTypography.smallBoldRed),
             ],
           ),
         ),
-        SizedBox(height: 24),
-        CardWrapper(
+        const SizedBox(height: 24),
+        const CardWrapper(
           child: Column(
             children: [
               ProductHeaderCard(
@@ -216,12 +216,12 @@ class _NextButton extends StatelessWidget {
                   header: "Konfirmasi Pemantauan",
                   title: "Simpan Pemantauan?",
                   subTitle:
-                      "Data Pemantauan Pakan akan disimpan dan diterapkan ke seluruh hewan di area ini.",
+                      "Data Pemantauan Berat akan disimpan dan diterapkan ke seluruh hewan di area ini.",
                   saveText: "Simpan Pemantauan",
                 ),
               );
             },
-            child: Text(
+            child: const Text(
               "Konfirmasi Pemantauan",
               style: AppTypography.mediumBoldWhite,
             ),

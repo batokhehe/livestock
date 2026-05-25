@@ -5,14 +5,14 @@ import 'package:livestock/core/widgets/card_wrapper.dart';
 import 'package:livestock/core/widgets/product_header_card.dart';
 import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
 
-import '../../../../core/theme/AppColors.dart';
-import '../../../../core/theme/AppTypography.dart';
-import '../../../../core/widgets/section_card.dart';
-import '../../../../core/widgets/select_field.dart';
-import '../../../../core/widgets/step_info_card.dart';
+import '../../../../../core/theme/AppColors.dart';
+import '../../../../../core/theme/AppTypography.dart';
+import '../../../../../core/widgets/section_card.dart';
+import '../../../../../core/widgets/select_field.dart';
+import '../../../../../core/widgets/step_info_card.dart';
 
-class AddMonitoringPage extends StatelessWidget {
-  const AddMonitoringPage({super.key});
+class AddMonitoringFeedPage extends StatelessWidget {
+  const AddMonitoringFeedPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +129,7 @@ class _NextButton extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              context.push('/monitoring/add/step-2');
+              context.push('/monitoring/add/step-2?type=feed');
             },
             child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
           ),

@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 
-import '../../../../core/theme/AppColors.dart';
-import '../../../../core/theme/AppTypography.dart';
-import '../../../../core/widgets/card_wrapper.dart';
-import '../../../../core/widgets/step_info_card.dart';
-import '../../data/monitoring_item_model.dart';
-import '../widgets/add_item_bottom_sheet.dart';
+import '../../../../../core/theme/AppColors.dart';
+import '../../../../../core/theme/AppTypography.dart';
+import '../../../../../core/widgets/card_wrapper.dart';
+import '../../../../../core/widgets/step_info_card.dart';
+import '../../../data/monitoring_item_model.dart';
+import '../../widgets/add_item_bottom_sheet.dart';
 
-class AddMonitoringStep2Page extends StatefulWidget {
-  const AddMonitoringStep2Page({super.key});
+class AddMonitoringHealthStep2Page extends StatefulWidget {
+  const AddMonitoringHealthStep2Page({super.key});
 
   @override
-  State<AddMonitoringStep2Page> createState() => _AddMonitoringStep2PageState();
+  State<AddMonitoringHealthStep2Page> createState() => _AddMonitoringHealthStep2PageState();
 }
 
-class _AddMonitoringStep2PageState extends State<AddMonitoringStep2Page> {
+class _AddMonitoringHealthStep2PageState extends State<AddMonitoringHealthStep2Page> {
   final List<MonitoringItem> items = [];
 
   void _openAddItemSheet() async {
@@ -48,15 +48,15 @@ class _AddMonitoringStep2PageState extends State<AddMonitoringStep2Page> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
-            child: StepInfoCard(title: "Item Pakan", step: 2, totalStep: 3),
+            child: StepInfoCard(title: "Item Kesehatan", step: 2, totalStep: 3),
           ),
           Expanded(
             child: Padding(
-              padding: EdgeInsetsGeometry.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _infoItem(),
             ),
           ),
-          _NextButton(),
+          const _NextButton(),
         ],
       ),
     );
@@ -68,13 +68,13 @@ class _AddMonitoringStep2PageState extends State<AddMonitoringStep2Page> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(AppImages.icNoItem),
-          SizedBox(height: 24),
-          Text(
+          const SizedBox(height: 24),
+          const Text(
             "Belum Ada Item yang Ditambahkan",
             style: AppTypography.mediumBoldBlack,
           ),
-          SizedBox(height: 4),
-          Text(
+          const SizedBox(height: 4),
+          const Text(
             "Tambahkan minimal satu item untuk melanjutkan proses pemantauan",
             textAlign: TextAlign.center,
             style: AppTypography.smallNormalGrey,
@@ -116,7 +116,7 @@ class _AddMonitoringStep2PageState extends State<AddMonitoringStep2Page> {
               _iconAction(
                 icon: Icons.delete,
                 color: AppColors.danger,
-                backColor: AppColors.danger.withOpacity(0.08),
+                backColor: AppColors.danger.withValues(alpha: 0.08),
                 onTap: () => _showDeleteConfirmSheet(item),
               ),
               const SizedBox(width: 8),
@@ -130,27 +130,27 @@ class _AddMonitoringStep2PageState extends State<AddMonitoringStep2Page> {
           ),
 
           const SizedBox(height: 12),
-          Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.08),
+              color: AppColors.primary.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              "${item.quantity} Pakan",
+              "${item.quantity} Kesehatan",
               style: AppTypography.xSmallNormalPrimary,
             ),
           ),
 
           const SizedBox(height: 12),
-          Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Catatan", style: AppTypography.xSmallNormalGrey),
+              const Text("Catatan", style: AppTypography.xSmallNormalGrey),
               Text(
                 item.note!.isEmpty ? "-" : item.note!,
                 style: AppTypography.smallBoldBlack,
@@ -217,8 +217,8 @@ class _AddMonitoringStep2PageState extends State<AddMonitoringStep2Page> {
   Widget _addButtonSmall() {
     return OutlinedButton.icon(
       onPressed: _openAddItemSheet,
-      icon: Icon(Icons.add, size: 16, color: AppColors.white),
-      label: Text("Tambah Item", style: AppTypography.xSmallNormalWhite),
+      icon: const Icon(Icons.add, size: 16, color: AppColors.white),
+      label: const Text("Tambah Item", style: AppTypography.xSmallNormalWhite),
       style: OutlinedButton.styleFrom(
         backgroundColor: AppColors.primary,
         side: const BorderSide(color: AppColors.primary, width: 1),
@@ -263,9 +263,9 @@ class _NextButton extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              context.push("/monitoring/add/confirmation");
+              context.push("/monitoring/add/confirmation?type=health");
             },
-            child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
+            child: const Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
           ),
         ),
       ),
@@ -287,7 +287,7 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
         20,
         MediaQuery.of(context).padding.bottom + 16,
       ),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -297,7 +297,7 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Hapus Item", style: AppTypography.largeBoldBlack),
+              const Text("Hapus Item", style: AppTypography.largeBoldBlack),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: const Icon(Icons.close),
@@ -308,9 +308,9 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
           const SizedBox(height: 20),
           Image.asset(AppImages.icDeleteConfirmation, height: 120),
           const SizedBox(height: 20),
-          Text("Hapus Item Ini?", style: AppTypography.mediumBoldBlack),
+          const Text("Hapus Item Ini?", style: AppTypography.mediumBoldBlack),
           const SizedBox(height: 8),
-          Text(
+          const Text(
             "Item yang telah diinput akan dihapus dan tidak dapat dikembalikan. "
             "Apakah Anda yakin ingin melanjutkan?",
             textAlign: TextAlign.center,
@@ -325,7 +325,7 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     backgroundColor: AppColors.primaryShade,
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    side: BorderSide(color: AppColors.primaryShade),
+                    side: const BorderSide(color: AppColors.primaryShade),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -346,7 +346,7 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
                     ),
                   ),
                   onPressed: onDelete,
-                  child: Text(
+                  child: const Text(
                     "Hapus Sekarang",
                     style: AppTypography.mediumBoldWhite,
                   ),

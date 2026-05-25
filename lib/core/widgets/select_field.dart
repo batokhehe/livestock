@@ -10,6 +10,7 @@ class SelectField extends StatelessWidget {
   final dynamic icon;
   final bool isMandatoryField;
   final bool enabled;
+  final TextStyle? style;
   final VoidCallback? onTap;
 
   const SelectField({
@@ -19,6 +20,7 @@ class SelectField extends StatelessWidget {
     required this.icon,
     this.isMandatoryField = false,
     this.enabled = true,
+    this.style,
     this.onTap,
   });
 
@@ -54,7 +56,7 @@ class SelectField extends StatelessWidget {
                 Expanded(
                   child: Text(
                     hint,
-                    style: enabled ? AppTypography.hint : AppTypography.smallNormalGrey,
+                    style: style ?? (enabled ? AppTypography.hint : AppTypography.smallNormalGrey),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
