@@ -58,6 +58,7 @@ final receivingLocationFilterProvider = StateProvider<FarmLocation?>(
   (ref) => null,
 );
 final receivingFeedTypeProvider = StateProvider<String?>((ref) => null);
+final receivingEquipmentTypeProvider = StateProvider<String?>((ref) => null);
 
 final receivingTabProvider = StateProvider<ReceivingTab>((ref) {
   return ReceivingTab.animal;

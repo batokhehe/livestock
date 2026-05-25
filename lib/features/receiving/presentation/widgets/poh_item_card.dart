@@ -4,7 +4,9 @@ import 'package:livestock/features/receiving/data/model/receiving_po_model.dart'
 import 'package:livestock/features/receiving/presentation/widgets/receiving_item_double_card.dart';
 import 'package:livestock/features/receiving/receiving_provider.dart';
 
-class PohItemCard extends StatelessWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class PohItemCard extends ConsumerWidget {
   final ReceivingPo item;
   final ReceivingTab tab;
   final bool isClickable;
@@ -17,7 +19,7 @@ class PohItemCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final bool isEmpty = item.items.isEmpty;
 
     return Opacity(
@@ -27,6 +29,7 @@ class PohItemCard extends StatelessWidget {
         onTap: (isEmpty || !isClickable)
             ? null
             : () {
+                ref.read(receivingFormProvider).reset();
                 context.push('/receiving/add/step-2', extra: item);
               },
         child: ReceivingItemDoubleCard(item: item, tab: tab),

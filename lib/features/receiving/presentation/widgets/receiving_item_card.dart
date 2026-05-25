@@ -17,6 +17,8 @@ class ReceivingItemCard extends StatelessWidget {
         ? AppColors.success
         : AppColors.primary;
 
+    final String displayQuantity = item.quantity.replaceAll(RegExp(r'\.0+$'), '');
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -65,7 +67,7 @@ class ReceivingItemCard extends StatelessWidget {
                 style: AppTypography.xSmallNormalBlack,
               ),
               Text(
-                '${item.quantity} Diterima',
+                '$displayQuantity Diterima',
                 style: AppTypography.xSmallNormalBlack,
               ),
             ],

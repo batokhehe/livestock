@@ -13,6 +13,9 @@ class ReceivingDetailItem {
   final String? gender;
   final String? poel;
   final String? codeRef;
+  final String? uom;
+  final String? notes;
+  final String? proofImage;
 
   ReceivingDetailItem({
     required this.id,
@@ -29,6 +32,9 @@ class ReceivingDetailItem {
     this.gender,
     this.poel,
     this.codeRef,
+    this.uom,
+    this.notes,
+    this.proofImage,
   });
 
   factory ReceivingDetailItem.fromJson(Map<String, dynamic> json) {
@@ -55,6 +61,9 @@ class ReceivingDetailItem {
       gender: json['gender']?.toString(),
       poel: json['poel']?.toString(),
       codeRef: json['code_ref']?.toString(),
+      uom: json['uom']?.toString(),
+      notes: json['notes']?.toString(),
+      proofImage: json['proof_image']?.toString(),
     );
   }
 }
