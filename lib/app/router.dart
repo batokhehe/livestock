@@ -12,8 +12,18 @@ import 'package:livestock/features/dispatch/presentation/views/add_dispatch_page
 import 'package:livestock/features/dispatch/presentation/views/dispatch_edit_page.dart';
 import 'package:livestock/features/dispatch/presentation/views/dispatch_page.dart';
 import 'package:livestock/features/home/presentation/views/home_page.dart';
-import 'package:livestock/features/monitoring/presentation/views/add_monitoring_confirmation_page.dart';
-import 'package:livestock/features/monitoring/presentation/views/add_monitoring_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/feed/add_monitoring_feed_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/feed/add_monitoring_feed_step_2_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/feed/add_monitoring_feed_confirmation_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/weight/add_monitoring_weight_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/weight/add_monitoring_weight_step_2_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/weight/add_monitoring_weight_confirmation_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/medicine/add_monitoring_medicine_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/medicine/add_monitoring_medicine_step_2_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/medicine/add_monitoring_medicine_confirmation_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/health/add_monitoring_health_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/health/add_monitoring_health_step_2_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/health/add_monitoring_health_confirmation_page.dart';
 import 'package:livestock/features/product/presentation/views/product_detail_page.dart';
 import 'package:livestock/features/product/presentation/views/product_page.dart';
 import 'package:livestock/features/product/presentation/views/update_product_page.dart';
@@ -47,7 +57,6 @@ import '../features/dispatch/presentation/views/add_dispatch_confirmation_page.d
 import '../features/dispatch/presentation/views/add_dispatch_step_2_page.dart';
 import '../features/dispatch/presentation/views/dispatch_detail_page.dart';
 import '../features/home/presentation/views/main_page.dart';
-import '../features/monitoring/presentation/views/add_monitoring_step_2_page.dart';
 import '../features/monitoring/presentation/views/monitoring_page.dart';
 import '../features/purchase_order/presentation/views/purchase_order_detail_page.dart';
 import '../features/receiving/data/model/receiving_po_model.dart';
@@ -170,16 +179,39 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: 'add',
-                builder: (context, state) => const AddMonitoringPage(),
+                builder: (context, state) {
+                  final type = state.uri.queryParameters['type'] ?? 'feed';
+                  switch (type) {
+                    case 'weight': return const AddMonitoringWeightPage();
+                    case 'medicine': return const AddMonitoringMedicinePage();
+                    case 'health': return const AddMonitoringHealthPage();
+                    default: return const AddMonitoringFeedPage();
+                  }
+                },
               ),
               GoRoute(
                 path: 'add/step-2',
-                builder: (context, state) => const AddMonitoringStep2Page(),
+                builder: (context, state) {
+                  final type = state.uri.queryParameters['type'] ?? 'feed';
+                  switch (type) {
+                    case 'weight': return const AddMonitoringWeightStep2Page();
+                    case 'medicine': return const AddMonitoringMedicineStep2Page();
+                    case 'health': return const AddMonitoringHealthStep2Page();
+                    default: return const AddMonitoringFeedStep2Page();
+                  }
+                },
               ),
               GoRoute(
                 path: 'add/confirmation',
-                builder: (context, state) =>
-                    const AddMonitoringConfirmationPage(),
+                builder: (context, state) {
+                  final type = state.uri.queryParameters['type'] ?? 'feed';
+                  switch (type) {
+                    case 'weight': return const AddMonitoringWeightConfirmationPage();
+                    case 'medicine': return const AddMonitoringMedicineConfirmationPage();
+                    case 'health': return const AddMonitoringHealthConfirmationPage();
+                    default: return const AddMonitoringFeedConfirmationPage();
+                  }
+                },
               ),
             ],
           ),

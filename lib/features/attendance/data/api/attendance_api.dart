@@ -9,13 +9,20 @@ class AttendanceApi {
 
   AttendanceApi(this.dio);
 
-  Future<BaseResponse<Employee>> getEmployees({int? farmLocationId}) async {
+  Future<BaseResponse<Employee>> getEmployees({
+    int? farmLocationId,
+    int? page,
+    int? perPage,
+    String? search,
+  }) async {
     final res = await dio.get(
       '/attendance/employee-list',
       queryParameters: {
-        if (farmLocationId != null && farmLocationId != 0)
-          'farm_location_id': farmLocationId,
-      },
+        'farm_location_id': farmLocationId == 0 ? null : farmLocationId,
+        'page': page,
+        'per_page': perPage,
+        'search': search,
+      }..removeWhere((k, v) => v == null || v == ''),
     );
 
     if (res.statusCode != 200) {
@@ -56,18 +63,17 @@ class AttendanceApi {
       queryParameters: {
         'type': type,
         'month': month,
-        if (date != null) 'date': date,
-        if (employeeName != null && employeeName.isNotEmpty)
-          'employee_name': employeeName,
+        'date': date,
+        'employee_name': employeeName,
         'page': page,
         'per_page': perPage,
-        if (search != null && search.isNotEmpty) 'search': search,
+        'search': search,
         'sort_by': sortBy,
         'sort_dir': sortDir,
-        if (farmLocationId != null) 'farm_location_id': farmLocationId,
-        if (startDate != null) 'start_date': startDate,
-        if (endDate != null) 'end_date': endDate,
-      },
+        'farm_location_id': farmLocationId,
+        'start_date': startDate,
+        'end_date': endDate,
+      }..removeWhere((k, v) => v == null || v == ''),
     );
 
     return response.data;
@@ -84,7 +90,7 @@ class AttendanceApi {
         'type': type,
         'trans_date': transDate,
         'attendance_log_id': attendanceLogId,
-      },
+      }..removeWhere((k, v) => v == null || v == ''),
     );
 
     return response.data;
@@ -98,9 +104,8 @@ class AttendanceApi {
       '/attendance/detail',
       queryParameters: {
         'trans_date': transDate,
-        if (farmLocationId != null && farmLocationId != 0)
-          'farm_location_id': farmLocationId,
-      },
+        'farm_location_id': farmLocationId == 0 ? null : farmLocationId,
+      }..removeWhere((k, v) => v == null || v == ''),
     );
 
     final List list = res.data['data'];

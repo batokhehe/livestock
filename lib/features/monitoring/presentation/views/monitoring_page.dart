@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/features/monitoring/presentation/widgets/monitoring_date_group_card.dart';
+import '../widgets/monitoring_type_bottom_sheet.dart';
 
 import '../../../../core/constant/enum.dart';
 import '../../../../core/data/model/filter_chip_item_model.dart';
@@ -105,7 +105,12 @@ class _BottomButton extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              context.push('/monitoring/add');
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                isScrollControlled: false,
+                builder: (_) => const MonitoringTypeBottomSheet(),
+              );
             },
             child: const Text(
               "Tambah Pemantauan",
