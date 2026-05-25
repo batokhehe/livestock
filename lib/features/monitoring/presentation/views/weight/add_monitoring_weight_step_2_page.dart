@@ -7,16 +7,20 @@ import '../../../../../core/theme/AppTypography.dart';
 import '../../../../../core/widgets/card_wrapper.dart';
 import '../../../../../core/widgets/step_info_card.dart';
 import '../../../data/monitoring_item_model.dart';
-import '../../widgets/add_item_bottom_sheet.dart';
+import 'widgets/add_item_bottom_sheet_weight.dart';
+import 'widgets/edit_item_bottom_sheet_weight.dart';
+import 'widgets/monitoring_weight_item_card.dart';
 
 class AddMonitoringWeightStep2Page extends StatefulWidget {
   const AddMonitoringWeightStep2Page({super.key});
 
   @override
-  State<AddMonitoringWeightStep2Page> createState() => _AddMonitoringWeightStep2PageState();
+  State<AddMonitoringWeightStep2Page> createState() =>
+      _AddMonitoringWeightStep2PageState();
 }
 
-class _AddMonitoringWeightStep2PageState extends State<AddMonitoringWeightStep2Page> {
+class _AddMonitoringWeightStep2PageState
+    extends State<AddMonitoringWeightStep2Page> {
   final List<MonitoringItem> items = [];
 
   void _openAddItemSheet() async {
@@ -24,11 +28,37 @@ class _AddMonitoringWeightStep2PageState extends State<AddMonitoringWeightStep2P
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const AddItemBottomSheet(),
+      builder: (_) => AddItemBottomSheetWeight(
+        excludedIds: items.map((e) => int.tryParse(e.id ?? '') ?? 0).toList(),
+      ),
     );
 
     if (result != null) {
       setState(() => items.add(result));
+    }
+  }
+
+  void _openEditItemSheet(MonitoringItem item) async {
+    final result = await showModalBottomSheet<MonitoringItem>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => EditItemBottomSheetWeight(
+        excludedIds: items
+            .where((e) => e.id != item.id)
+            .map((e) => int.tryParse(e.id ?? '') ?? 0)
+            .toList(),
+        item: item,
+      ),
+    );
+
+    if (result != null) {
+      final index = items.indexWhere((e) => e.id == item.id);
+      if (index != -1) {
+        setState(() {
+          items[index] = result;
+        });
+      }
     }
   }
 
@@ -48,7 +78,11 @@ class _AddMonitoringWeightStep2PageState extends State<AddMonitoringWeightStep2P
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
-            child: StepInfoCard(title: "Item Berat", step: 2, totalStep: 3),
+            child: StepInfoCard(
+              title: "Item Pemantauan",
+              step: 2,
+              totalStep: 3,
+            ),
           ),
           Expanded(
             child: Padding(
@@ -84,104 +118,6 @@ class _AddMonitoringWeightStep2PageState extends State<AddMonitoringWeightStep2P
     );
   }
 
-  Widget _itemCard(MonitoringItem item) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.fieldBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.name.toString(),
-                      style: AppTypography.smallBoldBlack,
-                    ),
-                    Text(
-                      "${item.code ?? 'FD00001'} • ${item.stock} Karung",
-                      style: AppTypography.smallNormalGrey,
-                    ),
-                  ],
-                ),
-              ),
-              _iconAction(
-                icon: Icons.delete,
-                color: AppColors.danger,
-                backColor: AppColors.danger.withValues(alpha: 0.08),
-                onTap: () => _showDeleteConfirmSheet(item),
-              ),
-              const SizedBox(width: 8),
-              _iconAction(
-                icon: Icons.edit,
-                color: AppColors.white,
-                backColor: AppColors.primary,
-                onTap: () {},
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              "${item.quantity} Berat",
-              style: AppTypography.xSmallNormalPrimary,
-            ),
-          ),
-
-          const SizedBox(height: 12),
-          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("Catatan", style: AppTypography.xSmallNormalGrey),
-              Text(
-                item.note!.isEmpty ? "-" : item.note!,
-                style: AppTypography.smallBoldBlack,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _iconAction({
-    required IconData icon,
-    required Color color,
-    required Color backColor,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: backColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, size: 16, color: color),
-      ),
-    );
-  }
-
   Widget _infoItem() {
     return CardWrapper(
       child: Column(
@@ -206,7 +142,14 @@ class _AddMonitoringWeightStep2PageState extends State<AddMonitoringWeightStep2P
                   )
                 : ListView.builder(
                     itemCount: items.length,
-                    itemBuilder: (_, i) => _itemCard(items[i]),
+                    itemBuilder: (_, i) {
+                      final item = items[i];
+                      return MonitoringWeightItemCard(
+                        item: item,
+                        onDelete: () => _showDeleteConfirmSheet(item),
+                        onEdit: () => _openEditItemSheet(item),
+                      );
+                    },
                   ),
           ),
         ],
@@ -265,7 +208,10 @@ class _NextButton extends StatelessWidget {
             onPressed: () {
               context.push("/monitoring/add/confirmation?type=weight");
             },
-            child: const Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
+            child: const Text(
+              "Selanjutnya",
+              style: AppTypography.mediumBoldWhite,
+            ),
           ),
         ),
       ),
