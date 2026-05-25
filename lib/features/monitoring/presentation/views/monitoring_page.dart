@@ -190,20 +190,27 @@ class _WeightMonitoringList extends ConsumerWidget {
           grouped.putIfAbsent(item.dateLabel, () => []).add(item);
         }
 
-        return ListView(
-          controller: scrollCtrl,
-          padding: const EdgeInsets.all(16),
-          children: [
-            ...grouped.entries.map((entry) {
-              return _DateGroup(dateLabel: entry.key, items: entry.value);
-            }),
-            // Load more indicator
-            if ((response.total ?? 0) > list.length)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: Center(child: CircularProgressIndicator()),
-              ),
-          ],
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(weightMonitoringListProvider);
+            await ref.read(weightMonitoringListProvider.future);
+          },
+          child: ListView(
+            controller: scrollCtrl,
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            children: [
+              ...grouped.entries.map((entry) {
+                return _DateGroup(dateLabel: entry.key, items: entry.value);
+              }),
+              // Load more indicator
+              if ((response.total ?? 0) > list.length)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+            ],
+          ),
         );
       },
     );
@@ -286,19 +293,26 @@ class _FeedMonitoringList extends ConsumerWidget {
           grouped.putIfAbsent(item.dateLabel, () => []).add(item);
         }
 
-        return ListView(
-          controller: scrollCtrl,
-          padding: const EdgeInsets.all(16),
-          children: [
-            ...grouped.entries.map((entry) {
-              return _FeedDateGroup(dateLabel: entry.key, items: entry.value);
-            }),
-            if ((response.total ?? 0) > list.length)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: Center(child: CircularProgressIndicator()),
-              ),
-          ],
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(feedMonitoringListProvider);
+            await ref.read(feedMonitoringListProvider.future);
+          },
+          child: ListView(
+            controller: scrollCtrl,
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            children: [
+              ...grouped.entries.map((entry) {
+                return _FeedDateGroup(dateLabel: entry.key, items: entry.value);
+              }),
+              if ((response.total ?? 0) > list.length)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+            ],
+          ),
         );
       },
     );
@@ -380,19 +394,26 @@ class _HealthMonitoringList extends ConsumerWidget {
           grouped.putIfAbsent(item.dateLabel, () => []).add(item);
         }
 
-        return ListView(
-          controller: scrollCtrl,
-          padding: const EdgeInsets.all(16),
-          children: [
-            ...grouped.entries.map((entry) {
-              return _HealthDateGroup(dateLabel: entry.key, items: entry.value);
-            }),
-            if ((response.total ?? 0) > list.length)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: Center(child: CircularProgressIndicator()),
-              ),
-          ],
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(healthMonitoringListProvider);
+            await ref.read(healthMonitoringListProvider.future);
+          },
+          child: ListView(
+            controller: scrollCtrl,
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            children: [
+              ...grouped.entries.map((entry) {
+                return _HealthDateGroup(dateLabel: entry.key, items: entry.value);
+              }),
+              if ((response.total ?? 0) > list.length)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+            ],
+          ),
         );
       },
     );
