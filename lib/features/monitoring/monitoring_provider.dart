@@ -1,13 +1,27 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/core/constant/enum.dart';
+import 'package:livestock/features/monitoring/data/api/monitoring_api.dart';
 
 import '../../app/providers.dart';
 import '../attendance/data/model/employee_model.dart';
 import 'data/monitoring_item_model.dart';
 import 'data/monitoring_model.dart';
 
+final monitoringApiProvider = Provider((ref) {
+  final dio = ref.read(dioProvider);
+  return MonitoringApi(dio);
+});
+
+// Weight monitoring list filters
+final weightMonitoringSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+final weightMonitoringTypeProvider = StateProvider.autoDispose<String>((ref) => '');
+final feedMonitoringSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+final healthMonitoringSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+
+
 final selectedMonitoringEmployeeProvider = StateProvider.autoDispose<Employee?>((ref) => null);
 final selectedMonitoringDateProvider = StateProvider.autoDispose<DateTime?>((ref) => null);
+final addedMonitoringWeightItemsProvider = StateProvider.autoDispose<List<MonitoringItem>>((ref) => []);
 
 final monitoringSearchProvider = StateProvider<String>((ref) => '');
 
