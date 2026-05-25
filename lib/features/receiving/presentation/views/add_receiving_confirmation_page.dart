@@ -199,7 +199,13 @@ class AddReceivingConfirmationPage extends ConsumerWidget {
             label: 'Tanggal Penerimaan:',
             icon: AppImages.icCalendarNew,
             title: formatDateTime(receiveDate),
-            subtitle: farmLocation?.name ?? '-',
+            subtitle: 'Tanggal Penerimaan',
+          ),
+          InfoItemCard(
+            label: 'Lokasi Peternakan:',
+            icon: AppImages.icMapSvg,
+            title: farmLocation?.name ?? '-',
+            subtitle: 'Lokasi Peternakan',
           ),
           if (farmArea != null)
             InfoItemCard(

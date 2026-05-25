@@ -106,8 +106,7 @@ class ReceivingDetailCard extends ConsumerWidget {
                     label:
                         '${item.qty!.replaceAll(RegExp(r'\.0+$'), '')} ${item.uom}',
                   ),
-                if (item.type != null && item.type!.isNotEmpty)
-                  InfoTag(label: item.type!),
+                InfoTag(label: type.label),
               ],
             ),
 

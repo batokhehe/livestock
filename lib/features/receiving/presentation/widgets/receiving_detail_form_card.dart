@@ -98,9 +98,11 @@ class ReceivingDetailFormCard extends ConsumerWidget {
               spacing: 6,
               runSpacing: 6,
               children: [
-                InfoTag(label: '${item.qtyRemaining} ${item.uom}'),
-                if (item.type != null && item.type!.isNotEmpty)
-                  InfoTag(label: '${item.type}'),
+                InfoTag(
+                  label:
+                      '${item.qtyRemaining?.replaceAll(RegExp(r"\.0+$"), "")} ${item.uom}',
+                ),
+                InfoTag(label: type.label),
               ],
             ),
 
@@ -145,6 +147,39 @@ class ReceivingDetailFormCard extends ConsumerWidget {
                         ],
                         onChanged: onWeightChanged,
                       ),
+                      if (onItemCodeChanged == null)
+                        Builder(
+                          builder: (context) {
+                            final double? qtyVal =
+                                double.tryParse(item.qty ?? '');
+                            final double? qtyRemaining =
+                                double.tryParse(item.qtyRemaining ?? '');
+
+                            String? errorMessage;
+                            if (qtyVal == null || qtyVal <= 0) {
+                              errorMessage = '* Jumlah diterima wajib diisi';
+                            } else if (qtyRemaining != null &&
+                                qtyVal > qtyRemaining) {
+                              final displayQtyRemaining = item.qtyRemaining?.replaceAll(RegExp(r"\.0+$"), "");
+                              errorMessage =
+                                  '* Jumlah diterima melebihi sisa ($displayQtyRemaining)';
+                            }
+
+                            if (errorMessage != null) {
+                              return Align(
+                                alignment: Alignment.centerLeft,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Text(
+                                    errorMessage,
+                                    style: AppTypography.xSmallNormalRed,
+                                  ),
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
                     ],
 
                     const SizedBox(height: 12),
