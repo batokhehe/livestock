@@ -7,16 +7,18 @@ import '../../../../../core/theme/AppTypography.dart';
 import '../../../../../core/widgets/card_wrapper.dart';
 import '../../../../../core/widgets/step_info_card.dart';
 import '../../../data/monitoring_item_model.dart';
-import '../../widgets/add_item_bottom_sheet.dart';
+import 'widgets/add_item_medicine_bottom_sheet.dart';
 
 class AddMonitoringMedicineStep2Page extends StatefulWidget {
   const AddMonitoringMedicineStep2Page({super.key});
 
   @override
-  State<AddMonitoringMedicineStep2Page> createState() => _AddMonitoringMedicineStep2PageState();
+  State<AddMonitoringMedicineStep2Page> createState() =>
+      _AddMonitoringMedicineStep2PageState();
 }
 
-class _AddMonitoringMedicineStep2PageState extends State<AddMonitoringMedicineStep2Page> {
+class _AddMonitoringMedicineStep2PageState
+    extends State<AddMonitoringMedicineStep2Page> {
   final List<MonitoringItem> items = [];
 
   void _openAddItemSheet() async {
@@ -24,7 +26,7 @@ class _AddMonitoringMedicineStep2PageState extends State<AddMonitoringMedicineSt
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const AddItemBottomSheet(),
+      builder: (_) => const AddItemMedicineBottomSheet(),
     );
 
     if (result != null) {
@@ -265,7 +267,10 @@ class _NextButton extends StatelessWidget {
             onPressed: () {
               context.push("/monitoring/add/confirmation?type=medicine");
             },
-            child: const Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
+            child: const Text(
+              "Selanjutnya",
+              style: AppTypography.mediumBoldWhite,
+            ),
           ),
         ),
       ),

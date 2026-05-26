@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/card_wrapper.dart';
+import 'package:livestock/core/widgets/custom_date_picker_sheet.dart';
 import 'package:livestock/core/widgets/product_header_card.dart';
 import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
+import 'package:livestock/features/monitoring/monitoring_provider.dart';
 
 import '../../../../../core/theme/AppColors.dart';
 import '../../../../../core/theme/AppTypography.dart';
 import '../../../../../core/widgets/section_card.dart';
 import '../../../../../core/widgets/select_field.dart';
 import '../../../../../core/widgets/step_info_card.dart';
+import '../../../../../core/helpers/utils.dart';
 
 class AddMonitoringHealthPage extends StatelessWidget {
   const AddMonitoringHealthPage({super.key});
@@ -47,27 +51,44 @@ class AddMonitoringHealthPage extends StatelessWidget {
   }
 }
 
-class _MonitoringInfoSection extends StatelessWidget {
+class _MonitoringInfoSection extends ConsumerWidget {
   const _MonitoringInfoSection();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedDate = ref.watch(selectedHealthMonitoringDateProvider);
     return SectionCard(
       title: "Informasi Pemantauan",
       children: [
         SelectField(
           label: "Tanggal Pemantauan",
-          hint: "Pilih tanggal",
+          hint: selectedDate != null
+              ? formatDateTime(selectedDate)
+              : "Pilih tanggal",
+          style: selectedDate != null ? AppTypography.smallNormalBlack : null,
           icon: AppImages.icCalendarSearch,
+          onTap: () async {
+            final pickedDate = await showModalBottomSheet<DateTime?>(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) =>
+                  const CustomDatePickerSheet(title: "Pilih Tanggal Pemantauan"),
+            );
+            if (pickedDate != null) {
+              ref.read(selectedHealthMonitoringDateProvider.notifier).state =
+                  pickedDate;
+            }
+          },
         ),
-        SizedBox(height: 12),
-        SelectField(
+        const SizedBox(height: 12),
+        const SelectField(
           label: "Karyawan",
           hint: "Pilih karyawan",
           icon: AppImages.icUserTag,
         ),
-        SizedBox(height: 12),
-        TextFieldWithInnerCounter(
+        const SizedBox(height: 12),
+        const TextFieldWithInnerCounter(
           label: "Catatan",
           subLabel: "(Optional)",
           hint: "Masukkan catatan",

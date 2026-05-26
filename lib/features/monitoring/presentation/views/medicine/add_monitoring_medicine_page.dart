@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/card_wrapper.dart';
+import 'package:livestock/core/widgets/custom_date_picker_sheet.dart';
 import 'package:livestock/core/widgets/product_header_card.dart';
 import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
+import 'package:livestock/core/helpers/utils.dart';
+import 'package:livestock/core/widgets/employee_bottom_sheet.dart';
+import 'package:livestock/features/attendance/data/model/employee_model.dart';
+import 'package:livestock/core/data/model/farm_area_model.dart';
+import 'package:livestock/core/data/model/farm_location_model.dart';
+import 'package:livestock/core/widgets/farm_location_paginated_bottom_sheet.dart';
+import 'package:livestock/features/receiving/presentation/widgets/farm_area_paginated_bottom_sheet.dart';
+import 'package:livestock/features/monitoring/monitoring_provider.dart';
 
 import '../../../../../core/theme/AppColors.dart';
 import '../../../../../core/theme/AppTypography.dart';
@@ -47,74 +57,172 @@ class AddMonitoringMedicinePage extends StatelessWidget {
   }
 }
 
-class _MonitoringInfoSection extends StatelessWidget {
+class _MonitoringInfoSection extends ConsumerWidget {
   const _MonitoringInfoSection();
 
+  void _showEmployeePicker(BuildContext context, WidgetRef ref) async {
+    final result = await showModalBottomSheet<Employee>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => EmployeeBottomSheet(
+        initialSelectedId: ref.read(selectedMonitoringEmployeeProvider)?.id,
+      ),
+    );
+    if (result != null) {
+      ref.read(selectedMonitoringEmployeeProvider.notifier).state = result;
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedDate = ref.watch(selectedMedicineMonitoringDateProvider);
+    final selectedEmployee = ref.watch(selectedMonitoringEmployeeProvider);
     return SectionCard(
       title: "Informasi Pemantauan",
       children: [
         SelectField(
           label: "Tanggal Pemantauan",
-          hint: "Pilih tanggal",
+          hint: selectedDate != null
+              ? formatDateTime(selectedDate)
+              : "Pilih tanggal",
+          style: selectedDate != null ? AppTypography.smallNormalBlack : null,
           icon: AppImages.icCalendarSearch,
+          isMandatoryField: true,
+          onTap: () async {
+            final pickedDate = await showModalBottomSheet<DateTime?>(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) => const CustomDatePickerSheet(
+                title: "Pilih Tanggal Pemantauan",
+              ),
+            );
+            if (pickedDate != null) {
+              ref.read(selectedMedicineMonitoringDateProvider.notifier).state =
+                  pickedDate;
+            }
+          },
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         SelectField(
           label: "Karyawan",
-          hint: "Pilih karyawan",
+          isMandatoryField: true,
+          hint: selectedEmployee != null
+              ? "${selectedEmployee.name} \u2022 ${selectedEmployee.phone}"
+              : "Pilih karyawan",
+          style: selectedEmployee != null
+              ? AppTypography.smallNormalBlack
+              : null,
           icon: AppImages.icUserTag,
-        ),
-        SizedBox(height: 12),
-        TextFieldWithInnerCounter(
-          label: "Catatan",
-          subLabel: "(Optional)",
-          hint: "Masukkan catatan",
-          maxLength: 80,
+          onTap: () => _showEmployeePicker(context, ref),
         ),
       ],
     );
   }
 }
 
-class _FarmInfoSection extends StatelessWidget {
+class _FarmInfoSection extends ConsumerWidget {
   const _FarmInfoSection();
 
+  void _showFarmLocationPicker(BuildContext context, WidgetRef ref) async {
+    final result = await showModalBottomSheet<FarmLocation?>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => FarmLocationPaginatedBottomSheet(
+        initialSelectedId: ref.read(selectedMonitoringFarmProvider)?.id,
+      ),
+    );
+    if (result != null) {
+      ref.read(selectedMonitoringFarmProvider.notifier).state = result;
+      ref.read(selectedMonitoringAreaProvider.notifier).state = null;
+    }
+  }
+
+  void _showFarmAreaPicker(BuildContext context, WidgetRef ref) async {
+    final result = await showModalBottomSheet<FarmArea?>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => FarmAreaPaginatedBottomSheet(
+        initialSelectedId: ref.read(selectedMonitoringAreaProvider)?.id,
+      ),
+    );
+    if (result != null) {
+      ref.read(selectedMonitoringAreaProvider.notifier).state = result;
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedFarm = ref.watch(selectedMonitoringFarmProvider);
+    final selectedArea = ref.watch(selectedMonitoringAreaProvider);
+    final availableCountAsync = ref.watch(
+      monitoringAnimalAvailableCountProvider,
+    );
+    final availableCount = availableCountAsync.value ?? 0;
+
     return SectionCard(
       title: "Informasi Peternakan",
-      children: const [
+      children: [
         SelectField(
           label: "Lokasi peternakan",
-          hint: "Pilih lokasi",
+          isMandatoryField: true,
+          hint: selectedFarm?.name ?? "Pilih lokasi",
+          style: selectedFarm != null ? AppTypography.smallNormalBlack : null,
           icon: AppImages.icHomeHashTag,
+          onTap: () => _showFarmLocationPicker(context, ref),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         SelectField(
           label: "Area peternakan",
-          hint: "Pilih area",
+          isMandatoryField: true,
+          hint: selectedArea?.name ?? "Pilih area",
+          style: selectedArea != null ? AppTypography.smallNormalBlack : null,
           icon: AppImages.icMap,
+          enabled: selectedFarm != null,
+          onTap: () => _showFarmAreaPicker(context, ref),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         CardWrapper(
-          child: ProductHeaderCard(
-            title: "3 Hewan",
-            subtitle: "Hewan Tersedia",
-            image: AppImages.icProduct,
-          ),
+          child: availableCountAsync.isLoading
+              ? const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              : ProductHeaderCard(
+                  title: "$availableCount Hewan",
+                  subtitle: "Hewan Tersedia",
+                  image: AppImages.icProduct,
+                ),
         ),
       ],
     );
   }
 }
 
-class _NextButton extends StatelessWidget {
+class _NextButton extends ConsumerWidget {
   const _NextButton();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedDate = ref.watch(selectedMedicineMonitoringDateProvider);
+    final selectedEmployee = ref.watch(selectedMonitoringEmployeeProvider);
+    final selectedFarm = ref.watch(selectedMonitoringFarmProvider);
+    final selectedArea = ref.watch(selectedMonitoringAreaProvider);
+    final availableCountAsync = ref.watch(
+      monitoringAnimalAvailableCountProvider,
+    );
+    final availableCount = availableCountAsync.value ?? 0;
+
+    final isValid =
+        selectedDate != null &&
+        selectedEmployee != null &&
+        selectedFarm != null &&
+        selectedArea != null &&
+        availableCount > 0;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -124,13 +232,18 @@ class _NextButton extends StatelessWidget {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
+              disabledBackgroundColor: AppColors.grey3,
+              disabledForegroundColor: AppColors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
+              elevation: isValid ? 2 : 0,
             ),
-            onPressed: () {
-              context.push('/monitoring/add/step-2?type=medicine');
-            },
+            onPressed: isValid
+                ? () {
+                    context.push('/monitoring/add/step-2?type=medicine');
+                  }
+                : null,
             child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
           ),
         ),
