@@ -52,9 +52,7 @@ class _AddItemBottomSheetWeightState
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        child: AnimalBottomSheet(
-          excludedIds: widget.excludedIds,
-        ),
+        child: AnimalBottomSheet(excludedIds: widget.excludedIds),
       ),
     );
 
@@ -86,7 +84,7 @@ class _AddItemBottomSheetWeightState
         final diffDays = today.difference(lastDate).inDays;
         setState(() {
           daysDiff = diffDays < 0 ? 0 : diffDays;
-          if (daysDiff > 0) {
+          if (daysDiff > 0 && newWeight > 0.0) {
             adgValue = (newWeight - oldWeight) / daysDiff;
           } else {
             adgValue = 0.0;

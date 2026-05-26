@@ -23,7 +23,8 @@ class AddMonitoringWeightStep2Page extends ConsumerStatefulWidget {
 
 class _AddMonitoringWeightStep2PageState
     extends ConsumerState<AddMonitoringWeightStep2Page> {
-  List<MonitoringItem> get items => ref.read(addedMonitoringWeightItemsProvider);
+  List<MonitoringItem> get items =>
+      ref.read(addedMonitoringWeightItemsProvider);
 
   void _openAddItemSheet() async {
     final result = await showModalBottomSheet<MonitoringItem>(
@@ -36,7 +37,9 @@ class _AddMonitoringWeightStep2PageState
     );
 
     if (result != null) {
-      ref.read(addedMonitoringWeightItemsProvider.notifier).update((state) => [...state, result]);
+      ref
+          .read(addedMonitoringWeightItemsProvider.notifier)
+          .update((state) => [...state, result]);
     }
   }
 
@@ -184,9 +187,9 @@ class _AddMonitoringWeightStep2PageState
       backgroundColor: Colors.transparent,
       builder: (_) => _DeleteConfirmBottomSheet(
         onDelete: () {
-          ref.read(addedMonitoringWeightItemsProvider.notifier).update(
-                (state) => state.where((e) => e.id != item.id).toList(),
-              );
+          ref
+              .read(addedMonitoringWeightItemsProvider.notifier)
+              .update((state) => state.where((e) => e.id != item.id).toList());
           Navigator.pop(context);
         },
       ),
@@ -299,9 +302,9 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
                     ),
                   ),
                   onPressed: onDelete,
-                  child: const Text(
+                  child: Text(
                     "Hapus Sekarang",
-                    style: AppTypography.mediumBoldWhite,
+                    style: AppTypography.mediumBoldWhite.copyWith(fontSize: 14),
                   ),
                 ),
               ),

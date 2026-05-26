@@ -56,7 +56,9 @@ class MonitoringWeightItemCard extends StatelessWidget {
                     children: [
                       Text(
                         item.code ?? '',
-                        style: AppTypography.smallBoldBlack.copyWith(fontSize: 16),
+                        style: AppTypography.smallBoldBlack.copyWith(
+                          fontSize: 16,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -83,7 +85,8 @@ class MonitoringWeightItemCard extends StatelessWidget {
                     ),
                   ),
                 ],
-                if (onDelete != null && onEdit != null) const SizedBox(width: 8),
+                if (onDelete != null && onEdit != null)
+                  const SizedBox(width: 8),
                 if (onEdit != null) ...[
                   GestureDetector(
                     onTap: onEdit,
@@ -105,18 +108,18 @@ class MonitoringWeightItemCard extends StatelessWidget {
             ),
           ),
           const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          _buildRowTwoColumns(
-            leftTitle: todayStr,
-            leftSubtitle: "Tanggal Timbang",
-            rightTitle: todayWeightStr,
-            rightSubtitle: "Berat Hari Ini",
-          ),
           const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           _buildRowTwoColumns(
             leftTitle: lastDateStr,
-            leftSubtitle: "Tanggal Pemantauan Terakhir",
+            leftSubtitle: "Tanggal Timbang",
             rightTitle: lastWeightStr,
             rightSubtitle: "Berat",
+          ),
+          _buildRowTwoColumns(
+            leftTitle: todayStr,
+            leftSubtitle: "Tanggal Pemantauan Terakhir ",
+            rightTitle: todayWeightStr,
+            rightSubtitle: "Berat Hari Ini",
           ),
           const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
           Padding(
@@ -163,11 +166,7 @@ class MonitoringWeightItemCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  height: 32,
-                  width: 1,
-                  color: AppColors.fieldBorder,
-                ),
+                Container(height: 32, width: 1, color: AppColors.fieldBorder),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -209,11 +208,7 @@ class MonitoringWeightItemCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  height: 32,
-                  width: 1,
-                  color: AppColors.fieldBorder,
-                ),
+                Container(height: 32, width: 1, color: AppColors.fieldBorder),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -304,10 +299,7 @@ class MonitoringWeightItemCard extends StatelessWidget {
               ),
             ),
           ),
-          Container(
-            width: 1,
-            color: AppColors.fieldBorder,
-          ),
+          Container(width: 1, color: AppColors.fieldBorder),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
