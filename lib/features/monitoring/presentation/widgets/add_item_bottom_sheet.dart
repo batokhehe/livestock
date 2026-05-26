@@ -58,7 +58,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
         selection: TextSelection.collapsed(offset: qty.toString().length),
       );
     }
-    
+
     setState(() {});
   }
 
@@ -144,7 +144,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
             label: "Harga Total",
             hint: "Harga Total",
             controller: totalPriceCtrl,
-            enabled: false,
+            // enabled: false,
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -157,20 +157,24 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onPressed: (int.tryParse(qtyCtrl.text) ?? 0) > 0 ? () {
-                Navigator.pop(
-                  context,
-                  MonitoringItem(
-                    name: nameCtrl.text,
-                    code: codeCtrl.text,
-                    unit: selectedFeed?.uom.isNotEmpty == true ? selectedFeed!.uom : "Pakan",
-                    quantity: int.tryParse(qtyCtrl.text) ?? 0,
-                    price: int.tryParse(priceCtrl.text) ?? 0,
-                    note: noteCtrl.text,
-                    stock: stockCtrl.text,
-                  ),
-                );
-              } : null,
+              onPressed: (int.tryParse(qtyCtrl.text) ?? 0) > 0
+                  ? () {
+                      Navigator.pop(
+                        context,
+                        MonitoringItem(
+                          name: nameCtrl.text,
+                          code: codeCtrl.text,
+                          unit: selectedFeed?.uom.isNotEmpty == true
+                              ? selectedFeed!.uom
+                              : "Pakan",
+                          quantity: int.tryParse(qtyCtrl.text) ?? 0,
+                          price: int.tryParse(priceCtrl.text) ?? 0,
+                          note: noteCtrl.text,
+                          stock: stockCtrl.text,
+                        ),
+                      );
+                    }
+                  : null,
               child: Text("Tambah Item", style: AppTypography.mediumBoldWhite),
             ),
           ),
