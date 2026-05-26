@@ -48,8 +48,12 @@ bool equalsIgnoreCase(String? string1, String? string2) {
 
 extension StringDateFormatting on String {
   String toIndonesianDate() {
-    final date = DateTime.parse(this);
-    return DateFormat('d MMM yyyy', 'id').format(date);
+    try {
+      final date = DateTime.parse(this);
+      return DateFormat('d MMM yyyy', 'id').format(date);
+    } catch (_) {
+      return this;
+    }
   }
 }
 

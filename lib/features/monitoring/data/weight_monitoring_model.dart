@@ -1,4 +1,5 @@
 import '../../../core/helpers/utils.dart';
+import '../../../core/data/model/animal_profile_model.dart';
 
 class WeightMonitoringEmployee {
   final int id;
@@ -44,6 +45,8 @@ class WeightMonitoringDetail {
   final bool isAdgMet;
   final String animalName;
   final String animalCode;
+  final String inventoryDate;
+  final AnimalProfile? animalProfile;
 
   WeightMonitoringDetail({
     required this.id,
@@ -57,6 +60,8 @@ class WeightMonitoringDetail {
     required this.isAdgMet,
     required this.animalName,
     required this.animalCode,
+    required this.inventoryDate,
+    this.animalProfile,
   });
 
   factory WeightMonitoringDetail.fromJson(Map<String, dynamic> json) {
@@ -73,6 +78,8 @@ class WeightMonitoringDetail {
       isAdgMet: json['is_adg_met'] == true,
       animalName: profile?['name'] ?? '',
       animalCode: profile?['animal_code'] ?? '',
+      inventoryDate: profile?['inventory_date'] ?? profile?['received_date'] ?? '-',
+      animalProfile: profile != null ? AnimalProfile.fromJson(profile) : null,
     );
   }
 }
@@ -80,7 +87,7 @@ class WeightMonitoringDetail {
 class WeightMonitoring {
   final int id;
   final String monitoringCode;
-  final DateTime monitoringDate;
+  final String monitoringDate;
   final String monitoringStatus;
   final String? notes;
   final String employeeName;
@@ -105,7 +112,9 @@ class WeightMonitoring {
   int get animalCount => detailsCount;
 
   String get dateLabel {
-    return '${monitoringDate.day} ${monthName(monitoringDate.month)} ${monitoringDate.year}';
+    final parsed = DateTime.tryParse(monitoringDate);
+    if (parsed == null) return monitoringDate;
+    return '${parsed.day} ${monthName(parsed.month)} ${parsed.year}';
   }
 
   factory WeightMonitoring.fromJson(Map<String, dynamic> json) {
@@ -115,7 +124,7 @@ class WeightMonitoring {
     return WeightMonitoring(
       id: json['id'] ?? 0,
       monitoringCode: json['monitoring_code'] ?? '',
-      monitoringDate: DateTime.tryParse(json['monitoring_date'] ?? '') ?? DateTime.now(),
+      monitoringDate: json['monitoring_date'] ?? '',
       monitoringStatus: json['monitoring_status'] ?? '',
       notes: json['notes'],
       employeeName: json['employee_name'] ?? '',

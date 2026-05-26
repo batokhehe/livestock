@@ -98,4 +98,11 @@ class MonitoringApi {
       options: Options(contentType: Headers.jsonContentType),
     );
   }
+
+  Future<void> deleteWeightMonitoringDetails({required List<int> ids}) async {
+    await dio.post(
+      '/monitoring/weight-monitoring/bulk-delete',
+      data: {'ids': ids},
+    );
+  }
 }

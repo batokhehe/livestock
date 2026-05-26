@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
+import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/info_tag.dart';
+import 'package:livestock/core/widgets/success_notification.dart';
 import 'package:livestock/features/monitoring/data/weight_monitoring_model.dart';
+import 'package:livestock/features/monitoring/monitoring_provider.dart';
+import 'package:livestock/features/monitoring/presentation/notifier/weight_monitoring_list_notifier.dart';
 
 class WeightMonitoringDetailPage extends StatelessWidget {
   final WeightMonitoring item;
@@ -35,7 +41,10 @@ class WeightMonitoringDetailPage extends StatelessWidget {
         children: [
           _InfoSection(item: item),
           const SizedBox(height: 12),
-          _ItemsSection(details: item.details),
+          _ItemsSection(
+            details: item.details,
+            monitoringDate: item.monitoringDate,
+          ),
           const SizedBox(height: 12),
           _SummarySection(
             totalAnimals: item.detailsCount,
@@ -90,14 +99,11 @@ class _InfoSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.formattedMonitoringDate ?? item.dateLabel,
+                  item.monitoringDate.toIndonesianDate(),
                   style: AppTypography.smallBoldBlack.copyWith(fontSize: 15),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  'Tanggal Pemantauan',
-                  style: AppTypography.smallNormalGrey,
-                ),
+                Text('Tanggal Timbang', style: AppTypography.smallNormalGrey),
               ],
             ),
           ),
@@ -111,25 +117,81 @@ class _InfoSection extends StatelessWidget {
 
 class _ItemsSection extends StatelessWidget {
   final List<WeightMonitoringDetail> details;
-  const _ItemsSection({required this.details});
+  final String monitoringDate;
+  const _ItemsSection({required this.details, required this.monitoringDate});
 
   @override
   Widget build(BuildContext context) {
     return _SectionCard(
       title: 'Informasi Item',
       child: Column(
-        children: details.map((d) => _DetailCard(detail: d)).toList(),
+        children: details
+            .map((d) => _DetailCard(detail: d, monitoringDate: monitoringDate))
+            .toList(),
       ),
     );
   }
 }
 
-class _DetailCard extends StatelessWidget {
+class _DetailCard extends ConsumerWidget {
   final WeightMonitoringDetail detail;
-  const _DetailCard({required this.detail});
+  final String monitoringDate;
+  const _DetailCard({required this.detail, required this.monitoringDate});
+
+  void _showDeleteConfirmSheet(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _DeleteConfirmBottomSheet(
+        onDelete: () async {
+          // Show loading
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+
+          try {
+            await ref.read(monitoringApiProvider).deleteWeightMonitoringDetails(
+              ids: [detail.id],
+            );
+            
+            // Invalidate list provider
+            ref.invalidate(weightMonitoringListProvider);
+
+            if (!context.mounted) return;
+
+            // Pop loading
+            Navigator.pop(context);
+            // Pop bottom sheet
+            Navigator.pop(context);
+            // Pop detail page
+            Navigator.pop(context);
+
+            SuccessNotification.show(
+              title: 'Berhasil',
+              subtitle: 'Item berhasil dihapus',
+            );
+          } catch (e) {
+            if (!context.mounted) return;
+
+            // Pop loading
+            Navigator.pop(context);
+            SuccessNotification.showError(
+              title: 'Gagal',
+              subtitle: 'Gagal menghapus item: $e',
+            );
+          }
+        },
+      ),
+    );
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
@@ -140,16 +202,56 @@ class _DetailCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: code, nama•berat
           Padding(
             padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(detail.animalCode, style: AppTypography.smallBoldBlack),
-                Text(
-                  '${detail.animalName} • ${detail.initialWeight.toStringAsFixed(2)} kg',
-                  style: AppTypography.xSmallNormalBlack,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        detail.animalCode,
+                        style: AppTypography.smallBoldBlack,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${detail.animalName} • ${detail.initialWeight.toStringAsFixed(2)} kg',
+                        style: AppTypography.xSmallNormalBlack,
+                      ),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => _showDeleteConfirmSheet(context, ref),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.danger.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.delete_outline,
+                      color: AppColors.danger,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.edit_outlined,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -164,7 +266,12 @@ class _DetailCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('-', style: AppTypography.smallBoldBlack),
+                    Text(
+                      monitoringDate.isNotEmpty
+                          ? monitoringDate.toIndonesianDate()
+                          : '-',
+                      style: AppTypography.smallBoldBlack,
+                    ),
                     Text(
                       'Tanggal Timbang',
                       style: AppTypography.xSmallNormalGrey,
@@ -194,7 +301,13 @@ class _DetailCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('-', style: AppTypography.smallBoldBlack),
+                    Text(
+                      (detail.animalProfile?.lastAdgDate?.isNotEmpty ?? false)
+                          ? detail.animalProfile!.lastAdgDate!
+                                .toIndonesianDate()
+                          : '-',
+                      style: AppTypography.smallBoldBlack,
+                    ),
                     Text(
                       'Pemantauan Akhir',
                       style: AppTypography.xSmallNormalGrey,
@@ -319,6 +432,92 @@ class _DetailCard extends StatelessWidget {
   }
 }
 
+class _DeleteConfirmBottomSheet extends StatelessWidget {
+  final VoidCallback onDelete;
+
+  const _DeleteConfirmBottomSheet({required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        20,
+        16,
+        20,
+        MediaQuery.of(context).padding.bottom + 16,
+      ),
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Hapus Item", style: AppTypography.largeBoldBlack),
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: const Icon(Icons.close),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Image.asset(AppImages.icDeleteConfirmation, height: 120),
+          const SizedBox(height: 20),
+          const Text("Hapus Item Ini?", style: AppTypography.mediumBoldBlack),
+          const SizedBox(height: 8),
+          const Text(
+            "Item yang telah diinput akan dihapus dan tidak dapat dikembalikan. "
+            "Apakah Anda yakin ingin melanjutkan?",
+            textAlign: TextAlign.center,
+            style: AppTypography.smallNormalGrey,
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: AppColors.primaryShade,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    side: const BorderSide(color: AppColors.primaryShade),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Batal",
+                    style: AppTypography.mediumBoldPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.danger,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: onDelete,
+                  child: const Text(
+                    "Hapus Sekarang",
+                    style: AppTypography.mediumBoldWhite,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ─── Rincian ────────────────────────────────────────────────────────────────
 
 class _SummarySection extends StatelessWidget {
@@ -345,19 +544,9 @@ class _SummarySection extends StatelessWidget {
         child: Column(
           children: [
             _SummaryRow(label: 'Total Hewan', value: '$totalAnimals'),
-            const Divider(
-              height: 1,
-              thickness: 1,
-              color: AppColors.fieldBorder,
-            ),
             _SummaryRow(
               label: 'Kenaikan Berat Rata-rata',
               value: '${avgDiffWeight.toStringAsFixed(2)} kg',
-            ),
-            const Divider(
-              height: 1,
-              thickness: 1,
-              color: AppColors.fieldBorder,
             ),
             _SummaryRow(
               label: 'ADG Rata-rata',
