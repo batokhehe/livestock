@@ -34,6 +34,19 @@ class _AddMonitoringFeedStep2PageState
     }
   }
 
+  void _openEditItemSheet(int index, MonitoringItem item) async {
+    final result = await showModalBottomSheet<MonitoringItem>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => AddItemBottomSheet(itemToEdit: item),
+    );
+
+    if (result != null) {
+      setState(() => items[index] = result);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,7 +99,7 @@ class _AddMonitoringFeedStep2PageState
     );
   }
 
-  Widget _itemCard(MonitoringItem item) {
+  Widget _itemCard(int index, MonitoringItem item) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -109,7 +122,7 @@ class _AddMonitoringFeedStep2PageState
                       style: AppTypography.smallBoldBlack,
                     ),
                     Text(
-                      "${item.code ?? 'FD00001'} • ${item.stock} Karung",
+                      "${item.code ?? '-'} • ${item.stock} Karung",
                       style: AppTypography.smallNormalGrey,
                     ),
                   ],
@@ -126,7 +139,7 @@ class _AddMonitoringFeedStep2PageState
                 icon: Icons.edit,
                 color: AppColors.white,
                 backColor: AppColors.primary,
-                onTap: () {},
+                onTap: () => _openEditItemSheet(index, item),
               ),
             ],
           ),
@@ -208,7 +221,7 @@ class _AddMonitoringFeedStep2PageState
                   )
                 : ListView.builder(
                     itemCount: items.length,
-                    itemBuilder: (_, i) => _itemCard(items[i]),
+                    itemBuilder: (_, i) => _itemCard(i, items[i]),
                   ),
           ),
         ],
