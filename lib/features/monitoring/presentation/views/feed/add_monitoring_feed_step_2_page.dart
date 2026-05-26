@@ -13,10 +13,12 @@ class AddMonitoringFeedStep2Page extends StatefulWidget {
   const AddMonitoringFeedStep2Page({super.key});
 
   @override
-  State<AddMonitoringFeedStep2Page> createState() => _AddMonitoringFeedStep2PageState();
+  State<AddMonitoringFeedStep2Page> createState() =>
+      _AddMonitoringFeedStep2PageState();
 }
 
-class _AddMonitoringFeedStep2PageState extends State<AddMonitoringFeedStep2Page> {
+class _AddMonitoringFeedStep2PageState
+    extends State<AddMonitoringFeedStep2Page> {
   final List<MonitoringItem> items = [];
 
   void _openAddItemSheet() async {
@@ -265,7 +267,10 @@ class _NextButton extends StatelessWidget {
             onPressed: () {
               context.push("/monitoring/add/confirmation?type=feed");
             },
-            child: const Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
+            child: const Text(
+              "Selanjutnya",
+              style: AppTypography.mediumBoldWhite,
+            ),
           ),
         ),
       ),
