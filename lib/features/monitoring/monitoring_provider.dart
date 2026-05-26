@@ -1,5 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livestock/core/constant/enum.dart';
+import 'package:livestock/features/monitoring/data/api/monitoring_api.dart';
+import 'package:livestock/core/data/model/base_response.dart';
+import 'package:livestock/features/monitoring/data/monitoring_type_item_model.dart';
 
 import '../../app/providers.dart';
 import '../attendance/data/model/employee_model.dart';
@@ -72,6 +75,92 @@ final monitoringAnimalAvailableCountProvider = FutureProvider.autoDispose<int>((
     return 0;
   }
 });
+final monitoringApiProvider = Provider((ref) {
+  final dio = ref.read(dioProvider);
+  return MonitoringApi(dio);
+});
+
+// Weight monitoring list filters
+final weightMonitoringSearchProvider = StateProvider.autoDispose<String>(
+  (ref) => '',
+);
+final weightMonitoringTypeProvider = StateProvider.autoDispose<String>(
+  (ref) => '',
+);
+final feedMonitoringSearchProvider = StateProvider.autoDispose<String>(
+  (ref) => '',
+);
+final healthMonitoringSearchProvider = StateProvider.autoDispose<String>(
+  (ref) => '',
+);
+
+final addedMonitoringWeightItemsProvider =
+    StateProvider.autoDispose<List<MonitoringItem>>((ref) => []);
+
+class MonitoringFeedStockNotifier
+    extends AutoDisposeAsyncNotifier<BaseResponse<MonitoringTypeItemModel>> {
+  int _page = 1;
+  final int _perPage = 15;
+  bool _hasMore = true;
+
+  @override
+  Future<BaseResponse<MonitoringTypeItemModel>> build() async {
+    return _fetchPage(1);
+  }
+
+  Future<BaseResponse<MonitoringTypeItemModel>> _fetchPage(int page) async {
+    final dio = ref.read(dioProvider);
+    final farmId = ref.read(selectedMonitoringFarmProvider)?.id;
+    final areaId = ref.read(selectedMonitoringAreaProvider)?.id;
+
+    final res = await dio.get(
+      '/monitoring/feed-monitoring/stock-feed',
+      queryParameters: {
+        'farm_location_id': farmId,
+        'farm_area_id': areaId,
+        'page': page,
+        'per_page': _perPage,
+      }..removeWhere((k, v) => v == null),
+    );
+
+    return BaseResponse<MonitoringTypeItemModel>.fromJson(
+      res.data,
+      (json) => MonitoringTypeItemModel.fromJson(json),
+    );
+  }
+
+  Future<void> loadMore() async {
+    if (!_hasMore || state.isLoading || state.hasError) return;
+
+    final currentData = state.value;
+    if (currentData == null) return;
+
+    _page++;
+    // state = const AsyncValue.loading();
+    try {
+      final newData = await _fetchPage(_page);
+      _hasMore = newData.data.isNotEmpty;
+      state = AsyncValue.data(
+        BaseResponse(
+          status: newData.status,
+          message: newData.message,
+          total: newData.total,
+          totalRows: newData.totalRows,
+          data: [...currentData.data, ...newData.data],
+        ),
+      );
+    } catch (e, stack) {
+      _page--;
+      state = AsyncValue.error(e, stack);
+    }
+  }
+}
+
+final paginatedMonitoringFeedStockProvider =
+    AsyncNotifierProvider.autoDispose<
+      MonitoringFeedStockNotifier,
+      BaseResponse<MonitoringTypeItemModel>
+    >(MonitoringFeedStockNotifier.new);
 
 final monitoringSearchProvider = StateProvider<String>((ref) => '');
 

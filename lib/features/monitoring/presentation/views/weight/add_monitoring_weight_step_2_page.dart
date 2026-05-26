@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 
@@ -7,21 +8,22 @@ import '../../../../../core/theme/AppTypography.dart';
 import '../../../../../core/widgets/card_wrapper.dart';
 import '../../../../../core/widgets/step_info_card.dart';
 import '../../../data/monitoring_item_model.dart';
+import '../../../monitoring_provider.dart';
 import 'widgets/add_item_bottom_sheet_weight.dart';
 import 'widgets/edit_item_bottom_sheet_weight.dart';
 import 'widgets/monitoring_weight_item_card.dart';
 
-class AddMonitoringWeightStep2Page extends StatefulWidget {
+class AddMonitoringWeightStep2Page extends ConsumerStatefulWidget {
   const AddMonitoringWeightStep2Page({super.key});
 
   @override
-  State<AddMonitoringWeightStep2Page> createState() =>
+  ConsumerState<AddMonitoringWeightStep2Page> createState() =>
       _AddMonitoringWeightStep2PageState();
 }
 
 class _AddMonitoringWeightStep2PageState
-    extends State<AddMonitoringWeightStep2Page> {
-  final List<MonitoringItem> items = [];
+    extends ConsumerState<AddMonitoringWeightStep2Page> {
+  List<MonitoringItem> get items => ref.read(addedMonitoringWeightItemsProvider);
 
   void _openAddItemSheet() async {
     final result = await showModalBottomSheet<MonitoringItem>(
@@ -34,7 +36,7 @@ class _AddMonitoringWeightStep2PageState
     );
 
     if (result != null) {
-      setState(() => items.add(result));
+      ref.read(addedMonitoringWeightItemsProvider.notifier).update((state) => [...state, result]);
     }
   }
 
@@ -55,8 +57,10 @@ class _AddMonitoringWeightStep2PageState
     if (result != null) {
       final index = items.indexWhere((e) => e.id == item.id);
       if (index != -1) {
-        setState(() {
-          items[index] = result;
+        ref.read(addedMonitoringWeightItemsProvider.notifier).update((state) {
+          final list = [...state];
+          list[index] = result;
+          return list;
         });
       }
     }
@@ -64,6 +68,7 @@ class _AddMonitoringWeightStep2PageState
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(addedMonitoringWeightItemsProvider);
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
@@ -179,7 +184,9 @@ class _AddMonitoringWeightStep2PageState
       backgroundColor: Colors.transparent,
       builder: (_) => _DeleteConfirmBottomSheet(
         onDelete: () {
-          setState(() => items.remove(item));
+          ref.read(addedMonitoringWeightItemsProvider.notifier).update(
+                (state) => state.where((e) => e.id != item.id).toList(),
+              );
           Navigator.pop(context);
         },
       ),

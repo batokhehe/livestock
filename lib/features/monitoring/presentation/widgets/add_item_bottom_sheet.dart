@@ -7,7 +7,7 @@ import '../../../../core/widgets/input_field_card.dart';
 import '../../../../core/widgets/text_field_with_inner_counter.dart';
 import '../../data/monitoring_item_model.dart';
 import '../../data/monitoring_type_item_model.dart';
-import 'monitoring_item_type_bottom_sheet.dart';
+import 'monitoring_feed_paginated_bottom_sheet.dart';
 
 class AddItemBottomSheet extends StatefulWidget {
   const AddItemBottomSheet({super.key});
@@ -60,8 +60,14 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
             onTap: _openFeedSheet,
           ),
           TextFields(
-            label: "Kuantitas",
-            hint: "Jumlah Kuantitas",
+            label: "Nama Pakan",
+            hint: "Nama Pakan",
+            controller: qtyCtrl,
+          ),
+          TextFields(label: "Kode", hint: "Kode", controller: qtyCtrl),
+          TextFields(
+            label: "Kuantitas Tersedia",
+            hint: "Jumlah Kuantitas Tersedia",
             controller: qtyCtrl,
           ),
           TextFields(
@@ -69,12 +75,16 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
             hint: "Masukkan Harga Satuan",
             controller: priceCtrl,
           ),
-          TextFieldWithInnerCounter(
-            label: 'Catatan',
-            subLabel: '(Opsional)',
-            hint: 'Masukkan catatan',
-            maxLength: 80,
-            controller: noteCtrl,
+          const SizedBox(height: 16),
+          TextFields(
+            label: "Jumlah Pakan",
+            hint: "Jumlah Pakan",
+            controller: priceCtrl,
+          ),
+          TextFields(
+            label: "Harga Total",
+            hint: "Harga Total",
+            controller: priceCtrl,
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -108,25 +118,12 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
     );
   }
 
-  final feeds = [
-    MonitoringTypeItemModel(
-      name: "Rumput Sinnoh",
-      code: "FD00001",
-      quantity: 100,
-    ),
-    MonitoringTypeItemModel(
-      name: "Jagung Kering",
-      code: "FD00002",
-      quantity: 50,
-    ),
-  ];
-
   void _openFeedSheet() async {
     final result = await showModalBottomSheet<MonitoringTypeItemModel>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => MonitoringItemTypeBottomSheet(feeds: feeds),
+      builder: (_) => const MonitoringFeedPaginatedBottomSheet(),
     );
     if (result != null) {
       setState(() {
