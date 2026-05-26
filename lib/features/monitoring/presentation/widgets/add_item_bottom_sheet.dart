@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppImages.dart';
@@ -18,12 +19,60 @@ class AddItemBottomSheet extends StatefulWidget {
 
 class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
   final nameCtrl = TextEditingController();
+  final codeCtrl = TextEditingController();
   final stockCtrl = TextEditingController();
   final qtyCtrl = TextEditingController();
   final priceCtrl = TextEditingController();
+  final totalPriceCtrl = TextEditingController();
   final noteCtrl = TextEditingController();
 
   MonitoringTypeItemModel? selectedFeed;
+
+  @override
+  void initState() {
+    super.initState();
+    qtyCtrl.addListener(_calculateTotal);
+    priceCtrl.addListener(_calculateTotal);
+  }
+
+  void _calculateTotal() {
+    int qty = int.tryParse(qtyCtrl.text) ?? 0;
+    final stock = selectedFeed?.quantity ?? 0;
+
+    bool qtyChanged = false;
+    if (qty > stock) {
+      qty = stock;
+      qtyChanged = true;
+    }
+
+    final price = int.tryParse(priceCtrl.text) ?? 0;
+    final newTotal = (qty > 0 && price > 0) ? (qty * price).toString() : "0";
+
+    if (totalPriceCtrl.text != newTotal) {
+      totalPriceCtrl.text = newTotal;
+    }
+
+    if (qtyChanged) {
+      qtyCtrl.value = TextEditingValue(
+        text: qty.toString(),
+        selection: TextSelection.collapsed(offset: qty.toString().length),
+      );
+    }
+
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    nameCtrl.dispose();
+    codeCtrl.dispose();
+    stockCtrl.dispose();
+    qtyCtrl.dispose();
+    priceCtrl.dispose();
+    totalPriceCtrl.dispose();
+    noteCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,29 +111,40 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
           TextFields(
             label: "Nama Pakan",
             hint: "Nama Pakan",
-            controller: qtyCtrl,
+            controller: nameCtrl,
+            enabled: false,
           ),
-          TextFields(label: "Kode", hint: "Kode", controller: qtyCtrl),
+          TextFields(
+            label: "Kode",
+            hint: "Kode",
+            controller: codeCtrl,
+            enabled: false,
+          ),
           TextFields(
             label: "Kuantitas Tersedia",
             hint: "Jumlah Kuantitas Tersedia",
-            controller: qtyCtrl,
+            controller: stockCtrl,
+            enabled: false,
           ),
           TextFields(
             label: "Harga Satuan",
             hint: "Masukkan Harga Satuan",
             controller: priceCtrl,
+            enabled: false,
           ),
           const SizedBox(height: 16),
           TextFields(
             label: "Jumlah Pakan",
             hint: "Jumlah Pakan",
-            controller: priceCtrl,
+            controller: qtyCtrl,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           ),
           TextFields(
             label: "Harga Total",
             hint: "Harga Total",
-            controller: priceCtrl,
+            controller: totalPriceCtrl,
+            // enabled: false,
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -97,19 +157,24 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onPressed: () {
-                Navigator.pop(
-                  context,
-                  MonitoringItem(
-                    name: nameCtrl.text,
-                    unit: "Pakan",
-                    quantity: int.tryParse(qtyCtrl.text) ?? 0,
-                    price: int.tryParse(priceCtrl.text) ?? 0,
-                    note: noteCtrl.text,
-                    stock: stockCtrl.text,
-                  ),
-                );
-              },
+              onPressed: (int.tryParse(qtyCtrl.text) ?? 0) > 0
+                  ? () {
+                      Navigator.pop(
+                        context,
+                        MonitoringItem(
+                          name: nameCtrl.text,
+                          code: codeCtrl.text,
+                          unit: selectedFeed?.uom.isNotEmpty == true
+                              ? selectedFeed!.uom
+                              : "Pakan",
+                          quantity: int.tryParse(qtyCtrl.text) ?? 0,
+                          price: int.tryParse(priceCtrl.text) ?? 0,
+                          note: noteCtrl.text,
+                          stock: stockCtrl.text,
+                        ),
+                      );
+                    }
+                  : null,
               child: Text("Tambah Item", style: AppTypography.mediumBoldWhite),
             ),
           ),
@@ -129,7 +194,9 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
       setState(() {
         selectedFeed = result;
         nameCtrl.text = result.name;
+        codeCtrl.text = result.code;
         stockCtrl.text = result.quantity.toString();
+        priceCtrl.text = result.price.toString();
       });
     }
   }
