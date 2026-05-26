@@ -81,7 +81,7 @@ class MonitoringApi {
     required DateTime monitoringDate,
     required int employeeId,
     required List<Map<String, dynamic>> items,
-    String status = 'draft',
+    String status = 'confirmed',
     String notes = '',
   }) async {
     final payload = <String, dynamic>{
