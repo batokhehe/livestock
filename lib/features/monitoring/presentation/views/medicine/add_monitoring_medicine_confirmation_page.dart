@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:livestock/core/constant/enum.dart';
+import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/card_wrapper.dart';
 import 'package:livestock/core/widgets/product_header_card.dart';
 import 'package:livestock/core/widgets/status_chips.dart';
+import 'package:livestock/core/widgets/success_notification.dart';
+import 'package:livestock/features/monitoring/data/monitoring_item_model.dart';
+import 'package:livestock/features/monitoring/data/monitoring_model.dart';
 import 'package:livestock/features/monitoring/presentation/widgets/confirmation_item_double_card.dart';
 
 import '../../../../../core/theme/AppColors.dart';
@@ -11,12 +18,16 @@ import '../../../../../core/widgets/section_card.dart';
 import '../../../../../core/widgets/step_info_card.dart';
 import 'package:livestock/features/receiving/presentation/widgets/confirmation_bottom_sheet.dart';
 import '../../../monitoring_provider.dart';
+import '../../notifier/submit_health_monitoring_notifier.dart';
+import '../../notifier/health_monitoring_list_notifier.dart';
 
-class AddMonitoringMedicineConfirmationPage extends StatelessWidget {
+class AddMonitoringMedicineConfirmationPage extends ConsumerWidget {
   const AddMonitoringMedicineConfirmationPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final items = ref.watch(addedMonitoringMedicineItemsProvider);
+
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
@@ -33,7 +44,11 @@ class AddMonitoringMedicineConfirmationPage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                const StepInfoCard(title: "Tinjau Pemantauan", step: 3, totalStep: 3),
+                const StepInfoCard(
+                  title: "Tinjau Pemantauan",
+                  step: 3,
+                  totalStep: 3,
+                ),
                 const SizedBox(height: 12),
                 const _MonitoringInfoSection(),
                 const SizedBox(height: 12),
@@ -48,7 +63,18 @@ class AddMonitoringMedicineConfirmationPage extends StatelessWidget {
                         style: AppTypography.mediumNormalBlack,
                       ),
                       const SizedBox(height: 12),
-                      _itemCard(),
+                      if (items.isEmpty)
+                        const Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 24),
+                            child: Text(
+                              "Belum ada item obat",
+                              style: AppTypography.smallNormalGrey,
+                            ),
+                          ),
+                        )
+                      else
+                        ...items.map((item) => _itemCard(item)).toList(),
                     ],
                   ),
                 ),
@@ -61,7 +87,14 @@ class AddMonitoringMedicineConfirmationPage extends StatelessWidget {
     );
   }
 
-  Widget _itemCard() {
+  Widget _itemCard(MonitoringItem item) {
+    final qty = item.quantity ?? 0.0;
+    final qtyStr = qty.toStringAsFixed(qty.truncateToDouble() == qty ? 0 : 2);
+    final stock = double.tryParse(item.stock ?? '0') ?? 0.0;
+    final stockStr = stock.toStringAsFixed(
+      stock.truncateToDouble() == stock ? 0 : 2,
+    );
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -76,18 +109,34 @@ class AddMonitoringMedicineConfirmationPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Rumput Sinnoh", style: AppTypography.smallBoldBlack),
-                  Text("FD00001", style: AppTypography.smallNormalGrey),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.name ?? "-",
+                      style: AppTypography.smallBoldBlack,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      item.code ?? "-",
+                      style: AppTypography.smallNormalGrey,
+                    ),
+                  ],
+                ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: const [
-                  StatusChips(text: "400 Stock", color: AppColors.success),
-                  Text("Karung", style: AppTypography.smallNormalGrey),
+                children: [
+                  StatusChips(
+                    text: "$stockStr Stock",
+                    color: AppColors.success,
+                  ),
+                  Text(
+                    item.unit ?? "Botol",
+                    style: AppTypography.smallNormalGrey,
+                  ),
                 ],
               ),
             ],
@@ -100,28 +149,21 @@ class AddMonitoringMedicineConfirmationPage extends StatelessWidget {
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("100", style: AppTypography.smallBoldBlack),
-                  Text("Kuantitas", style: AppTypography.smallNormalGrey),
+                children: [
+                  Text(qtyStr, style: AppTypography.smallBoldBlack),
+                  const Text("Kuantitas", style: AppTypography.smallNormalGrey),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: const [
-                  Text("33 ember", style: AppTypography.smallBoldBlack),
-                  Text("Rasio Kuantitas", style: AppTypography.smallNormalGrey),
+                children: [
+                  Text(
+                    item.note?.isNotEmpty == true ? item.note! : "-",
+                    style: AppTypography.smallBoldBlack,
+                  ),
+                  const Text("Catatan", style: AppTypography.smallNormalGrey),
                 ],
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text("Catatan", style: AppTypography.xSmallNormalGrey),
-              Text("Kasih Makan", style: AppTypography.smallBoldBlack),
             ],
           ),
         ],
@@ -130,55 +172,93 @@ class AddMonitoringMedicineConfirmationPage extends StatelessWidget {
   }
 }
 
-class _MonitoringInfoSection extends StatelessWidget {
+class _MonitoringInfoSection extends ConsumerWidget {
   const _MonitoringInfoSection();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedDate = ref.watch(selectedMedicineMonitoringDateProvider);
+    final selectedEmployee = ref.watch(selectedMonitoringEmployeeProvider);
+    final dateStr = selectedDate != null ? formatDateTime(selectedDate) : "-";
+    final employeeStr = selectedEmployee != null
+        ? "${selectedEmployee.name} • ${selectedEmployee.phone}"
+        : "-";
+
+    final items = ref.watch(addedMonitoringMedicineItemsProvider);
+    final totalQty = items.fold<double>(
+      0.0,
+      (sum, item) => sum + (item.quantity ?? 0.0),
+    );
+
+    final monitoringItem = Monitoring(
+      code: dateStr,
+      subtitle: 'Obat',
+      title: employeeStr,
+      description: "Pemantauan Obat",
+      count: totalQty.toInt(),
+      total: totalQty.toInt(),
+      status: ItemStatus.waiting,
+      date: selectedDate ?? DateTime.now(),
+      items: items,
+      location: "Obat",
+    );
+
     return SectionCard(
       title: "Informasi Pemantauan",
-      children: [ConfirmationItemDoubleCard(item: dummyItem)],
+      children: [ConfirmationItemDoubleCard(item: monitoringItem)],
     );
   }
 }
 
-class _FarmInfoSection extends StatelessWidget {
+class _FarmInfoSection extends ConsumerWidget {
   const _FarmInfoSection();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final farm = ref.watch(selectedMonitoringFarmProvider);
+    final area = ref.watch(selectedMonitoringAreaProvider);
+    final animalCountAsync = ref.watch(monitoringAnimalAvailableCountProvider);
+    final animalCount = animalCountAsync.value ?? 0;
+
     return SectionCard(
       title: "Informasi Peternakan",
       children: [
         CardWrapper(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text("Sapi Agri Bandung", style: AppTypography.smallBoldBlack),
-              Text("Area 3", style: AppTypography.smallBoldRed),
+            children: [
+              Text(farm?.name ?? "-", style: AppTypography.smallBoldBlack),
+              Text(area?.name ?? "-", style: AppTypography.smallBoldRed),
             ],
           ),
         ),
-        const SizedBox(height: 24),
-        const CardWrapper(
+        const SizedBox(height: 8),
+        CardWrapper(
           child: Column(
             children: [
               ProductHeaderCard(
-                title: "3 Hewan",
+                title: "$animalCount Hewan",
                 subtitle: "Hewan Tersedia",
                 image: AppImages.icProduct,
               ),
-              SizedBox(height: 8),
-              Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
+              const Divider(
+                height: 1,
+                thickness: 1,
+                color: AppColors.fieldBorder,
+              ),
+              const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     "satuan per hewan",
                     style: AppTypography.smallNormalBlack,
                   ),
-                  Text("30 Hewan", style: AppTypography.smallBoldBlack),
+                  Text(
+                    "$animalCount Hewan",
+                    style: AppTypography.smallBoldBlack,
+                  ),
                 ],
               ),
             ],
@@ -189,11 +269,57 @@ class _FarmInfoSection extends StatelessWidget {
   }
 }
 
-class _NextButton extends StatelessWidget {
+class _NextButton extends ConsumerStatefulWidget {
   const _NextButton();
 
   @override
+  ConsumerState<_NextButton> createState() => _NextButtonState();
+}
+
+class _NextButtonState extends ConsumerState<_NextButton> {
+  Future<void> _onConfirmTap() async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const ConfirmationBottomSheet(
+        header: "Konfirmasi Pemantauan",
+        title: "Simpan Pemantauan?",
+        subTitle:
+            "Data Pemantauan Obat akan disimpan dan diterapkan ke seluruh hewan di area ini.",
+        saveText: "Simpan Pemantauan",
+      ),
+    );
+
+    if (confirmed != true) return;
+    if (!mounted) return;
+
+    final success = await ref
+        .read(submitHealthMonitoringProvider.notifier)
+        .submit();
+
+    if (!mounted) return;
+
+    if (success) {
+      ref.invalidate(healthMonitoringListProvider);
+      context.go('/monitoring');
+      SuccessNotification.show(
+        title: 'Data berhasil disimpan',
+        subtitle: 'Pemantauan tercatat di sistem.',
+      );
+    } else {
+      final err = ref.read(submitHealthMonitoringProvider).error;
+      SuccessNotification.showError(
+        title: 'Gagal menyimpan pemantauan',
+        subtitle: err?.toString() ?? 'Terjadi kesalahan, coba lagi.',
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isLoading = ref.watch(submitHealthMonitoringProvider).isLoading;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -203,28 +329,25 @@ class _NextButton extends StatelessWidget {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
+              disabledBackgroundColor: AppColors.grey3,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => const ConfirmationBottomSheet(
-                  header: "Konfirmasi Pemantauan",
-                  title: "Simpan Pemantauan?",
-                  subTitle:
-                      "Data Pemantauan Obat akan disimpan dan diterapkan ke seluruh hewan di area ini.",
-                  saveText: "Simpan Pemantauan",
-                ),
-              );
-            },
-            child: const Text(
-              "Konfirmasi Pemantauan",
-              style: AppTypography.mediumBoldWhite,
-            ),
+            onPressed: isLoading ? null : _onConfirmTap,
+            child: isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.white,
+                    ),
+                  )
+                : const Text(
+                    "Konfirmasi Pemantauan",
+                    style: AppTypography.mediumBoldWhite,
+                  ),
           ),
         ),
       ),

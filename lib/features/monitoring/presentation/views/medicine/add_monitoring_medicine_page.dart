@@ -5,7 +5,6 @@ import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/card_wrapper.dart';
 import 'package:livestock/core/widgets/custom_date_picker_sheet.dart';
 import 'package:livestock/core/widgets/product_header_card.dart';
-import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
 import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/widgets/employee_bottom_sheet.dart';
 import 'package:livestock/features/attendance/data/model/employee_model.dart';

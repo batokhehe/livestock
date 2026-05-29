@@ -23,6 +23,10 @@ final selectedHealthMonitoringDateProvider =
 final selectedMedicineMonitoringDateProvider =
     StateProvider.autoDispose<DateTime?>((ref) => null);
 
+final selectedMonitoringMedicineProvider = StateProvider.autoDispose<MonitoringTypeItemModel?>(
+  (ref) => null,
+);
+
 final selectedMonitoringFarmProvider = StateProvider.autoDispose<FarmLocation?>(
   (ref) => null,
 );
@@ -86,6 +90,8 @@ final healthMonitoringSearchProvider = StateProvider.autoDispose<String>(
 final addedMonitoringWeightItemsProvider =
     StateProvider.autoDispose<List<MonitoringItem>>((ref) => []);
 final addedMonitoringFeedItemsProvider =
+    StateProvider.autoDispose<List<MonitoringItem>>((ref) => []);
+final addedMonitoringMedicineItemsProvider =
     StateProvider.autoDispose<List<MonitoringItem>>((ref) => []);
 
 class MonitoringFeedStockNotifier
@@ -152,6 +158,69 @@ final paginatedMonitoringFeedStockProvider =
       MonitoringFeedStockNotifier,
       BaseResponse<MonitoringTypeItemModel>
     >(MonitoringFeedStockNotifier.new);
+
+class MonitoringMedicineStockNotifier
+    extends AutoDisposeAsyncNotifier<BaseResponse<MonitoringTypeItemModel>> {
+  int _page = 1;
+  final int _perPage = 15;
+  bool _hasMore = true;
+
+  @override
+  Future<BaseResponse<MonitoringTypeItemModel>> build() async {
+    return _fetchPage(1);
+  }
+
+  Future<BaseResponse<MonitoringTypeItemModel>> _fetchPage(int page) async {
+    final dio = ref.read(dioProvider);
+    final farmId = ref.read(selectedMonitoringFarmProvider)?.id;
+
+    final res = await dio.get(
+      '/monitoring/health-monitoring/stock-medicine',
+      queryParameters: {
+        'farm_location_id': farmId,
+        'page': page,
+        'per_page': _perPage,
+      }..removeWhere((k, v) => v == null),
+    );
+
+    return BaseResponse<MonitoringTypeItemModel>.fromJson(
+      res.data,
+      (json) => MonitoringTypeItemModel.fromJson(json),
+    );
+  }
+
+  Future<void> loadMore() async {
+    if (!_hasMore || state.isLoading || state.hasError) return;
+
+    final currentData = state.value;
+    if (currentData == null) return;
+
+    _page++;
+    try {
+      final newData = await _fetchPage(_page);
+      _hasMore = newData.data.isNotEmpty;
+      state = AsyncValue.data(
+        BaseResponse(
+          status: newData.status,
+          message: newData.message,
+          total: newData.total,
+          totalRows: newData.totalRows,
+          data: [...currentData.data, ...newData.data],
+        ),
+      );
+    } catch (e, stack) {
+      _page--;
+      state = AsyncValue.error(e, stack);
+    }
+  }
+}
+
+final paginatedMonitoringMedicineStockProvider =
+    AsyncNotifierProvider.autoDispose<
+      MonitoringMedicineStockNotifier,
+      BaseResponse<MonitoringTypeItemModel>
+    >(MonitoringMedicineStockNotifier.new);
+
 
 final monitoringSearchProvider = StateProvider<String>((ref) => '');
 

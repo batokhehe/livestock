@@ -78,7 +78,7 @@ class AddMonitoringFeedConfirmationPage extends ConsumerWidget {
                                       style: AppTypography.smallBoldBlack,
                                     ),
                                     Text(
-                                      "Rp ${formatPrice(items.fold<int>(0, (sum, item) => sum + ((item.quantity ?? 0) * (item.price ?? 0))))}",
+                                      "Rp ${formatPrice(items.fold<int>(0, (sum, item) => sum + (((item.quantity ?? 0) * (item.price ?? 0)).toInt())))}",
                                       style: AppTypography.smallBoldPrimary,
                                     ),
                                   ],
@@ -197,7 +197,7 @@ class _MonitoringInfoSection extends ConsumerWidget {
         : "-";
         
     final items = ref.watch(addedMonitoringFeedItemsProvider);
-    final totalQty = items.fold<int>(0, (sum, item) => sum + (item.quantity ?? 0));
+    final totalQty = items.fold<int>(0, (sum, item) => sum + (item.quantity ?? 0).toInt());
     
     final monitoringItem = Monitoring(
       code: dateStr,

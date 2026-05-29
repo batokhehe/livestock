@@ -8,19 +8,21 @@ import '../../../../../../core/theme/AppTypography.dart';
 import '../../../../../../core/widgets/select_field.dart';
 import '../../../../../../core/widgets/text_field_with_inner_counter.dart';
 import '../../../../data/monitoring_item_model.dart';
+import '../../../../data/monitoring_type_item_model.dart';
 import '../../../../monitoring_provider.dart';
 import '../../../widgets/monitoring_medicine_paginated_bottom_sheet.dart';
 
-class AddItemMedicineBottomSheet extends ConsumerStatefulWidget {
-  const AddItemMedicineBottomSheet({super.key});
+class EditItemMedicineBottomSheet extends ConsumerStatefulWidget {
+  final MonitoringItem itemToEdit;
+  const EditItemMedicineBottomSheet({super.key, required this.itemToEdit});
 
   @override
-  ConsumerState<AddItemMedicineBottomSheet> createState() =>
-      _AddItemMedicineBottomSheetState();
+  ConsumerState<EditItemMedicineBottomSheet> createState() =>
+      _EditItemMedicineBottomSheetState();
 }
 
-class _AddItemMedicineBottomSheetState
-    extends ConsumerState<AddItemMedicineBottomSheet> {
+class _EditItemMedicineBottomSheetState
+    extends ConsumerState<EditItemMedicineBottomSheet> {
   final qtyCtrl = TextEditingController();
   final jumlahCtrl = TextEditingController();
   final noteCtrl = TextEditingController();
@@ -39,6 +41,23 @@ class _AddItemMedicineBottomSheetState
   @override
   void initState() {
     super.initState();
+    final item = widget.itemToEdit;
+    qtyCtrl.text = item.quantity
+            ?.toStringAsFixed(item.quantity!.truncateToDouble() == item.quantity ? 0 : 2)
+            .replaceAll('.', ',') ?? '';
+    noteCtrl.text = item.note ?? '';
+
+    Future.microtask(() {
+      if (mounted) {
+        ref.read(selectedMonitoringMedicineProvider.notifier).state =
+            MonitoringTypeItemModel(
+          name: item.name ?? '',
+          code: item.code ?? '',
+          quantity: int.tryParse(item.stock ?? '0') ?? 0,
+          uom: item.unit ?? '',
+        );
+      }
+    });
     qtyCtrl.addListener(() => setState(() {}));
   }
 
@@ -229,7 +248,6 @@ class _AddItemMedicineBottomSheetState
     if (selectedObat != null) {
       if (jumlahCtrl.text != selectedObat.quantity.toString()) {
         jumlahCtrl.text = selectedObat.quantity.toString();
-        qtyCtrl.text = selectedObat.quantity.toString();
       }
     }
 
@@ -251,7 +269,7 @@ class _AddItemMedicineBottomSheetState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Tambah Item", style: AppTypography.largeBoldBlack),
+              const Text("Ubah Item", style: AppTypography.largeBoldBlack),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: const Icon(Icons.cancel_outlined),
@@ -297,6 +315,7 @@ class _AddItemMedicineBottomSheetState
                       Navigator.pop(
                         context,
                         MonitoringItem(
+                          id: widget.itemToEdit.id,
                           name: selectedObat?.name,
                           code: selectedObat?.code,
                           unit: selectedObat?.uom.isNotEmpty == true
@@ -312,7 +331,7 @@ class _AddItemMedicineBottomSheetState
                       );
                     }
                   : null,
-              child: const Text("Tambah Item", style: AppTypography.mediumBoldWhite),
+              child: const Text("Simpan Perubahan", style: AppTypography.mediumBoldWhite),
             ),
           ),
         ],

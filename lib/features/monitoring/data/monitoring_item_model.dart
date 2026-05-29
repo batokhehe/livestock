@@ -19,7 +19,7 @@ class MonitoringItem {
 
   final String? name;
   final String? unit;
-  final int? quantity;
+  final num? quantity;
 
   const MonitoringItem({
     this.id,
