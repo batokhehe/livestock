@@ -11,7 +11,8 @@ import '../../data/monitoring_type_item_model.dart';
 import 'monitoring_feed_paginated_bottom_sheet.dart';
 
 class AddItemBottomSheet extends StatefulWidget {
-  const AddItemBottomSheet({super.key});
+  final MonitoringItem? itemToEdit;
+  const AddItemBottomSheet({super.key, this.itemToEdit});
 
   @override
   State<AddItemBottomSheet> createState() => _AddItemBottomSheetState();
@@ -31,13 +32,24 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
   @override
   void initState() {
     super.initState();
+    if (widget.itemToEdit != null) {
+      final item = widget.itemToEdit!;
+      nameCtrl.text = item.name ?? '';
+      codeCtrl.text = item.code ?? '';
+      stockCtrl.text = item.stock ?? '0';
+      qtyCtrl.text = item.quantity.toString();
+      priceCtrl.text = item.price.toString();
+      noteCtrl.text = item.note ?? '';
+      totalPriceCtrl.text = ((item.quantity ?? 0) * (item.price ?? 0)).toString();
+    }
+
     qtyCtrl.addListener(_calculateTotal);
     priceCtrl.addListener(_calculateTotal);
   }
 
   void _calculateTotal() {
     int qty = int.tryParse(qtyCtrl.text) ?? 0;
-    final stock = selectedFeed?.quantity ?? 0;
+    final stock = int.tryParse(stockCtrl.text) ?? 0;
 
     bool qtyChanged = false;
     if (qty > stock) {
@@ -87,98 +99,102 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Tambah Item", style: AppTypography.largeBoldBlack),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.close),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(widget.itemToEdit == null ? "Tambah Item" : "Ubah Item", style: AppTypography.largeBoldBlack),
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            if (widget.itemToEdit == null) ...[
+              Dropdowns(
+                label: "Pakan",
+                value: selectedFeed == null ? "Pilih Pakan" : selectedFeed!.name,
+                icon: AppImages.icProduct,
+                onTap: _openFeedSheet,
               ),
             ],
-          ),
-          const SizedBox(height: 20),
-          Dropdowns(
-            label: "Pakan",
-            value: selectedFeed == null ? "Pilih Pakan" : selectedFeed!.name,
-            icon: AppImages.icProduct,
-            onTap: _openFeedSheet,
-          ),
-          TextFields(
-            label: "Nama Pakan",
-            hint: "Nama Pakan",
-            controller: nameCtrl,
-            enabled: false,
-          ),
-          TextFields(
-            label: "Kode",
-            hint: "Kode",
-            controller: codeCtrl,
-            enabled: false,
-          ),
-          TextFields(
-            label: "Kuantitas Tersedia",
-            hint: "Jumlah Kuantitas Tersedia",
-            controller: stockCtrl,
-            enabled: false,
-          ),
-          TextFields(
-            label: "Harga Satuan",
-            hint: "Masukkan Harga Satuan",
-            controller: priceCtrl,
-            enabled: false,
-          ),
-          const SizedBox(height: 16),
-          TextFields(
-            label: "Jumlah Pakan",
-            hint: "Jumlah Pakan",
-            controller: qtyCtrl,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          ),
-          TextFields(
-            label: "Harga Total",
-            hint: "Harga Total",
-            controller: totalPriceCtrl,
-            // enabled: false,
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.all(18),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onPressed: (int.tryParse(qtyCtrl.text) ?? 0) > 0
-                  ? () {
-                      Navigator.pop(
-                        context,
-                        MonitoringItem(
-                          name: nameCtrl.text,
-                          code: codeCtrl.text,
-                          unit: selectedFeed?.uom.isNotEmpty == true
-                              ? selectedFeed!.uom
-                              : "Pakan",
-                          quantity: int.tryParse(qtyCtrl.text) ?? 0,
-                          price: int.tryParse(priceCtrl.text) ?? 0,
-                          note: noteCtrl.text,
-                          stock: stockCtrl.text,
-                        ),
-                      );
-                    }
-                  : null,
-              child: Text("Tambah Item", style: AppTypography.mediumBoldWhite),
+            TextFields(
+              label: "Nama Pakan",
+              hint: "Nama Pakan",
+              controller: nameCtrl,
+              enabled: false,
             ),
-          ),
-        ],
+            TextFields(
+              label: "Kode",
+              hint: "Kode",
+              controller: codeCtrl,
+              enabled: false,
+            ),
+            TextFields(
+              label: "Kuantitas Tersedia",
+              hint: "Jumlah Kuantitas Tersedia",
+              controller: stockCtrl,
+              enabled: false,
+            ),
+            TextFields(
+              label: "Harga Satuan",
+              hint: "Masukkan Harga Satuan",
+              controller: priceCtrl,
+              enabled: false,
+            ),
+            const SizedBox(height: 16),
+            TextFields(
+              label: "Jumlah Pakan",
+              hint: "Jumlah Pakan",
+              controller: qtyCtrl,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            ),
+            TextFields(
+              label: "Harga Total",
+              hint: "Harga Total",
+              controller: totalPriceCtrl,
+              // enabled: false,
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.all(18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: (int.tryParse(qtyCtrl.text) ?? 0) > 0
+                    ? () {
+                        Navigator.pop(
+                          context,
+                          MonitoringItem(
+                            name: nameCtrl.text,
+                            code: codeCtrl.text,
+                            unit: widget.itemToEdit?.unit ?? (selectedFeed?.uom.isNotEmpty == true
+                                ? selectedFeed!.uom
+                                : "Pakan"),
+                            quantity: int.tryParse(qtyCtrl.text) ?? 0,
+                            price: int.tryParse(priceCtrl.text) ?? 0,
+                            note: noteCtrl.text,
+                            stock: stockCtrl.text,
+                          ),
+                        );
+                      }
+                    : null,
+                child: Text(widget.itemToEdit == null ? "Tambah Item" : "Simpan Perubahan", style: AppTypography.mediumBoldWhite),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

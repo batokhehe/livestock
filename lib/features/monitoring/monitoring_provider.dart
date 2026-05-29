@@ -96,6 +96,8 @@ final healthMonitoringSearchProvider = StateProvider.autoDispose<String>(
 
 final addedMonitoringWeightItemsProvider =
     StateProvider.autoDispose<List<MonitoringItem>>((ref) => []);
+final addedMonitoringFeedItemsProvider =
+    StateProvider.autoDispose<List<MonitoringItem>>((ref) => []);
 
 class MonitoringFeedStockNotifier
     extends AutoDisposeAsyncNotifier<BaseResponse<MonitoringTypeItemModel>> {
