@@ -118,7 +118,9 @@ class ConfirmationBottomSheet extends StatelessWidget {
                     },
                     child: Text(
                       saveText,
-                      style: AppTypography.smallNormalWhite,
+                      style: AppTypography.smallBoldWhite.copyWith(
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ),

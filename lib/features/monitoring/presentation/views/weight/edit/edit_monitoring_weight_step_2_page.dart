@@ -3,28 +3,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 
-import '../../../../../core/theme/AppColors.dart';
-import '../../../../../core/theme/AppTypography.dart';
-import '../../../../../core/widgets/card_wrapper.dart';
-import '../../../../../core/widgets/step_info_card.dart';
-import '../../../data/monitoring_item_model.dart';
-import '../../../monitoring_provider.dart';
-import 'widgets/add_item_bottom_sheet_weight.dart';
-import 'widgets/edit_item_bottom_sheet_weight.dart';
-import 'widgets/monitoring_weight_item_card.dart';
+import '../../../../../../core/theme/AppColors.dart';
+import '../../../../../../core/theme/AppTypography.dart';
+import '../../../../../../core/widgets/card_wrapper.dart';
+import '../../../../../../core/widgets/step_info_card.dart';
+import '../../../../data/monitoring_item_model.dart';
+import '../../../../data/weight_monitoring_model.dart';
+import '../widgets/add_item_bottom_sheet_weight.dart';
+import '../widgets/edit_item_bottom_sheet_weight.dart';
+import '../widgets/monitoring_weight_item_card.dart';
+import 'edit_monitoring_weight_provider.dart';
 
-class AddMonitoringWeightStep2Page extends ConsumerStatefulWidget {
-  const AddMonitoringWeightStep2Page({super.key});
+class EditMonitoringWeightStep2Page extends ConsumerStatefulWidget {
+  final WeightMonitoring item;
+  const EditMonitoringWeightStep2Page({super.key, required this.item});
 
   @override
-  ConsumerState<AddMonitoringWeightStep2Page> createState() =>
-      _AddMonitoringWeightStep2PageState();
+  ConsumerState<EditMonitoringWeightStep2Page> createState() =>
+      _EditMonitoringWeightStep2PageState();
 }
 
-class _AddMonitoringWeightStep2PageState
-    extends ConsumerState<AddMonitoringWeightStep2Page> {
+class _EditMonitoringWeightStep2PageState
+    extends ConsumerState<EditMonitoringWeightStep2Page> {
   List<MonitoringItem> get items =>
-      ref.read(addedMonitoringWeightItemsProvider);
+      ref.read(editAddedMonitoringWeightItemsProvider);
 
   void _openAddItemSheet() async {
     final result = await showModalBottomSheet<MonitoringItem>(
@@ -38,7 +40,7 @@ class _AddMonitoringWeightStep2PageState
 
     if (result != null) {
       ref
-          .read(addedMonitoringWeightItemsProvider.notifier)
+          .read(editAddedMonitoringWeightItemsProvider.notifier)
           .update((state) => [...state, result]);
     }
   }
@@ -60,7 +62,7 @@ class _AddMonitoringWeightStep2PageState
     if (result != null) {
       final index = items.indexWhere((e) => e.id == item.id);
       if (index != -1) {
-        ref.read(addedMonitoringWeightItemsProvider.notifier).update((state) {
+        ref.read(editAddedMonitoringWeightItemsProvider.notifier).update((state) {
           final list = [...state];
           list[index] = result;
           return list;
@@ -71,13 +73,13 @@ class _AddMonitoringWeightStep2PageState
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(addedMonitoringWeightItemsProvider);
+    ref.watch(editAddedMonitoringWeightItemsProvider);
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Tambah Pemantauan",
+          "Edit Pemantauan",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -98,7 +100,7 @@ class _AddMonitoringWeightStep2PageState
               child: _infoItem(),
             ),
           ),
-          const _NextButton(),
+          _NextButton(item: widget.item),
         ],
       ),
     );
@@ -188,7 +190,7 @@ class _AddMonitoringWeightStep2PageState
       builder: (_) => _DeleteConfirmBottomSheet(
         onDelete: () {
           ref
-              .read(addedMonitoringWeightItemsProvider.notifier)
+              .read(editAddedMonitoringWeightItemsProvider.notifier)
               .update((state) => state.where((e) => e.id != item.id).toList());
           Navigator.pop(context);
         },
@@ -197,11 +199,15 @@ class _AddMonitoringWeightStep2PageState
   }
 }
 
-class _NextButton extends StatelessWidget {
-  const _NextButton();
+class _NextButton extends ConsumerWidget {
+  final WeightMonitoring item;
+  const _NextButton({required this.item});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final items = ref.watch(editAddedMonitoringWeightItemsProvider);
+    final isValid = items.isNotEmpty;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -211,13 +217,17 @@ class _NextButton extends StatelessWidget {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
+              disabledBackgroundColor: AppColors.grey3,
+              disabledForegroundColor: AppColors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: () {
-              context.push("/monitoring/add/confirmation?type=weight");
-            },
+            onPressed: isValid
+                ? () {
+                    context.push("/monitoring/edit/confirmation", extra: item);
+                  }
+                : null,
             child: const Text(
               "Selanjutnya",
               style: AppTypography.mediumBoldWhite,
@@ -260,7 +270,6 @@ class _DeleteConfirmBottomSheet extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 20),
           Image.asset(AppImages.icDeleteConfirmation, height: 120),
           const SizedBox(height: 20),

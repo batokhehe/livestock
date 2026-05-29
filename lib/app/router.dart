@@ -18,6 +18,9 @@ import 'package:livestock/features/monitoring/presentation/views/feed/add_monito
 import 'package:livestock/features/monitoring/presentation/views/weight/add_monitoring_weight_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/weight/add_monitoring_weight_step_2_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/weight/add_monitoring_weight_confirmation_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/weight/edit/edit_monitoring_weight_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/weight/edit/edit_monitoring_weight_step_2_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/weight/edit/edit_monitoring_weight_confirmation_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/weight/detail/weight_monitoring_detail_page.dart';
 import 'package:livestock/features/monitoring/data/weight_monitoring_model.dart';
 import 'package:livestock/features/monitoring/presentation/views/medicine/add_monitoring_medicine_page.dart';
@@ -220,6 +223,27 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) {
                   final item = state.extra as WeightMonitoring;
                   return WeightMonitoringDetailPage(item: item);
+                },
+              ),
+              GoRoute(
+                path: 'edit',
+                builder: (context, state) {
+                  final item = state.extra as WeightMonitoring;
+                  return EditMonitoringWeightPage(item: item);
+                },
+              ),
+              GoRoute(
+                path: 'edit/step-2',
+                builder: (context, state) {
+                  final item = state.extra as WeightMonitoring;
+                  return EditMonitoringWeightStep2Page(item: item);
+                },
+              ),
+              GoRoute(
+                path: 'edit/confirmation',
+                builder: (context, state) {
+                  final item = state.extra as WeightMonitoring;
+                  return EditMonitoringWeightConfirmationPage(item: item);
                 },
               ),
             ],
