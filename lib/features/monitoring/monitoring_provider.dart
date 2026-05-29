@@ -6,6 +6,7 @@ import 'package:livestock/features/monitoring/data/monitoring_type_item_model.da
 
 import '../../app/providers.dart';
 import '../attendance/data/model/employee_model.dart';
+import 'data/health_monitoring_model.dart';
 import 'data/monitoring_item_model.dart';
 import 'data/monitoring_model.dart';
 import 'data/total_animal_model.dart';
@@ -72,6 +73,15 @@ final monitoringApiProvider = Provider((ref) {
   final dio = ref.read(dioProvider);
   return MonitoringApi(dio);
 });
+
+final healthMonitoringDetailProvider = FutureProvider.autoDispose.family<HealthMonitoring, int>((
+  ref,
+  id,
+) async {
+  final api = ref.read(monitoringApiProvider);
+  return api.getHealthMonitoringDetail(id);
+});
+
 
 // Weight monitoring list filters
 final weightMonitoringSearchProvider = StateProvider.autoDispose<String>(

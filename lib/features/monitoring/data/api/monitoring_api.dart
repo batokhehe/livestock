@@ -154,4 +154,10 @@ class MonitoringApi {
       data: {'ids': ids},
     );
   }
+
+  Future<HealthMonitoring> getHealthMonitoringDetail(int id) async {
+    final res = await dio.get('/monitoring/health-monitoring/$id');
+    return HealthMonitoring.fromJson(res.data['data']);
+  }
 }
+
