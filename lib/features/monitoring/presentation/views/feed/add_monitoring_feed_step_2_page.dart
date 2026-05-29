@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 
@@ -7,19 +8,20 @@ import '../../../../../core/theme/AppTypography.dart';
 import '../../../../../core/widgets/card_wrapper.dart';
 import '../../../../../core/widgets/step_info_card.dart';
 import '../../../data/monitoring_item_model.dart';
+import '../../../monitoring_provider.dart';
 import '../../widgets/add_item_bottom_sheet.dart';
 
-class AddMonitoringFeedStep2Page extends StatefulWidget {
+class AddMonitoringFeedStep2Page extends ConsumerStatefulWidget {
   const AddMonitoringFeedStep2Page({super.key});
 
   @override
-  State<AddMonitoringFeedStep2Page> createState() =>
+  ConsumerState<AddMonitoringFeedStep2Page> createState() =>
       _AddMonitoringFeedStep2PageState();
 }
 
 class _AddMonitoringFeedStep2PageState
-    extends State<AddMonitoringFeedStep2Page> {
-  final List<MonitoringItem> items = [];
+    extends ConsumerState<AddMonitoringFeedStep2Page> {
+  List<MonitoringItem> get items => ref.read(addedMonitoringFeedItemsProvider);
 
   void _openAddItemSheet() async {
     final result = await showModalBottomSheet<MonitoringItem>(
@@ -30,7 +32,7 @@ class _AddMonitoringFeedStep2PageState
     );
 
     if (result != null) {
-      setState(() => items.add(result));
+      ref.read(addedMonitoringFeedItemsProvider.notifier).update((state) => [...state, result]);
     }
   }
 
@@ -43,12 +45,17 @@ class _AddMonitoringFeedStep2PageState
     );
 
     if (result != null) {
-      setState(() => items[index] = result);
+      ref.read(addedMonitoringFeedItemsProvider.notifier).update((state) {
+        final list = [...state];
+        list[index] = result;
+        return list;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(addedMonitoringFeedItemsProvider);
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
@@ -251,7 +258,9 @@ class _AddMonitoringFeedStep2PageState
       backgroundColor: Colors.transparent,
       builder: (_) => _DeleteConfirmBottomSheet(
         onDelete: () {
-          setState(() => items.remove(item));
+          ref.read(addedMonitoringFeedItemsProvider.notifier).update(
+                (state) => state.where((e) => e != item).toList(),
+              );
           Navigator.pop(context);
         },
       ),

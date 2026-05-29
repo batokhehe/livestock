@@ -9,14 +9,20 @@ import '../../../../../core/theme/AppColors.dart';
 import '../../../../../core/theme/AppTypography.dart';
 import '../../../../../core/widgets/section_card.dart';
 import '../../../../../core/widgets/step_info_card.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../../core/helpers/utils.dart';
+import '../../../../../core/constant/enum.dart';
+import 'package:livestock/features/monitoring/data/monitoring_model.dart';
+import 'package:livestock/features/monitoring/data/monitoring_item_model.dart';
 import 'package:livestock/features/receiving/presentation/widgets/confirmation_bottom_sheet.dart';
 import '../../../monitoring_provider.dart';
 
-class AddMonitoringFeedConfirmationPage extends StatelessWidget {
+class AddMonitoringFeedConfirmationPage extends ConsumerWidget {
   const AddMonitoringFeedConfirmationPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final items = ref.watch(addedMonitoringFeedItemsProvider);
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
@@ -48,7 +54,37 @@ class AddMonitoringFeedConfirmationPage extends StatelessWidget {
                         style: AppTypography.mediumNormalBlack,
                       ),
                       const SizedBox(height: 12),
-                      _itemCard(),
+                      items.isEmpty
+                          ? Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Text(
+                                  "Belum ada item",
+                                  style: AppTypography.smallNormalGrey,
+                                ),
+                              ),
+                            )
+                          : Column(
+                              children: [
+                                ...items.map((item) {
+                                  return _itemCard(item, ref);
+                                }),
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      "Total Keseluruhan",
+                                      style: AppTypography.smallBoldBlack,
+                                    ),
+                                    Text(
+                                      "Rp ${formatPrice(items.fold<int>(0, (sum, item) => sum + ((item.quantity ?? 0) * (item.price ?? 0))))}",
+                                      style: AppTypography.smallBoldPrimary,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                     ],
                   ),
                 ),
@@ -61,7 +97,15 @@ class AddMonitoringFeedConfirmationPage extends StatelessWidget {
     );
   }
 
-  Widget _itemCard() {
+  Widget _itemCard(MonitoringItem item, WidgetRef ref) {
+    final availableCountAsync = ref.watch(monitoringAnimalAvailableCountProvider);
+    final availableCount = availableCountAsync.value ?? 0;
+    
+    final satuan = ref.watch(monitoringFeedSatuanProvider);
+    final qty = item.quantity ?? 0;
+    final ratio = availableCount > 0 ? (qty / availableCount) : 0.0;
+    final ratioStr = ratio == ratio.toInt() ? ratio.toInt().toString() : ratio.toStringAsFixed(2);
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -78,16 +122,16 @@ class AddMonitoringFeedConfirmationPage extends StatelessWidget {
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Rumput Sinnoh", style: AppTypography.smallBoldBlack),
-                  Text("FD00001", style: AppTypography.smallNormalGrey),
+                children: [
+                  Text(item.name ?? "-", style: AppTypography.smallBoldBlack),
+                  Text(item.code ?? "-", style: AppTypography.smallNormalGrey),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: const [
-                  StatusChips(text: "400 Stock", color: AppColors.success),
-                  Text("Karung", style: AppTypography.smallNormalGrey),
+                children: [
+                  StatusChips(text: "${item.stock ?? 0} Stock", color: AppColors.success),
+                  Text(item.unit ?? "Karung", style: AppTypography.smallNormalGrey),
                 ],
               ),
             ],
@@ -100,16 +144,16 @@ class AddMonitoringFeedConfirmationPage extends StatelessWidget {
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("100", style: AppTypography.smallBoldBlack),
-                  Text("Kuantitas", style: AppTypography.smallNormalGrey),
+                children: [
+                  Text("$qty", style: AppTypography.smallBoldBlack),
+                  const Text("Kuantitas", style: AppTypography.smallNormalGrey),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: const [
-                  Text("33 ember", style: AppTypography.smallBoldBlack),
-                  Text("Rasio Kuantitas", style: AppTypography.smallNormalGrey),
+                children: [
+                  Text("$ratioStr ${satuan.isNotEmpty ? satuan : (item.unit ?? '')}", style: AppTypography.smallBoldBlack),
+                  const Text("Rasio Kuantitas", style: AppTypography.smallNormalGrey),
                 ],
               ),
             ],
@@ -119,9 +163,19 @@ class AddMonitoringFeedConfirmationPage extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text("Catatan", style: AppTypography.xSmallNormalGrey),
-              Text("Kasih Makan", style: AppTypography.smallBoldBlack),
+            children: [
+              const Text("Harga Total", style: AppTypography.xSmallNormalGrey),
+              Text("Rp ${formatPrice(qty * (item.price ?? 0))}", style: AppTypography.smallBoldBlack),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Catatan", style: AppTypography.xSmallNormalGrey),
+              Text(item.note?.isNotEmpty == true ? item.note! : "-", style: AppTypography.smallBoldBlack),
             ],
           ),
         ],
@@ -130,55 +184,83 @@ class AddMonitoringFeedConfirmationPage extends StatelessWidget {
   }
 }
 
-class _MonitoringInfoSection extends StatelessWidget {
+class _MonitoringInfoSection extends ConsumerWidget {
   const _MonitoringInfoSection();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedDate = ref.watch(selectedMonitoringDateProvider);
+    final selectedEmployee = ref.watch(selectedMonitoringEmployeeProvider);
+    final dateStr = selectedDate != null ? formatDateTime(selectedDate) : "-";
+    final employeeStr = selectedEmployee != null
+        ? "${selectedEmployee.name} • ${selectedEmployee.phone}"
+        : "-";
+        
+    final items = ref.watch(addedMonitoringFeedItemsProvider);
+    final totalQty = items.fold<int>(0, (sum, item) => sum + (item.quantity ?? 0));
+    
+    final monitoringItem = Monitoring(
+      code: dateStr,
+      subtitle: 'Pakan',
+      title: employeeStr,
+      description: "Satuan ${ref.watch(monitoringFeedSatuanProvider)}",
+      count: totalQty,
+      total: totalQty,
+      status: ItemStatus.feed,
+      date: selectedDate ?? DateTime.now(),
+      items: items,
+      location: "Satuan ${ref.watch(monitoringFeedSatuanProvider)}"
+    );
+
     return SectionCard(
       title: "Informasi Pemantauan",
-      children: [ConfirmationItemDoubleCard(item: dummyItem)],
+      children: [ConfirmationItemDoubleCard(item: monitoringItem)],
     );
   }
 }
 
-class _FarmInfoSection extends StatelessWidget {
+class _FarmInfoSection extends ConsumerWidget {
   const _FarmInfoSection();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final farm = ref.watch(selectedMonitoringFarmProvider);
+    final area = ref.watch(selectedMonitoringAreaProvider);
+    final animalCountAsync = ref.watch(monitoringAnimalAvailableCountProvider);
+    final animalCount = animalCountAsync.value ?? 0;
+
     return SectionCard(
       title: "Informasi Peternakan",
       children: [
         CardWrapper(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text("Sapi Agri Bandung", style: AppTypography.smallBoldBlack),
-              Text("Area 3", style: AppTypography.smallBoldRed),
+            children: [
+              Text(farm?.name ?? "-", style: AppTypography.smallBoldBlack),
+              Text(area?.name ?? "-", style: AppTypography.smallBoldRed),
             ],
           ),
         ),
         const SizedBox(height: 24),
-        const CardWrapper(
+        CardWrapper(
           child: Column(
             children: [
               ProductHeaderCard(
-                title: "3 Hewan",
+                title: "$animalCount Hewan",
                 subtitle: "Hewan Tersedia",
                 image: AppImages.icProduct,
               ),
-              SizedBox(height: 8),
-              Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
+              const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+              const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     "satuan per hewan",
                     style: AppTypography.smallNormalBlack,
                   ),
-                  Text("30 Hewan", style: AppTypography.smallBoldBlack),
+                  Text("$animalCount Hewan", style: AppTypography.smallBoldBlack),
                 ],
               ),
             ],
