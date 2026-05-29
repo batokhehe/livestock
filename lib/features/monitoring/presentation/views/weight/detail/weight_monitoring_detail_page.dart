@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
@@ -36,23 +37,70 @@ class WeightMonitoringDetailPage extends StatelessWidget {
         ),
         leading: const BackButton(),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: Column(
         children: [
-          _InfoSection(item: item),
-          const SizedBox(height: 12),
-          _ItemsSection(
-            details: item.details,
-            monitoringDate: item.monitoringDate,
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _InfoSection(item: item),
+                const SizedBox(height: 12),
+                _ItemsSection(
+                  details: item.details,
+                  monitoringDate: item.monitoringDate,
+                ),
+                const SizedBox(height: 12),
+                _SummarySection(
+                  totalAnimals: item.detailsCount,
+                  avgDiffWeight: avgDiffWeight,
+                  avgAdg: avgAdg,
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
-          _SummarySection(
-            totalAnimals: item.detailsCount,
-            avgDiffWeight: avgDiffWeight,
-            avgAdg: avgAdg,
-          ),
-          const SizedBox(height: 24),
+          _EditButton(item: item),
         ],
+      ),
+    );
+  }
+}
+
+class _EditButton extends StatelessWidget {
+  final WeightMonitoring item;
+  const _EditButton({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: InkWell(
+          onTap: () {
+            context.push('/monitoring/edit', extra: item);
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            height: 56,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF2F4FF),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Edit Data",
+                  style: AppTypography.smallBoldPrimary.copyWith(
+                    color: Colors.blue.shade700,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(Icons.edit_rounded, color: Colors.blue.shade700, size: 20),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -149,16 +197,14 @@ class _DetailCard extends ConsumerWidget {
           showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (_) => const Center(
-              child: CircularProgressIndicator(),
-            ),
+            builder: (_) => const Center(child: CircularProgressIndicator()),
           );
 
           try {
-            await ref.read(monitoringApiProvider).deleteWeightMonitoringDetails(
-              ids: [detail.id],
-            );
-            
+            await ref
+                .read(monitoringApiProvider)
+                .deleteWeightMonitoringDetails(ids: [detail.id]);
+
             // Invalidate list provider
             ref.invalidate(weightMonitoringListProvider);
 
@@ -220,37 +266,6 @@ class _DetailCard extends ConsumerWidget {
                         style: AppTypography.xSmallNormalBlack,
                       ),
                     ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => _showDeleteConfirmSheet(context, ref),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.danger.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.delete_outline,
-                      color: AppColors.danger,
-                      size: 20,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.edit_outlined,
-                      color: Colors.white,
-                      size: 20,
-                    ),
                   ),
                 ),
               ],

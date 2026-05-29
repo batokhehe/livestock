@@ -99,6 +99,29 @@ class MonitoringApi {
     );
   }
 
+  Future<void> updateWeightMonitoring({
+    required int id,
+    required DateTime monitoringDate,
+    required int employeeId,
+    required List<Map<String, dynamic>> items,
+    String status = 'confirmed',
+    String notes = '',
+  }) async {
+    final payload = <String, dynamic>{
+      'monitoring_date': monitoringDate.toIso8601String().split('T').first,
+      'employee_id': employeeId,
+      'monitoring_status': status,
+      'notes': notes,
+      'items': items,
+    };
+
+    await dio.put(
+      '/monitoring/weight-monitoring/$id',
+      data: payload,
+      options: Options(contentType: Headers.jsonContentType),
+    );
+  }
+
   Future<void> deleteWeightMonitoringDetails({required List<int> ids}) async {
     await dio.post(
       '/monitoring/weight-monitoring/bulk-delete',
