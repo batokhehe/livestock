@@ -85,6 +85,7 @@ class _MonitoringInfoSection extends ConsumerWidget {
       children: [
         SelectField(
           label: "Tanggal Pemantauan",
+          isMandatoryField: true,
           hint: selectedDate != null
               ? formatDateTime(selectedDate)
               : "Pilih tanggal",
@@ -95,8 +96,9 @@ class _MonitoringInfoSection extends ConsumerWidget {
               context: context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
-              builder: (_) =>
-                  const CustomDatePickerSheet(title: "Pilih Tanggal Pemantauan"),
+              builder: (_) => const CustomDatePickerSheet(
+                title: "Pilih Tanggal Pemantauan",
+              ),
             );
 
             if (pickedDate != null) {
@@ -108,6 +110,7 @@ class _MonitoringInfoSection extends ConsumerWidget {
         SizedBox(height: 12),
         SelectField(
           label: "Karyawan",
+          isMandatoryField: true,
           hint: selectedEmployee != null
               ? "${selectedEmployee.name} • ${selectedEmployee.phone}"
               : "Pilih karyawan",
@@ -120,6 +123,7 @@ class _MonitoringInfoSection extends ConsumerWidget {
         SizedBox(height: 12),
         InputField(
           label: "Satuan",
+          isMandatoryField: true,
           hint: "Masukkan satuan",
           keyboardType: TextInputType.text,
           onChanged: (val) {
@@ -170,7 +174,9 @@ class _FarmInfoSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedFarm = ref.watch(selectedMonitoringFarmProvider);
     final selectedArea = ref.watch(selectedMonitoringAreaProvider);
-    final availableCountAsync = ref.watch(monitoringAnimalAvailableCountProvider);
+    final availableCountAsync = ref.watch(
+      monitoringAnimalAvailableCountProvider,
+    );
     final availableCount = availableCountAsync.value ?? 0;
 
     return SectionCard(
@@ -178,6 +184,7 @@ class _FarmInfoSection extends ConsumerWidget {
       children: [
         SelectField(
           label: "Lokasi peternakan",
+          isMandatoryField: true,
           hint: selectedFarm?.name ?? "Pilih lokasi",
           icon: AppImages.icHomeHashTag,
           onTap: () => _showFarmLocationPicker(context, ref),
@@ -185,6 +192,7 @@ class _FarmInfoSection extends ConsumerWidget {
         SizedBox(height: 12),
         SelectField(
           label: "Area peternakan",
+          isMandatoryField: true,
           hint: selectedArea?.name ?? "Pilih area",
           icon: AppImages.icMap,
           enabled: selectedFarm != null,
@@ -218,10 +226,13 @@ class _NextButton extends ConsumerWidget {
     final satuan = ref.watch(monitoringFeedSatuanProvider);
     final selectedFarm = ref.watch(selectedMonitoringFarmProvider);
     final selectedArea = ref.watch(selectedMonitoringAreaProvider);
-    final availableCountAsync = ref.watch(monitoringAnimalAvailableCountProvider);
+    final availableCountAsync = ref.watch(
+      monitoringAnimalAvailableCountProvider,
+    );
     final availableCount = availableCountAsync.value ?? 0;
 
-    final isValid = selectedDate != null &&
+    final isValid =
+        selectedDate != null &&
         selectedEmployee != null &&
         satuan.trim().isNotEmpty &&
         selectedFarm != null &&
@@ -249,10 +260,7 @@ class _NextButton extends ConsumerWidget {
                     context.push('/monitoring/add/step-2?type=feed');
                   }
                 : null,
-            child: Text(
-              "Selanjutnya", 
-              style: AppTypography.mediumBoldWhite,
-            ),
+            child: Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
           ),
         ),
       ),

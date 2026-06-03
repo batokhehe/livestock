@@ -125,6 +125,40 @@ class MonitoringApi {
     );
   }
 
+  Future<void> submitFeedMonitoring({
+    required DateTime monitoringDate,
+    required int employeeId,
+    required int farmLocationId,
+    required int farmAreaId,
+    required String uom,
+    required int totalAnimal,
+    required int totalFeed,
+    required int totalCost,
+    required List<Map<String, dynamic>> items,
+    String status = 'confirmed',
+    String notes = '',
+  }) async {
+    final payload = <String, dynamic>{
+      'monitoring_date': monitoringDate.toIso8601String().split('T').first,
+      'employee_id': employeeId,
+      'farm_location_id': farmLocationId,
+      'farm_area_id': farmAreaId,
+      'monitoring_status': status,
+      'uom': uom,
+      'total_animal': totalAnimal,
+      'total_feed': totalFeed,
+      'total_cost': totalCost,
+      'notes': notes,
+      'items': items,
+    };
+
+    await dio.post(
+      '/monitoring/feed-monitoring',
+      data: payload,
+      options: Options(contentType: Headers.jsonContentType),
+    );
+  }
+
   Future<void> updateWeightMonitoring({
     required int id,
     required DateTime monitoringDate,
@@ -159,5 +193,9 @@ class MonitoringApi {
     final res = await dio.get('/monitoring/health-monitoring/$id');
     return HealthMonitoring.fromJson(res.data['data']);
   }
-}
 
+  Future<FeedMonitoring> getFeedMonitoringDetail(int id) async {
+    final res = await dio.get('/monitoring/feed-monitoring/$id');
+    return FeedMonitoring.fromJson(res.data['data']);
+  }
+}

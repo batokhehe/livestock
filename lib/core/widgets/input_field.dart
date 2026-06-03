@@ -10,6 +10,7 @@ class InputField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final TextInputType? keyboardType;
   final String? initialValue;
+  final bool isMandatoryField;
 
   const InputField({
     super.key,
@@ -19,6 +20,7 @@ class InputField extends StatelessWidget {
     this.onChanged,
     this.keyboardType,
     this.initialValue,
+    this.isMandatoryField = false,
   });
 
   @override
@@ -30,7 +32,15 @@ class InputField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTypography.smallBoldBlack),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(label, style: AppTypography.smallBoldBlack),
+            isMandatoryField
+                ? const Text('*', style: AppTypography.smallBoldRed)
+                : const SizedBox.shrink(),
+          ],
+        ),
         const SizedBox(height: 6),
         TextField(
           controller: controller,

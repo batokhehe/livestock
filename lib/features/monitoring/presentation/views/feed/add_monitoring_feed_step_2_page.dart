@@ -32,7 +32,9 @@ class _AddMonitoringFeedStep2PageState
     );
 
     if (result != null) {
-      ref.read(addedMonitoringFeedItemsProvider.notifier).update((state) => [...state, result]);
+      ref
+          .read(addedMonitoringFeedItemsProvider.notifier)
+          .update((state) => [...state, result]);
     }
   }
 
@@ -166,19 +168,19 @@ class _AddMonitoringFeedStep2PageState
             ),
           ),
 
-          const SizedBox(height: 12),
-          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("Catatan", style: AppTypography.xSmallNormalGrey),
-              Text(
-                item.note!.isEmpty ? "-" : item.note!,
-                style: AppTypography.smallBoldBlack,
-              ),
-            ],
-          ),
+          // const SizedBox(height: 12),
+          // const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+          // const SizedBox(height: 12),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     const Text("Catatan", style: AppTypography.xSmallNormalGrey),
+          //     Text(
+          //       item.note!.isEmpty ? "-" : item.note!,
+          //       style: AppTypography.smallBoldBlack,
+          //     ),
+          //   ],
+          // ),
         ],
       ),
     );
@@ -258,9 +260,9 @@ class _AddMonitoringFeedStep2PageState
       backgroundColor: Colors.transparent,
       builder: (_) => _DeleteConfirmBottomSheet(
         onDelete: () {
-          ref.read(addedMonitoringFeedItemsProvider.notifier).update(
-                (state) => state.where((e) => e != item).toList(),
-              );
+          ref
+              .read(addedMonitoringFeedItemsProvider.notifier)
+              .update((state) => state.where((e) => e != item).toList());
           Navigator.pop(context);
         },
       ),
@@ -268,11 +270,14 @@ class _AddMonitoringFeedStep2PageState
   }
 }
 
-class _NextButton extends StatelessWidget {
+class _NextButton extends ConsumerWidget {
   const _NextButton();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final items = ref.watch(addedMonitoringFeedItemsProvider);
+    final isValid = items.isNotEmpty;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -282,13 +287,18 @@ class _NextButton extends StatelessWidget {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
+              disabledBackgroundColor: AppColors.grey3,
+              disabledForegroundColor: AppColors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
+              elevation: isValid ? 2 : 0,
             ),
-            onPressed: () {
-              context.push("/monitoring/add/confirmation?type=feed");
-            },
+            onPressed: isValid
+                ? () {
+                    context.push("/monitoring/add/confirmation?type=feed");
+                  }
+                : null,
             child: const Text(
               "Selanjutnya",
               style: AppTypography.mediumBoldWhite,
