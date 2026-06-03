@@ -77,15 +77,15 @@ class ConfirmationItemDoubleCard extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      item.description.toString(),
-                      style: AppTypography.xSmallNormalBlack,
-                    ),
-                  ],
-                ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     Text(
+                //       item.description.toString(),
+                //       style: AppTypography.xSmallNormalBlack,
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),

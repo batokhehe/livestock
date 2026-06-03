@@ -6,8 +6,10 @@ import 'package:livestock/features/monitoring/data/monitoring_type_item_model.da
 
 import '../../app/providers.dart';
 import '../attendance/data/model/employee_model.dart';
+import 'data/health_monitoring_model.dart';
 import 'data/monitoring_item_model.dart';
 import 'data/monitoring_model.dart';
+import 'data/total_animal_model.dart';
 import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
 
@@ -15,6 +17,14 @@ final selectedMonitoringEmployeeProvider = StateProvider.autoDispose<Employee?>(
   (ref) => null,
 );
 final selectedMonitoringDateProvider = StateProvider.autoDispose<DateTime?>(
+  (ref) => null,
+);
+final selectedHealthMonitoringDateProvider =
+    StateProvider.autoDispose<DateTime?>((ref) => null);
+final selectedMedicineMonitoringDateProvider =
+    StateProvider.autoDispose<DateTime?>((ref) => null);
+
+final selectedMonitoringMedicineProvider = StateProvider.autoDispose<MonitoringTypeItemModel?>(
   (ref) => null,
 );
 
@@ -40,34 +50,18 @@ final monitoringAnimalAvailableCountProvider = FutureProvider.autoDispose<int>((
   final dio = ref.watch(dioProvider);
   try {
     final res = await dio.get(
-      '/master/animal-profile/available-count',
+      '/monitoring/health-monitoring/total-animal',
       queryParameters: {'farm_location_id': farmId, 'farm_area_id': areaId}
         ..removeWhere((k, v) => v == null),
     );
 
     final responseData = res.data;
-    if (responseData is int) return responseData;
-    if (responseData is String) return int.tryParse(responseData) ?? 0;
-
     if (responseData is Map) {
       final dataField = responseData['data'];
-
-      if (dataField is int) return dataField;
-      if (dataField is String) return int.tryParse(dataField) ?? 0;
-
       if (dataField is Map) {
-        if (dataField['count'] != null)
-          return int.tryParse(dataField['count'].toString()) ?? 0;
-        if (dataField['available_count'] != null)
-          return int.tryParse(dataField['available_count'].toString()) ?? 0;
-        if (dataField['total'] != null)
-          return int.tryParse(dataField['total'].toString()) ?? 0;
+        return TotalAnimal.fromJson(dataField as Map<String, dynamic>).totalAnimal;
       }
-
-      if (responseData['total'] != null)
-        return int.tryParse(responseData['total'].toString()) ?? 0;
-      if (responseData['count'] != null)
-        return int.tryParse(responseData['count'].toString()) ?? 0;
+      return TotalAnimal.fromJson(responseData as Map<String, dynamic>).totalAnimal;
     }
 
     return 0;
@@ -79,6 +73,15 @@ final monitoringApiProvider = Provider((ref) {
   final dio = ref.read(dioProvider);
   return MonitoringApi(dio);
 });
+
+final healthMonitoringDetailProvider = FutureProvider.autoDispose.family<HealthMonitoring, int>((
+  ref,
+  id,
+) async {
+  final api = ref.read(monitoringApiProvider);
+  return api.getHealthMonitoringDetail(id);
+});
+
 
 // Weight monitoring list filters
 final weightMonitoringSearchProvider = StateProvider.autoDispose<String>(
@@ -97,6 +100,8 @@ final healthMonitoringSearchProvider = StateProvider.autoDispose<String>(
 final addedMonitoringWeightItemsProvider =
     StateProvider.autoDispose<List<MonitoringItem>>((ref) => []);
 final addedMonitoringFeedItemsProvider =
+    StateProvider.autoDispose<List<MonitoringItem>>((ref) => []);
+final addedMonitoringMedicineItemsProvider =
     StateProvider.autoDispose<List<MonitoringItem>>((ref) => []);
 
 class MonitoringFeedStockNotifier
@@ -163,6 +168,69 @@ final paginatedMonitoringFeedStockProvider =
       MonitoringFeedStockNotifier,
       BaseResponse<MonitoringTypeItemModel>
     >(MonitoringFeedStockNotifier.new);
+
+class MonitoringMedicineStockNotifier
+    extends AutoDisposeAsyncNotifier<BaseResponse<MonitoringTypeItemModel>> {
+  int _page = 1;
+  final int _perPage = 15;
+  bool _hasMore = true;
+
+  @override
+  Future<BaseResponse<MonitoringTypeItemModel>> build() async {
+    return _fetchPage(1);
+  }
+
+  Future<BaseResponse<MonitoringTypeItemModel>> _fetchPage(int page) async {
+    final dio = ref.read(dioProvider);
+    final farmId = ref.read(selectedMonitoringFarmProvider)?.id;
+
+    final res = await dio.get(
+      '/monitoring/health-monitoring/stock-medicine',
+      queryParameters: {
+        'farm_location_id': farmId,
+        'page': page,
+        'per_page': _perPage,
+      }..removeWhere((k, v) => v == null),
+    );
+
+    return BaseResponse<MonitoringTypeItemModel>.fromJson(
+      res.data,
+      (json) => MonitoringTypeItemModel.fromJson(json),
+    );
+  }
+
+  Future<void> loadMore() async {
+    if (!_hasMore || state.isLoading || state.hasError) return;
+
+    final currentData = state.value;
+    if (currentData == null) return;
+
+    _page++;
+    try {
+      final newData = await _fetchPage(_page);
+      _hasMore = newData.data.isNotEmpty;
+      state = AsyncValue.data(
+        BaseResponse(
+          status: newData.status,
+          message: newData.message,
+          total: newData.total,
+          totalRows: newData.totalRows,
+          data: [...currentData.data, ...newData.data],
+        ),
+      );
+    } catch (e, stack) {
+      _page--;
+      state = AsyncValue.error(e, stack);
+    }
+  }
+}
+
+final paginatedMonitoringMedicineStockProvider =
+    AsyncNotifierProvider.autoDispose<
+      MonitoringMedicineStockNotifier,
+      BaseResponse<MonitoringTypeItemModel>
+    >(MonitoringMedicineStockNotifier.new);
+
 
 final monitoringSearchProvider = StateProvider<String>((ref) => '');
 

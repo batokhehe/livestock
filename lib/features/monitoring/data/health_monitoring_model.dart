@@ -1,5 +1,7 @@
 import '../../../core/data/model/feed_medicine_model.dart';
 import '../../../core/helpers/utils.dart';
+import '../../attendance/data/model/employee_model.dart';
+
 
 class HealthMonitoringDetail {
   final int id;
@@ -62,6 +64,7 @@ class HealthMonitoring {
   final String farmLocationName;
   final String farmAreaName;
   final String employeeName;
+  final Employee? employee;
   final List<HealthMonitoringDetail> details;
 
   HealthMonitoring({
@@ -82,6 +85,7 @@ class HealthMonitoring {
     required this.farmLocationName,
     required this.farmAreaName,
     required this.employeeName,
+    this.employee,
     required this.details,
   });
 
@@ -109,6 +113,9 @@ class HealthMonitoring {
       farmLocationName: json['farm_location_name'] ?? '',
       farmAreaName: json['farm_area_name'] ?? '',
       employeeName: json['employee_name'] ?? '',
+      employee: json['employee'] != null
+          ? Employee.fromJson(json['employee'] as Map<String, dynamic>)
+          : null,
       details: rawDetails
           .map((e) => HealthMonitoringDetail.fromJson(e as Map<String, dynamic>))
           .toList(),

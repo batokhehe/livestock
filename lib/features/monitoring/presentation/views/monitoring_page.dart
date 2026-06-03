@@ -444,6 +444,7 @@ class _HealthDateGroup extends StatelessWidget {
           ...items.map(
             (e) => HealthMonitoringCard(
               item: e,
+              onTap: () => context.push('/monitoring/detail/medicine/${e.id}'),
             ),
           ),
         ],

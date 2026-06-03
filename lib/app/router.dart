@@ -22,6 +22,7 @@ import 'package:livestock/features/monitoring/presentation/views/weight/edit/edi
 import 'package:livestock/features/monitoring/presentation/views/weight/edit/edit_monitoring_weight_step_2_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/weight/edit/edit_monitoring_weight_confirmation_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/weight/detail/weight_monitoring_detail_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/medicine/detail/medicine_monitoring_detail_page.dart';
 import 'package:livestock/features/monitoring/data/weight_monitoring_model.dart';
 import 'package:livestock/features/monitoring/presentation/views/medicine/add_monitoring_medicine_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/medicine/add_monitoring_medicine_step_2_page.dart';
@@ -225,6 +226,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                   return WeightMonitoringDetailPage(item: item);
                 },
               ),
+              GoRoute(
+                path: 'detail/medicine/:id',
+                builder: (context, state) {
+                  final id = int.parse(state.pathParameters['id']!);
+                  return MedicineMonitoringDetailPage(id: id);
+                },
+              ),
+
               GoRoute(
                 path: 'edit',
                 builder: (context, state) {

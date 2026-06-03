@@ -99,6 +99,32 @@ class MonitoringApi {
     );
   }
 
+  Future<void> submitHealthMonitoring({
+    required DateTime monitoringDate,
+    required int employeeId,
+    required int farmLocationId,
+    required int farmAreaId,
+    required List<Map<String, dynamic>> items,
+    String status = 'confirmed',
+    String notes = '',
+  }) async {
+    final payload = <String, dynamic>{
+      'monitoring_date': monitoringDate.toIso8601String().split('T').first,
+      'employee_id': employeeId,
+      'farm_location_id': farmLocationId,
+      'farm_area_id': farmAreaId,
+      'monitoring_status': status,
+      'notes': notes,
+      'items': items,
+    };
+
+    await dio.post(
+      '/monitoring/health-monitoring',
+      data: payload,
+      options: Options(contentType: Headers.jsonContentType),
+    );
+  }
+
   Future<void> updateWeightMonitoring({
     required int id,
     required DateTime monitoringDate,
@@ -128,4 +154,10 @@ class MonitoringApi {
       data: {'ids': ids},
     );
   }
+
+  Future<HealthMonitoring> getHealthMonitoringDetail(int id) async {
+    final res = await dio.get('/monitoring/health-monitoring/$id');
+    return HealthMonitoring.fromJson(res.data['data']);
+  }
 }
+
