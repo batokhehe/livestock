@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 import 'package:livestock/core/widgets/info_tag.dart';
+import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/features/monitoring/data/feed_monitoring_model.dart';
 
 class FeedMonitoringCard extends StatelessWidget {
@@ -29,7 +30,10 @@ class FeedMonitoringCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item.monitoringCode, style: AppTypography.smallBoldBlack),
+                  Text(
+                    item.monitoringCode,
+                    style: AppTypography.smallBoldBlack,
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     '${item.totalFeed} ${item.uom} • ${item.totalAnimal} hewan',
@@ -38,7 +42,11 @@ class FeedMonitoringCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: AppColors.fieldBorder,
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               child: Wrap(
@@ -49,7 +57,9 @@ class FeedMonitoringCard extends StatelessWidget {
                     InfoTag(label: item.employeeName),
                   if (item.farmLocationName.isNotEmpty)
                     InfoTag(label: item.farmLocationName),
-                  InfoTag(label: 'Cost: Rp ${item.totalCost.toStringAsFixed(0)}'),
+                  InfoTag(
+                    label: 'Cost: Rp ${formatPrice(item.totalCost)}',
+                  ),
                 ],
               ),
             ),
