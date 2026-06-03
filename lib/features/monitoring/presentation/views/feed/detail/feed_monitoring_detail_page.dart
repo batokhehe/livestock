@@ -82,13 +82,72 @@ class FeedMonitoringDetailPage extends ConsumerWidget {
                         ),
                       )
                     else
-                      ...data.details.map((item) => _itemCard(item)).toList(),
+                      ...data.details.map((item) => _itemCard(item)),
                   ],
                 ),
               ),
+              if (data.details.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _summaryCard(data),
+              ],
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _summaryCard(FeedMonitoring data) {
+    return SectionCard(
+      title: 'Rincian Bayar',
+      children: [
+        CardWrapper(
+          child: Column(
+            children: [
+              ...data.details.map((item) {
+                return _rowSummary(
+                  item.feedMedicine?.name ?? "-",
+                  "Rp ${formatPrice(item.total)}",
+                );
+              }),
+              const SizedBox(height: 4),
+              const Divider(
+                height: 1,
+                thickness: 1,
+                color: AppColors.fieldBorder,
+              ),
+              const SizedBox(height: 12),
+              _rowSummary(
+                "Total Keseluruhan",
+                "Rp ${formatPrice(data.totalCost)}",
+                isTotal: true,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _rowSummary(String label, String value, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: isTotal
+                ? AppTypography.smallBoldBlack
+                : AppTypography.smallNormalGrey,
+          ),
+          Text(
+            value,
+            style: isTotal
+                ? AppTypography.smallBoldPrimary
+                : AppTypography.smallBoldBlack,
+          ),
+        ],
       ),
     );
   }
@@ -147,7 +206,10 @@ class FeedMonitoringDetailPage extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(qtyStr, style: AppTypography.smallBoldBlack),
+                  Text(
+                    "$qtyStr $uom".trim(),
+                    style: AppTypography.smallBoldBlack,
+                  ),
                   const Text("Kuantitas", style: AppTypography.smallNormalGrey),
                 ],
               ),
@@ -172,31 +234,10 @@ class FeedMonitoringDetailPage extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Rp ${formatPrice(item.unitPrice)}",
-                    style: AppTypography.smallBoldBlack,
-                  ),
-                  const Text(
-                    "Harga Satuan",
-                    style: AppTypography.smallNormalGrey,
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    "Rp ${formatPrice(item.total)}",
-                    style: AppTypography.smallBoldRed,
-                  ),
-                  const Text(
-                    "Total Harga",
-                    style: AppTypography.smallNormalGrey,
-                  ),
-                ],
+              const Text("Harga Satuan", style: AppTypography.xSmallNormalGrey),
+              Text(
+                "Rp ${formatPrice(item.unitPrice)}",
+                style: AppTypography.smallBoldBlack,
               ),
             ],
           ),
@@ -271,6 +312,7 @@ class _MonitoringInfoSection extends StatelessWidget {
                       children: [
                         InfoTag(label: data.employeeName),
                         InfoTag(label: "$feedCount pakan"),
+                        InfoTag(label: "Satuan ${data.uom}"),
                       ],
                     ),
                   ),
