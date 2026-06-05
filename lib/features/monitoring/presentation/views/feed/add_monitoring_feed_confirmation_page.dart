@@ -39,7 +39,11 @@ class AddMonitoringFeedConfirmationPage extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                const StepInfoCard(title: "Tinjau Pemantauan", step: 3, totalStep: 3),
+                const StepInfoCard(
+                  title: "Tinjau Pemantauan",
+                  step: 3,
+                  totalStep: 3,
+                ),
                 const SizedBox(height: 12),
                 const _MonitoringInfoSection(),
                 const SizedBox(height: 12),
@@ -69,25 +73,15 @@ class AddMonitoringFeedConfirmationPage extends ConsumerWidget {
                                 ...items.map((item) {
                                   return _itemCard(item, ref);
                                 }),
-                                const SizedBox(height: 12),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      "Total Keseluruhan",
-                                      style: AppTypography.smallBoldBlack,
-                                    ),
-                                    Text(
-                                      "Rp ${formatPrice(items.fold<int>(0, (sum, item) => sum + (((item.quantity ?? 0) * (item.price ?? 0)).toInt())))}",
-                                      style: AppTypography.smallBoldPrimary,
-                                    ),
-                                  ],
-                                ),
                               ],
                             ),
                     ],
                   ),
                 ),
+                if (items.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  _summaryCard(items),
+                ],
               ],
             ),
           ),
@@ -97,15 +91,74 @@ class AddMonitoringFeedConfirmationPage extends ConsumerWidget {
     );
   }
 
+  Widget _summaryCard(List<MonitoringItem> items) {
+    return SectionCard(
+      title: 'Rincian Bayar',
+      children: [
+        CardWrapper(
+          child: Column(
+            children: [
+              ...items.map((item) {
+                return _rowSummary(
+                  item.name ?? "-",
+                  "Rp ${formatPrice((item.quantity ?? 0) * (item.price ?? 0))}",
+                );
+              }),
+              const SizedBox(height: 4),
+              const Divider(
+                height: 1,
+                thickness: 1,
+                color: AppColors.fieldBorder,
+              ),
+              const SizedBox(height: 12),
+              _rowSummary(
+                "Total Keseluruhan",
+                "Rp ${formatPrice(items.fold<int>(0, (sum, item) => sum + ((item.quantity ?? 0) * (item.price ?? 0)).toInt()))}",
+                isTotal: true,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _rowSummary(String label, String value, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: isTotal
+                ? AppTypography.smallBoldBlack
+                : AppTypography.smallNormalGrey,
+          ),
+          Text(
+            value,
+            style: isTotal
+                ? AppTypography.smallBoldPrimary
+                : AppTypography.smallBoldBlack,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _itemCard(MonitoringItem item, WidgetRef ref) {
-    final availableCountAsync = ref.watch(monitoringAnimalAvailableCountProvider);
+    final availableCountAsync = ref.watch(
+      monitoringAnimalAvailableCountProvider,
+    );
     final availableCount = availableCountAsync.value ?? 0;
-    
+
     final satuan = ref.watch(monitoringFeedSatuanProvider);
     final qty = item.quantity ?? 0;
     final ratio = availableCount > 0 ? (qty / availableCount) : 0.0;
-    final ratioStr = ratio == ratio.toInt() ? ratio.toInt().toString() : ratio.toStringAsFixed(2);
-    
+    final ratioStr = ratio == ratio.toInt()
+        ? ratio.toInt().toString()
+        : ratio.toStringAsFixed(2);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -130,8 +183,14 @@ class AddMonitoringFeedConfirmationPage extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  StatusChips(text: "${item.stock ?? 0} Stock", color: AppColors.success),
-                  Text(item.unit ?? "Karung", style: AppTypography.smallNormalGrey),
+                  // StatusChips(
+                  //   text: "${item.stock ?? 0} Stock",
+                  //   color: AppColors.success,
+                  // ),
+                  Text(
+                    item.unit ?? "Karung",
+                    style: AppTypography.smallNormalGrey,
+                  ),
                 ],
               ),
             ],
@@ -145,15 +204,24 @@ class AddMonitoringFeedConfirmationPage extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("$qty", style: AppTypography.smallBoldBlack),
+                  Text(
+                    "$qty ${satuan.isNotEmpty ? satuan : ''}".trim(),
+                    style: AppTypography.smallBoldBlack,
+                  ),
                   const Text("Kuantitas", style: AppTypography.smallNormalGrey),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text("$ratioStr ${satuan.isNotEmpty ? satuan : (item.unit ?? '')}", style: AppTypography.smallBoldBlack),
-                  const Text("Rasio Kuantitas", style: AppTypography.smallNormalGrey),
+                  Text(
+                    "$ratioStr ${satuan.isNotEmpty ? satuan : (item.unit ?? '')}",
+                    style: AppTypography.smallBoldBlack,
+                  ),
+                  const Text(
+                    "Rasio Kuantitas",
+                    style: AppTypography.smallNormalGrey,
+                  ),
                 ],
               ),
             ],
@@ -164,20 +232,26 @@ class AddMonitoringFeedConfirmationPage extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Harga Total", style: AppTypography.xSmallNormalGrey),
-              Text("Rp ${formatPrice(qty * (item.price ?? 0))}", style: AppTypography.smallBoldBlack),
+              const Text("Harga Satuan", style: AppTypography.xSmallNormalGrey),
+              Text(
+                "Rp ${formatPrice(item.price ?? 0)}",
+                style: AppTypography.smallBoldBlack,
+              ),
             ],
           ),
-          const SizedBox(height: 12),
-          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("Catatan", style: AppTypography.xSmallNormalGrey),
-              Text(item.note?.isNotEmpty == true ? item.note! : "-", style: AppTypography.smallBoldBlack),
-            ],
-          ),
+          // const SizedBox(height: 12),
+          // const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+          // const SizedBox(height: 12),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     const Text("Catatan", style: AppTypography.xSmallNormalGrey),
+          //     Text(
+          //       item.note?.isNotEmpty == true ? item.note! : "-",
+          //       style: AppTypography.smallBoldBlack,
+          //     ),
+          //   ],
+          // ),
         ],
       ),
     );
@@ -195,10 +269,13 @@ class _MonitoringInfoSection extends ConsumerWidget {
     final employeeStr = selectedEmployee != null
         ? "${selectedEmployee.name} • ${selectedEmployee.phone}"
         : "-";
-        
+
     final items = ref.watch(addedMonitoringFeedItemsProvider);
-    final totalQty = items.fold<int>(0, (sum, item) => sum + (item.quantity ?? 0).toInt());
-    
+    final totalQty = items.fold<int>(
+      0,
+      (sum, item) => sum + (item.quantity ?? 0).toInt(),
+    );
+
     final monitoringItem = Monitoring(
       code: dateStr,
       subtitle: 'Pakan',
@@ -209,7 +286,7 @@ class _MonitoringInfoSection extends ConsumerWidget {
       status: ItemStatus.feed,
       date: selectedDate ?? DateTime.now(),
       items: items,
-      location: "Satuan ${ref.watch(monitoringFeedSatuanProvider)}"
+      location: "Satuan ${ref.watch(monitoringFeedSatuanProvider)}",
     );
 
     return SectionCard(
@@ -251,7 +328,11 @@ class _FarmInfoSection extends ConsumerWidget {
                 image: AppImages.icProduct,
               ),
               const SizedBox(height: 8),
-              const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+              const Divider(
+                height: 1,
+                thickness: 1,
+                color: AppColors.fieldBorder,
+              ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -260,7 +341,10 @@ class _FarmInfoSection extends ConsumerWidget {
                     "satuan per hewan",
                     style: AppTypography.smallNormalBlack,
                   ),
-                  Text("$animalCount Hewan", style: AppTypography.smallBoldBlack),
+                  Text(
+                    "$animalCount Hewan",
+                    style: AppTypography.smallBoldBlack,
+                  ),
                 ],
               ),
             ],
@@ -271,8 +355,15 @@ class _FarmInfoSection extends ConsumerWidget {
   }
 }
 
-class _NextButton extends StatelessWidget {
+class _NextButton extends ConsumerStatefulWidget {
   const _NextButton();
+
+  @override
+  ConsumerState<_NextButton> createState() => _NextButtonState();
+}
+
+class _NextButtonState extends ConsumerState<_NextButton> {
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -289,24 +380,99 @@ class _NextButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => const ConfirmationBottomSheet(
-                  header: "Konfirmasi Pemantauan",
-                  title: "Simpan Pemantauan?",
-                  subTitle:
-                      "Data Pemantauan Pakan akan disimpan dan diterapkan ke seluruh hewan di area ini.",
-                  saveText: "Simpan Pemantauan",
-                ),
-              );
-            },
-            child: const Text(
-              "Konfirmasi Pemantauan",
-              style: AppTypography.mediumBoldWhite,
-            ),
+            onPressed: _isLoading
+                ? null
+                : () async {
+                    final result = await showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) => const ConfirmationBottomSheet(
+                        header: "Konfirmasi Pemantauan",
+                        title: "Simpan Pemantauan?",
+                        subTitle:
+                            "Data Pemantauan Pakan akan disimpan dan diterapkan ke seluruh hewan di area ini.",
+                        saveText: "Simpan Pemantauan",
+                      ),
+                    );
+
+                    if (result == true) {
+                      setState(() => _isLoading = true);
+                      try {
+                        final api = ref.read(monitoringApiProvider);
+                        final date = ref.read(selectedMonitoringDateProvider) ?? DateTime.now();
+                        final employeeId = ref.read(selectedMonitoringEmployeeProvider)?.id ?? 0;
+                        final farmLocationId = ref.read(selectedMonitoringFarmProvider)?.id ?? 0;
+                        final farmAreaId = ref.read(selectedMonitoringAreaProvider)?.id ?? 0;
+                        final uom = ref.read(monitoringFeedSatuanProvider);
+                        final totalAnimal = ref.read(monitoringAnimalAvailableCountProvider).value ?? 0;
+                        final items = ref.read(addedMonitoringFeedItemsProvider);
+
+                        int totalFeed = 0;
+                        int totalCost = 0;
+                        final payloadItems = <Map<String, dynamic>>[];
+
+                        for (final item in items) {
+                          final qty = item.quantity ?? 0;
+                          final price = item.price ?? 0;
+                          totalFeed += qty.toInt();
+                          totalCost += (qty * price).toInt();
+                          payloadItems.add({
+                            "feed_medicine_code": item.code ?? "",
+                            "quantity": qty.toInt(),
+                            "uom": item.unit ?? "",
+                            "unit_price": price.toInt(),
+                          });
+                        }
+
+                        await api.submitFeedMonitoring(
+                          monitoringDate: date,
+                          employeeId: employeeId,
+                          farmLocationId: farmLocationId,
+                          farmAreaId: farmAreaId,
+                          uom: uom,
+                          totalAnimal: totalAnimal,
+                          totalFeed: totalFeed,
+                          totalCost: totalCost,
+                          notes: "Catatan monitoring confirmed",
+                          items: payloadItems,
+                        );
+
+                        if (!context.mounted) return;
+                        
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Pemantauan berhasil disimpan")),
+                        );
+                        
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                      } catch (e) {
+                        if (context.mounted) {
+                           ScaffoldMessenger.of(context).showSnackBar(
+                             SnackBar(content: Text("Terjadi kesalahan: $e")),
+                           );
+                        }
+                      } finally {
+                        if (mounted) {
+                          setState(() => _isLoading = false);
+                        }
+                      }
+                    }
+                  },
+            child: _isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Text(
+                    "Konfirmasi Pemantauan",
+                    style: AppTypography.mediumBoldWhite,
+                  ),
           ),
         ),
       ),

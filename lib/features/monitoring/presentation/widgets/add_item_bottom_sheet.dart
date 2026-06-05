@@ -6,6 +6,7 @@ import '../../../../core/theme/AppImages.dart';
 import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/input_field_card.dart';
 import '../../../../core/widgets/text_field_with_inner_counter.dart';
+import '../../../../core/helpers/utils.dart';
 import '../../data/monitoring_item_model.dart';
 import '../../data/monitoring_type_item_model.dart';
 import 'monitoring_feed_paginated_bottom_sheet.dart';
@@ -40,7 +41,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
       qtyCtrl.text = item.quantity.toString();
       priceCtrl.text = item.price.toString();
       noteCtrl.text = item.note ?? '';
-      totalPriceCtrl.text = ((item.quantity ?? 0) * (item.price ?? 0)).toString();
+      totalPriceCtrl.text = formatPrice((item.quantity ?? 0) * (item.price ?? 0));
     }
 
     qtyCtrl.addListener(_calculateTotal);
@@ -58,10 +59,11 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
     }
 
     final price = int.tryParse(priceCtrl.text) ?? 0;
-    final newTotal = (qty > 0 && price > 0) ? (qty * price).toString() : "0";
+    final rawTotal = (qty > 0 && price > 0) ? (qty * price) : 0;
+    final formattedTotal = formatPrice(rawTotal);
 
-    if (totalPriceCtrl.text != newTotal) {
-      totalPriceCtrl.text = newTotal;
+    if (totalPriceCtrl.text != formattedTotal) {
+      totalPriceCtrl.text = formattedTotal;
     }
 
     if (qtyChanged) {
@@ -107,7 +109,10 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(widget.itemToEdit == null ? "Tambah Item" : "Ubah Item", style: AppTypography.largeBoldBlack),
+                Text(
+                  widget.itemToEdit == null ? "Tambah Item" : "Ubah Item",
+                  style: AppTypography.largeBoldBlack,
+                ),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: const Icon(Icons.close),
@@ -118,34 +123,59 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
             if (widget.itemToEdit == null) ...[
               Dropdowns(
                 label: "Pakan",
-                value: selectedFeed == null ? "Pilih Pakan" : selectedFeed!.name,
+                value: selectedFeed == null
+                    ? "Pilih Pakan"
+                    : selectedFeed!.name,
                 icon: AppImages.icProduct,
                 onTap: _openFeedSheet,
               ),
             ],
-            TextFields(
-              label: "Nama Pakan",
-              hint: "Nama Pakan",
-              controller: nameCtrl,
-              enabled: false,
-            ),
-            TextFields(
-              label: "Kode",
-              hint: "Kode",
-              controller: codeCtrl,
-              enabled: false,
-            ),
-            TextFields(
-              label: "Kuantitas Tersedia",
-              hint: "Jumlah Kuantitas Tersedia",
-              controller: stockCtrl,
-              enabled: false,
-            ),
-            TextFields(
-              label: "Harga Satuan",
-              hint: "Masukkan Harga Satuan",
-              controller: priceCtrl,
-              enabled: false,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.greyBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.fieldBorder),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Nama Pakan", style: AppTypography.smallNormalGrey),
+                        const SizedBox(height: 4),
+                        Text(nameCtrl.text.isEmpty ? "-" : nameCtrl.text, style: AppTypography.smallBoldBlack),
+                        const SizedBox(height: 12),
+                        const Text("Kuantitas Tersedia", style: AppTypography.smallNormalGrey),
+                        const SizedBox(height: 4),
+                        Text(stockCtrl.text.isEmpty ? "0" : stockCtrl.text, style: AppTypography.smallBoldBlack),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Kode", style: AppTypography.smallNormalGrey),
+                        const SizedBox(height: 4),
+                        Text(codeCtrl.text.isEmpty ? "-" : codeCtrl.text, style: AppTypography.smallBoldBlack),
+                        const SizedBox(height: 12),
+                        const Text("Harga Satuan", style: AppTypography.smallNormalGrey),
+                        const SizedBox(height: 4),
+                        Text(
+                          priceCtrl.text.isEmpty 
+                              ? "Rp 0" 
+                              : "Rp ${formatPrice(int.tryParse(priceCtrl.text) ?? 0)}", 
+                          style: AppTypography.smallBoldBlack,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
             TextFields(
@@ -159,7 +189,8 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
               label: "Harga Total",
               hint: "Harga Total",
               controller: totalPriceCtrl,
-              // enabled: false,
+              keyboardType: TextInputType.number,
+              inputFormatters: [CurrencyInputFormatter()],
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -179,9 +210,11 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                           MonitoringItem(
                             name: nameCtrl.text,
                             code: codeCtrl.text,
-                            unit: widget.itemToEdit?.unit ?? (selectedFeed?.uom.isNotEmpty == true
-                                ? selectedFeed!.uom
-                                : "Pakan"),
+                            unit:
+                                widget.itemToEdit?.unit ??
+                                (selectedFeed?.uom.isNotEmpty == true
+                                    ? selectedFeed!.uom
+                                    : "Pakan"),
                             quantity: int.tryParse(qtyCtrl.text) ?? 0,
                             price: int.tryParse(priceCtrl.text) ?? 0,
                             note: noteCtrl.text,
@@ -190,7 +223,12 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                         );
                       }
                     : null,
-                child: Text(widget.itemToEdit == null ? "Tambah Item" : "Simpan Perubahan", style: AppTypography.mediumBoldWhite),
+                child: Text(
+                  widget.itemToEdit == null
+                      ? "Tambah Item"
+                      : "Simpan Perubahan",
+                  style: AppTypography.mediumBoldWhite,
+                ),
               ),
             ),
           ],

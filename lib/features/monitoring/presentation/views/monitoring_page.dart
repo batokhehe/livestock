@@ -343,6 +343,7 @@ class _FeedDateGroup extends StatelessWidget {
           ...items.map(
             (e) => FeedMonitoringCard(
               item: e,
+              onTap: () => context.push('/monitoring/detail/feed/${e.id}'),
             ),
           ),
         ],
