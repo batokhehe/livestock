@@ -1,5 +1,7 @@
 📱 Release Notes
 🔧 Perbaikan & Peningkatan
 
-- Pembelian
-- Attendance
+Module Monitoring
+- Feed
+- Medicine
+- Weight
