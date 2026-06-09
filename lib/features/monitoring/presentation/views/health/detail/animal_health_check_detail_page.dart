@@ -9,17 +9,17 @@ import 'package:livestock/core/widgets/info_tag.dart';
 import 'package:livestock/core/widgets/product_header_card.dart';
 import 'package:livestock/core/widgets/section_card.dart';
 import 'package:livestock/core/widgets/status_chips.dart';
-import 'package:livestock/features/monitoring/data/feed_monitoring_model.dart';
+import 'package:livestock/features/monitoring/data/animal_health_check_model.dart';
 import 'package:livestock/features/monitoring/monitoring_provider.dart';
 
-class FeedMonitoringDetailPage extends ConsumerWidget {
+class AnimalHealthCheckDetailPage extends ConsumerWidget {
   final int id;
 
-  const FeedMonitoringDetailPage({super.key, required this.id});
+  const AnimalHealthCheckDetailPage({super.key, required this.id});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncDetail = ref.watch(feedMonitoringDetailProvider(id));
+    final asyncDetail = ref.watch(animalHealthCheckDetailProvider(id));
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
@@ -47,14 +47,14 @@ class FeedMonitoringDetailPage extends ConsumerWidget {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () =>
-                      ref.invalidate(feedMonitoringDetailProvider(id)),
+                      ref.invalidate(animalHealthCheckDetailProvider(id)),
                   child: const Text("Coba Lagi"),
                 ),
               ],
             ),
           ),
         ),
-        data: (FeedMonitoring data) {
+        data: (data) {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -76,13 +76,13 @@ class FeedMonitoringDetailPage extends ConsumerWidget {
                         child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 24),
                           child: Text(
-                            "Belum ada item pakan",
+                            "Belum ada item obat",
                             style: AppTypography.smallNormalGrey,
                           ),
                         ),
                       )
                     else
-                      ...data.details.map((item) => _itemCard(item)),
+                      ...data.details.map((item) => _itemCard(item)).toList(),
                   ],
                 ),
               ),
@@ -97,7 +97,7 @@ class FeedMonitoringDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _summaryCard(FeedMonitoring data) {
+  Widget _summaryCard(AnimalHealthCheck data) {
     return SectionCard(
       title: 'Rincian Bayar',
       children: [
@@ -107,7 +107,7 @@ class FeedMonitoringDetailPage extends ConsumerWidget {
               ...data.details.map((item) {
                 return _rowSummary(
                   item.feedMedicine?.name ?? "-",
-                  "Rp ${formatPrice(item.total)}",
+                  "Rp ${formatPrice(item.total.toInt())}",
                 );
               }),
               const SizedBox(height: 4),
@@ -119,7 +119,7 @@ class FeedMonitoringDetailPage extends ConsumerWidget {
               const SizedBox(height: 12),
               _rowSummary(
                 "Total Keseluruhan",
-                "Rp ${formatPrice(data.totalCost)}",
+                "Rp ${formatPrice(data.totalCost.toInt())}",
                 isTotal: true,
               ),
             ],
@@ -152,13 +152,13 @@ class FeedMonitoringDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _itemCard(FeedMonitoringDetail item) {
+  Widget _itemCard(AnimalHealthCheckDetail item) {
     final qty = item.quantity;
     final qtyStr = qty.toStringAsFixed(qty.truncateToDouble() == qty ? 0 : 2);
 
     final name = item.feedMedicine?.name ?? "-";
     final code = item.feedMedicineCode;
-    final uom = item.uom.isNotEmpty ? item.uom : "Karung";
+    final uom = item.uom.isNotEmpty ? item.uom : "Botol";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -188,13 +188,13 @@ class FeedMonitoringDetailPage extends ConsumerWidget {
                   ],
                 ),
               ),
-              // Column(
-              //   crossAxisAlignment: CrossAxisAlignment.end,
-              //   children: [
-              //     StatusChips(text: "$qtyStr Stok", color: AppColors.success),
-              //     Text(uom, style: AppTypography.smallNormalGrey),
-              //   ],
-              // ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  StatusChips(text: "$qtyStr Stok", color: AppColors.success),
+                  Text(uom, style: AppTypography.smallNormalGrey),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -206,10 +206,7 @@ class FeedMonitoringDetailPage extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "$qtyStr $uom".trim(),
-                    style: AppTypography.smallBoldBlack,
-                  ),
+                  Text(qtyStr, style: AppTypography.smallBoldBlack),
                   const Text("Kuantitas", style: AppTypography.smallNormalGrey),
                 ],
               ),
@@ -234,10 +231,31 @@ class FeedMonitoringDetailPage extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Harga Satuan", style: AppTypography.xSmallNormalGrey),
-              Text(
-                "Rp ${formatPrice(item.unitPrice)}",
-                style: AppTypography.smallBoldBlack,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Rp ${formatPrice(item.unitPrice.toInt())}",
+                    style: AppTypography.smallBoldBlack,
+                  ),
+                  const Text(
+                    "Harga Satuan",
+                    style: AppTypography.smallNormalGrey,
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "Rp ${formatPrice(item.total.toInt())}",
+                    style: AppTypography.smallBoldRed,
+                  ),
+                  const Text(
+                    "Total Harga",
+                    style: AppTypography.smallNormalGrey,
+                  ),
+                ],
               ),
             ],
           ),
@@ -248,15 +266,15 @@ class FeedMonitoringDetailPage extends ConsumerWidget {
 }
 
 class _MonitoringInfoSection extends StatelessWidget {
-  final FeedMonitoring data;
+  final AnimalHealthCheck data;
 
   const _MonitoringInfoSection({required this.data});
 
   @override
   Widget build(BuildContext context) {
-    final dateStr = formatDateTime(data.monitoringDate);
-    final animalCount = data.totalAnimal.toInt();
-    final feedCount = data.totalFeed.toInt();
+    final dateStr = formatDateTime(data.checkDate);
+    final medicineCount = data.detailsCount;
+    final employeeName = data.employeeName.isNotEmpty ? data.employeeName : (data.employee?.name ?? '');
 
     return SectionCard(
       title: "Informasi pemantauan",
@@ -282,18 +300,17 @@ class _MonitoringInfoSection extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                data.monitoringCode,
+                                data.checkCode,
                                 style: AppTypography.smallBoldBlack,
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                "$animalCount hewan • ${data.farmLocationName}",
+                                "${data.animalCode ?? '-'} • ${data.animalName ?? '-'}",
                                 style: AppTypography.xSmallNormalGrey,
                               ),
                             ],
                           ),
                         ),
-
                         Text(
                           data.farmAreaName,
                           style: AppTypography.smallNormalGrey,
@@ -310,9 +327,9 @@ class _MonitoringInfoSection extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
                       children: [
-                        InfoTag(label: data.employeeName),
-                        InfoTag(label: "$feedCount pakan"),
-                        InfoTag(label: "Satuan ${data.uom}"),
+                        if (employeeName.isNotEmpty)
+                          InfoTag(label: employeeName),
+                        InfoTag(label: "$medicineCount obat"),
                       ],
                     ),
                   ),
@@ -321,7 +338,7 @@ class _MonitoringInfoSection extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 12.0),
+        const SizedBox(height: 12.0),
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
@@ -350,16 +367,16 @@ class _MonitoringInfoSection extends StatelessWidget {
 }
 
 class _FarmInfoSection extends StatelessWidget {
-  final FeedMonitoring data;
+  final AnimalHealthCheck data;
 
   const _FarmInfoSection({required this.data});
 
   @override
   Widget build(BuildContext context) {
-    final animalCount = data.totalAnimal.toInt();
-    final unitPerAnimalStr = data.unitPerAnimal.toStringAsFixed(
-      data.unitPerAnimal.truncateToDouble() == data.unitPerAnimal ? 0 : 2,
-    );
+    final animalLabel = [
+      if (data.animalCode != null && data.animalCode!.isNotEmpty) data.animalCode,
+      if (data.animalName != null && data.animalName!.isNotEmpty) data.animalName,
+    ].join(' • ');
 
     return SectionCard(
       title: "Informasi Peternakan",
@@ -375,34 +392,10 @@ class _FarmInfoSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         CardWrapper(
-          child: Column(
-            children: [
-              ProductHeaderCard(
-                title: "$animalCount Hewan",
-                subtitle: "Hewan Terpantau",
-                image: AppImages.icProduct,
-              ),
-              const SizedBox(height: 8),
-              const Divider(
-                height: 1,
-                thickness: 1,
-                color: AppColors.fieldBorder,
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "satuan per hewan",
-                    style: AppTypography.smallNormalBlack,
-                  ),
-                  Text(
-                    "$unitPerAnimalStr Unit",
-                    style: AppTypography.smallBoldBlack,
-                  ),
-                ],
-              ),
-            ],
+          child: ProductHeaderCard(
+            title: animalLabel.isNotEmpty ? animalLabel : "Hewan Terpantau",
+            subtitle: "Hewan Terpantau",
+            image: AppImages.icProduct,
           ),
         ),
       ],

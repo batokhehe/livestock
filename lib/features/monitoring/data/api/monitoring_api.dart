@@ -3,6 +3,8 @@ import 'package:livestock/core/data/model/base_response.dart';
 import 'package:livestock/features/monitoring/data/weight_monitoring_model.dart';
 import 'package:livestock/features/monitoring/data/feed_monitoring_model.dart';
 import 'package:livestock/features/monitoring/data/health_monitoring_model.dart';
+import 'package:livestock/features/monitoring/data/animal_health_check_model.dart';
+import 'package:livestock/core/data/model/animal_profile_model.dart';
 
 class MonitoringApi {
   final Dio dio;
@@ -197,5 +199,86 @@ class MonitoringApi {
   Future<FeedMonitoring> getFeedMonitoringDetail(int id) async {
     final res = await dio.get('/monitoring/feed-monitoring/$id');
     return FeedMonitoring.fromJson(res.data['data']);
+  }
+
+  Future<BaseResponse<AnimalHealthCheck>> getAnimalHealthCheck({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
+    final params = <String, dynamic>{
+      'page': page,
+      'per_page': perPage,
+      if (search != null && search.isNotEmpty) 'search': search,
+    };
+
+    final res = await dio.get(
+      '/monitoring/animal-health-check',
+      queryParameters: params,
+    );
+
+    return BaseResponse.fromJson(
+      res.data,
+      (json) => AnimalHealthCheck.fromJson(json),
+    );
+  }
+
+  Future<AnimalHealthCheck> getAnimalHealthCheckDetail(int id) async {
+    final res = await dio.get('/monitoring/animal-health-check/$id');
+    return AnimalHealthCheck.fromJson(res.data['data']);
+  }
+
+  Future<BaseResponse<AnimalProfile>> getHealthCheckAnimals({
+    required int farmLocationId,
+    required int farmAreaId,
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
+    final params = <String, dynamic>{
+      'farm_location_id': farmLocationId,
+      'farm_area_id': farmAreaId,
+      'page': page,
+      'per_page': perPage,
+      if (search != null && search.isNotEmpty) 'search': search,
+    };
+
+    final res = await dio.get(
+      '/monitoring/animal-health-check/animals',
+      queryParameters: params,
+    );
+
+    return BaseResponse.fromJson(
+      res.data,
+      (json) => AnimalProfile.fromJson(json),
+    );
+  }
+
+  Future<void> submitAnimalHealthCheck({
+    required DateTime monitoringDate,
+    required int employeeId,
+    required int farmLocationId,
+    required int farmAreaId,
+    required int animalId,
+    required List<Map<String, dynamic>> items,
+    String status = 'confirmed',
+    String notes = '',
+  }) async {
+    final payload = <String, dynamic>{
+      'check_date': monitoringDate.toIso8601String().split('T').first,
+      'employee_id': employeeId,
+      'farm_location_id': farmLocationId,
+      'farm_area_id': farmAreaId,
+      'animal_id': animalId,
+      'check_status': status,
+      'notes': notes,
+      'items': items,
+    };
+
+    await dio.post(
+      '/monitoring/animal-health-check',
+      data: payload,
+      options: Options(contentType: Headers.jsonContentType),
+    );
   }
 }

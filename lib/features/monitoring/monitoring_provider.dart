@@ -11,6 +11,8 @@ import 'data/feed_monitoring_model.dart';
 import 'data/monitoring_item_model.dart';
 import 'data/monitoring_model.dart';
 import 'data/total_animal_model.dart';
+import 'data/animal_health_check_model.dart';
+import 'package:livestock/core/data/model/animal_profile_model.dart';
 import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
 
@@ -25,9 +27,8 @@ final selectedHealthMonitoringDateProvider =
 final selectedMedicineMonitoringDateProvider =
     StateProvider.autoDispose<DateTime?>((ref) => null);
 
-final selectedMonitoringMedicineProvider = StateProvider.autoDispose<MonitoringTypeItemModel?>(
-  (ref) => null,
-);
+final selectedMonitoringMedicineProvider =
+    StateProvider.autoDispose<MonitoringTypeItemModel?>((ref) => null);
 
 final selectedMonitoringFarmProvider = StateProvider.autoDispose<FarmLocation?>(
   (ref) => null,
@@ -60,9 +61,13 @@ final monitoringAnimalAvailableCountProvider = FutureProvider.autoDispose<int>((
     if (responseData is Map) {
       final dataField = responseData['data'];
       if (dataField is Map) {
-        return TotalAnimal.fromJson(dataField as Map<String, dynamic>).totalAnimal;
+        return TotalAnimal.fromJson(
+          dataField as Map<String, dynamic>,
+        ).totalAnimal;
       }
-      return TotalAnimal.fromJson(responseData as Map<String, dynamic>).totalAnimal;
+      return TotalAnimal.fromJson(
+        responseData as Map<String, dynamic>,
+      ).totalAnimal;
     }
 
     return 0;
@@ -75,22 +80,17 @@ final monitoringApiProvider = Provider((ref) {
   return MonitoringApi(dio);
 });
 
-final healthMonitoringDetailProvider = FutureProvider.autoDispose.family<HealthMonitoring, int>((
-  ref,
-  id,
-) async {
-  final api = ref.read(monitoringApiProvider);
-  return api.getHealthMonitoringDetail(id);
-});
+final healthMonitoringDetailProvider = FutureProvider.autoDispose
+    .family<HealthMonitoring, int>((ref, id) async {
+      final api = ref.read(monitoringApiProvider);
+      return api.getHealthMonitoringDetail(id);
+    });
 
-final feedMonitoringDetailProvider = FutureProvider.autoDispose.family<FeedMonitoring, int>((
-  ref,
-  id,
-) async {
-  final api = ref.read(monitoringApiProvider);
-  return api.getFeedMonitoringDetail(id);
-});
-
+final feedMonitoringDetailProvider = FutureProvider.autoDispose
+    .family<FeedMonitoring, int>((ref, id) async {
+      final api = ref.read(monitoringApiProvider);
+      return api.getFeedMonitoringDetail(id);
+    });
 
 // Weight monitoring list filters
 final weightMonitoringSearchProvider = StateProvider.autoDispose<String>(
@@ -112,6 +112,160 @@ final addedMonitoringFeedItemsProvider =
     StateProvider.autoDispose<List<MonitoringItem>>((ref) => []);
 final addedMonitoringMedicineItemsProvider =
     StateProvider.autoDispose<List<MonitoringItem>>((ref) => []);
+final addedMonitoringHealthItemsProvider =
+    StateProvider.autoDispose<List<MonitoringItem>>((ref) => []);
+
+final selectedHealthCheckAnimalProvider =
+    StateProvider.autoDispose<AnimalProfile?>((ref) => null);
+final healthCheckAnimalSearchProvider = StateProvider.autoDispose<String>(
+  (ref) => '',
+);
+
+class HealthCheckAnimalNotifier
+    extends
+        AutoDisposeFamilyAsyncNotifier<
+          BaseResponse<AnimalProfile>,
+          ({int? farmLocationId, int? farmAreaId})
+        > {
+  int _page = 1;
+  bool _loadingMore = false;
+  bool _hasMore = true;
+
+  @override
+  Future<BaseResponse<AnimalProfile>> build(
+    ({int? farmLocationId, int? farmAreaId}) arg,
+  ) async {
+    _page = 1;
+    _hasMore = true;
+    final search = ref.watch(healthCheckAnimalSearchProvider);
+    final api = ref.read(monitoringApiProvider);
+
+    if (arg.farmLocationId == null || arg.farmAreaId == null) {
+      return BaseResponse(status: 200, message: '', total: 0, data: []);
+    }
+
+    return api.getHealthCheckAnimals(
+      farmLocationId: arg.farmLocationId!,
+      farmAreaId: arg.farmAreaId!,
+      page: _page,
+      perPage: 10,
+      search: search.isEmpty ? null : search,
+    );
+  }
+
+  Future<void> loadMore() async {
+    if (!_hasMore || _loadingMore) return;
+    final current = state.value;
+    if (current == null) return;
+
+    final total = current.total ?? 0;
+    if (current.data.length >= total) return;
+
+    _loadingMore = true;
+    _page++;
+
+    final search = ref.read(healthCheckAnimalSearchProvider);
+    final api = ref.read(monitoringApiProvider);
+
+    try {
+      final result = await api.getHealthCheckAnimals(
+        farmLocationId: arg.farmLocationId!,
+        farmAreaId: arg.farmAreaId!,
+        page: _page,
+        perPage: 10,
+        search: search.isEmpty ? null : search,
+      );
+
+      _hasMore = result.data.isNotEmpty;
+      state = AsyncData(
+        BaseResponse(
+          status: result.status,
+          message: result.message,
+          total: result.total,
+          data: [...current.data, ...result.data],
+        ),
+      );
+    } catch (e, st) {
+      _page--;
+      state = AsyncError(e, st);
+    } finally {
+      _loadingMore = false;
+    }
+  }
+}
+
+final paginatedHealthCheckAnimalProvider = AsyncNotifierProvider.autoDispose
+    .family<
+      HealthCheckAnimalNotifier,
+      BaseResponse<AnimalProfile>,
+      ({int? farmLocationId, int? farmAreaId})
+    >(HealthCheckAnimalNotifier.new);
+
+class AnimalHealthCheckListNotifier
+    extends AutoDisposeAsyncNotifier<BaseResponse<AnimalHealthCheck>> {
+  int _page = 1;
+  bool _loadingMore = false;
+
+  @override
+  Future<BaseResponse<AnimalHealthCheck>> build() async {
+    _page = 1;
+    final api = ref.read(monitoringApiProvider);
+    final search = ref.watch(healthMonitoringSearchProvider);
+
+    return api.getAnimalHealthCheck(
+      page: _page,
+      perPage: 10,
+      search: search.isEmpty ? null : search,
+    );
+  }
+
+  Future<void> loadMore() async {
+    final current = state.value;
+    if (current == null || _loadingMore) return;
+
+    final total = current.total ?? 0;
+    if (current.data.length >= total) return;
+
+    _loadingMore = true;
+    _page++;
+
+    final api = ref.read(monitoringApiProvider);
+    final search = ref.read(healthMonitoringSearchProvider);
+
+    try {
+      final result = await api.getAnimalHealthCheck(
+        page: _page,
+        perPage: 10,
+        search: search.isEmpty ? null : search,
+      );
+
+      state = AsyncData(
+        BaseResponse(
+          status: result.status,
+          message: result.message,
+          total: result.total,
+          data: [...current.data, ...result.data],
+        ),
+      );
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    } finally {
+      _loadingMore = false;
+    }
+  }
+}
+
+final animalHealthCheckListProvider =
+    AsyncNotifierProvider.autoDispose<
+      AnimalHealthCheckListNotifier,
+      BaseResponse<AnimalHealthCheck>
+    >(AnimalHealthCheckListNotifier.new);
+
+final animalHealthCheckDetailProvider = FutureProvider.autoDispose
+    .family<AnimalHealthCheck, int>((ref, id) async {
+      final api = ref.read(monitoringApiProvider);
+      return api.getAnimalHealthCheckDetail(id);
+    });
 
 class MonitoringFeedStockNotifier
     extends AutoDisposeAsyncNotifier<BaseResponse<MonitoringTypeItemModel>> {
@@ -240,6 +394,62 @@ final paginatedMonitoringMedicineStockProvider =
       BaseResponse<MonitoringTypeItemModel>
     >(MonitoringMedicineStockNotifier.new);
 
+class AnimalHealthCheckMedicinesNotifier
+    extends AutoDisposeAsyncNotifier<BaseResponse<MonitoringTypeItemModel>> {
+  int _page = 1;
+  final int _perPage = 15;
+  bool _hasMore = true;
+
+  @override
+  Future<BaseResponse<MonitoringTypeItemModel>> build() async {
+    return _fetchPage(1);
+  }
+
+  Future<BaseResponse<MonitoringTypeItemModel>> _fetchPage(int page) async {
+    final dio = ref.read(dioProvider);
+
+    final res = await dio.get(
+      '/monitoring/animal-health-check/medicines',
+      queryParameters: {'page': page, 'per_page': _perPage},
+    );
+
+    return BaseResponse<MonitoringTypeItemModel>.fromJson(
+      res.data,
+      (json) => MonitoringTypeItemModel.fromJson(json),
+    );
+  }
+
+  Future<void> loadMore() async {
+    if (!_hasMore || state.isLoading || state.hasError) return;
+
+    final currentData = state.value;
+    if (currentData == null) return;
+
+    _page++;
+    try {
+      final newData = await _fetchPage(_page);
+      _hasMore = newData.data.isNotEmpty;
+      state = AsyncValue.data(
+        BaseResponse(
+          status: newData.status,
+          message: newData.message,
+          total: newData.total,
+          totalRows: newData.totalRows,
+          data: [...currentData.data, ...newData.data],
+        ),
+      );
+    } catch (e, stack) {
+      _page--;
+      state = AsyncValue.error(e, stack);
+    }
+  }
+}
+
+final paginatedAnimalHealthCheckMedicinesProvider =
+    AsyncNotifierProvider.autoDispose<
+      AnimalHealthCheckMedicinesNotifier,
+      BaseResponse<MonitoringTypeItemModel>
+    >(AnimalHealthCheckMedicinesNotifier.new);
 
 final monitoringSearchProvider = StateProvider<String>((ref) => '');
 

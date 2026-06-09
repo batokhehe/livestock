@@ -165,7 +165,7 @@ class _NextButtonState extends ConsumerState<_NextButton> {
         header: "Konfirmasi Pemantauan",
         title: "Simpan Perubahan?",
         subTitle:
-            "Perubahan Data Pemantauan Berat akan disimpan dan diterapkan ke seluruh hewan di area ini.",
+            "Pastikan data yang anda submit sudah sesuai, aksi ini tidak dapat dibatalkan atau diubah kembali.",
         saveText: "Simpan Perubahan",
       ),
     );

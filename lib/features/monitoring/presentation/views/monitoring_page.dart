@@ -14,6 +14,8 @@ import 'package:livestock/features/monitoring/presentation/notifier/health_monit
 import 'package:livestock/features/monitoring/presentation/widgets/weight_monitoring_card.dart';
 import 'package:livestock/features/monitoring/presentation/widgets/feed_monitoring_card.dart';
 import 'package:livestock/features/monitoring/presentation/widgets/health_monitoring_card.dart';
+import 'package:livestock/features/monitoring/data/animal_health_check_model.dart';
+import 'package:livestock/features/monitoring/presentation/widgets/animal_health_check_card.dart';
 import '../widgets/monitoring_type_bottom_sheet.dart';
 
 import '../../../../core/constant/enum.dart';
@@ -56,6 +58,8 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
         ref.read(feedMonitoringListProvider.notifier).loadMore();
       } else if (filter == ItemFilter.medicine) {
         ref.read(healthMonitoringListProvider.notifier).loadMore();
+      } else if (filter == ItemFilter.health) {
+        ref.read(animalHealthCheckListProvider.notifier).loadMore();
       }
     }
   }
@@ -69,6 +73,8 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
       } else if (filter == ItemFilter.feed) {
         ref.read(feedMonitoringSearchProvider.notifier).state = val;
       } else if (filter == ItemFilter.medicine) {
+        ref.read(healthMonitoringSearchProvider.notifier).state = val;
+      } else if (filter == ItemFilter.health) {
         ref.read(healthMonitoringSearchProvider.notifier).state = val;
       }
     });
@@ -92,6 +98,8 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
       } else if (next == ItemFilter.feed) {
         newSearch = ref.read(feedMonitoringSearchProvider);
       } else if (next == ItemFilter.medicine) {
+        newSearch = ref.read(healthMonitoringSearchProvider);
+      } else if (next == ItemFilter.health) {
         newSearch = ref.read(healthMonitoringSearchProvider);
       }
       _searchCtrl.text = newSearch;
@@ -122,9 +130,7 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
             ],
           ),
           const SizedBox(height: 4),
-          Expanded(
-            child: _buildList(filter),
-          ),
+          Expanded(child: _buildList(filter)),
           _BottomButton(),
         ],
       ),
@@ -139,9 +145,14 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
         return _FeedMonitoringList(scrollCtrl: _scrollCtrl);
       case ItemFilter.medicine:
         return _HealthMonitoringList(scrollCtrl: _scrollCtrl);
+      case ItemFilter.health:
+        return _AnimalHealthCheckList(scrollCtrl: _scrollCtrl);
       default:
         return const Center(
-          child: Text('Fitur belum tersedia', style: AppTypography.smallNormalGrey),
+          child: Text(
+            'Fitur belum tersedia',
+            style: AppTypography.smallNormalGrey,
+          ),
         );
     }
   }
@@ -406,7 +417,10 @@ class _HealthMonitoringList extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             children: [
               ...grouped.entries.map((entry) {
-                return _HealthDateGroup(dateLabel: entry.key, items: entry.value);
+                return _HealthDateGroup(
+                  dateLabel: entry.key,
+                  items: entry.value,
+                );
               }),
               if ((response.total ?? 0) > list.length)
                 const Padding(
@@ -446,6 +460,114 @@ class _HealthDateGroup extends StatelessWidget {
             (e) => HealthMonitoringCard(
               item: e,
               onTap: () => context.push('/monitoring/detail/medicine/${e.id}'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AnimalHealthCheckList extends ConsumerWidget {
+  final ScrollController scrollCtrl;
+
+  const _AnimalHealthCheckList({required this.scrollCtrl});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dataAsync = ref.watch(animalHealthCheckListProvider);
+
+    return dataAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Gagal memuat data\n$e',
+              textAlign: TextAlign.center,
+              style: AppTypography.smallNormalGrey,
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () => ref.invalidate(animalHealthCheckListProvider),
+              child: const Text('Coba Lagi'),
+            ),
+          ],
+        ),
+      ),
+      data: (response) {
+        final list = response.data;
+
+        if (list.isEmpty) {
+          return const Center(
+            child: Text('Tidak ada data', style: AppTypography.smallNormalGrey),
+          );
+        }
+
+        // Group by date
+        final Map<String, List<AnimalHealthCheck>> grouped = {};
+        for (final item in list) {
+          grouped.putIfAbsent(item.dateLabel, () => []).add(item);
+        }
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(animalHealthCheckListProvider);
+            await ref.read(animalHealthCheckListProvider.future);
+          },
+          child: ListView(
+            controller: scrollCtrl,
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            children: [
+              ...grouped.entries.map((entry) {
+                return _AnimalHealthCheckDateGroup(
+                  dateLabel: entry.key,
+                  items: entry.value,
+                );
+              }),
+              if ((response.total ?? 0) > list.length)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _AnimalHealthCheckDateGroup extends StatelessWidget {
+  final String dateLabel;
+  final List<AnimalHealthCheck> items;
+
+  const _AnimalHealthCheckDateGroup({
+    required this.dateLabel,
+    required this.items,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.fieldBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(dateLabel, style: AppTypography.smallNormalGrey),
+          const SizedBox(height: 8),
+          ...items.map(
+            (e) => AnimalHealthCheckCard(
+              item: e,
+              onTap: () => context.push('/monitoring/detail/health/${e.id}'),
             ),
           ),
         ],

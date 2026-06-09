@@ -31,6 +31,7 @@ import 'package:livestock/features/monitoring/presentation/views/medicine/add_mo
 import 'package:livestock/features/monitoring/presentation/views/health/add_monitoring_health_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/health/add_monitoring_health_step_2_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/health/add_monitoring_health_confirmation_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/health/detail/animal_health_check_detail_page.dart';
 import 'package:livestock/features/product/presentation/views/product_detail_page.dart';
 import 'package:livestock/features/product/presentation/views/product_page.dart';
 import 'package:livestock/features/product/presentation/views/update_product_page.dart';
@@ -232,6 +233,13 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) {
                   final id = int.parse(state.pathParameters['id']!);
                   return MedicineMonitoringDetailPage(id: id);
+                },
+              ),
+              GoRoute(
+                path: 'detail/health/:id',
+                builder: (context, state) {
+                  final id = int.parse(state.pathParameters['id']!);
+                  return AnimalHealthCheckDetailPage(id: id);
                 },
               ),
               GoRoute(
