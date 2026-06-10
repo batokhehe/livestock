@@ -2,6 +2,4 @@
 🔧 Perbaikan & Peningkatan
 
 Module Monitoring
-- Feed
-- Medicine
-- Weight
+- Animal Health Check
