@@ -86,10 +86,6 @@ class AnimalHealthCheckDetailPage extends ConsumerWidget {
                   ],
                 ),
               ),
-              if (data.details.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _summaryCard(data),
-              ],
             ],
           );
         },
@@ -188,13 +184,13 @@ class AnimalHealthCheckDetailPage extends ConsumerWidget {
                   ],
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  StatusChips(text: "$qtyStr Stok", color: AppColors.success),
-                  Text(uom, style: AppTypography.smallNormalGrey),
-                ],
-              ),
+              // Column(
+              //   crossAxisAlignment: CrossAxisAlignment.end,
+              //   children: [
+              //     StatusChips(text: "$qtyStr Stok", color: AppColors.success),
+              //     Text(uom, style: AppTypography.smallNormalGrey),
+              //   ],
+              // ),
             ],
           ),
           const SizedBox(height: 12),
@@ -206,7 +202,7 @@ class AnimalHealthCheckDetailPage extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(qtyStr, style: AppTypography.smallBoldBlack),
+                  // Text(qtyStr, style: AppTypography.smallBoldBlack),
                   const Text("Kuantitas", style: AppTypography.smallNormalGrey),
                 ],
               ),
@@ -214,47 +210,13 @@ class AnimalHealthCheckDetailPage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    "${item.qtyRatioPerAnimal.toStringAsFixed(item.qtyRatioPerAnimal.truncateToDouble() == item.qtyRatioPerAnimal ? 0 : 2)} ${uom.toLowerCase()}",
+                    "${item.quantity.toStringAsFixed(item.quantity.truncateToDouble() == item.quantity ? 0 : 2)} ${uom.toLowerCase()}",
                     style: AppTypography.smallBoldBlack,
                   ),
-                  const Text(
-                    "Rasio kuantitas",
-                    style: AppTypography.smallNormalGrey,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Rp ${formatPrice(item.unitPrice.toInt())}",
-                    style: AppTypography.smallBoldBlack,
-                  ),
-                  const Text(
-                    "Harga Satuan",
-                    style: AppTypography.smallNormalGrey,
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    "Rp ${formatPrice(item.total.toInt())}",
-                    style: AppTypography.smallBoldRed,
-                  ),
-                  const Text(
-                    "Total Harga",
-                    style: AppTypography.smallNormalGrey,
-                  ),
+                  // const Text(
+                  //   "Rasio kuantitas",
+                  //   style: AppTypography.smallNormalGrey,
+                  // ),
                 ],
               ),
             ],
@@ -274,7 +236,9 @@ class _MonitoringInfoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final dateStr = formatDateTime(data.checkDate);
     final medicineCount = data.detailsCount;
-    final employeeName = data.employeeName.isNotEmpty ? data.employeeName : (data.employee?.name ?? '');
+    final employeeName = data.employeeName.isNotEmpty
+        ? data.employeeName
+        : (data.employee?.name ?? '');
 
     return SectionCard(
       title: "Informasi pemantauan",
@@ -374,8 +338,10 @@ class _FarmInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final animalLabel = [
-      if (data.animalCode != null && data.animalCode!.isNotEmpty) data.animalCode,
-      if (data.animalName != null && data.animalName!.isNotEmpty) data.animalName,
+      if (data.animalCode != null && data.animalCode!.isNotEmpty)
+        data.animalCode,
+      if (data.animalName != null && data.animalName!.isNotEmpty)
+        data.animalName,
     ].join(' • ');
 
     return SectionCard(
