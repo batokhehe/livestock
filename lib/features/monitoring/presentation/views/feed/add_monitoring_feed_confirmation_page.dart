@@ -391,7 +391,7 @@ class _NextButtonState extends ConsumerState<_NextButton> {
                         header: "Konfirmasi Pemantauan",
                         title: "Simpan Pemantauan?",
                         subTitle:
-                            "Data Pemantauan Pakan akan disimpan dan diterapkan ke seluruh hewan di area ini.",
+                            "Pastikan data yang anda submit sudah sesuai, aksi ini tidak dapat dibatalkan atau diubah kembali.",
                         saveText: "Simpan Pemantauan",
                       ),
                     );
@@ -400,13 +400,25 @@ class _NextButtonState extends ConsumerState<_NextButton> {
                       setState(() => _isLoading = true);
                       try {
                         final api = ref.read(monitoringApiProvider);
-                        final date = ref.read(selectedMonitoringDateProvider) ?? DateTime.now();
-                        final employeeId = ref.read(selectedMonitoringEmployeeProvider)?.id ?? 0;
-                        final farmLocationId = ref.read(selectedMonitoringFarmProvider)?.id ?? 0;
-                        final farmAreaId = ref.read(selectedMonitoringAreaProvider)?.id ?? 0;
+                        final date =
+                            ref.read(selectedMonitoringDateProvider) ??
+                            DateTime.now();
+                        final employeeId =
+                            ref.read(selectedMonitoringEmployeeProvider)?.id ??
+                            0;
+                        final farmLocationId =
+                            ref.read(selectedMonitoringFarmProvider)?.id ?? 0;
+                        final farmAreaId =
+                            ref.read(selectedMonitoringAreaProvider)?.id ?? 0;
                         final uom = ref.read(monitoringFeedSatuanProvider);
-                        final totalAnimal = ref.read(monitoringAnimalAvailableCountProvider).value ?? 0;
-                        final items = ref.read(addedMonitoringFeedItemsProvider);
+                        final totalAnimal =
+                            ref
+                                .read(monitoringAnimalAvailableCountProvider)
+                                .value ??
+                            0;
+                        final items = ref.read(
+                          addedMonitoringFeedItemsProvider,
+                        );
 
                         int totalFeed = 0;
                         int totalCost = 0;
@@ -439,19 +451,21 @@ class _NextButtonState extends ConsumerState<_NextButton> {
                         );
 
                         if (!context.mounted) return;
-                        
+
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Pemantauan berhasil disimpan")),
+                          const SnackBar(
+                            content: Text("Pemantauan berhasil disimpan"),
+                          ),
                         );
-                        
+
                         Navigator.of(context).pop();
                         Navigator.of(context).pop();
                         Navigator.of(context).pop();
                       } catch (e) {
                         if (context.mounted) {
-                           ScaffoldMessenger.of(context).showSnackBar(
-                             SnackBar(content: Text("Terjadi kesalahan: $e")),
-                           );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Terjadi kesalahan: $e")),
+                          );
                         }
                       } finally {
                         if (mounted) {
