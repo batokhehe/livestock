@@ -47,9 +47,10 @@ class OtherMenu extends ConsumerWidget {
 
           if ((user?.hasPermission('animaltransfer-read') ?? false) ||
               (user?.hasPermission('stocktransfer-read') ?? false))
-            const OtherMenuItem(
+            OtherMenuItem(
               image: AppImages.icShareSvg,
               label: 'Pemindahan',
+              onTap: () => context.push('/transfer'),
             ),
 
           if (user?.hasPermission('dispatch-read') ?? false)
