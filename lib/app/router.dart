@@ -56,6 +56,12 @@ import 'package:livestock/features/sales_order/presentation/views/edit_sales_ord
 import 'package:livestock/features/sales_order/presentation/views/edit_sales_order/edit_sales_order_step_2_page.dart';
 import 'package:livestock/features/sales_order/presentation/views/sales_order_page.dart';
 import 'package:livestock/features/welcome_page.dart';
+import 'package:livestock/features/transfer/presentation/views/transfer_page.dart';
+import 'package:livestock/features/transfer/presentation/views/add_transfer_page.dart';
+import 'package:livestock/features/transfer/presentation/views/add_transfer_step_2_page.dart';
+import 'package:livestock/features/transfer/presentation/views/add_transfer_confirmation_page.dart';
+import 'package:livestock/features/transfer/presentation/views/transfer_detail_page.dart';
+
 
 import '../features/attendance/presentation/views/history_attendance_page.dart';
 import '../features/attendance/presentation/views/history_detail_attendance_page.dart';
@@ -452,6 +458,29 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = int.parse(state.pathParameters['id']!);
           return DispatchEditPage(id: id);
+        },
+      ),
+      GoRoute(
+        path: '/transfer',
+        builder: (context, state) => const TransferPage(),
+      ),
+      GoRoute(
+        path: '/transfer/add-step-1',
+        builder: (context, state) => const AddTransferPage(),
+      ),
+      GoRoute(
+        path: '/transfer/add-step-2',
+        builder: (context, state) => const AddTransferStep2Page(),
+      ),
+      GoRoute(
+        path: '/transfer/add-step-3',
+        builder: (context, state) => const AddTransferConfirmationPage(),
+      ),
+      GoRoute(
+        path: '/transfer/detail/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return TransferDetailPage(transferId: id);
         },
       ),
     ],
