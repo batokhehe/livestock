@@ -1,5 +1,5 @@
 📱 Release Notes
 🔧 Perbaikan & Peningkatan
 
-Module Monitoring
-- Animal Health Check
+Module Transfer
+- New Module Animal Transfer
