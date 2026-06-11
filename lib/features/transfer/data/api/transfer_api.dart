@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:livestock/core/data/model/base_response.dart';
 import 'package:livestock/core/data/model/animal_profile_model.dart';
 import '../model/transfer_list_model.dart';
+import '../model/transfer_detail_model.dart';
 
 class TransferApi {
   final Dio dio;
@@ -60,6 +61,15 @@ class TransferApi {
       res.data,
       (json) => AnimalProfile.fromJson(json),
     );
+  }
+
+  Future<TransferDetail> getTransferDetail(int id) async {
+    final res = await dio.get('/inventory/animal-transfer/$id');
+    final responseData = res.data;
+    if (responseData is Map && responseData['data'] != null) {
+      return TransferDetail.fromJson(responseData['data']);
+    }
+    return TransferDetail.fromJson(responseData);
   }
 
   Future<Response> createAnimalTransfer({

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 import '../../data/model/transfer_list_model.dart';
@@ -23,8 +24,15 @@ class TransferCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.fieldBorder),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: InkWell(
+        onTap: () {
+          if (!item.isStock) {
+            context.push('/transfer/detail/${item.id}');
+          }
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header section
           Padding(
@@ -150,9 +158,9 @@ class TransferCard extends StatelessWidget {
           //       ],
           //     ),
           //   ),
-          // ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

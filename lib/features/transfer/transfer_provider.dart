@@ -7,6 +7,7 @@ import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/animal_profile_model.dart';
 import 'data/api/transfer_api.dart';
 import 'data/model/transfer_list_model.dart';
+import 'data/model/transfer_detail_model.dart';
 
 final transferSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
@@ -238,3 +239,8 @@ final submitTransferProvider = AsyncNotifierProvider.autoDispose<
     SubmitTransferNotifier, void>(
   SubmitTransferNotifier.new,
 );
+
+final transferDetailProvider = FutureProvider.autoDispose.family<TransferDetail, int>((ref, id) async {
+  final api = ref.read(transferApiProvider);
+  return api.getTransferDetail(id);
+});
