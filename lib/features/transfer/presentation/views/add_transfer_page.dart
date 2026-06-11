@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppImages.dart';
@@ -57,7 +58,7 @@ class _AddTransferPageState extends ConsumerState<AddTransferPage> {
                 const StepInfoCard(
                   title: "Informasi Pemindahan Hewan",
                   step: 1,
-                  totalStep: 2,
+                  totalStep: 3,
                 ),
                 const SizedBox(height: 12),
                 SectionCard(
@@ -154,7 +155,7 @@ class _AddTransferPageState extends ConsumerState<AddTransferPage> {
                   ),
                   onPressed: isValid
                       ? () {
-                          // TODO: Implement Step 2 (next step) navigation/action
+                          context.push('/transfer/add-step-2');
                         }
                       : null,
                   child: Text(

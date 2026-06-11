@@ -61,4 +61,27 @@ class TransferApi {
       (json) => AnimalProfile.fromJson(json),
     );
   }
+
+  Future<Response> createAnimalTransfer({
+    required String transferDate,
+    required int fromFarmLocationId,
+    required int toFarmLocationId,
+    required int fromFarmAreaId,
+    required int toFarmAreaId,
+    required int animalProfileId,
+    double? shippingCost,
+  }) async {
+    return await dio.post(
+      '/inventory/animal-transfer',
+      data: {
+        'transfer_date': transferDate,
+        'from_farm_location_id': fromFarmLocationId,
+        'to_farm_location_id': toFarmLocationId,
+        'from_farm_area_id': fromFarmAreaId,
+        'to_farm_area_id': toFarmAreaId,
+        'animal_profile_id': animalProfileId,
+        'shipping_cost': shippingCost,
+      }..removeWhere((k, v) => v == null),
+    );
+  }
 }

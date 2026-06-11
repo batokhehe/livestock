@@ -58,6 +58,8 @@ import 'package:livestock/features/sales_order/presentation/views/sales_order_pa
 import 'package:livestock/features/welcome_page.dart';
 import 'package:livestock/features/transfer/presentation/views/transfer_page.dart';
 import 'package:livestock/features/transfer/presentation/views/add_transfer_page.dart';
+import 'package:livestock/features/transfer/presentation/views/add_transfer_step_2_page.dart';
+import 'package:livestock/features/transfer/presentation/views/add_transfer_confirmation_page.dart';
 
 
 import '../features/attendance/presentation/views/history_attendance_page.dart';
@@ -464,6 +466,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/transfer/add-step-1',
         builder: (context, state) => const AddTransferPage(),
+      ),
+      GoRoute(
+        path: '/transfer/add-step-2',
+        builder: (context, state) => const AddTransferStep2Page(),
+      ),
+      GoRoute(
+        path: '/transfer/add-step-3',
+        builder: (context, state) => const AddTransferConfirmationPage(),
       ),
     ],
   );
