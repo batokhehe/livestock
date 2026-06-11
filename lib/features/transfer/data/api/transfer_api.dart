@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:livestock/core/data/model/base_response.dart';
+import 'package:livestock/core/data/model/animal_profile_model.dart';
 import '../model/transfer_list_model.dart';
 
 class TransferApi {
@@ -38,6 +39,26 @@ class TransferApi {
     return BaseResponse.fromJson(
       res.data,
       (json) => TransferList.fromJson(json),
+    );
+  }
+
+  Future<BaseResponse<AnimalProfile>> getAnimalProfilesForTransfer({
+    String? search,
+    required int page,
+    int perPage = 10,
+  }) async {
+    final res = await dio.get(
+      '/inventory/animal-transfer/animal-profiles',
+      queryParameters: {
+        'search': search,
+        'page': page,
+        'per_page': perPage,
+      }..removeWhere((k, v) => v == null || v == ''),
+    );
+
+    return BaseResponse.fromJson(
+      res.data,
+      (json) => AnimalProfile.fromJson(json),
     );
   }
 }

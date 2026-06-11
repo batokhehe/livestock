@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:livestock/core/helpers/maintenance_helper.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
@@ -50,7 +51,7 @@ class TransferTypeBottomSheet extends StatelessWidget {
             title: 'Pemindahan Hewan',
             onTap: () {
               Navigator.pop(context);
-              MaintenanceHelper.showMaintenanceSnackBar(context);
+              context.push('/transfer/add-step-1');
             },
           ),
 
