@@ -7,6 +7,7 @@ import 'package:livestock/features/monitoring/data/monitoring_type_item_model.da
 import '../../app/providers.dart';
 import '../attendance/data/model/employee_model.dart';
 import 'data/health_monitoring_model.dart';
+import 'data/medicine_monitoring_model.dart';
 import 'data/feed_monitoring_model.dart';
 import 'data/monitoring_item_model.dart';
 import 'data/monitoring_model.dart';
@@ -80,10 +81,11 @@ final monitoringApiProvider = Provider((ref) {
   return MonitoringApi(dio);
 });
 
-final healthMonitoringDetailProvider = FutureProvider.autoDispose
-    .family<HealthMonitoring, int>((ref, id) async {
+
+final medicineMonitoringDetailProvider = FutureProvider.autoDispose
+    .family<MedicineMonitoring, int>((ref, id) async {
       final api = ref.read(monitoringApiProvider);
-      return api.getHealthMonitoringDetail(id);
+      return api.getMedicineMonitoringDetail(id);
     });
 
 final feedMonitoringDetailProvider = FutureProvider.autoDispose

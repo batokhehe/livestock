@@ -3,6 +3,7 @@ import 'package:livestock/core/data/model/base_response.dart';
 import 'package:livestock/features/monitoring/data/weight_monitoring_model.dart';
 import 'package:livestock/features/monitoring/data/feed_monitoring_model.dart';
 import 'package:livestock/features/monitoring/data/health_monitoring_model.dart';
+import 'package:livestock/features/monitoring/data/medicine_monitoring_model.dart';
 import 'package:livestock/features/monitoring/data/animal_health_check_model.dart';
 import 'package:livestock/core/data/model/animal_profile_model.dart';
 
@@ -170,7 +171,7 @@ class MonitoringApi {
     String notes = '',
   }) async {
     final payload = <String, dynamic>{
-      'monitoring_date': monitoringDate.toIso8601String().split('T').first,
+      'monitoring_date': "${monitoringDate.year}-${monitoringDate.month.toString().padLeft(2, '0')}-${monitoringDate.day.toString().padLeft(2, '0')}",
       'employee_id': employeeId,
       'monitoring_status': status,
       'notes': notes,
@@ -184,6 +185,33 @@ class MonitoringApi {
     );
   }
 
+  Future<void> updateHealthMonitoring({
+    required int id,
+    required DateTime monitoringDate,
+    required int employeeId,
+    required int farmLocationId,
+    required int farmAreaId,
+    required List<Map<String, dynamic>> items,
+    String status = 'confirmed',
+    String notes = '',
+  }) async {
+    final payload = <String, dynamic>{
+      'monitoring_date': "${monitoringDate.year}-${monitoringDate.month.toString().padLeft(2, '0')}-${monitoringDate.day.toString().padLeft(2, '0')}",
+      'employee_id': employeeId,
+      'farm_location_id': farmLocationId,
+      'farm_area_id': farmAreaId,
+      'monitoring_status': status,
+      'notes': notes,
+      'items': items,
+    };
+
+    await dio.put(
+      '/monitoring/health-monitoring/$id',
+      data: payload,
+      options: Options(contentType: Headers.jsonContentType),
+    );
+  }
+
   Future<void> deleteWeightMonitoringDetails({required List<int> ids}) async {
     await dio.post(
       '/monitoring/weight-monitoring/bulk-delete',
@@ -191,9 +219,9 @@ class MonitoringApi {
     );
   }
 
-  Future<HealthMonitoring> getHealthMonitoringDetail(int id) async {
+  Future<MedicineMonitoring> getMedicineMonitoringDetail(int id) async {
     final res = await dio.get('/monitoring/health-monitoring/$id');
-    return HealthMonitoring.fromJson(res.data['data']);
+    return MedicineMonitoring.fromJson(res.data['data']);
   }
 
   Future<FeedMonitoring> getFeedMonitoringDetail(int id) async {

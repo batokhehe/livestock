@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppImages.dart';
@@ -9,7 +10,7 @@ import 'package:livestock/core/widgets/info_tag.dart';
 import 'package:livestock/core/widgets/product_header_card.dart';
 import 'package:livestock/core/widgets/section_card.dart';
 import 'package:livestock/core/widgets/status_chips.dart';
-import 'package:livestock/features/monitoring/data/health_monitoring_model.dart';
+import 'package:livestock/features/monitoring/data/medicine_monitoring_model.dart';
 import 'package:livestock/features/monitoring/monitoring_provider.dart';
 
 class MedicineMonitoringDetailPage extends ConsumerWidget {
@@ -19,7 +20,7 @@ class MedicineMonitoringDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncDetail = ref.watch(healthMonitoringDetailProvider(id));
+    final asyncDetail = ref.watch(medicineMonitoringDetailProvider(id));
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
@@ -47,7 +48,7 @@ class MedicineMonitoringDetailPage extends ConsumerWidget {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () =>
-                      ref.invalidate(healthMonitoringDetailProvider(id)),
+                      ref.invalidate(medicineMonitoringDetailProvider(id)),
                   child: const Text("Coba Lagi"),
                 ),
               ],
@@ -55,37 +56,44 @@ class MedicineMonitoringDetailPage extends ConsumerWidget {
           ),
         ),
         data: (data) {
-          return ListView(
-            padding: const EdgeInsets.all(16),
+          return Column(
             children: [
-              _MonitoringInfoSection(data: data),
-              const SizedBox(height: 12),
-              _FarmInfoSection(data: data),
-              const SizedBox(height: 12),
-              CardWrapper(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
                   children: [
-                    const Text(
-                      "Informasi Item",
-                      style: AppTypography.mediumNormalBlack,
-                    ),
+                    _MonitoringInfoSection(data: data),
                     const SizedBox(height: 12),
-                    if (data.details.isEmpty)
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 24),
-                          child: Text(
-                            "Belum ada item obat",
-                            style: AppTypography.smallNormalGrey,
+                    _FarmInfoSection(data: data),
+                    const SizedBox(height: 12),
+                    CardWrapper(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Informasi Item",
+                            style: AppTypography.mediumNormalBlack,
                           ),
-                        ),
-                      )
-                    else
-                      ...data.details.map((item) => _itemCard(item)).toList(),
+                          const SizedBox(height: 12),
+                          if (data.details.isEmpty)
+                            const Center(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 24),
+                                child: Text(
+                                  "Belum ada item obat",
+                                  style: AppTypography.smallNormalGrey,
+                                ),
+                              ),
+                            )
+                          else
+                            ...data.details.map((item) => _itemCard(item)),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
+              _EditButton(item: data),
             ],
           );
         },
@@ -93,7 +101,7 @@ class MedicineMonitoringDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _itemCard(HealthMonitoringDetail item) {
+  Widget _itemCard(MedicineMonitoringDetail item) {
     final qty = item.quantity;
     final qtyStr = qty.toStringAsFixed(qty.truncateToDouble() == qty ? 0 : 2);
 
@@ -207,7 +215,7 @@ class MedicineMonitoringDetailPage extends ConsumerWidget {
 }
 
 class _MonitoringInfoSection extends StatelessWidget {
-  final HealthMonitoring data;
+  final MedicineMonitoring data;
 
   const _MonitoringInfoSection({required this.data});
 
@@ -308,7 +316,7 @@ class _MonitoringInfoSection extends StatelessWidget {
 }
 
 class _FarmInfoSection extends StatelessWidget {
-  final HealthMonitoring data;
+  final MedicineMonitoring data;
 
   const _FarmInfoSection({required this.data});
 
@@ -364,6 +372,46 @@ class _FarmInfoSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _EditButton extends StatelessWidget {
+  final MedicineMonitoring item;
+  const _EditButton({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: InkWell(
+          onTap: () {
+            context.push('/monitoring/edit/medicine', extra: item);
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            height: 56,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF2F4FF),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Edit Data",
+                  style: AppTypography.smallBoldPrimary.copyWith(
+                    color: Colors.blue.shade700,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(Icons.edit_rounded, color: Colors.blue.shade700, size: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
