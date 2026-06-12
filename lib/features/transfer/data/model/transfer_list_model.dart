@@ -16,6 +16,7 @@ class TransferList {
   final String? animalName;
   final String? animalCode;
   final bool isStock;
+  final String? feedType;
 
   TransferList({
     required this.id,
@@ -35,6 +36,7 @@ class TransferList {
     this.animalName,
     this.animalCode,
     required this.isStock,
+    this.feedType,
   });
 
   factory TransferList.fromJson(Map<String, dynamic> json) {
@@ -49,6 +51,7 @@ class TransferList {
                              feedMedicine?['name'] ?? 
                              feed?['name'] ?? 
                              stock?['name'] ?? 
+                             json['item_name'] ?? 
                              json['animal_name'] ?? 
                              '-';
 
@@ -65,6 +68,12 @@ class TransferList {
     // Check if it's a Stock transfer (lack of animal_profile is the direct indicator)
     final bool parsedIsStock = json['animal_profile'] == null;
 
+    final parsedFeedType = feedMedicine?['feed_type'] ??
+                           feed?['feed_type'] ??
+                           stock?['feed_type'] ??
+                           json['feed_type'] ??
+                           json['item_type']?.toString();
+
     return TransferList(
       id: json['id'] ?? 0,
       transferNo: transferCodeValue,
@@ -77,14 +86,23 @@ class TransferList {
       toFarmLocationId: json['to_farm_location_id'],
       toFarmLocationName: json['to_farm_location']?['name'] ?? json['to_farm_location_name'] ?? '-',
       toFarmAreaName: json['to_farm_area']?['area_name'] ?? json['to_farm_area_name'],
-      totalQuantity: json['total_quantity']?.toString() ?? json['quantity']?.toString() ?? '1',
+      totalQuantity: json['total_quantity']?.toString() ?? json['quantity']?.toString() ?? json['qty']?.toString() ?? '1',
       createdBy: json['created_by'] ?? '-',
       details: json['details'] as List? ?? json['items'] as List? ?? [],
       animalName: parsedAnimalName,
       animalCode: parsedAnimalCode,
       isStock: parsedIsStock,
+      feedType: parsedFeedType,
     );
   }
 
   String get dateLabel => transferDate;
+
+  String get itemTypeLabel {
+    final type = feedType?.toLowerCase() ?? '';
+    if (type == 'feed' || type == 'pakan') return 'Pakan';
+    if (type == 'medicine' || type == 'obat') return 'Obat';
+    if (type == 'equipment' || type == 'tool' || type == 'alat') return 'Alat';
+    return type.isNotEmpty ? type : '-';
+  }
 }

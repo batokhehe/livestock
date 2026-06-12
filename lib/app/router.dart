@@ -61,6 +61,10 @@ import 'package:livestock/features/transfer/presentation/views/add_transfer_page
 import 'package:livestock/features/transfer/presentation/views/add_transfer_step_2_page.dart';
 import 'package:livestock/features/transfer/presentation/views/add_transfer_confirmation_page.dart';
 import 'package:livestock/features/transfer/presentation/views/transfer_detail_page.dart';
+import 'package:livestock/features/transfer/presentation/views/add_stock_transfer_page.dart';
+import 'package:livestock/features/transfer/presentation/views/add_stock_transfer_step_2_page.dart';
+import 'package:livestock/features/transfer/presentation/views/add_stock_transfer_confirmation_page.dart';
+import 'package:livestock/features/transfer/presentation/views/stock_transfer_detail_page.dart';
 
 
 import '../features/attendance/presentation/views/history_attendance_page.dart';
@@ -481,6 +485,25 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = int.parse(state.pathParameters['id']!);
           return TransferDetailPage(transferId: id);
+        },
+      ),
+      GoRoute(
+        path: '/transfer/stock-add-step-1',
+        builder: (context, state) => const AddStockTransferPage(),
+      ),
+      GoRoute(
+        path: '/transfer/stock-add-step-2',
+        builder: (context, state) => const AddStockTransferStep2Page(),
+      ),
+      GoRoute(
+        path: '/transfer/stock-add-step-3',
+        builder: (context, state) => const AddStockTransferConfirmationPage(),
+      ),
+      GoRoute(
+        path: '/transfer/stock-detail/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return StockTransferDetailPage(transferId: id);
         },
       ),
     ],
