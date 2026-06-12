@@ -10,21 +10,21 @@ import 'package:livestock/core/widgets/section_card.dart';
 import 'package:livestock/core/widgets/info_item_card.dart';
 import '../../transfer_provider.dart';
 
-class TransferDetailPage extends ConsumerWidget {
+class StockTransferDetailPage extends ConsumerWidget {
   final int transferId;
 
-  const TransferDetailPage({super.key, required this.transferId});
+  const StockTransferDetailPage({super.key, required this.transferId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final detailAsync = ref.watch(transferDetailProvider(transferId));
+    final detailAsync = ref.watch(stockTransferDetailProvider(transferId));
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Detail Pemindahan",
+          "Detail Pemindahan Stock",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -34,6 +34,10 @@ class TransferDetailPage extends ConsumerWidget {
         error: (e, _) => Center(child: Text("Error: $e")),
         data: (detail) {
           final transferDate = DateTime.tryParse(detail.transferDate) ?? DateTime.now();
+          final double qtyDouble = double.tryParse(detail.qty) ?? 0;
+          final String qtyStr = qtyDouble % 1 == 0
+              ? qtyDouble.toInt().toString()
+              : qtyDouble.toString();
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -78,9 +82,8 @@ class TransferDetailPage extends ConsumerWidget {
                         Padding(
                           padding: const EdgeInsets.all(16),
                           child: ProductHeaderCard(
-                            title: detail.animalProfile.animalCode,
-                            subtitle:
-                                "${detail.animalProfile.name} • ${detail.animalProfile.animalGroup?.name ?? '-'}",
+                            title: detail.itemCode,
+                            subtitle: "${detail.itemName} • $qtyStr Unit",
                             image: AppImages.icProduct,
                           ),
                         ),
@@ -105,7 +108,6 @@ class TransferDetailPage extends ConsumerWidget {
                         InfoItemCard(
                           icon: AppImages.icHome,
                           title: detail.fromFarmLocation.name,
-                          subtitle: detail.fromFarmArea.areaName,
                         ),
                         const SizedBox(height: 12),
                         const Text(
@@ -116,28 +118,6 @@ class TransferDetailPage extends ConsumerWidget {
                         InfoItemCard(
                           icon: AppImages.icHome,
                           title: detail.toFarmLocation.name,
-                          subtitle: detail.toFarmArea.areaName,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              SectionCard(
-                title: "Rincian Biaya",
-                children: [
-                  CardWrapper(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Biaya Pengiriman",
-                          style: AppTypography.smallNormalBlack,
-                        ),
-                        Text(
-                          "Rp ${formatPrice(double.tryParse(detail.shippingCost)?.toInt() ?? 0)}",
-                          style: AppTypography.mediumBoldPrimary,
                         ),
                       ],
                     ),

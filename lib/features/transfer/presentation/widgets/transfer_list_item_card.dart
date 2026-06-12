@@ -11,8 +11,12 @@ class TransferCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 7. Status chip: only show Hewan or Stock
-    final String typeText = item.isStock ? 'Stock' : 'Hewan';
+    // 7. Status chip: only show Hewan or Stock type with quantity
+    final double qtyDouble = double.tryParse(item.totalQuantity) ?? 0;
+    final String qtyStr = qtyDouble % 1 == 0
+        ? qtyDouble.toInt().toString()
+        : qtyDouble.toString();
+    final String typeText = item.isStock ? qtyStr : 'Hewan';
     final Color badgeColor = item.isStock
         ? AppColors.info
         : AppColors.emerald700;
@@ -26,141 +30,167 @@ class TransferCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          if (!item.isStock) {
+          if (item.isStock) {
+            context.push('/transfer/stock-detail/${item.id}');
+          } else {
             context.push('/transfer/detail/${item.id}');
           }
         },
         borderRadius: BorderRadius.circular(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header section
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.transferCode,
-                      style: AppTypography.smallBoldBlack,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      item.animalName ?? '-',
-                      style: AppTypography.xSmallNormalGrey,
-                    ),
-                  ],
-                ),
+          children: [
+            // Header section
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.transferCode,
+                        style: AppTypography.smallBoldBlack,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        item.isStock
+                            ? '${item.itemTypeLabel} • ${item.animalName ?? '-'}'
+                            : (item.animalName ?? '-'),
+                        style: AppTypography.xSmallNormalGrey,
+                      ),
+                    ],
+                  ),
 
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: badgeColor.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        typeText,
-                        style: AppTypography.xSmallNormalPrimary.copyWith(
-                          color: badgeColor,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: badgeColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          typeText,
+                          style: AppTypography.xSmallNormalPrimary.copyWith(
+                            color: badgeColor,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      item.animalCode ?? '-',
-                      style: AppTypography.xSmallNormalGrey,
-                    ),
-                  ],
-                ),
-              ],
+                      if (!item.isStock) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          item.animalCode ?? '-',
+                          style: AppTypography.xSmallNormalGrey,
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
 
-          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-
-          // Body details
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.fromFarmLocationName,
-                            style: AppTypography.mediumBoldBlack,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Lokasi Awal',
-                            style: AppTypography.xSmallNormalGrey,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            item.toFarmLocationName,
-                            style: AppTypography.mediumBoldBlack,
-                            textAlign: TextAlign.end,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Lokasi Akhir',
-                            style: AppTypography.xSmallNormalGrey,
-                            textAlign: TextAlign.end,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: AppColors.fieldBorder,
             ),
-          ),
 
-          const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+            // Body details
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.fromFarmLocationName,
+                              style: AppTypography.mediumBoldBlack,
+                            ),
+                            if (!item.isStock) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                item.fromFarmAreaName ?? '-',
+                                style: AppTypography.xSmallNormalGrey,
+                              ),
+                            ],
+                            Text(
+                              'Lokasi Awal',
+                              style: AppTypography.xSmallNormalGrey,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              item.toFarmLocationName,
+                              style: AppTypography.mediumBoldBlack,
+                              textAlign: TextAlign.end,
+                            ),
+                            if (!item.isStock) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                item.toFarmAreaName ?? '-',
+                                style: AppTypography.xSmallNormalGrey,
+                              ),
+                            ],
+                            Text(
+                              'Lokasi Akhir',
+                              style: AppTypography.xSmallNormalGrey,
+                              textAlign: TextAlign.end,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
 
-          // Container(
-          //   padding: const EdgeInsets.all(12),
-          //   child: SingleChildScrollView(
-          //     scrollDirection: Axis.horizontal,
-          //     child: Row(
-          //       children: [
-          //         InfoTag(
-          //           label:
-          //               'Dari: ${item.fromFarmLocationName}'
-          //               '${item.fromFarmAreaName != null && item.fromFarmAreaName!.isNotEmpty ? ' (${item.fromFarmAreaName})' : ''}',
-          //         ),
-          //         InfoTag(
-          //           label:
-          //               'Ke: ${item.toFarmLocationName}'
-          //               '${item.toFarmAreaName != null && item.toFarmAreaName!.isNotEmpty ? ' (${item.toFarmAreaName})' : ''}',
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-        ],
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: AppColors.fieldBorder,
+            ),
+
+            // Container(
+            //   padding: const EdgeInsets.all(12),
+            //   child: SingleChildScrollView(
+            //     scrollDirection: Axis.horizontal,
+            //     child: Row(
+            //       children: [
+            //         InfoTag(
+            //           label:
+            //               'Dari: ${item.fromFarmLocationName}'
+            //               '${item.fromFarmAreaName != null && item.fromFarmAreaName!.isNotEmpty ? ' (${item.fromFarmAreaName})' : ''}',
+            //         ),
+            //         InfoTag(
+            //           label:
+            //               'Ke: ${item.toFarmLocationName}'
+            //               '${item.toFarmAreaName != null && item.toFarmAreaName!.isNotEmpty ? ' (${item.toFarmAreaName})' : ''}',
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
