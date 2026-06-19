@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:livestock/core/data/model/payment_type_model.dart';
 import 'package:livestock/core/data/model/chart_of_account_model.dart';
+import 'package:livestock/core/data/model/bank_account_model.dart';
 
 class SalesInvoiceRequest {
   final DateTime? date;
@@ -8,6 +9,7 @@ class SalesInvoiceRequest {
   final String? paymentStatusLabel;
   final PaymentType? paymentType;
   final ChartOfAccount? chartOfAccount;
+  final BankAccount? bankAccount;
   final double? amount;
   final File? imageFile;
   final bool setoranStatus;
@@ -20,6 +22,7 @@ class SalesInvoiceRequest {
     this.paymentStatusLabel,
     this.paymentType,
     this.chartOfAccount,
+    this.bankAccount,
     this.amount,
     this.imageFile,
     this.notes,
@@ -32,6 +35,7 @@ class SalesInvoiceRequest {
     String? paymentStatusLabel,
     PaymentType? paymentType,
     ChartOfAccount? chartOfAccount,
+    BankAccount? bankAccount,
     double? amount,
     File? imageFile,
     String? notes,
@@ -43,6 +47,7 @@ class SalesInvoiceRequest {
       paymentStatusLabel: paymentStatusLabel ?? this.paymentStatusLabel,
       paymentType: paymentType ?? this.paymentType,
       chartOfAccount: chartOfAccount ?? this.chartOfAccount,
+      bankAccount: bankAccount ?? this.bankAccount,
       amount: amount ?? this.amount,
       imageFile: imageFile ?? this.imageFile,
       notes: notes ?? this.notes,
@@ -50,9 +55,11 @@ class SalesInvoiceRequest {
     );
   }
 
-  bool get isValid => 
-    paymentStatus != null &&
-    paymentType != null &&
-    chartOfAccount != null &&
-    amount != null && amount! > 0;
+  bool get isValid =>
+      paymentStatus != null &&
+      paymentType != null &&
+      (paymentType?.name != "Bank Transfer" || bankAccount != null) &&
+      chartOfAccount != null &&
+      amount != null &&
+      amount! > 0;
 }

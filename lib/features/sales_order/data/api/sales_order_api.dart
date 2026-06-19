@@ -8,6 +8,7 @@ import '../model/sales_order_list_model.dart';
 import '../model/sales_order_request_model.dart';
 import 'package:livestock/core/data/model/payment_type_model.dart';
 import 'package:livestock/core/data/model/chart_of_account_model.dart';
+import 'package:livestock/core/data/model/bank_account_model.dart';
 
 class SalesOrderApi {
   final Dio dio;
@@ -178,6 +179,21 @@ class SalesOrderApi {
     final data = res.data;
     final List list = data is Map ? data['data'] : data;
     return list.map((e) => ChartOfAccount.fromJson(e)).toList();
+  }
+
+  Future<List<BankAccount>> getBankAccounts() async {
+    final res = await dio.get('/transaction/sales-invoice/bank-accounts');
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    final data = res.data;
+    final List list = data is Map ? data['data'] : data;
+    return list.map((e) => BankAccount.fromJson(e)).toList();
   }
 
   Future<void> submitSalesInvoice(Map<String, dynamic> data) async {

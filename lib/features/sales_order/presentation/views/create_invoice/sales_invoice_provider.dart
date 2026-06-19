@@ -5,7 +5,13 @@ import 'package:livestock/features/sales_order/data/model/sales_order_detail_mod
 import 'package:livestock/features/sales_order/sales_order_provider.dart';
 import 'package:livestock/core/data/model/payment_type_model.dart';
 import 'package:livestock/core/data/model/chart_of_account_model.dart';
+import 'package:livestock/core/data/model/bank_account_model.dart';
 import 'dart:io';
+
+final salesBankAccountListProvider =
+    FutureProvider.autoDispose<List<BankAccount>>((ref) async {
+      return ref.read(salesOrderApiProvider).getBankAccounts();
+    });
 
 final chartOfAccountListProvider =
     FutureProvider.autoDispose<List<ChartOfAccount>>((ref) async {
@@ -34,8 +40,16 @@ class SalesInvoiceFormNotifier extends StateNotifier<SalesInvoiceRequest> {
     state = state.copyWith(paymentStatus: status, paymentStatusLabel: label);
   }
 
+  void setBankAccount(BankAccount? account) {
+    state = state.copyWith(bankAccount: account);
+  }
+
   void setPaymentType(PaymentType type) {
-    state = state.copyWith(paymentType: type);
+    if (type.name != "Bank Transfer") {
+      state = state.copyWith(paymentType: type, bankAccount: null);
+    } else {
+      state = state.copyWith(paymentType: type);
+    }
   }
 
   void setChartOfAccount(ChartOfAccount account) {
@@ -70,7 +84,7 @@ class SalesInvoiceFormNotifier extends StateNotifier<SalesInvoiceRequest> {
       "amount_paid": state.amount,
       "amount_total": orderDetail.amountTotal,
       "discount_total": orderDetail.discountTotal,
-      "bank_account_id": null,
+      "bank_account_id": state.bankAccount?.id,
       "chart_of_account_id": state.chartOfAccount?.id,
       "notes": state.notes ?? "",
       "setoran_status": state.setoranStatus ? 1 : 0,
