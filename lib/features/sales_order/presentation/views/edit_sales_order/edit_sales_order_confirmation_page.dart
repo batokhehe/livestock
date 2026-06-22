@@ -14,7 +14,7 @@ import '../../../../../core/widgets/card_wrapper.dart';
 import '../../../../../core/widgets/info_item_card.dart';
 import '../../../../../core/widgets/product_header_card.dart';
 import '../../../../../core/widgets/step_info_card.dart';
-import '../../../../../core/widgets/two_column_row_card.dart';
+// import '../../../../../core/widgets/two_column_row_card.dart';
 import '../../../data/model/sales_order_detail_model.dart';
 import '../../../data/model/sales_order_item_request_model.dart';
 import '../../../sales_order_provider.dart';
@@ -40,7 +40,7 @@ class EditSalesOrderConfirmationPage extends ConsumerWidget {
 
     final subtotal = items.fold<double>(
       0,
-      (sum, item) => sum + (item.subtotal ?? 0),
+      (sum, item) => sum + ((item.unitPrice ?? 0) * (item.qty ?? 1)),
     );
 
     final discount = items.fold<double>(
@@ -294,57 +294,97 @@ class _ProductInfoCard extends StatelessWidget {
             const SizedBox(height: 12),
             const Divider(
                 height: 1, thickness: 1, color: AppColors.fieldBorder),
-            if (useForecast)
-              TwoColumnRowCard(
-                leftValue: 'Rp ${formatPrice(data.unitPrice ?? 0)}',
-                leftLabel: "Harga/kg Forecast",
-                rightValue: 'Rp ${formatPrice(data.subtotal ?? 0)}',
-                rightLabel: "Total Forecast",
-              )
-            else
-              TwoColumnRowCard(
-                leftValue: 'Rp ${formatPrice(data.unitPrice ?? 0)}',
-                leftLabel: "Harga",
-                rightValue: 'Rp ${formatPrice(data.subtotal ?? 0)}',
-                rightLabel: "Subtotal",
-              ),
+            // if (useForecast)
+            //   TwoColumnRowCard(
+            //     leftValue: 'Rp ${formatPrice(data.unitPrice ?? 0)}',
+            //     leftLabel: "Harga/kg Forecast",
+            //     rightValue: 'Rp ${formatPrice(data.subtotal ?? 0)}',
+            //     rightLabel: "Total Forecast",
+            //   )
+            // else
+            //   TwoColumnRowCard(
+            //     leftValue: 'Rp ${formatPrice(data.unitPrice ?? 0)}',
+            //     leftLabel: "Harga",
+            //     rightValue: 'Rp ${formatPrice(data.subtotal ?? 0)}',
+            //     rightLabel: "Subtotal",
+            //   ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  useForecast ? "Harga/kg Forecast" : "Harga jual",
+                  style: AppTypography.xSmallNormalBlack,
+                ),
+                Text(
+                  "Rp ${formatPrice(data.unitPrice ?? 0)}",
+                  style: AppTypography.smallBoldBlack,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("Harga diskon", style: AppTypography.xSmallNormalBlack),
+                Text(
+                  "Rp ${formatPrice(data.discount ?? 0)}",
+                  style: AppTypography.smallBoldBlack,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  useForecast ? "Total Forecast" : "Total",
+                  style: AppTypography.xSmallBoldBlack,
+                ),
+                Text(
+                  "Rp ${formatPrice(data.subtotal ?? 0)}",
+                  style: AppTypography.smallBoldPrimary,
+                ),
+              ],
+            ),
           ],
         ),
-        if (isAnimal) ...[
-          const SizedBox(height: 12),
-          SectionCard(
-            children: [
-              ProductHeaderCard(
-                title: 'Rp ${formatPrice(data.subtotal ?? 0)}',
-                subtitle: formatDateTime(data.dlvDate),
-                image: AppImages.icMoney,
-              ),
-              const SizedBox(height: 12),
-              const Divider(
-                  height: 1, thickness: 1, color: AppColors.fieldBorder),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text("Harga jual",
-                      style: AppTypography.xSmallNormalBlack),
-                  Text("Rp ${formatPrice(data.unitPrice ?? 0)}",
-                      style: AppTypography.smallBoldBlack),
-                ],
-              ),
-              const SizedBox(height: 8.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text("Harga diskon",
-                      style: AppTypography.xSmallNormalBlack),
-                  Text("Rp ${formatPrice(data.discount ?? 0)}",
-                      style: AppTypography.smallBoldBlack),
-                ],
-              ),
-            ],
-          ),
-          if (useForecast) ...[
+        // if (isAnimal) ...[
+        //   const SizedBox(height: 12),
+        //   SectionCard(
+        //     children: [
+        //       ProductHeaderCard(
+        //         title: 'Rp ${formatPrice(data.subtotal ?? 0)}',
+        //         subtitle: formatDateTime(data.dlvDate),
+        //         image: AppImages.icMoney,
+        //       ),
+        //       const SizedBox(height: 12),
+        //       const Divider(
+        //           height: 1, thickness: 1, color: AppColors.fieldBorder),
+        //       const SizedBox(height: 12),
+        //       Row(
+        //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //         children: [
+        //           const Text("Harga jual",
+        //               style: AppTypography.xSmallNormalBlack),
+        //           Text("Rp ${formatPrice(data.unitPrice ?? 0)}",
+        //               style: AppTypography.smallBoldBlack),
+        //         ],
+        //       ),
+        //       const SizedBox(height: 8.0),
+        //       Row(
+        //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //         children: [
+        //           const Text("Harga diskon",
+        //               style: AppTypography.xSmallNormalBlack),
+        //           Text("Rp ${formatPrice(data.discount ?? 0)}",
+        //               style: AppTypography.smallBoldBlack),
+        //         ],
+        //       ),
+        //     ],
+        //   ),
+        // ],
+        if (useForecast) ...[
             const SizedBox(height: 12),
             SectionCard(
               children: [
@@ -386,7 +426,7 @@ class _ProductInfoCard extends StatelessWidget {
               ),
             ],
           ),
-        ],
+        // ],
       ],
     );
   }
