@@ -38,7 +38,7 @@ class _EditSalesOrderPageState extends ConsumerState<EditSalesOrderPage> {
     final d = widget.detail;
 
     _phoneController = TextEditingController(
-      text: d.customer.contactPhone ?? '',
+      text: d.phone ?? d.customer.contactPhone ?? '',
     );
     _recipientNameController = TextEditingController(text: d.recipientName);
     _recipientNumberController = TextEditingController(text: d.recipientNumber);
