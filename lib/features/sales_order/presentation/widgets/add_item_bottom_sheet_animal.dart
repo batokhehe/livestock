@@ -191,541 +191,546 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
     final selectedDistrict = ref.watch(selectedDistrictProvider);
     final selectedVillage = ref.watch(selectedVillageProvider);
 
-    return DraggableScrollableSheet(
-      initialChildSize: 0.92,
-      maxChildSize: 0.95,
-      minChildSize: 0.6,
-      expand: false,
-      builder: (_, controller) {
-        final isValid =
-            selectedAnimal != null &&
-            _parsePrice(priceCtrl.text) > 0 &&
-            _parsePrice(finalPriceCtrl.text) > 0 &&
-            deliveryDate != null &&
-            selectedProvince != null &&
-            selectedCity != null &&
-            selectedDistrict != null &&
-            selectedVillage != null &&
-            addressCtrl.text.trim().isNotEmpty;
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.92,
+        maxChildSize: 0.95,
+        minChildSize: 0.6,
+        expand: false,
+        builder: (_, controller) {
+          final isValid =
+              selectedAnimal != null &&
+              _parsePrice(priceCtrl.text) > 0 &&
+              _parsePrice(finalPriceCtrl.text) > 0 &&
+              deliveryDate != null &&
+              selectedProvince != null &&
+              selectedCity != null &&
+              selectedDistrict != null &&
+              selectedVillage != null &&
+              addressCtrl.text.trim().isNotEmpty;
 
-        return Container(
-          decoration: BoxDecoration(
-            color: AppColors.greyBg,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  controller: controller,
-                  padding: const EdgeInsets.fromLTRB(20, 16, 16, 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Tambah Item",
-                            style: AppTypography.largeBoldBlack,
-                          ),
-                          RawMaterialButton(
-                            onPressed: () => Navigator.pop(context),
-                            elevation: 1.0,
-                            constraints: BoxConstraints(minWidth: 0.0),
-                            padding: EdgeInsets.all(8.0),
-                            shape: CircleBorder(
-                              side: const BorderSide(
-                                color: AppColors.iconColor,
-                                width: 2.0,
-                                style: BorderStyle.solid,
-                              ),
+          return Container(
+            decoration: BoxDecoration(
+              color: AppColors.greyBg,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: controller,
+                    padding: const EdgeInsets.fromLTRB(20, 16, 16, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Tambah Item",
+                              style: AppTypography.largeBoldBlack,
                             ),
-                            child: Icon(Icons.close_rounded, size: 14.0),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      SelectField(
-                        label: "Hewan",
-                        hint: selectedAnimal?.name ?? "Pilih Hewan",
-                        icon: AppImages.icProduct,
-                        onTap: () async {
-                          ref.read(selectedAnimalProvider.notifier).state =
-                              selectedAnimal;
-
-                          final form = widget.isEdit
-                              ? ref.read(editSalesOrderFormProvider)
-                              : ref.read(salesOrderFormProvider);
-                          final excludedIds = form.items
-                                  ?.where((e) => e.animalProfile != null)
-                                  .map((e) => e.animalProfile!.id)
-                                  .toList() ??
-                              [];
-
-                          final result =
-                              await showModalBottomSheet<AnimalProfile>(
-                                context: context,
-                                backgroundColor: AppColors.greyBg,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(20),
-                                  ),
+                            RawMaterialButton(
+                              onPressed: () => Navigator.pop(context),
+                              elevation: 1.0,
+                              constraints: BoxConstraints(minWidth: 0.0),
+                              padding: EdgeInsets.all(8.0),
+                              shape: CircleBorder(
+                                side: const BorderSide(
+                                  color: AppColors.iconColor,
+                                  width: 2.0,
+                                  style: BorderStyle.solid,
                                 ),
-                                builder: (_) {
-                                  final farmLocationId = widget.isEdit
-                                      ? ref
-                                          .read(editSalesOrderFormProvider)
-                                          .farmLocation
-                                          ?.id
-                                      : ref
-                                          .read(salesOrderFormProvider)
-                                          .farmLocation
-                                          ?.id;
-
-                                  return AnimalBottomSheet(
-                                    available: 'available',
-                                    excludedIds: excludedIds,
-                                    farmLocationId: farmLocationId,
-                                  );
-                                },
-                              );
-
-                          if (result != null) {
-                            setState(() {
-                              selectedAnimal = result;
-                              animalWeightCtrl.text = result.weight
-                                  .toStringAsFixed(0);
-                              animalPricePerKgCtrl.text = formatPrice(
-                                result.refSalesPrice,
-                              );
-                              priceCtrl.text = formatPrice(
-                                result.refSalesPriceTotal,
-                              );
-                              discountCtrl.text = '0';
-                            });
+                              ),
+                              child: Icon(Icons.close_rounded, size: 14.0),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        SelectField(
+                          label: "Hewan",
+                          hint: selectedAnimal?.name ?? "Pilih Hewan",
+                          icon: AppImages.icProduct,
+                          onTap: () async {
+                            ref.read(selectedAnimalProvider.notifier).state =
+                                selectedAnimal;
 
                             final form = widget.isEdit
                                 ? ref.read(editSalesOrderFormProvider)
                                 : ref.read(salesOrderFormProvider);
-                            final isForecastEnabled =
-                                (form.category ?? 'kg') == 'kg' &&
-                                (form.useForecast ?? true);
+                            final excludedIds = form.items
+                                    ?.where((e) => e.animalProfile != null)
+                                    .map((e) => e.animalProfile!.id)
+                                    .toList() ??
+                                [];
 
-                            if (isForecastEnabled &&
-                                result.animalGroup != null) {
-                              try {
-                                late final CalculateForecast forecast;
-                                if (widget.isEdit) {
-                                  forecast = await ref
-                                      .read(editSalesOrderFormProvider.notifier)
-                                      .calculateForecastForItem(
-                                        animalGroupId: result.animalGroup!.id,
-                                      );
-                                } else {
-                                  forecast = await ref
-                                      .read(salesOrderFormProvider.notifier)
-                                      .calculateForecastForItem(
-                                        animalGroupId: result.animalGroup!.id,
-                                      );
+                            final result =
+                                await showModalBottomSheet<AnimalProfile>(
+                                  context: context,
+                                  backgroundColor: AppColors.greyBg,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(20),
+                                    ),
+                                  ),
+                                  builder: (_) {
+                                    final farmLocationId = widget.isEdit
+                                        ? ref
+                                            .read(editSalesOrderFormProvider)
+                                            .farmLocation
+                                            ?.id
+                                        : ref
+                                            .read(salesOrderFormProvider)
+                                            .farmLocation
+                                            ?.id;
+
+                                    return AnimalBottomSheet(
+                                      available: 'available',
+                                      excludedIds: excludedIds,
+                                      farmLocationId: farmLocationId,
+                                    );
+                                  },
+                                );
+
+                            if (result != null) {
+                              setState(() {
+                                selectedAnimal = result;
+                                animalWeightCtrl.text = result.weight
+                                    .toStringAsFixed(0);
+                                animalPricePerKgCtrl.text = formatPrice(
+                                  result.refSalesPrice,
+                                );
+                                priceCtrl.text = formatPrice(
+                                  result.refSalesPriceTotal,
+                                );
+                                discountCtrl.text = '0';
+                              });
+
+                              final form = widget.isEdit
+                                  ? ref.read(editSalesOrderFormProvider)
+                                  : ref.read(salesOrderFormProvider);
+                              final isForecastEnabled =
+                                  (form.category ?? 'kg') == 'kg' &&
+                                  (form.useForecast ?? true);
+
+                              if (isForecastEnabled &&
+                                  result.animalGroup != null) {
+                                try {
+                                  late final CalculateForecast forecast;
+                                  if (widget.isEdit) {
+                                    forecast = await ref
+                                        .read(editSalesOrderFormProvider.notifier)
+                                        .calculateForecastForItem(
+                                          animalGroupId: result.animalGroup!.id,
+                                        );
+                                  } else {
+                                    forecast = await ref
+                                        .read(salesOrderFormProvider.notifier)
+                                        .calculateForecastForItem(
+                                          animalGroupId: result.animalGroup!.id,
+                                        );
+                                  }
+
+                                  setState(() {
+                                    forecastData = forecast;
+                                    _updatePriceFromForecast();
+                                  });
+                                } catch (e) {
+                                  debugPrint("Error calculating forecast: $e");
+                                  setState(() {
+                                    forecastData = null;
+                                  });
                                 }
-
-                                setState(() {
-                                  forecastData = forecast;
-                                  _updatePriceFromForecast();
-                                });
-                              } catch (e) {
-                                debugPrint("Error calculating forecast: $e");
-                                setState(() {
-                                  forecastData = null;
-                                });
                               }
                             }
-                          }
-                        },
-                      ),
+                          },
+                        ),
 
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
-                      if (selectedAnimal != null)
-                        _buildAnimalInfoSection(selectedAnimal!),
+                        if (selectedAnimal != null)
+                          _buildAnimalInfoSection(selectedAnimal!),
 
-                      SectionCard(
-                        title: 'Rincian Bayar',
-                        children: [
-                          TextFields(
-                            label: "Harga Jual",
-                            hint: "0",
-                            isMandatoryField: true,
-                            prefixText: 'Rp ',
-                            controller: priceCtrl,
-                            enabled: selectedAnimal != null,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              CurrencyInputFormatter(),
-                            ],
-                          ),
-                          TextFields(
-                            label: "Harga diskon",
-                            hint: "0",
-                            prefixText: 'Rp ',
-                            controller: discountCtrl,
-                            enabled: selectedAnimal != null,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              CurrencyInputFormatter(),
-                            ],
-                          ),
-                          TextFields(
-                            label: "Harga Akhir",
-                            hint: "0",
-                            isMandatoryField: true,
-                            prefixText: 'Rp ',
-                            controller: finalPriceCtrl,
-                            enabled: false,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              CurrencyInputFormatter(),
-                            ],
-                          ),
-                        ],
-                      ),
+                        SectionCard(
+                          title: 'Rincian Bayar',
+                          children: [
+                            TextFields(
+                              label: "Harga Jual",
+                              hint: "0",
+                              isMandatoryField: true,
+                              prefixText: 'Rp ',
+                              controller: priceCtrl,
+                              enabled: selectedAnimal != null,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                CurrencyInputFormatter(),
+                              ],
+                            ),
+                            TextFields(
+                              label: "Harga diskon",
+                              hint: "0",
+                              prefixText: 'Rp ',
+                              controller: discountCtrl,
+                              enabled: selectedAnimal != null,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                CurrencyInputFormatter(),
+                              ],
+                            ),
+                            TextFields(
+                              label: "Harga Akhir",
+                              hint: "0",
+                              isMandatoryField: true,
+                              prefixText: 'Rp ',
+                              controller: finalPriceCtrl,
+                              enabled: false,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                CurrencyInputFormatter(),
+                              ],
+                            ),
+                          ],
+                        ),
 
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
-                      SectionCard(
-                        title: 'Jadwal Pengiriman',
-                        children: [
-                          SelectField(
-                            label: "Tanggal Pengiriman",
-                            hint: formatDateTime(deliveryDate),
-                            icon: AppImages.icCalendarSearch,
-                            isMandatoryField: true,
-                            onTap: () async {
-                              final d = await showModalBottomSheet<DateTime?>(
-                                context: context,
-                                backgroundColor: Colors.transparent,
-                                isScrollControlled: true,
-                                builder: (_) => const CustomDatePickerSheet(),
-                              );
-                              if (d != null) {
-                                setState(() => deliveryDate = d);
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      SectionCard(
-                        title: 'Alamat Pengiriman',
-                        actionLabel: 'Salin Alamat Pelanggan',
-                        onActionTap: _copyFromCustomer,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: SelectField(
-                                  label: "Provinsi",
-                                  hint:
-                                      selectedProvince?.name ??
-                                      "Pilih provinsi",
-                                  icon: AppImages.icMap,
-                                  isMandatoryField: true,
-                                  onTap: () async {
-                                    final result =
-                                        await showModalBottomSheet<Province>(
-                                          context: context,
-                                          backgroundColor: AppColors.greyBg,
-                                          shape: const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.vertical(
-                                              top: Radius.circular(20),
+                        SectionCard(
+                          title: 'Jadwal Pengiriman',
+                          children: [
+                            SelectField(
+                              label: "Tanggal Pengiriman",
+                              hint: formatDateTime(deliveryDate),
+                              icon: AppImages.icCalendarSearch,
+                              isMandatoryField: true,
+                              onTap: () async {
+                                final d = await showModalBottomSheet<DateTime?>(
+                                  context: context,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  builder: (_) => const CustomDatePickerSheet(),
+                                );
+                                if (d != null) {
+                                  setState(() => deliveryDate = d);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        SectionCard(
+                          title: 'Alamat Pengiriman',
+                          actionLabel: 'Salin Alamat Pelanggan',
+                          onActionTap: _copyFromCustomer,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: SelectField(
+                                    label: "Provinsi",
+                                    hint:
+                                        selectedProvince?.name ??
+                                        "Pilih provinsi",
+                                    icon: AppImages.icMap,
+                                    isMandatoryField: true,
+                                    onTap: () async {
+                                      final result =
+                                          await showModalBottomSheet<Province>(
+                                            context: context,
+                                            backgroundColor: AppColors.greyBg,
+                                            shape: const RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.vertical(
+                                                top: Radius.circular(20),
+                                              ),
                                             ),
-                                          ),
-                                          builder: (_) =>
-                                              const ProvinceBottomSheet(),
-                                        );
+                                            builder: (_) =>
+                                                const ProvinceBottomSheet(),
+                                          );
 
-                                    if (result != null) {
-                                      ref
-                                              .read(
-                                                selectedProvinceProvider
-                                                    .notifier,
-                                              )
-                                              .state =
-                                          result;
+                                      if (result != null) {
+                                        ref
+                                                .read(
+                                                  selectedProvinceProvider
+                                                      .notifier,
+                                                )
+                                                .state =
+                                            result;
 
-                                      ref
-                                              .read(
-                                                selectedCityProvider.notifier,
-                                              )
-                                              .state =
-                                          null;
-                                      ref
-                                              .read(
-                                                selectedDistrictProvider
-                                                    .notifier,
-                                              )
-                                              .state =
-                                          null;
-                                      ref
-                                              .read(
-                                                selectedVillageProvider
-                                                    .notifier,
-                                              )
-                                              .state =
-                                          null;
+                                        ref
+                                                .read(
+                                                  selectedCityProvider.notifier,
+                                                )
+                                                .state =
+                                            null;
+                                        ref
+                                                .read(
+                                                  selectedDistrictProvider
+                                                      .notifier,
+                                                )
+                                                .state =
+                                            null;
+                                        ref
+                                                .read(
+                                                  selectedVillageProvider
+                                                      .notifier,
+                                                )
+                                                .state =
+                                            null;
 
-                                      // Reset biaya pengiriman karena city_id berubah (cleared)
-                                      setState(() {
-                                        shippingCostCtrl.text = '0';
-                                      });
-                                    }
-                                  },
+                                        // Reset biaya pengiriman karena city_id berubah (cleared)
+                                        setState(() {
+                                          shippingCostCtrl.text = '0';
+                                        });
+                                      }
+                                    },
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: SelectField(
-                                  label: "Kota",
-                                  hint: selectedCity?.name ?? "Pilih kota",
-                                  icon: AppImages.icMap,
-                                  isMandatoryField: true,
-                                  onTap: selectedProvince == null
-                                      ? null
-                                      : () async {
-                                          final result =
-                                              await showModalBottomSheet<City>(
-                                                context: context,
-                                                builder: (_) =>
-                                                    CityBottomSheet(),
-                                              );
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: SelectField(
+                                    label: "Kota",
+                                    hint: selectedCity?.name ?? "Pilih kota",
+                                    icon: AppImages.icMap,
+                                    isMandatoryField: true,
+                                    onTap: selectedProvince == null
+                                        ? null
+                                        : () async {
+                                            final result =
+                                                await showModalBottomSheet<City>(
+                                                  context: context,
+                                                  builder: (_) =>
+                                                      CityBottomSheet(),
+                                                );
 
-                                          if (result != null) {
-                                            ref
-                                                    .read(
-                                                      selectedCityProvider
-                                                          .notifier,
-                                                    )
-                                                    .state =
-                                                result;
-                                            ref
-                                                    .read(
-                                                      selectedDistrictProvider
-                                                          .notifier,
-                                                    )
-                                                    .state =
-                                                null;
-                                            ref
-                                                    .read(
-                                                      selectedVillageProvider
-                                                          .notifier,
-                                                    )
-                                                    .state =
-                                                null;
+                                            if (result != null) {
+                                              ref
+                                                      .read(
+                                                        selectedCityProvider
+                                                            .notifier,
+                                                      )
+                                                      .state =
+                                                  result;
+                                              ref
+                                                      .read(
+                                                        selectedDistrictProvider
+                                                            .notifier,
+                                                      )
+                                                      .state =
+                                                  null;
+                                              ref
+                                                      .read(
+                                                        selectedVillageProvider
+                                                            .notifier,
+                                                      )
+                                                      .state =
+                                                  null;
 
-                                            // Reset biaya pengiriman karena city_id berubah, lalu fetch ulang
-                                            setState(() {
-                                              shippingCostCtrl.text = '0';
-                                            });
-                                            _updateShippingCost();
-                                          }
-                                        },
+                                              // Reset biaya pengiriman karena city_id berubah, lalu fetch ulang
+                                              setState(() {
+                                                shippingCostCtrl.text = '0';
+                                              });
+                                              _updateShippingCost();
+                                            }
+                                          },
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: SelectField(
-                                  label: "Kecamatan",
-                                  hint:
-                                      selectedDistrict?.name ??
-                                      "Pilih kecamatan",
-                                  icon: AppImages.icMap,
-                                  isMandatoryField: true,
-                                  onTap: selectedCity == null
-                                      ? null
-                                      : () async {
-                                          final result =
-                                              await showModalBottomSheet<
-                                                District
-                                              >(
-                                                context: context,
-                                                builder: (_) =>
-                                                    DistrictBottomSheet(
-                                                      param: selectedCity.code,
-                                                    ),
-                                              );
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: SelectField(
+                                    label: "Kecamatan",
+                                    hint:
+                                        selectedDistrict?.name ??
+                                        "Pilih kecamatan",
+                                    icon: AppImages.icMap,
+                                    isMandatoryField: true,
+                                    onTap: selectedCity == null
+                                        ? null
+                                        : () async {
+                                            final result =
+                                                await showModalBottomSheet<
+                                                  District
+                                                >(
+                                                  context: context,
+                                                  builder: (_) =>
+                                                      DistrictBottomSheet(
+                                                        param: selectedCity.code,
+                                                      ),
+                                                );
 
-                                          if (result != null) {
-                                            ref
-                                                    .read(
-                                                      selectedDistrictProvider
-                                                          .notifier,
-                                                    )
-                                                    .state =
-                                                result;
-                                            ref
-                                                    .read(
-                                                      selectedVillageProvider
-                                                          .notifier,
-                                                    )
-                                                    .state =
-                                                null;
-                                          }
-                                        },
+                                            if (result != null) {
+                                              ref
+                                                      .read(
+                                                        selectedDistrictProvider
+                                                            .notifier,
+                                                      )
+                                                      .state =
+                                                  result;
+                                              ref
+                                                      .read(
+                                                        selectedVillageProvider
+                                                            .notifier,
+                                                      )
+                                                      .state =
+                                                  null;
+                                            }
+                                          },
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: SelectField(
-                                  label: "Kelurahan",
-                                  hint:
-                                      selectedVillage?.name ??
-                                      "Pilih kelurahan",
-                                  icon: AppImages.icMap,
-                                  isMandatoryField: true,
-                                  onTap: selectedDistrict == null
-                                      ? null
-                                      : () async {
-                                          final result =
-                                              await showModalBottomSheet<
-                                                Village
-                                              >(
-                                                context: context,
-                                                builder: (_) =>
-                                                    VillageBottomSheet(
-                                                      param:
-                                                          selectedDistrict.code,
-                                                    ),
-                                              );
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: SelectField(
+                                    label: "Kelurahan",
+                                    hint:
+                                        selectedVillage?.name ??
+                                        "Pilih kelurahan",
+                                    icon: AppImages.icMap,
+                                    isMandatoryField: true,
+                                    onTap: selectedDistrict == null
+                                        ? null
+                                        : () async {
+                                            final result =
+                                                await showModalBottomSheet<
+                                                  Village
+                                                >(
+                                                  context: context,
+                                                  builder: (_) =>
+                                                      VillageBottomSheet(
+                                                        param:
+                                                            selectedDistrict.code,
+                                                      ),
+                                                );
 
-                                          if (result != null) {
-                                            ref
-                                                    .read(
-                                                      selectedVillageProvider
-                                                          .notifier,
-                                                    )
-                                                    .state =
-                                                result;
-                                          }
-                                        },
+                                            if (result != null) {
+                                              ref
+                                                      .read(
+                                                        selectedVillageProvider
+                                                            .notifier,
+                                                      )
+                                                      .state =
+                                                  result;
+                                            }
+                                          },
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 8.0),
-                          TextFields(
-                            label: "Alamat",
-                            hint: "Masukkan lengkap",
-                            isMandatoryField: true,
-                            controller: addressCtrl,
-                            maxLines: 3,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      SectionCard(
-                        title: 'Rincian Biaya',
-                        actionLabel: 'Cek Biaya Pengiriman',
-                        onActionTap: selectedCity == null
-                            ? null
-                            : _updateShippingCost,
-                        children: [
-                          _isFetchingShippingCost
-                              ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Biaya Pengiriman',
-                                      style: AppTypography.smallBoldBlack,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    const _ShimmerBox(
-                                      width: double.infinity,
-                                      height: 48,
-                                      borderRadius: 12,
-                                    ),
-                                  ],
-                                )
-                              : TextFields(
-                                  label: "Biaya Pengiriman",
-                                  hint: "0",
-                                  prefixText: 'Rp ',
-                                  controller: shippingCostCtrl,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                    CurrencyInputFormatter(),
-                                  ],
-                                ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  16,
-                  8,
-                  16,
-                  MediaQuery.of(context).padding.bottom + 16,
-                ),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isValid
-                          ? AppColors.primary
-                          : AppColors.grey,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: isValid
-                        ? () {
-                            final item = SalesOrderItemRequest(
-                              animalProfile: selectedAnimal!,
-                              qty: 1,
-                              unitPrice: _parsePrice(priceCtrl.text),
-                              discount: _parsePrice(discountCtrl.text),
-                              subtotal: _parsePrice(finalPriceCtrl.text),
-                              dlvDate: deliveryDate,
-                              deliveryAddress: addressCtrl.text,
-                              shippingCost: _parsePrice(shippingCostCtrl.text),
-                              weight: _parsePrice(animalWeightCtrl.text),
-                              forecastWeight: forecastData?.forecastWeight,
-                              stateId: selectedProvince.code,
-                              state: selectedProvince.name,
-                              cityId: selectedCity.code,
-                              city: selectedCity.name,
-                              districtId: selectedDistrict.code,
-                              district: selectedDistrict.name,
-                              villageId: selectedVillage.code,
-                              village: selectedVillage.name,
-                            );
-
-                            Navigator.pop(context, item);
-                          }
-                        : null,
-                    child: Text(
-                      "Tambah Item",
-                      style: AppTypography.mediumBoldWhite,
+                              ],
+                            ),
+                            SizedBox(height: 8.0),
+                            TextFields(
+                              label: "Alamat",
+                              hint: "Masukkan lengkap",
+                              isMandatoryField: true,
+                              controller: addressCtrl,
+                              maxLines: 3,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        SectionCard(
+                          title: 'Rincian Biaya',
+                          actionLabel: 'Cek Biaya Pengiriman',
+                          onActionTap: selectedCity == null
+                              ? null
+                              : _updateShippingCost,
+                          children: [
+                            _isFetchingShippingCost
+                                ? Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Biaya Pengiriman',
+                                        style: AppTypography.smallBoldBlack,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      const _ShimmerBox(
+                                        width: double.infinity,
+                                        height: 48,
+                                        borderRadius: 12,
+                                      ),
+                                    ],
+                                  )
+                                : TextFields(
+                                    label: "Biaya Pengiriman",
+                                    hint: "0",
+                                    prefixText: 'Rp ',
+                                    controller: shippingCostCtrl,
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                      CurrencyInputFormatter(),
+                                    ],
+                                  ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    8,
+                    16,
+                    MediaQuery.of(context).padding.bottom + 16,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isValid
+                            ? AppColors.primary
+                            : AppColors.grey,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: isValid
+                          ? () {
+                              final item = SalesOrderItemRequest(
+                                animalProfile: selectedAnimal!,
+                                qty: 1,
+                                unitPrice: _parsePrice(priceCtrl.text),
+                                discount: _parsePrice(discountCtrl.text),
+                                subtotal: _parsePrice(finalPriceCtrl.text),
+                                dlvDate: deliveryDate,
+                                deliveryAddress: addressCtrl.text,
+                                shippingCost: _parsePrice(shippingCostCtrl.text),
+                                weight: _parsePrice(animalWeightCtrl.text),
+                                forecastWeight: forecastData?.forecastWeight,
+                                stateId: selectedProvince.code,
+                                state: selectedProvince.name,
+                                cityId: selectedCity.code,
+                                city: selectedCity.name,
+                                districtId: selectedDistrict.code,
+                                district: selectedDistrict.name,
+                                villageId: selectedVillage.code,
+                                village: selectedVillage.name,
+                              );
+
+                              Navigator.pop(context, item);
+                            }
+                          : null,
+                      child: Text(
+                        "Tambah Item",
+                        style: AppTypography.mediumBoldWhite,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
