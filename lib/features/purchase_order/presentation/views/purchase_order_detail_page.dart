@@ -84,6 +84,7 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
                         shippingCost: data.shippingCost,
                         total: total,
                         isAnimal: data.animalGroup != null,
+                        amountRemainder: data.amountRemainder,
                       ),
                       if (userAsync.value?.hasPermission('invoices-read') ??
                           false) ...[
@@ -311,6 +312,7 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
     required double shippingCost,
     required double total,
     required bool isAnimal,
+    required double amountRemainder,
   }) {
     return SectionCard(
       title: 'Rincian Bayar',
@@ -324,6 +326,7 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
             _rowSummary("Subtotal", formatPrice(subtotal)),
             _rowSummary("Biaya Pengiriman", formatPrice(shippingCost)),
             _rowSummary("Total Keseluruhan", formatPrice(total), isBold: true),
+            _rowSummary("Sisa Pembayaran", formatPrice(amountRemainder)),
           ],
         ),
       ],

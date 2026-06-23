@@ -683,7 +683,9 @@ class _ProductInfoCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  detailData.isForecast == 'yes' ? "Harga/kg Forecast" : "Harga jual",
+                  detailData.isForecast == 'yes'
+                      ? "Harga/kg Forecast"
+                      : "Harga jual",
                   style: AppTypography.xSmallNormalBlack,
                 ),
                 Text(
@@ -696,7 +698,10 @@ class _ProductInfoCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Harga diskon", style: AppTypography.xSmallNormalBlack),
+                const Text(
+                  "Harga diskon",
+                  style: AppTypography.xSmallNormalBlack,
+                ),
                 Text(
                   "Rp ${formatPrice(data.discount)}",
                   style: AppTypography.smallBoldBlack,
@@ -740,47 +745,47 @@ class _ProductInfoCard extends StatelessWidget {
         //   ),
         // ],
         if (detailData.isForecast == 'yes') ...[
-            const SizedBox(height: 12),
-            SectionCard(
-              children: [
-                ProductHeaderCard(
-                  title: 'Transaksi Forecast',
-                  subtitle:
-                      '${data.forecastWeight} kg • ${data.forecastDate == null || data.forecastDate!.isEmpty ? '-' : formatDateString(data.forecastDate!)}',
-                  image: AppImages.icReceipt,
-                ),
-              ],
+          const SizedBox(height: 12),
+          SectionCard(
+            children: [
+              ProductHeaderCard(
+                title: 'Transaksi Forecast',
+                subtitle:
+                    '${data.forecastWeight} kg • ${data.forecastDate == null || data.forecastDate!.isEmpty ? '-' : formatDateString(data.forecastDate!)}',
+                image: AppImages.icReceipt,
+              ),
+            ],
+          ),
+        ],
+        const SizedBox(height: 12),
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: formatDateString(data.dlvDate ?? "-"),
+              subtitle: 'Tanggal Pengiriman',
+              image: AppImages.icTruckFastSvg,
             ),
           ],
-          const SizedBox(height: 12),
-          SectionCard(
-            children: [
-              ProductHeaderCard(
-                title: formatDateString(data.dlvDate ?? "-"),
-                subtitle: 'Tanggal Pengiriman',
-                image: AppImages.icTruckFastSvg,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SectionCard(
-            children: [
-              ProductHeaderCard(
-                title: '${data.state} • ${data.city}',
-                subtitle: '${data.district} • ${data.village}',
-                image: AppImages.icMapSvg,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SectionCard(
-            children: [
-              ProductHeaderCard(
-                title: data.deliveryAddress!,
-                image: AppImages.icBookmark,
-              ),
-            ],
-          ),
+        ),
+        const SizedBox(height: 12),
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: '${data.state} • ${data.city}',
+              subtitle: '${data.district} • ${data.village}',
+              image: AppImages.icMapSvg,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: data.deliveryAddress!,
+              image: AppImages.icBookmark,
+            ),
+          ],
+        ),
         // ],
       ],
     );

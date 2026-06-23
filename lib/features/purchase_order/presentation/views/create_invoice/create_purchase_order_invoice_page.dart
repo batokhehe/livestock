@@ -48,12 +48,12 @@ class _CreatePurchaseOrderInvoicePageState
   void initState() {
     super.initState();
     _amountController = TextEditingController(
-      text: formatPrice(widget.item.amountTotal),
+      text: formatPrice(widget.item.amountRemainder.toInt()),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(purchaseInvoiceFormProvider.notifier)
-          .setAmount(widget.item.amountTotal.toDouble());
+          .setAmount(widget.item.amountRemainder.toDouble());
     });
   }
 
@@ -188,7 +188,14 @@ class _CreatePurchaseOrderInvoicePageState
                       inputFormatters: [CurrencyInputFormatter()],
                       onChanged: (value) {
                         final rawValue = value.replaceAll('.', '');
-                        final amount = double.tryParse(rawValue) ?? 0;
+                        double amount = double.tryParse(rawValue) ?? 0;
+                        if (amount > widget.item.amountRemainder) {
+                          amount = widget.item.amountRemainder.toDouble();
+                          _amountController.text = formatPrice(amount.toInt());
+                          _amountController.selection = TextSelection.fromPosition(
+                            TextPosition(offset: _amountController.text.length),
+                          );
+                        }
                         ref
                             .read(purchaseInvoiceFormProvider.notifier)
                             .setAmount(amount);
@@ -454,7 +461,9 @@ class _CreatePurchaseOrderInvoicePageState
         if (mounted) {
           ref.invalidate(purchaseOrderDetailProvider(widget.item.id));
           ref.invalidate(purchaseOrderListProvider);
-          await ref.read(purchaseInvoiceListProvider(widget.item.id).notifier).fetchInvoices();
+          await ref
+              .read(purchaseInvoiceListProvider(widget.item.id).notifier)
+              .fetchInvoices();
           Navigator.pop(context);
         }
       } catch (e) {
@@ -933,7 +942,9 @@ class _CreatePurchaseOrderInvoicePageState
         width: double.infinity,
         height: 56,
         child: ElevatedButton(
-          onPressed: (invoiceState.isValid && !invoiceState.isLoading)
+          onPressed: (invoiceState.isValid &&
+                      !invoiceState.isLoading &&
+                      (invoiceState.amount ?? 0) <= widget.item.amountRemainder)
               ? _onNext
               : null,
           style: ElevatedButton.styleFrom(
