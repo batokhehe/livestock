@@ -119,7 +119,8 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
     }
 
     final user = ref.watch(userProvider).value;
-    final canCreateInvoice = user?.hasPermission('invoices-create') ?? false;
+    final canCreateInvoice = (user?.hasPermission('invoices-create') ?? false) &&
+        data.amountRemainder > 0;
     bool canUpdatePO = true;
 
     // Validation: Hide edit button if already has invoices
