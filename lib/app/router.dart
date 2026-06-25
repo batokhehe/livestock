@@ -28,6 +28,11 @@ import 'package:livestock/features/monitoring/data/weight_monitoring_model.dart'
 import 'package:livestock/features/monitoring/presentation/views/medicine/add_monitoring_medicine_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/medicine/add_monitoring_medicine_step_2_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/medicine/add_monitoring_medicine_confirmation_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/medicine/edit/edit_monitoring_medicine_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/medicine/edit/edit_monitoring_medicine_step_2_page.dart';
+import 'package:livestock/features/monitoring/presentation/views/medicine/edit/edit_monitoring_medicine_confirmation_page.dart';
+import 'package:livestock/features/monitoring/data/health_monitoring_model.dart';
+import 'package:livestock/features/monitoring/data/medicine_monitoring_model.dart';
 import 'package:livestock/features/monitoring/presentation/views/health/add_monitoring_health_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/health/add_monitoring_health_step_2_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/health/add_monitoring_health_confirmation_page.dart';
@@ -279,6 +284,27 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) {
                   final item = state.extra as WeightMonitoring;
                   return EditMonitoringWeightConfirmationPage(item: item);
+                },
+              ),
+              GoRoute(
+                path: 'edit/medicine',
+                builder: (context, state) {
+                  final item = state.extra as MedicineMonitoring;
+                  return EditMonitoringMedicinePage(item: item);
+                },
+              ),
+              GoRoute(
+                path: 'edit/medicine/step-2',
+                builder: (context, state) {
+                  final item = state.extra as MedicineMonitoring;
+                  return EditMonitoringMedicineStep2Page(item: item);
+                },
+              ),
+              GoRoute(
+                path: 'edit/medicine/confirmation',
+                builder: (context, state) {
+                  final item = state.extra as MedicineMonitoring;
+                  return EditMonitoringMedicineConfirmationPage(item: item);
                 },
               ),
             ],
