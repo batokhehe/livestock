@@ -16,6 +16,7 @@ import 'package:livestock/core/widgets/select_field.dart';
 import 'package:livestock/core/data/model/payment_type_model.dart';
 
 import 'package:livestock/core/data/model/chart_of_account_model.dart';
+import 'package:livestock/core/data/model/bank_account_model.dart';
 import 'package:livestock/features/sales_order/data/model/sales_invoice_request_model.dart';
 import 'package:livestock/features/sales_order/sales_order_provider.dart';
 import 'package:livestock/features/sales_order/presentation/views/create_invoice/sales_invoice_provider.dart';
@@ -109,6 +110,18 @@ class _CreateInvoicePageState extends ConsumerState<CreateInvoicePage> {
                       icon: AppImages.icMoneyTimeSvg,
                       onTap: _showPaymentTypeBottomSheet,
                     ),
+                    if (invoiceState.paymentType?.name == "Bank Transfer") ...[
+                      const SizedBox(height: 12),
+                      SelectField(
+                        label: "Pilih Bank",
+                        isMandatoryField: true,
+                        hint:
+                            invoiceState.bankAccount?.displayName ??
+                            "Pilih bank",
+                        icon: AppImages.icWalletCheck,
+                        onTap: _showBankAccountBottomSheet,
+                      ),
+                    ],
                     const SizedBox(height: 12),
                     SelectField(
                       label: "Akun keuangan",
@@ -721,6 +734,83 @@ class _CreateInvoicePageState extends ConsumerState<CreateInvoicePage> {
 
     if (result != null) {
       ref.read(salesInvoiceFormProvider.notifier).setPaymentType(result);
+    }
+  }
+
+  void _showBankAccountBottomSheet() async {
+    final result = await showModalBottomSheet<BankAccount>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Consumer(
+            builder: (context, ref, child) {
+              final banksAsync = ref.watch(salesBankAccountListProvider);
+              final invoiceState = ref.watch(salesInvoiceFormProvider);
+
+              return banksAsync.when(
+                data: (banks) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: const Text(
+                          "Pilih Bank",
+                          style: AppTypography.mediumBoldBlack,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (banks.isEmpty)
+                                const Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Text("Tidak ada data bank"),
+                                ),
+                              ...banks.map((bank) {
+                                final isSelected =
+                                    invoiceState.bankAccount?.id == bank.id;
+                                return _buildSelectionCard(
+                                  title: bank.bankName ?? "-",
+                                  subtitle:
+                                      "${bank.accountNumber} (${bank.accountHolderName})",
+                                  isSelected: isSelected,
+                                  onTap: () => Navigator.pop(context, bank),
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                loading: () => const SizedBox(
+                  height: 200,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (e, s) => SizedBox(
+                  height: 200,
+                  child: Center(child: Text("Error: $e")),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+
+    if (result != null) {
+      ref.read(salesInvoiceFormProvider.notifier).setBankAccount(result);
     }
   }
 

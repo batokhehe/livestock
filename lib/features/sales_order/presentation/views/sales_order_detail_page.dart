@@ -14,7 +14,7 @@ import '../../../../core/theme/AppTypography.dart';
 import '../../../../core/widgets/card_wrapper.dart';
 import '../../../../core/widgets/info_item_card.dart';
 import '../../../../core/widgets/product_header_card.dart';
-import '../../../../core/widgets/two_column_row_card.dart';
+// import '../../../../core/widgets/two_column_row_card.dart';
 import '../../sales_order_provider.dart';
 import '../widgets/sales_order_detail_card.dart';
 import 'package:livestock/features/sales_order/data/model/sales_invoice_model.dart';
@@ -664,84 +664,129 @@ class _ProductInfoCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-            if (detailData.isForecast == 'yes')
-              TwoColumnRowCard(
-                leftValue: 'Rp ${formatPrice(data.unitPrice)}',
-                leftLabel: "Harga/kg Forecast",
-                rightValue: 'Rp ${formatPrice(data.subtotal)}',
-                rightLabel: "Total Forecast",
-              )
-            else
-              TwoColumnRowCard(
-                leftValue: 'Rp ${formatPrice(data.unitPrice)}',
-                leftLabel: "Harga",
-                rightValue: 'Rp ${formatPrice(data.subtotal)}',
-                rightLabel: "Subtotal",
-              ),
-          ],
-        ),
-        if (isAnimal) ...[
-          const SizedBox(height: 12),
-          SectionCard(
-            children: [
-              ProductHeaderCard(
-                title: 'Rp ${formatPrice(data.subtotal)}',
-                subtitle: formatDateString(data.dlvDate ?? "-"),
-                image: AppImages.icMoney,
-              ),
-              const SizedBox(height: 12),
-              Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-              TwoColumnRowCard(
-                leftValue: "Rp ${formatPrice(data.priceTotal)}",
-                leftLabel: "Harga jual",
-                rightValue: "Rp ${formatPrice(data.discount)}",
-                rightLabel: "Harga diskon",
-              ),
-            ],
-          ),
-          if (detailData.isForecast == 'yes') ...[
+            // if (detailData.isForecast == 'yes')
+            //   TwoColumnRowCard(
+            //     leftValue: 'Rp ${formatPrice(data.priceUnit)}',
+            //     leftLabel: "Harga/kg Forecast",
+            //     rightValue: 'Rp ${formatPrice(data.priceSubtotal)}',
+            //     rightLabel: "Total Forecast",
+            //   )
+            // else
+            //   TwoColumnRowCard(
+            //     leftValue: 'Rp ${formatPrice(data.priceUnit)}',
+            //     leftLabel: "Harga",
+            //     rightValue: 'Rp ${formatPrice(data.priceSubtotal)}',
+            //     rightLabel: "Subtotal",
+            //   ),
             const SizedBox(height: 12),
-            SectionCard(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ProductHeaderCard(
-                  title: 'Transaksi Forecast',
-                  subtitle:
-                      '${data.forecastWeight} kg • ${data.forecastDate == null || data.forecastDate!.isEmpty ? '-' : formatDateString(data.forecastDate!)}',
-                  image: AppImages.icReceipt,
+                Text(
+                  detailData.isForecast == 'yes'
+                      ? "Harga/kg Forecast"
+                      : "Harga jual",
+                  style: AppTypography.xSmallNormalBlack,
+                ),
+                Text(
+                  "Rp ${formatPrice(data.priceUnit)}",
+                  style: AppTypography.smallBoldBlack,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Harga diskon",
+                  style: AppTypography.xSmallNormalBlack,
+                ),
+                Text(
+                  "Rp ${formatPrice(data.discount)}",
+                  style: AppTypography.smallBoldBlack,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  detailData.isForecast == 'yes' ? "Total Forecast" : "Total",
+                  style: AppTypography.xSmallBoldBlack,
+                ),
+                Text(
+                  "Rp ${formatPrice(data.priceSubtotal)}",
+                  style: AppTypography.smallBoldPrimary,
                 ),
               ],
             ),
           ],
+        ),
+        // if (isAnimal) ...[
+        //   const SizedBox(height: 12),
+        //   SectionCard(
+        //     children: [
+        //       ProductHeaderCard(
+        //         title: 'Rp ${formatPrice(data.subtotal)}',
+        //         subtitle: formatDateString(data.dlvDate ?? "-"),
+        //         image: AppImages.icMoney,
+        //       ),
+        //       const SizedBox(height: 12),
+        //       Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
+        //       TwoColumnRowCard(
+        //         leftValue: "Rp ${formatPrice(data.priceUnit)}",
+        //         leftLabel: "Harga jual",
+        //         rightValue: "Rp ${formatPrice(data.priceSubtotal)}",
+        //         rightLabel: "Harga diskon",
+        //       ),
+        //     ],
+        //   ),
+        // ],
+        if (detailData.isForecast == 'yes') ...[
           const SizedBox(height: 12),
           SectionCard(
             children: [
               ProductHeaderCard(
-                title: formatDateString(data.dlvDate ?? "-"),
-                subtitle: 'Tanggal Pengiriman',
-                image: AppImages.icTruckFastSvg,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SectionCard(
-            children: [
-              ProductHeaderCard(
-                title: '${data.state} • ${data.city}',
-                subtitle: '${data.district} • ${data.village}',
-                image: AppImages.icMapSvg,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SectionCard(
-            children: [
-              ProductHeaderCard(
-                title: data.deliveryAddress!,
-                image: AppImages.icBookmark,
+                title: 'Transaksi Forecast',
+                subtitle:
+                    '${data.forecastWeight} kg • ${data.forecastDate == null || data.forecastDate!.isEmpty ? '-' : formatDateString(data.forecastDate!)}',
+                image: AppImages.icReceipt,
               ),
             ],
           ),
         ],
+        const SizedBox(height: 12),
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: formatDateString(data.dlvDate ?? "-"),
+              subtitle: 'Tanggal Pengiriman',
+              image: AppImages.icTruckFastSvg,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: '${data.state} • ${data.city}',
+              subtitle: '${data.district} • ${data.village}',
+              image: AppImages.icMapSvg,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SectionCard(
+          children: [
+            ProductHeaderCard(
+              title: data.deliveryAddress!,
+              image: AppImages.icBookmark,
+            ),
+          ],
+        ),
+        // ],
       ],
     );
   }

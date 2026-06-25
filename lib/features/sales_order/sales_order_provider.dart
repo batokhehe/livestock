@@ -262,9 +262,9 @@ class EditSalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
       return SalesOrderItemRequest(
         animalProfile: e.animalProfile,
         qty: e.qty.toInt(),
-        unitPrice: e.unitPrice,
+        unitPrice: e.priceUnit,
         weight: e.weight,
-        subtotal: e.subtotal,
+        subtotal: e.priceSubtotal,
         discount: e.discount,
         shippingCost: e.shippingCost,
         dlvDate: e.dlvDate != null ? DateTime.tryParse(e.dlvDate!) : null,

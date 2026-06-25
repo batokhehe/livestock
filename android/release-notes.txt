@@ -1,6 +1,5 @@
 📱 Release Notes
 🔧 Perbaikan & Peningkatan
 
-Module Transfer
-- New Module Stock Transfer
-- New Module Animal Transfer
+Module Sales Order
+- Fix Feature Invoice

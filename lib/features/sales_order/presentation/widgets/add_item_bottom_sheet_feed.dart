@@ -78,195 +78,200 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetFeed> {
     final selectedDistrict = ref.watch(selectedDistrictProvider);
     final selectedVillage = ref.watch(selectedVillageProvider);
 
-    return DraggableScrollableSheet(
-      initialChildSize: 0.92,
-      maxChildSize: 0.95,
-      minChildSize: 0.6,
-      expand: false,
-      builder: (_, controller) {
-        return GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Container(
-            padding: EdgeInsets.fromLTRB(
-              20,
-              20,
-              20,
-              MediaQuery.of(context).padding.bottom + 16,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.greyBg,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    controller: controller,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Tambah Item",
-                              style: AppTypography.largeBoldBlack,
-                            ),
-                            GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: const Icon(Icons.close),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        SelectField(
-                          label: "Pakan/Obat",
-                          hint: selectedFeed?.name ?? "Pilih Pakan/Obat",
-                          icon: AppImages.icProduct,
-                          onTap: () async {
-                            final result =
-                                await showModalBottomSheet<FeedMedicine>(
-                                  context: context,
-                                  backgroundColor: AppColors.greyBg,
-                                  isScrollControlled: true,
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(20),
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.92,
+        maxChildSize: 0.95,
+        minChildSize: 0.6,
+        expand: false,
+        builder: (_, controller) {
+          return GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: Container(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                20,
+                20,
+                MediaQuery.of(context).padding.bottom + 16,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.greyBg,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: controller,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Tambah Item",
+                                style: AppTypography.largeBoldBlack,
+                              ),
+                              GestureDetector(
+                                onTap: () => Navigator.pop(context),
+                                child: const Icon(Icons.close),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          SelectField(
+                            label: "Pakan/Obat",
+                            hint: selectedFeed?.name ?? "Pilih Pakan/Obat",
+                            icon: AppImages.icProduct,
+                            onTap: () async {
+                              final result =
+                                  await showModalBottomSheet<FeedMedicine>(
+                                    context: context,
+                                    backgroundColor: AppColors.greyBg,
+                                    isScrollControlled: true,
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(20),
+                                      ),
                                     ),
-                                  ),
-                                  builder: (_) => FeedMedicineBottomSheet(
-                                    initialSelectedId: selectedFeed?.id,
-                                  ),
+                                    builder: (_) => FeedMedicineBottomSheet(
+                                      initialSelectedId: selectedFeed?.id,
+                                    ),
+                                  );
+
+                              if (result != null) {
+                                setState(() {
+                                  selectedFeed = result;
+                                  nameCtrl.text = result.name;
+                                  codeCtrl.text = result.code;
+                                  typeCtrl.text = result.feedType;
+                                  uomCtrl.text = result.uom;
+                                });
+                              }
+                            },
+                          ),
+
+                          const SizedBox(height: 16),
+                          TextFields(
+                            label: "Nama",
+                            hint: "Masukkan Nama",
+                            controller: nameCtrl,
+                            enabled: false,
+                          ),
+                          TextFields(
+                            label: "Kode",
+                            hint: "Masukkan kode",
+                            controller: codeCtrl,
+                            enabled: false,
+                          ),
+                          TextFields(
+                            label: "Tipe Pakan",
+                            hint: "Masukkan tipe",
+                            controller: typeCtrl,
+                            enabled: false,
+                          ),
+                          TextFields(
+                            label: "Satuan",
+                            hint: "Masukkan satuan",
+                            controller: uomCtrl,
+                            enabled: false,
+                          ),
+                          TextFields(
+                            label: "Jumlah",
+                            hint: "0",
+                            controller: qtyCtrl,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                          ),
+                          TextFields(
+                            label: "Harga Jual",
+                            hint: "0",
+                            isMandatoryField: true,
+                            prefixText: 'Rp ',
+                            controller: priceCtrl,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              CurrencyInputFormatter(),
+                            ],
+                          ),
+                          TextFieldWithInnerCounter(
+                            label: 'Catatan',
+                            subLabel: '(Optional)',
+                            hint: 'Masukkan Catatan',
+                            maxLength: 80,
+                            controller: notesCtrl,
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _isFormValid
+                              ? AppColors.primary
+                              : AppColors.grey2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: _isFormValid
+                            ? () {
+                                final priceStr = priceCtrl.text.replaceAll(
+                                  RegExp(r'[^0-9]'),
+                                  '',
+                                );
+                                final price = double.tryParse(priceStr) ?? 0;
+
+                                final item = SalesOrderItemRequest(
+                                  feedMedicine: selectedFeed!,
+                                  qty: int.tryParse(qtyCtrl.text) ?? 0,
+                                  unitPrice: price,
+                                  discount: 0,
+                                  subtotal: _totalPrice,
+                                  dlvDate: deliveryDate,
+                                  deliveryAddress: '',
+                                  uom: uomCtrl.text,
+
+                                  stateId: selectedProvince?.code,
+                                  state: selectedProvince?.name,
+                                  cityId: selectedCity?.code,
+                                  city: selectedCity?.name,
+                                  districtId: selectedDistrict?.code,
+                                  district: selectedDistrict?.name,
+                                  villageId: selectedVillage?.code,
+                                  village: selectedVillage?.name,
+                                  note: notesCtrl.text,
                                 );
 
-                            if (result != null) {
-                              setState(() {
-                                selectedFeed = result;
-                                nameCtrl.text = result.name;
-                                codeCtrl.text = result.code;
-                                typeCtrl.text = result.feedType;
-                                uomCtrl.text = result.uom;
-                              });
-                            }
-                          },
+                                Navigator.pop(context, item);
+                              }
+                            : null,
+                        child: Text(
+                          "Tambah Item",
+                          style: AppTypography.mediumBoldWhite,
                         ),
-
-                        const SizedBox(height: 16),
-                        TextFields(
-                          label: "Nama",
-                          hint: "Masukkan Nama",
-                          controller: nameCtrl,
-                          enabled: false,
-                        ),
-                        TextFields(
-                          label: "Kode",
-                          hint: "Masukkan kode",
-                          controller: codeCtrl,
-                          enabled: false,
-                        ),
-                        TextFields(
-                          label: "Tipe Pakan",
-                          hint: "Masukkan tipe",
-                          controller: typeCtrl,
-                          enabled: false,
-                        ),
-                        TextFields(
-                          label: "Satuan",
-                          hint: "Masukkan satuan",
-                          controller: uomCtrl,
-                          enabled: false,
-                        ),
-                        TextFields(
-                          label: "Jumlah",
-                          hint: "0",
-                          controller: qtyCtrl,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                        ),
-                        TextFields(
-                          label: "Harga Jual",
-                          hint: "0",
-                          isMandatoryField: true,
-                          prefixText: 'Rp ',
-                          controller: priceCtrl,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            CurrencyInputFormatter(),
-                          ],
-                        ),
-                        TextFieldWithInnerCounter(
-                          label: 'Catatan',
-                          subLabel: '(Optional)',
-                          hint: 'Masukkan Catatan',
-                          maxLength: 80,
-                          controller: notesCtrl,
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _isFormValid
-                            ? AppColors.primary
-                            : AppColors.grey2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: _isFormValid
-                          ? () {
-                              final priceStr = priceCtrl.text.replaceAll(
-                                RegExp(r'[^0-9]'),
-                                '',
-                              );
-                              final price = double.tryParse(priceStr) ?? 0;
-
-                              final item = SalesOrderItemRequest(
-                                feedMedicine: selectedFeed!,
-                                qty: int.tryParse(qtyCtrl.text) ?? 0,
-                                unitPrice: price,
-                                discount: 0,
-                                subtotal: _totalPrice,
-                                dlvDate: deliveryDate,
-                                deliveryAddress: '',
-                                uom: uomCtrl.text,
-
-                                stateId: selectedProvince?.code,
-                                state: selectedProvince?.name,
-                                cityId: selectedCity?.code,
-                                city: selectedCity?.name,
-                                districtId: selectedDistrict?.code,
-                                district: selectedDistrict?.name,
-                                villageId: selectedVillage?.code,
-                                village: selectedVillage?.name,
-                                note: notesCtrl.text,
-                              );
-
-                              Navigator.pop(context, item);
-                            }
-                          : null,
-                      child: Text(
-                        "Tambah Item",
-                        style: AppTypography.mediumBoldWhite,
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
