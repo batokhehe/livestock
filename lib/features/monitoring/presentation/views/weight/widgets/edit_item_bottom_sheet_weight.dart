@@ -84,9 +84,7 @@ class _EditItemBottomSheetWeightState
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        child: AnimalBottomSheet(
-          excludedIds: widget.excludedIds,
-        ),
+        child: AnimalBottomSheet(excludedIds: widget.excludedIds),
       ),
     );
 
@@ -292,7 +290,7 @@ class _EditItemBottomSheetWeightState
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        "Tanggal Timbang ($todayStr) harus lebih baru dari Tanggal Pemantauan Terakhir ($lastDateErrorStr). Penimbangan di masa lampau tidak diperbolehkan.",
+                        "Tanggal Timbang ($todayStr) harus lebih baru dari Tanggal Monitoring Terakhir ($lastDateErrorStr). Penimbangan di masa lampau tidak diperbolehkan.",
                         style: const TextStyle(
                           color: AppColors.danger,
                           fontSize: 12,

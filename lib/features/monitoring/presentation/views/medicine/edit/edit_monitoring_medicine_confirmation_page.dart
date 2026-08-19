@@ -36,7 +36,7 @@ class EditMonitoringMedicineConfirmationPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Edit Pemantauan",
+          "Edit Monitoring",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -48,7 +48,7 @@ class EditMonitoringMedicineConfirmationPage extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               children: [
                 const StepInfoCard(
-                  title: "Tinjau Pemantauan",
+                  title: "Tinjau Monitoring",
                   step: 3,
                   totalStep: 3,
                 ),
@@ -181,7 +181,9 @@ class _MonitoringInfoSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedDate = ref.watch(editSelectedMedicineMonitoringDateProvider);
-    final selectedEmployee = ref.watch(editSelectedMedicineMonitoringEmployeeProvider);
+    final selectedEmployee = ref.watch(
+      editSelectedMedicineMonitoringEmployeeProvider,
+    );
     final dateStr = selectedDate != null ? formatDateTime(selectedDate) : "-";
     final employeeStr = selectedEmployee != null
         ? "${selectedEmployee.name} • ${selectedEmployee.phone}"
@@ -197,7 +199,7 @@ class _MonitoringInfoSection extends ConsumerWidget {
       code: dateStr,
       subtitle: 'Obat',
       title: employeeStr,
-      description: "Pemantauan Obat",
+      description: "Monitoring Kesehatan",
       count: totalQty.toInt(),
       total: totalQty.toInt(),
       status: ItemStatus.waiting,
@@ -207,7 +209,7 @@ class _MonitoringInfoSection extends ConsumerWidget {
     );
 
     return SectionCard(
-      title: "Informasi Pemantauan",
+      title: "Informasi Monitoring",
       children: [ConfirmationItemDoubleCard(item: monitoringItem)],
     );
   }
@@ -220,7 +222,9 @@ class _FarmInfoSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final farm = ref.watch(editSelectedMedicineMonitoringFarmProvider);
     final area = ref.watch(editSelectedMedicineMonitoringAreaProvider);
-    final animalCountAsync = ref.watch(editMonitoringAnimalAvailableCountProvider);
+    final animalCountAsync = ref.watch(
+      editMonitoringAnimalAvailableCountProvider,
+    );
     final animalCount = animalCountAsync.value ?? 0;
 
     return SectionCard(
@@ -287,11 +291,11 @@ class _NextButtonState extends ConsumerState<_NextButton> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => const ConfirmationBottomSheet(
-        header: "Konfirmasi Pemantauan",
-        title: "Ubah Pemantauan?",
+        header: "Konfirmasi Monitoring",
+        title: "Ubah Monitoring?",
         subTitle:
             "Pastikan data yang anda submit sudah sesuai, aksi ini tidak dapat dibatalkan atau diubah kembali.",
-        saveText: "Ubah Pemantauan",
+        saveText: "Ubah Monitoring",
       ),
     );
 
@@ -310,12 +314,12 @@ class _NextButtonState extends ConsumerState<_NextButton> {
       context.go('/monitoring');
       SuccessNotification.show(
         title: 'Data berhasil diubah',
-        subtitle: 'Perubahan pemantauan tercatat di sistem.',
+        subtitle: 'Perubahan Monitoring tercatat di sistem.',
       );
     } else {
       final err = ref.read(updateHealthMonitoringProvider).error;
       SuccessNotification.showError(
-        title: 'Gagal mengubah pemantauan',
+        title: 'Gagal mengubah Monitoring',
         subtitle: err?.toString() ?? 'Terjadi kesalahan, coba lagi.',
       );
     }
@@ -350,7 +354,7 @@ class _NextButtonState extends ConsumerState<_NextButton> {
                     ),
                   )
                 : const Text(
-                    "Konfirmasi Pemantauan",
+                    "Konfirmasi Monitoring",
                     style: AppTypography.mediumBoldWhite,
                   ),
           ),

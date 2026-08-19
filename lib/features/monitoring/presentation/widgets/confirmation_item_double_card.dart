@@ -52,7 +52,7 @@ class ConfirmationItemDoubleCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Pemantauan ${item.subtitle}',
+                      'Monitoring ${item.subtitle}',
                       style: AppTypography.xSmallNormalBlack,
                     ),
                   ],

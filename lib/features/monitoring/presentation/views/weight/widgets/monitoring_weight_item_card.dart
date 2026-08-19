@@ -117,7 +117,7 @@ class MonitoringWeightItemCard extends StatelessWidget {
           ),
           _buildRowTwoColumns(
             leftTitle: todayStr,
-            leftSubtitle: "Tanggal Pemantauan Terakhir ",
+            leftSubtitle: "Tanggal Monitoring Terakhir ",
             rightTitle: todayWeightStr,
             rightSubtitle: "Berat Hari Ini",
           ),

@@ -37,10 +37,6 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
       return "Berat hewan wajib diisi";
     }
 
-    if (categoryCtrl.text.trim().isEmpty) {
-      return "Kategori umur wajib diisi";
-    }
-
     if (vaccine && vaccineDate == null) {
       return "Tanggal vaksin wajib diisi";
     }
@@ -83,8 +79,9 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
       poelCtrl.text = data.poel ?? "";
       weightCtrl.text = data.initialWeight?.toString() ?? "";
       ageCtrl.text = data.age?.toString() ?? "";
-      priceCtrl.text =
-          data.purchPrice != null ? formatPrice(data.purchPrice!) : "";
+      priceCtrl.text = data.purchPrice != null
+          ? formatPrice(data.purchPrice!)
+          : "";
       notesCtrl.text = data.notes ?? "";
       categoryCtrl.text = data.ageCategory?.toString() ?? "";
 
@@ -187,7 +184,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                           label: "Kategori Umur",
                           hint: "Masukkan kategori umur",
                           controller: categoryCtrl,
-                          isMandatoryField: true,
+                          isMandatoryField: false,
                           keyboardType: TextInputType.number,
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
@@ -264,7 +261,8 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                             final result = await showModalBottomSheet<String>(
                               context: context,
                               backgroundColor: Colors.transparent,
-                              builder: (_) => GenderBottomSheet(selected: gender),
+                              builder: (_) =>
+                                  GenderBottomSheet(selected: gender),
                             );
 
                             if (result != null) {
@@ -303,9 +301,11 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                         ),
                         onPressed: isValid
                             ? () {
-                                final price = double.tryParse(
-                                  priceCtrl.text.replaceAll('.', ''),
-                                ) ?? 0;
+                                final price =
+                                    double.tryParse(
+                                      priceCtrl.text.replaceAll('.', ''),
+                                    ) ??
+                                    0;
 
                                 final item = PurchaseOrderItemRequest(
                                   animalCode: codeCtrl.text,

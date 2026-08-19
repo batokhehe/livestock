@@ -23,7 +23,7 @@ class MonitoringTypeBottomSheet extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Pilih Pemantauan',
+                'Pilih Monitoring',
                 style: AppTypography.largeBoldBlack,
               ),
               IconButton(
@@ -32,10 +32,7 @@ class MonitoringTypeBottomSheet extends StatelessWidget {
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.iconColor,
-                      width: 2,
-                    ),
+                    border: Border.all(color: AppColors.iconColor, width: 2),
                   ),
                   child: const Icon(Icons.close_rounded, size: 16),
                 ),
@@ -47,7 +44,7 @@ class MonitoringTypeBottomSheet extends StatelessWidget {
 
           /// Pemberian Pakan
           _MonitoringTypeItem(
-            title: 'Pemberian Pakan',
+            title: 'Monitoring Pakan',
             onTap: () {
               Navigator.pop(context);
               context.push('/monitoring/add?type=feed');
@@ -56,9 +53,9 @@ class MonitoringTypeBottomSheet extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          /// Pemantauan Berat
+          /// Monitoring Bobot
           _MonitoringTypeItem(
-            title: 'Pemantauan Berat',
+            title: 'Monitoring Bobot',
             onTap: () {
               Navigator.pop(context);
               context.push('/monitoring/add?type=weight');
@@ -67,9 +64,9 @@ class MonitoringTypeBottomSheet extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          /// Pemantauan Obat
+          /// Monitoring Kesehatan
           _MonitoringTypeItem(
-            title: 'Pemantauan Obat',
+            title: 'Monitoring Kesehatan',
             onTap: () {
               Navigator.pop(context);
               context.push('/monitoring/add?type=medicine');
@@ -78,9 +75,9 @@ class MonitoringTypeBottomSheet extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          /// Pemeriksaan Kesehatan
+          /// Pengobatan
           _MonitoringTypeItem(
-            title: 'Pemeriksaan Kesehatan',
+            title: 'Pengobatan',
             onTap: () {
               Navigator.pop(context);
               context.push('/monitoring/add?type=health');

@@ -31,7 +31,7 @@ class AddMonitoringFeedPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Tambah Pemantauan",
+          "Tambah Monitoring",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -42,7 +42,7 @@ class AddMonitoringFeedPage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: const [
-                StepInfoCard(title: "Pemantauan Pakan", step: 1, totalStep: 3),
+                StepInfoCard(title: "Monitoring Pakan", step: 1, totalStep: 3),
                 SizedBox(height: 12),
                 _MonitoringInfoSection(),
                 SizedBox(height: 12),
@@ -81,10 +81,10 @@ class _MonitoringInfoSection extends ConsumerWidget {
     final selectedDate = ref.watch(selectedMonitoringDateProvider);
 
     return SectionCard(
-      title: "Informasi Pemantauan",
+      title: "Informasi Monitoring",
       children: [
         SelectField(
-          label: "Tanggal Pemantauan",
+          label: "Tanggal Monitoring",
           isMandatoryField: true,
           hint: selectedDate != null
               ? formatDateTime(selectedDate)
@@ -97,7 +97,7 @@ class _MonitoringInfoSection extends ConsumerWidget {
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
               builder: (_) => const CustomDatePickerSheet(
-                title: "Pilih Tanggal Pemantauan",
+                title: "Pilih Tanggal Monitoring",
               ),
             );
 

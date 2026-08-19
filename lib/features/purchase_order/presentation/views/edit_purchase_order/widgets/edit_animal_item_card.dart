@@ -51,10 +51,11 @@ class EditAnimalItemCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              "${item.ageCategory ?? "-"}",
-              style: AppTypography.smallBoldBlack,
-            ),
+            if (item.ageCategory != null)
+              Text(
+                "${item.ageCategory ?? "-"}",
+                style: AppTypography.smallBoldBlack,
+              ),
             if (item.isVaccinated == true && item.vaccineDate != null)
               Text(
                 formatDateTime(item.vaccineDate),
@@ -65,7 +66,11 @@ class EditAnimalItemCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Kategori Umur', style: AppTypography.xSmallNormalBlack),
+            if (item.ageCategory != null)
+              const Text(
+                'Kategori Umur',
+                style: AppTypography.xSmallNormalBlack,
+              ),
             if (item.isVaccinated == true && item.vaccineDate != null)
               const Text(
                 'Tanggal Vaksin',

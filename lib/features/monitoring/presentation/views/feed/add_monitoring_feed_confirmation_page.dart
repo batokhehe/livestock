@@ -28,7 +28,7 @@ class AddMonitoringFeedConfirmationPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Tambah Pemantauan",
+          "Tambah Monitoring",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -40,7 +40,7 @@ class AddMonitoringFeedConfirmationPage extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               children: [
                 const StepInfoCard(
-                  title: "Tinjau Pemantauan",
+                  title: "Tinjau Monitoring",
                   step: 3,
                   totalStep: 3,
                 ),
@@ -290,7 +290,7 @@ class _MonitoringInfoSection extends ConsumerWidget {
     );
 
     return SectionCard(
-      title: "Informasi Pemantauan",
+      title: "Informasi Monitoring",
       children: [ConfirmationItemDoubleCard(item: monitoringItem)],
     );
   }
@@ -388,11 +388,11 @@ class _NextButtonState extends ConsumerState<_NextButton> {
                       isScrollControlled: true,
                       backgroundColor: Colors.transparent,
                       builder: (_) => const ConfirmationBottomSheet(
-                        header: "Konfirmasi Pemantauan",
-                        title: "Simpan Pemantauan?",
+                        header: "Konfirmasi Monitoring",
+                        title: "Simpan Monitoring?",
                         subTitle:
                             "Pastikan data yang anda submit sudah sesuai, aksi ini tidak dapat dibatalkan atau diubah kembali.",
-                        saveText: "Simpan Pemantauan",
+                        saveText: "Simpan Monitoring",
                       ),
                     );
 
@@ -454,7 +454,7 @@ class _NextButtonState extends ConsumerState<_NextButton> {
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text("Pemantauan berhasil disimpan"),
+                            content: Text("Monitoring berhasil disimpan"),
                           ),
                         );
 
@@ -484,7 +484,7 @@ class _NextButtonState extends ConsumerState<_NextButton> {
                     ),
                   )
                 : const Text(
-                    "Konfirmasi Pemantauan",
+                    "Konfirmasi Monitoring",
                     style: AppTypography.mediumBoldWhite,
                   ),
           ),

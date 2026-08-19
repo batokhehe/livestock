@@ -258,7 +258,7 @@ class _AddItemBottomSheetWeightState
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        "Tanggal Timbang ($todayStr) harus lebih baru dari Tanggal Pemantauan Terakhir ($lastDateErrorStr). Penimbangan di masa lampau tidak diperbolehkan.",
+                        "Tanggal Timbang ($todayStr) harus lebih baru dari Tanggal Monitoring Terakhir ($lastDateErrorStr). Penimbangan di masa lampau tidak diperbolehkan.",
                         style: const TextStyle(
                           color: AppColors.danger,
                           fontSize: 12,

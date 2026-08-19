@@ -30,7 +30,7 @@ class AddMonitoringHealthPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Tambah Pemantauan",
+          "Tambah Monitoring",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -41,7 +41,7 @@ class AddMonitoringHealthPage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: const [
-                StepInfoCard(title: "Pemeriksaan Kesehatan", step: 1, totalStep: 3),
+                StepInfoCard(title: "Pengobatan", step: 1, totalStep: 3),
                 SizedBox(height: 12),
                 _MonitoringInfoSection(),
                 SizedBox(height: 12),
@@ -78,10 +78,10 @@ class _MonitoringInfoSection extends ConsumerWidget {
     final selectedDate = ref.watch(selectedHealthMonitoringDateProvider);
     final selectedEmployee = ref.watch(selectedMonitoringEmployeeProvider);
     return SectionCard(
-      title: "Informasi Pemantauan",
+      title: "Informasi Monitoring",
       children: [
         SelectField(
-          label: "Tanggal Pemantauan",
+          label: "Tanggal Monitoring",
           isMandatoryField: true,
           hint: selectedDate != null
               ? formatDateTime(selectedDate)
@@ -93,8 +93,9 @@ class _MonitoringInfoSection extends ConsumerWidget {
               context: context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
-              builder: (_) =>
-                  const CustomDatePickerSheet(title: "Pilih Tanggal Pemantauan"),
+              builder: (_) => const CustomDatePickerSheet(
+                title: "Pilih Tanggal Monitoring",
+              ),
             );
             if (pickedDate != null) {
               ref.read(selectedHealthMonitoringDateProvider.notifier).state =
@@ -154,7 +155,12 @@ class _FarmInfoSection extends ConsumerWidget {
     }
   }
 
-  void _showAnimalPicker(BuildContext context, WidgetRef ref, int farmLocationId, int farmAreaId) async {
+  void _showAnimalPicker(
+    BuildContext context,
+    WidgetRef ref,
+    int farmLocationId,
+    int farmAreaId,
+  ) async {
     final result = await showModalBottomSheet<dynamic>(
       context: context,
       isScrollControlled: true,
@@ -201,7 +207,9 @@ class _FarmInfoSection extends ConsumerWidget {
         SelectField(
           label: "Hewan",
           isMandatoryField: true,
-          hint: selectedAnimal != null ? "${selectedAnimal.animalCode} • ${selectedAnimal.name}" : "Pilih hewan",
+          hint: selectedAnimal != null
+              ? "${selectedAnimal.animalCode} • ${selectedAnimal.name}"
+              : "Pilih hewan",
           style: selectedAnimal != null ? AppTypography.smallNormalBlack : null,
           icon: AppImages.icProduct,
           enabled: selectedFarm != null && selectedArea != null,
@@ -216,7 +224,8 @@ class _FarmInfoSection extends ConsumerWidget {
           CardWrapper(
             child: ProductHeaderCard(
               title: selectedAnimal.animalCode,
-              subtitle: "${selectedAnimal.name} • ${selectedAnimal.weight.floor()} kg",
+              subtitle:
+                  "${selectedAnimal.name} • ${selectedAnimal.weight.floor()} kg",
               image: AppImages.icProduct,
               status: selectedAnimal.available,
             ),
@@ -238,7 +247,8 @@ class _NextButton extends ConsumerWidget {
     final selectedArea = ref.watch(selectedMonitoringAreaProvider);
     final selectedAnimal = ref.watch(selectedHealthCheckAnimalProvider);
 
-    final isValid = selectedDate != null &&
+    final isValid =
+        selectedDate != null &&
         selectedEmployee != null &&
         selectedFarm != null &&
         selectedArea != null &&

@@ -43,7 +43,7 @@ class _EditMonitoringWeightPageState
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Edit Pemantauan",
+          "Edit Monitoring",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -55,7 +55,7 @@ class _EditMonitoringWeightPageState
               padding: const EdgeInsets.all(16),
               children: const [
                 StepInfoCard(
-                  title: "Informasi Pemantauan Berat",
+                  title: "Informasi Monitoring Bobot",
                   step: 1,
                   totalStep: 3,
                 ),
@@ -96,7 +96,7 @@ class _MonitoringInfoSection extends ConsumerWidget {
     final selectedDate = ref.watch(editSelectedMonitoringDateProvider);
 
     return SectionCard(
-      title: "Informasi Pemantauan",
+      title: "Informasi Monitoring",
       children: [
         SelectField(
           label: "Tanggal Timbang",
@@ -167,7 +167,10 @@ class _NextButton extends ConsumerWidget {
                     context.push('/monitoring/edit/step-2', extra: item);
                   }
                 : null,
-            child: const Text("Selanjutnya", style: AppTypography.mediumBoldWhite),
+            child: const Text(
+              "Selanjutnya",
+              style: AppTypography.mediumBoldWhite,
+            ),
           ),
         ),
       ),

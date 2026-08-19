@@ -29,7 +29,7 @@ class TabMenuCard extends ConsumerWidget {
         ),
         const SizedBox(width: 8),
         _TabChip(
-          label: "Pemantauan",
+          label: "Monitoring",
           selected: selectedTab == DashboardTab.monitoring,
           onTap: () => ref.read(dashboardTabProvider.notifier).state =
               DashboardTab.monitoring,

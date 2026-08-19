@@ -63,7 +63,7 @@ class _AddMonitoringFeedStep2PageState
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Tambah Pemantauan",
+          "Tambah Monitoring",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -99,7 +99,7 @@ class _AddMonitoringFeedStep2PageState
           ),
           const SizedBox(height: 4),
           const Text(
-            "Tambahkan minimal satu item untuk melanjutkan proses pemantauan",
+            "Tambahkan minimal satu item untuk melanjutkan proses Monitoring",
             textAlign: TextAlign.center,
             style: AppTypography.smallNormalGrey,
           ),

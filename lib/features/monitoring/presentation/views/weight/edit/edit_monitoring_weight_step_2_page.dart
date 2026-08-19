@@ -62,7 +62,9 @@ class _EditMonitoringWeightStep2PageState
     if (result != null) {
       final index = items.indexWhere((e) => e.id == item.id);
       if (index != -1) {
-        ref.read(editAddedMonitoringWeightItemsProvider.notifier).update((state) {
+        ref.read(editAddedMonitoringWeightItemsProvider.notifier).update((
+          state,
+        ) {
           final list = [...state];
           list[index] = result;
           return list;
@@ -79,7 +81,7 @@ class _EditMonitoringWeightStep2PageState
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Edit Pemantauan",
+          "Edit Monitoring",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -89,7 +91,7 @@ class _EditMonitoringWeightStep2PageState
           Padding(
             padding: const EdgeInsets.all(16),
             child: StepInfoCard(
-              title: "Item Pemantauan",
+              title: "Item Monitoring",
               step: 2,
               totalStep: 3,
             ),
@@ -119,7 +121,7 @@ class _EditMonitoringWeightStep2PageState
           ),
           const SizedBox(height: 4),
           const Text(
-            "Tambahkan minimal satu item untuk melanjutkan proses pemantauan",
+            "Tambahkan minimal satu item untuk melanjutkan proses Monitoring",
             textAlign: TextAlign.center,
             style: AppTypography.smallNormalGrey,
           ),

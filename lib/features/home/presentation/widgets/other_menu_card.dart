@@ -41,7 +41,7 @@ class OtherMenu extends ConsumerWidget {
               (user?.hasPermission('healthmonitoring-read') ?? false))
             OtherMenuItem(
               image: AppImages.icClipboardSvg,
-              label: 'Pemantauan',
+              label: 'Monitor',
               onTap: () => context.push('/monitoring'),
             ),
 
@@ -49,14 +49,14 @@ class OtherMenu extends ConsumerWidget {
               (user?.hasPermission('stocktransfer-read') ?? false))
             OtherMenuItem(
               image: AppImages.icShareSvg,
-              label: 'Pemindahan',
+              label: 'Pindah',
               onTap: () => context.push('/transfer'),
             ),
 
           if (user?.hasPermission('dispatch-read') ?? false)
             OtherMenuItem(
               image: AppImages.icTruckFastSvg,
-              label: 'Pengiriman',
+              label: 'Kirim',
               onTap: () => context.push('/dispatch'),
             ),
 
