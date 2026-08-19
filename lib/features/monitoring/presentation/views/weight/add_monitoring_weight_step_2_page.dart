@@ -77,7 +77,7 @@ class _AddMonitoringWeightStep2PageState
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Tambah Pemantauan",
+          "Tambah Monitoring",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -87,7 +87,7 @@ class _AddMonitoringWeightStep2PageState
           Padding(
             padding: const EdgeInsets.all(16),
             child: StepInfoCard(
-              title: "Item Pemantauan",
+              title: "Item Monitoring",
               step: 2,
               totalStep: 3,
             ),
@@ -117,7 +117,7 @@ class _AddMonitoringWeightStep2PageState
           ),
           const SizedBox(height: 4),
           const Text(
-            "Tambahkan minimal satu item untuk melanjutkan proses pemantauan",
+            "Tambahkan minimal satu item untuk melanjutkan proses Monitoring",
             textAlign: TextAlign.center,
             style: AppTypography.smallNormalGrey,
           ),

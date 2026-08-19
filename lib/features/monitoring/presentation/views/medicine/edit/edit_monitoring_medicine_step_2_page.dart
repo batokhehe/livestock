@@ -26,7 +26,6 @@ class EditMonitoringMedicineStep2Page extends ConsumerStatefulWidget {
 
 class _EditMonitoringMedicineStep2PageState
     extends ConsumerState<EditMonitoringMedicineStep2Page> {
-
   void _openAddItemSheet() async {
     final result = await showModalBottomSheet<MonitoringItem>(
       context: context,
@@ -36,9 +35,9 @@ class _EditMonitoringMedicineStep2PageState
     );
 
     if (result != null) {
-      ref.read(editAddedMonitoringMedicineItemsProvider.notifier).update(
-            (state) => [...state, result],
-          );
+      ref
+          .read(editAddedMonitoringMedicineItemsProvider.notifier)
+          .update((state) => [...state, result]);
     }
   }
 
@@ -51,7 +50,9 @@ class _EditMonitoringMedicineStep2PageState
     );
 
     if (result != null) {
-      ref.read(editAddedMonitoringMedicineItemsProvider.notifier).update((state) {
+      ref.read(editAddedMonitoringMedicineItemsProvider.notifier).update((
+        state,
+      ) {
         final list = [...state];
         list[index] = result;
         return list;
@@ -68,7 +69,7 @@ class _EditMonitoringMedicineStep2PageState
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Edit Pemantauan",
+          "Edit Monitoring",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -104,7 +105,7 @@ class _EditMonitoringMedicineStep2PageState
           ),
           const SizedBox(height: 4),
           const Text(
-            "Tambahkan minimal satu item untuk melanjutkan proses pemantauan",
+            "Tambahkan minimal satu item untuk melanjutkan proses Monitoring",
             textAlign: TextAlign.center,
             style: AppTypography.smallNormalGrey,
           ),
@@ -171,9 +172,9 @@ class _EditMonitoringMedicineStep2PageState
       backgroundColor: Colors.transparent,
       builder: (_) => DeleteConfirmBottomSheet(
         onDelete: () {
-          ref.read(editAddedMonitoringMedicineItemsProvider.notifier).update(
-                (state) => state.where((e) => e != item).toList(),
-              );
+          ref
+              .read(editAddedMonitoringMedicineItemsProvider.notifier)
+              .update((state) => state.where((e) => e != item).toList());
           Navigator.pop(context);
         },
       ),
@@ -205,7 +206,10 @@ class _NextButton extends StatelessWidget {
             ),
             onPressed: enabled
                 ? () {
-                    context.push("/monitoring/edit/medicine/confirmation", extra: item);
+                    context.push(
+                      "/monitoring/edit/medicine/confirmation",
+                      extra: item,
+                    );
                   }
                 : null,
             child: const Text(

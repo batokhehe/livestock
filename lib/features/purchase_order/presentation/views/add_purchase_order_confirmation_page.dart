@@ -63,9 +63,7 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
                 _infoPurchaseOrder(form),
                 const SizedBox(height: 12),
 
-                ...items.asMap().entries.map(
-                  (entry) => _itemCard(entry.value),
-                ),
+                ...items.asMap().entries.map((entry) => _itemCard(entry.value)),
 
                 const SizedBox(height: 12),
 
@@ -198,7 +196,8 @@ class AddPurchaseOrderConfirmationPage extends ConsumerWidget {
               "$totalItem ${isAnimal ? 'ekor' : 'item'}",
             ),
             _rowSummary("Subtotal", formatPrice(subtotal)),
-            if (isAnimal) _rowSummary("Biaya Pengiriman", formatPrice(shippingCost)),
+            if (isAnimal)
+              _rowSummary("Biaya Pengiriman", formatPrice(shippingCost)),
             _rowSummary("Total Keseluruhan", formatPrice(total), isBold: true),
           ],
         ),
@@ -256,8 +255,14 @@ class _AnimalItemCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("${item.initialWeight} kg", style: AppTypography.smallBoldBlack),
-            Text('Rp ${formatPrice(item.purchPrice ?? 0)}', style: AppTypography.smallBoldBlack),
+            Text(
+              "${item.initialWeight} kg",
+              style: AppTypography.smallBoldBlack,
+            ),
+            Text(
+              'Rp ${formatPrice(item.purchPrice ?? 0)}',
+              style: AppTypography.smallBoldBlack,
+            ),
           ],
         ),
         Row(
@@ -271,17 +276,28 @@ class _AnimalItemCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("${item.ageCategory}", style: AppTypography.smallBoldBlack),
+            if (item.ageCategory != null)
+              Text("${item.ageCategory}", style: AppTypography.smallBoldBlack),
             if (item.isVaccinated == true && item.vaccineDate != null)
-              Text(formatDateTime(item.vaccineDate), style: AppTypography.smallBoldBlack),
+              Text(
+                formatDateTime(item.vaccineDate),
+                style: AppTypography.smallBoldBlack,
+              ),
           ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Kategori Umur', style: AppTypography.xSmallNormalBlack),
+            if (item.ageCategory != null)
+              const Text(
+                'Kategori Umur',
+                style: AppTypography.xSmallNormalBlack,
+              ),
             if (item.isVaccinated == true && item.vaccineDate != null)
-              const Text('Tanggal Vaksin', style: AppTypography.xSmallNormalBlack),
+              const Text(
+                'Tanggal Vaksin',
+                style: AppTypography.xSmallNormalBlack,
+              ),
           ],
         ),
       ],
@@ -306,7 +322,10 @@ class _FeedItemCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text("${item.quantity} item", style: AppTypography.smallBoldBlack),
-            Text('Rp ${formatPrice(item.purchPrice ?? 0)}', style: AppTypography.smallBoldBlack),
+            Text(
+              'Rp ${formatPrice(item.purchPrice ?? 0)}',
+              style: AppTypography.smallBoldBlack,
+            ),
           ],
         ),
         Row(
@@ -338,7 +357,10 @@ class _EquipmentItemCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text("${item.quantity} item", style: AppTypography.smallBoldBlack),
-            Text('Rp ${formatPrice(item.purchPrice ?? 0)}', style: AppTypography.smallBoldBlack),
+            Text(
+              'Rp ${formatPrice(item.purchPrice ?? 0)}',
+              style: AppTypography.smallBoldBlack,
+            ),
           ],
         ),
         Row(

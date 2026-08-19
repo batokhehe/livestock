@@ -27,7 +27,7 @@ class AddMonitoringWeightConfirmationPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Tambah Pemantauan",
+          "Tambah Monitoring",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -39,7 +39,7 @@ class AddMonitoringWeightConfirmationPage extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               children: [
                 const StepInfoCard(
-                  title: "Tinjau Pemantauan",
+                  title: "Tinjau Monitoring",
                   step: 3,
                   totalStep: 3,
                 ),
@@ -97,7 +97,7 @@ class _MonitoringInfoSection extends ConsumerWidget {
         : "-";
 
     return SectionCard(
-      title: "Informasi Pemantauan",
+      title: "Informasi Monitoring",
       children: [
         Container(
           width: double.infinity,
@@ -122,7 +122,7 @@ class _MonitoringInfoSection extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     const Text(
-                      "Pemantauan Bobot",
+                      "Monitoring Bobot",
                       style: AppTypography.smallNormalGrey,
                     ),
                   ],
@@ -159,11 +159,11 @@ class _NextButtonState extends ConsumerState<_NextButton> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => const ConfirmationBottomSheet(
-        header: "Konfirmasi Pemantauan",
-        title: "Simpan Pemantauan?",
+        header: "Konfirmasi Monitoring",
+        title: "Simpan Monitoring?",
         subTitle:
             "Pastikan data yang anda submit sudah sesuai, aksi ini tidak dapat dibatalkan atau diubah kembali.",
-        saveText: "Simpan Pemantauan",
+        saveText: "Simpan Monitoring",
       ),
     );
 
@@ -181,12 +181,12 @@ class _NextButtonState extends ConsumerState<_NextButton> {
       context.go('/monitoring');
       SuccessNotification.show(
         title: 'Data berhasil disimpan',
-        subtitle: 'Pemantauan tercatat di sistem.',
+        subtitle: 'Monitoring tercatat di sistem.',
       );
     } else {
       final err = ref.read(submitWeightMonitoringProvider).error;
       SuccessNotification.showError(
-        title: 'Gagal menyimpan pemantauan',
+        title: 'Gagal menyimpan Monitoring',
         subtitle: err?.toString() ?? 'Terjadi kesalahan, coba lagi.',
       );
     }
@@ -221,7 +221,7 @@ class _NextButtonState extends ConsumerState<_NextButton> {
                     ),
                   )
                 : const Text(
-                    "Konfirmasi Pemantauan",
+                    "Konfirmasi Monitoring",
                     style: AppTypography.mediumBoldWhite,
                   ),
           ),

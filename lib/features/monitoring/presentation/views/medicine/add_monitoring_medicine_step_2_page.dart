@@ -24,7 +24,6 @@ class AddMonitoringMedicineStep2Page extends ConsumerStatefulWidget {
 
 class _AddMonitoringMedicineStep2PageState
     extends ConsumerState<AddMonitoringMedicineStep2Page> {
-
   void _openAddItemSheet() async {
     final result = await showModalBottomSheet<MonitoringItem>(
       context: context,
@@ -34,9 +33,9 @@ class _AddMonitoringMedicineStep2PageState
     );
 
     if (result != null) {
-      ref.read(addedMonitoringMedicineItemsProvider.notifier).update(
-            (state) => [...state, result],
-          );
+      ref
+          .read(addedMonitoringMedicineItemsProvider.notifier)
+          .update((state) => [...state, result]);
     }
   }
 
@@ -66,7 +65,7 @@ class _AddMonitoringMedicineStep2PageState
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Tambah Pemantauan",
+          "Tambah Monitoring",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -102,7 +101,7 @@ class _AddMonitoringMedicineStep2PageState
           ),
           const SizedBox(height: 4),
           const Text(
-            "Tambahkan minimal satu item untuk melanjutkan proses pemantauan",
+            "Tambahkan minimal satu item untuk melanjutkan proses Monitoring",
             textAlign: TextAlign.center,
             style: AppTypography.smallNormalGrey,
           ),
@@ -169,9 +168,9 @@ class _AddMonitoringMedicineStep2PageState
       backgroundColor: Colors.transparent,
       builder: (_) => DeleteConfirmBottomSheet(
         onDelete: () {
-          ref.read(addedMonitoringMedicineItemsProvider.notifier).update(
-                (state) => state.where((e) => e != item).toList(),
-              );
+          ref
+              .read(addedMonitoringMedicineItemsProvider.notifier)
+              .update((state) => state.where((e) => e != item).toList());
           Navigator.pop(context);
         },
       ),
@@ -215,5 +214,3 @@ class _NextButton extends StatelessWidget {
     );
   }
 }
-
-

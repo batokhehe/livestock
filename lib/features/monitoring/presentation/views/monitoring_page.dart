@@ -111,7 +111,7 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
       backgroundColor: AppColors.greyBg,
       appBar: AppBar(
         backgroundColor: AppColors.white,
-        title: const Text("Pemantauan", style: AppTypography.largeBoldBlack),
+        title: const Text("Monitoring", style: AppTypography.largeBoldBlack),
         leading: const BackButton(),
       ),
       body: Column(
@@ -601,7 +601,7 @@ class _BottomButton extends StatelessWidget {
               );
             },
             child: const Text(
-              "Tambah Pemantauan",
+              "Tambah Monitoring",
               style: AppTypography.mediumBoldWhite,
             ),
           ),

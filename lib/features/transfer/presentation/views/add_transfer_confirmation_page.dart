@@ -207,7 +207,7 @@ class _NextButtonState extends ConsumerState<_NextButton> {
     } else {
       final err = ref.read(submitTransferProvider).error;
       SuccessNotification.showError(
-        title: 'Gagal menyimpan pemantauan',
+        title: 'Gagal menyimpan Monitoring',
         subtitle: err?.toString() ?? 'Terjadi kesalahan, coba lagi.',
       );
     }

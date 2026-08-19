@@ -32,7 +32,7 @@ class WeightMonitoringDetailPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          'Detail Pemantauan',
+          'Detail Monitoring',
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -106,7 +106,7 @@ class _EditButton extends StatelessWidget {
   }
 }
 
-// ─── Informasi Pemantauan ────────────────────────────────────────────────────
+// ─── Informasi Monitoring ────────────────────────────────────────────────────
 
 class _InfoSection extends StatelessWidget {
   final WeightMonitoring item;
@@ -115,7 +115,7 @@ class _InfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _SectionCard(
-      title: 'Informasi pemantauan',
+      title: 'Informasi Monitoring',
       child: Column(
         children: [
           _InfoCard(
@@ -307,7 +307,7 @@ class _DetailCard extends ConsumerWidget {
             ),
           ),
           const Divider(height: 1, thickness: 1, color: AppColors.fieldBorder),
-          // Baris 2: Tanggal Pemantauan Akhir | Berat Hari Ini
+          // Baris 2: Tanggal Monitoring Akhir | Berat Hari Ini
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Row(
@@ -324,7 +324,7 @@ class _DetailCard extends ConsumerWidget {
                       style: AppTypography.smallBoldBlack,
                     ),
                     Text(
-                      'Pemantauan Akhir',
+                      'Monitoring Akhir',
                       style: AppTypography.xSmallNormalGrey,
                     ),
                   ],

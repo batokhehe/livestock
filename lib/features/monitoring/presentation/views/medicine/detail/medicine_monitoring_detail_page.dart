@@ -27,7 +27,7 @@ class MedicineMonitoringDetailPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Detail Pemantauan",
+          "Detail Monitoring",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -41,7 +41,7 @@ class MedicineMonitoringDetailPage extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Gagal memuat detail pemantauan\n$err',
+                  'Gagal memuat detail Monitoring\n$err',
                   textAlign: TextAlign.center,
                   style: AppTypography.smallNormalGrey,
                 ),
@@ -226,7 +226,7 @@ class _MonitoringInfoSection extends StatelessWidget {
     final medicineCount = data.totalMedicine.toInt();
 
     return SectionCard(
-      title: "Informasi pemantauan",
+      title: "Informasi Monitoring",
       children: [
         Container(
           decoration: BoxDecoration(
@@ -303,7 +303,7 @@ class _MonitoringInfoSection extends StatelessWidget {
                 Text(dateStr, style: AppTypography.smallBoldBlack),
                 const SizedBox(height: 4),
                 const Text(
-                  "Tanggal Pemantauan",
+                  "Tanggal Monitoring",
                   style: AppTypography.xSmallNormalGrey,
                 ),
               ],

@@ -36,7 +36,7 @@ class SubmitAnimalHealthCheckNotifier extends AutoDisposeAsyncNotifier<void> {
         animalId: animal.id,
         items: payload,
         status: 'confirmed',
-        notes: 'Pemeriksaan Kesehatan',
+        notes: 'Pengobatan',
       );
 
       state = const AsyncData(null);
@@ -48,7 +48,7 @@ class SubmitAnimalHealthCheckNotifier extends AutoDisposeAsyncNotifier<void> {
   }
 }
 
-final submitAnimalHealthCheckProvider = AsyncNotifierProvider.autoDispose<
-    SubmitAnimalHealthCheckNotifier, void>(
-  SubmitAnimalHealthCheckNotifier.new,
-);
+final submitAnimalHealthCheckProvider =
+    AsyncNotifierProvider.autoDispose<SubmitAnimalHealthCheckNotifier, void>(
+      SubmitAnimalHealthCheckNotifier.new,
+    );

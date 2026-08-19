@@ -24,7 +24,7 @@ class AddMonitoringWeightPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: const Text(
-          "Tambah Pemantauan",
+          "Tambah Monitoring",
           style: AppTypography.largeBoldBlack,
         ),
         leading: const BackButton(),
@@ -36,7 +36,7 @@ class AddMonitoringWeightPage extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               children: const [
                 StepInfoCard(
-                  title: "Informasi Pemantauan Berat",
+                  title: "Informasi Monitoring Bobot",
                   step: 1,
                   totalStep: 3,
                 ),
@@ -77,7 +77,7 @@ class _MonitoringInfoSection extends ConsumerWidget {
     final selectedDate = ref.watch(selectedMonitoringDateProvider);
 
     return SectionCard(
-      title: "Informasi Pemantauan",
+      title: "Informasi Monitoring",
       children: [
         SelectField(
           label: "Tanggal Timbang",
