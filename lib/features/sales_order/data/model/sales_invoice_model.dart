@@ -16,6 +16,7 @@ class SalesInvoice {
   final double amountTotalPaid;
   final double sisaTagihan;
   final String? notes;
+  final int? setoranStatus;
 
   SalesInvoice({
     required this.id,
@@ -35,6 +36,7 @@ class SalesInvoice {
     required this.amountTotalPaid,
     required this.sisaTagihan,
     this.notes,
+    this.setoranStatus,
   });
 
   factory SalesInvoice.fromJson(Map<String, dynamic> json) {
@@ -56,6 +58,9 @@ class SalesInvoice {
       amountTotalPaid: double.tryParse(json['amount_total_paid']?.toString() ?? '0') ?? 0,
       sisaTagihan: double.tryParse(json['sisa_tagihan']?.toString() ?? '0') ?? 0,
       notes: json['notes'],
+      setoranStatus: json['setoran_status'] is bool
+          ? (json['setoran_status'] as bool ? 1 : 0)
+          : (json['setoran_status'] != null ? int.tryParse(json['setoran_status'].toString()) : null),
     );
   }
 }

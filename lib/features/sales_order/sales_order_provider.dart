@@ -19,7 +19,7 @@ final salesInvoiceListProvider = FutureProvider.autoDispose
       return ref.read(salesOrderApiProvider).getSalesInvoices(soId);
     });
 
-enum SalesOrderTab { draft, confirmed, closed, canceled, all }
+enum SalesOrderTab { all, draft, confirmed, closed, canceled }
 
 extension SalesOrderTabX on SalesOrderTab {
   String get apiValue {
@@ -81,6 +81,58 @@ final paymentTypeListProvider = FutureProvider.autoDispose<List<PaymentType>>((
 final selectedPaymentTypeProvider = StateProvider<PaymentType?>((ref) => null);
 final paymentTypeSearchProvider = StateProvider.autoDispose<String>(
   (ref) => '',
+);
+
+enum SalesOrderMainTab { penjualan, nota }
+
+final salesOrderMainTabProvider = StateProvider<SalesOrderMainTab>((ref) {
+  return SalesOrderMainTab.penjualan;
+});
+
+enum SalesInvoiceFilter { all, sudahDisetor, belumDisetor }
+
+extension SalesInvoiceFilterX on SalesInvoiceFilter {
+  String get label {
+    switch (this) {
+      case SalesInvoiceFilter.all:
+        return 'Semua';
+      case SalesInvoiceFilter.sudahDisetor:
+        return 'Sudah Disetor';
+      case SalesInvoiceFilter.belumDisetor:
+        return 'Belum Disetor';
+    }
+  }
+}
+
+final salesInvoiceFilterProvider = StateProvider<SalesInvoiceFilter>((ref) {
+  return SalesInvoiceFilter.all;
+});
+
+final salesInvoiceListAllProvider = FutureProvider.autoDispose<List<SalesInvoice>>(
+  (ref) async {
+    final api = ref.read(salesOrderApiProvider);
+    final filter = ref.watch(salesInvoiceFilterProvider);
+    final search = ref.watch(salesOrderSearchProvider);
+
+    String? setoranStatusParam;
+    if (filter == SalesInvoiceFilter.sudahDisetor) {
+      setoranStatusParam = '1';
+    } else if (filter == SalesInvoiceFilter.belumDisetor) {
+      setoranStatusParam = '0';
+    }
+
+    final allInvoices = await api.getSalesInvoicesList(
+      setoranStatus: setoranStatusParam,
+      search: search,
+    );
+
+    if (filter == SalesInvoiceFilter.sudahDisetor) {
+      return allInvoices.where((inv) => inv.setoranStatus == 1).toList();
+    } else if (filter == SalesInvoiceFilter.belumDisetor) {
+      return allInvoices.where((inv) => inv.setoranStatus == 0 || inv.setoranStatus == null).toList();
+    }
+    return allInvoices;
+  },
 );
 
 final salesOrderListProvider = FutureProvider.autoDispose<List<SalesOrderList>>(

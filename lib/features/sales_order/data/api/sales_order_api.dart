@@ -152,6 +152,35 @@ class SalesOrderApi {
     return list.map((e) => SalesInvoice.fromJson(e)).toList();
   }
 
+  Future<List<SalesInvoice>> getSalesInvoicesList({
+    String? setoranStatus,
+    String? search,
+  }) async {
+    final Map<String, dynamic> queryParameters = {};
+    if (setoranStatus != null) {
+      queryParameters['setoran_status'] = setoranStatus;
+    }
+    if (search != null && search.isNotEmpty) {
+      queryParameters['search'] = search;
+    }
+
+    final res = await dio.get(
+      '/transaction/sales-invoice',
+      queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
+    );
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    final data = res.data;
+    final List list = data is Map ? data['data'] : data;
+    return list.map((e) => SalesInvoice.fromJson(e)).toList();
+  }
+
   Future<Response> downloadSalesInvoice(
     int invoiceId, {
     void Function(int, int)? onProgress,

@@ -130,51 +130,51 @@ class _CreateInvoicePageState extends ConsumerState<CreateInvoicePage> {
                       icon: AppImages.icWalletCheck,
                       onTap: _showAccountBottomSheet,
                     ),
-                    // const SizedBox(height: 12),
-                    // Container(
-                    //   padding: const EdgeInsets.all(12),
-                    //   decoration: BoxDecoration(
-                    //     color: AppColors.white,
-                    //     borderRadius: BorderRadius.circular(12),
-                    //     border: Border.all(color: AppColors.fieldBorder),
-                    //   ),
-                    //   child: Row(
-                    //     children: [
-                    //       SizedBox(
-                    //         height: 24,
-                    //         width: 24,
-                    //         child: Checkbox(
-                    //           value: invoiceState.setoranStatus,
-                    //           activeColor: AppColors.primary,
-                    //           shape: RoundedRectangleBorder(
-                    //             borderRadius: BorderRadius.circular(6),
-                    //           ),
-                    //           onChanged: (value) {
-                    //             ref
-                    //                 .read(salesInvoiceFormProvider.notifier)
-                    //                 .setSetoranStatus(value ?? false);
-                    //           },
-                    //         ),
-                    //       ),
-                    //       const SizedBox(width: 12),
-                    //       Expanded(
-                    //         child: Column(
-                    //           crossAxisAlignment: CrossAxisAlignment.start,
-                    //           children: [
-                    //             Text(
-                    //               "Status Setoran",
-                    //               style: AppTypography.smallBoldBlack,
-                    //             ),
-                    //             Text(
-                    //               "Harap centang jika uang tunai sudah diterima",
-                    //               style: AppTypography.xSmallNormalGrey,
-                    //             ),
-                    //           ],
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.fieldBorder),
+                      ),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: Checkbox(
+                              value: invoiceState.setoranStatus,
+                              activeColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              onChanged: (value) {
+                                ref
+                                    .read(salesInvoiceFormProvider.notifier)
+                                    .setSetoranStatus(value ?? false);
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Status Setoran",
+                                  style: AppTypography.smallBoldBlack,
+                                ),
+                                Text(
+                                  "Harap centang jika uang tunai sudah diterima",
+                                  style: AppTypography.xSmallNormalGrey,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     TextFields(
                       label: "Jumlah pembayaran",
