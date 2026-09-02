@@ -6,6 +6,7 @@ import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/widgets/input_field_card.dart';
 import 'package:livestock/features/sales_order/data/model/sales_order_request_model.dart';
+import 'package:livestock/app/providers.dart';
 
 import '../../../../../core/theme/AppColors.dart';
 import '../../../../../core/theme/AppTypography.dart';
@@ -240,6 +241,31 @@ class _EditSalesOrderPageState extends ConsumerState<EditSalesOrderPage> {
   }
 
   Widget _buildShippingInfoSection(dynamic form) {
+    String locationHint = "Pilih lokasi";
+    if (form.farmLocation?.name != null && 
+        form.farmLocation!.name.isNotEmpty && 
+        form.farmLocation!.name != '-') {
+      locationHint = form.farmLocation!.name;
+    } else if (form.farmLocation?.id != null && form.farmLocation!.id != 0) {
+      final locAsync = ref.watch(paginatedFarmLocationProvider);
+      if (locAsync.hasValue && locAsync.value?.data != null) {
+        final match = locAsync.value!.data.where((e) => e.id == form.farmLocation!.id).firstOrNull;
+        if (match != null) {
+          locationHint = match.name;
+          // Update form silenty so it persists
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && form.farmLocation!.name != match.name) {
+              ref.read(editSalesOrderFormProvider.notifier).setFarmLocation(match);
+            }
+          });
+        } else {
+          locationHint = "Memuat nama lokasi...";
+        }
+      } else {
+        locationHint = "Memuat nama lokasi...";
+      }
+    }
+
     return SectionCard(
       title: "Informasi Pengiriman",
       actionLabel: form.salesItemType == 'animal'
@@ -250,7 +276,7 @@ class _EditSalesOrderPageState extends ConsumerState<EditSalesOrderPage> {
         SelectField(
           label: "Lokasi peternakan",
           isMandatoryField: true,
-          hint: form.farmLocation?.name ?? "Pilih lokasi",
+          hint: locationHint,
           icon: AppImages.icHomeHashTag,
           onTap: () async {
             final result = await showModalBottomSheet<FarmLocation?>(
