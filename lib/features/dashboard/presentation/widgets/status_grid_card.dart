@@ -1,49 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:livestock/features/dashboard/providers/dashboard_provider.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppImages.dart';
 
-class StatusGridCard extends StatelessWidget {
+class StatusGridCard extends ConsumerWidget {
   const StatusGridCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return GridView.count(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final salesAsync = ref.watch(dashboardSalesProvider);
+
+    return salesAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, s) => Center(child: Text("Error: $e")),
+      data: (sales) {
+        return GridView.count(
       shrinkWrap: true,
       crossAxisCount: 2,
+      childAspectRatio: 1.35,
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
       physics: const NeverScrollableScrollPhysics(),
-      children: const [
+      children: [
         _StatusCard(
-          "1",
-          "Draft Pesanan Penjualan",
+          sales.salesOrderDraft.toString(),
+          "Draft Pesanan\nPenjualan",
           "Menunggu diproses",
-          AppColors.primaryShade,
+          AppColors.primary,
           AppImages.icReceiptEdit,
         ),
         _StatusCard(
-          "6",
-          "Pesanan Penjualan Dikonfirmasi",
+          sales.salesOrderConfirmed.toString(),
+          "Pesanan Penjualan\nDikonfirmasi",
           "Siap dijadwalkan",
-          Colors.blue,
+          AppColors.info,
           AppImages.icReceiptSearch,
         ),
         _StatusCard(
-          "4",
+          sales.salesInvoiceFullPayment.toString(), // Wait, Faktur lunas
           "Faktur Lunas",
           "Sudah dibayar",
-          Colors.green,
+          AppColors.success,
           AppImages.icMoneyTick,
         ),
         _StatusCard(
-          "0",
+          (sales.salesInvoicePartial + sales.salesInvoiceDownPayment).toString(), // Faktur belum dibayar (atau DP/Partial)
           "Faktur Belum Dibayar",
           "Menunggu pembayaran",
-          AppColors.primaryShade,
+          AppColors.primary,
           AppImages.icMoneyTime,
         ),
       ],
+    );
+      },
     );
   }
 }
@@ -66,10 +77,11 @@ class _StatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.fieldBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,10 +104,15 @@ class _StatusCard extends StatelessWidget {
               Image.asset(image, width: 16),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
           const SizedBox(height: 4),
-          Text(subtitle, style: const TextStyle(fontSize: 12)),
+          Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.grey1)),
         ],
       ),
     );
