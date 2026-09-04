@@ -42,9 +42,11 @@ class _SalesOrderPageState extends ConsumerState<SalesOrderPage> {
     searchCtrl = TextEditingController();
     Future.microtask(() {
       ref.read(salesOrderSearchProvider.notifier).state = '';
-      ref.read(salesOrderMainTabProvider.notifier).state = SalesOrderMainTab.penjualan;
+      ref.read(salesOrderMainTabProvider.notifier).state =
+          SalesOrderMainTab.penjualan;
       ref.read(salesOrderTabProvider.notifier).state = SalesOrderTab.all;
-      ref.read(salesInvoiceFilterProvider.notifier).state = SalesInvoiceFilter.all;
+      ref.read(salesInvoiceFilterProvider.notifier).state =
+          SalesInvoiceFilter.all;
     });
   }
 
@@ -169,12 +171,14 @@ class _SalesOrderPageState extends ConsumerState<SalesOrderPage> {
               },
               child: mainTab == SalesOrderMainTab.penjualan
                   ? salesOrderAsync.when(
-                      loading: () => const Center(child: CircularProgressIndicator()),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
                       error: (err, stack) => _buildErrorWidget(err, stack),
                       data: (list) => _SalesOrderList(list),
                     )
                   : invoiceAsync.when(
-                      loading: () => const Center(child: CircularProgressIndicator()),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
                       error: (err, stack) => _buildErrorWidget(err, stack),
                       data: (list) => _SalesInvoiceList(list),
                     ),
@@ -184,7 +188,7 @@ class _SalesOrderPageState extends ConsumerState<SalesOrderPage> {
       ),
       bottomNavigationBar:
           mainTab == SalesOrderMainTab.penjualan &&
-          (userAsync.value?.hasPermission('salesorder-create') ?? false)
+              (userAsync.value?.hasPermission('salesorder-create') ?? false)
           ? BottomButton(
               text: 'Tambah Penjualan',
               onPressed: () {
@@ -473,9 +477,7 @@ class _SalesInvoiceCard extends ConsumerWidget {
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(
-          color: AppColors.fieldBorder.withValues(alpha: 0.5),
-        ),
+        border: Border.all(color: AppColors.fieldBorder.withValues(alpha: 0.5)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -487,7 +489,8 @@ class _SalesInvoiceCard extends ConsumerWidget {
               context: context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
-              builder: (context) => SalesInvoiceDetailBottomSheet(invoice: invoice),
+              builder: (context) =>
+                  SalesInvoiceDetailBottomSheet(invoice: invoice),
             );
           },
           child: Padding(
@@ -502,54 +505,57 @@ class _SalesInvoiceCard extends ConsumerWidget {
                       invoice.invoiceId,
                       style: AppTypography.mediumBoldBlack,
                     ),
-                    Row(
-                      children: [
-                        // Setoran Status Badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSetor
-                                ? const Color(0xFFE6F7ED) // light green
-                                : const Color(0xFFFFF1F0), // light red
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            isSetor ? 'Sudah Disetor' : 'Belum Disetor',
-                            style: AppTypography.xSmallBoldBlack.copyWith(
-                              color: isSetor ? const Color(0xFF2E7D32) : const Color(0xFFC62828),
-                              fontSize: 10,
-                            ),
-                          ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    // Setoran Status Badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSetor
+                            ? const Color(0xFFE6F7ED) // light green
+                            : const Color(0xFFFFF1F0), // light red
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        isSetor ? 'Sudah Disetor' : 'Belum Disetor',
+                        style: AppTypography.xSmallBoldBlack.copyWith(
+                          color: isSetor
+                              ? const Color(0xFF2E7D32)
+                              : const Color(0xFFC62828),
+                          fontSize: 10,
                         ),
-                        const SizedBox(width: 6),
-                        // Payment Status Badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isCanceled
-                                ? AppColors.danger.withValues(alpha: 0.1)
-                                : const Color(0xFFFFF7E6),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            _getPaymentStatus(invoice.paymentStatus),
-                            style: isCanceled
-                                ? AppTypography.xSmallBoldBlack.copyWith(
-                                    color: AppColors.danger,
-                                    fontSize: 10,
-                                  )
-                                : AppTypography.xSmallBoldPrimary.copyWith(
-                                    fontSize: 10,
-                                  ),
-                          ),
-                        ),
-                      ],
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    // Payment Status Badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isCanceled
+                            ? AppColors.danger.withValues(alpha: 0.1)
+                            : const Color(0xFFFFF7E6),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        _getPaymentStatus(invoice.paymentStatus),
+                        style: isCanceled
+                            ? AppTypography.xSmallBoldBlack.copyWith(
+                                color: AppColors.danger,
+                                fontSize: 10,
+                              )
+                            : AppTypography.xSmallBoldPrimary.copyWith(
+                                fontSize: 10,
+                              ),
+                      ),
                     ),
                   ],
                 ),
@@ -557,7 +563,11 @@ class _SalesInvoiceCard extends ConsumerWidget {
                 if (invoice.customerName != null) ...[
                   Row(
                     children: [
-                      const Icon(Icons.person_outline, size: 16, color: AppColors.grey),
+                      const Icon(
+                        Icons.person_outline,
+                        size: 16,
+                        color: AppColors.grey,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         invoice.customerName!,
@@ -572,7 +582,11 @@ class _SalesInvoiceCard extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.calendar_today_outlined, size: 16, color: AppColors.grey),
+                        const Icon(
+                          Icons.calendar_today_outlined,
+                          size: 16,
+                          color: AppColors.grey,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           formatDateString(invoice.invoiceDate),
@@ -593,7 +607,12 @@ class _SalesInvoiceCard extends ConsumerWidget {
                     if (!isCanceled) ...[
                       Consumer(
                         builder: (context, ref, _) {
-                          final canDestroy = ref.watch(userProvider).value?.hasPermission('invoices-destroy') ?? false;
+                          final canDestroy =
+                              ref
+                                  .watch(userProvider)
+                                  .value
+                                  ?.hasPermission('invoices-destroy') ??
+                              false;
                           if (!canDestroy) return const SizedBox.shrink();
 
                           return OutlinedButton(
@@ -618,7 +637,8 @@ class _SalesInvoiceCard extends ConsumerWidget {
                                       builder: (_) => const ConfirmationBottomSheet(
                                         header: "Konfirmasi Pembatalan",
                                         title: "Batalkan Nota?",
-                                        subTitle: "Apakah Anda yakin ingin membatalkan nota ini?",
+                                        subTitle:
+                                            "Apakah Anda yakin ingin membatalkan nota ini?",
                                         saveText: "Ya",
                                       ),
                                     );
@@ -631,23 +651,31 @@ class _SalesInvoiceCard extends ConsumerWidget {
                                         "payment_status": "canceled",
                                         "amount_paid": invoice.amountPaid,
                                         "amount_total": invoice.amountTotal,
-                                        "payment_type": invoice.paymentType ?? "cash",
+                                        "payment_type":
+                                            invoice.paymentType ?? "cash",
                                         "sales_order_id": invoice.salesOrderId,
                                         "chart_of_account_id": "",
-                                        "chart_of_account_id_reversed": account.id.toString(),
+                                        "chart_of_account_id_reversed": account
+                                            .id
+                                            .toString(),
                                         "bank_account_id": "",
                                       };
 
                                       await ref
                                           .read(salesOrderApiProvider)
-                                          .cancelSalesInvoice(invoice.id, payload);
+                                          .cancelSalesInvoice(
+                                            invoice.id,
+                                            payload,
+                                          );
 
                                       if (context.mounted) {
                                         SuccessNotification.show(
                                           title: "Berhasil",
                                           subtitle: "Nota berhasil dibatalkan",
                                         );
-                                        ref.invalidate(salesInvoiceListAllProvider);
+                                        ref.invalidate(
+                                          salesInvoiceListAllProvider,
+                                        );
                                       }
                                     } on DioException catch (e) {
                                       if (context.mounted) {
@@ -664,7 +692,10 @@ class _SalesInvoiceCard extends ConsumerWidget {
                                           } catch (_) {}
                                         }
 
-                                        final errorMessage = msg ?? e.message ?? "Gagal membatalkan nota";
+                                        final errorMessage =
+                                            msg ??
+                                            e.message ??
+                                            "Gagal membatalkan nota";
                                         SuccessNotification.show(
                                           title: "Peringatan",
                                           subtitle: errorMessage.toString(),
@@ -678,7 +709,9 @@ class _SalesInvoiceCard extends ConsumerWidget {
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.danger,
                               side: const BorderSide(color: AppColors.danger),
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                               minimumSize: const Size(100, 32),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -718,7 +751,9 @@ class _SalesInvoiceCard extends ConsumerWidget {
                                     }
                                   } catch (e) {
                                     if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(
                                           content: Text("Gagal mengunduh: $e"),
                                         ),
@@ -737,8 +772,12 @@ class _SalesInvoiceCard extends ConsumerWidget {
                             ),
                           ),
                           child: Text(
-                            progress > 0 ? "${(progress * 100).toInt()}%" : "Unduh",
-                            style: AppTypography.xSmallBoldPrimary.copyWith(fontSize: 11),
+                            progress > 0
+                                ? "${(progress * 100).toInt()}%"
+                                : "Unduh",
+                            style: AppTypography.xSmallBoldPrimary.copyWith(
+                              fontSize: 11,
+                            ),
                           ),
                         );
                       },
