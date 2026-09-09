@@ -1,5 +1,22 @@
 📱 Release Notes
 🔧 Perbaikan & Peningkatan
 
+Module Transfer
+- Fitur Batch Animal Transfer (pemindahan multi-hewan)
+- Infinite scroll pagination pada list pemindahan hewan
+- Rincian biaya kirim & catatan per hewan pada detail pemindahan
+
+Module Home & Stock Inventory
+- Integrasi API inventaris stok pakan/obat
+- Halaman detail stok inventaris
+- Penegasan informasi kuantitas stok akhir
+
 Module Sales Order
-- Fix Feature Invoice
+- Fitur setor invoice (payment settled)
+
+Module Dispatch
+- Peningkatan halaman detail, edit, dan alur pengiriman
+
+Module Master & Registrasi
+- Form penambahan Pelanggan, Pemasok, dan Pakan/Obat baru
+- Peningkatan selector paginasi data master
