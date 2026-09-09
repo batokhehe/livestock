@@ -127,9 +127,9 @@ final salesInvoiceListAllProvider = FutureProvider.autoDispose<List<SalesInvoice
     );
 
     if (filter == SalesInvoiceFilter.sudahDisetor) {
-      return allInvoices.where((inv) => inv.setoranStatus == 1).toList();
+      return allInvoices.where((inv) => inv.paymentSettled).toList();
     } else if (filter == SalesInvoiceFilter.belumDisetor) {
-      return allInvoices.where((inv) => inv.setoranStatus == 0 || inv.setoranStatus == null).toList();
+      return allInvoices.where((inv) => !inv.paymentSettled).toList();
     }
     return allInvoices;
   },

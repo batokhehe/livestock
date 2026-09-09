@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
+import '../../features/product/presentation/views/add_feed_medicine_page.dart';
+import '../data/model/feed_medicine_model.dart';
 import '../theme/AppColors.dart';
 import '../theme/AppTypography.dart';
 import 'dart:async';
@@ -47,6 +49,28 @@ class _FeedMedicineBottomSheetState
     super.dispose();
   }
 
+  void _navigateToAddFeedMedicine() async {
+    final String? defaultType = widget.title.toLowerCase().contains('obat')
+        ? 'obat'
+        : (widget.title.toLowerCase().contains('pakan') ? 'pakan' : null);
+
+    final newFeedMedicine = await Navigator.push<FeedMedicine>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddFeedMedicinePage(initialType: defaultType),
+      ),
+    );
+
+    if (newFeedMedicine != null && mounted) {
+      ref.invalidate(paginatedFeedMedicineProvider);
+      ref.invalidate(feedMedicineListProvider);
+      setState(() {
+        _currentSelectedId = newFeedMedicine.id;
+      });
+      Navigator.pop(context, newFeedMedicine);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncData = ref.watch(paginatedFeedMedicineProvider);
@@ -65,7 +89,31 @@ class _FeedMedicineBottomSheetState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(widget.title, style: AppTypography.largeBoldBlack),
+              Expanded(
+                child: Text(widget.title, style: AppTypography.largeBoldBlack),
+              ),
+              OutlinedButton.icon(
+                onPressed: _navigateToAddFeedMedicine,
+                icon: const Icon(Icons.add, size: 16, color: AppColors.primary),
+                label: const Text(
+                  "Tambah",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.primary, width: 1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+              const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(context),
@@ -111,9 +159,43 @@ class _FeedMedicineBottomSheetState
 
                 if (items.isEmpty) {
                   return Center(
-                    child: Text(
-                      "Pakan/Obat tidak ditemukan",
-                      style: AppTypography.smallNormalGrey,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.medication_outlined,
+                            size: 48,
+                            color: AppColors.grey,
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            "Pakan/Obat tidak ditemukan",
+                            style: AppTypography.smallNormalGrey,
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: _navigateToAddFeedMedicine,
+                            icon: const Icon(Icons.add,
+                                size: 16, color: Colors.white),
+                            label: const Text(
+                              "Tambah Pakan/Obat Baru",
+                              style: AppTypography.smallBoldWhite,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }

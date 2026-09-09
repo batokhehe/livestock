@@ -43,9 +43,7 @@ class DispatchDetailPage extends ConsumerWidget {
           return Scaffold(
             backgroundColor: AppColors.greyBg,
             body: _body(context, detail),
-            bottomNavigationBar:
-                (detail.dispatchStatus == 'delivered' ||
-                    detail.dispatchStatus == 'in_transit')
+            bottomNavigationBar: (detail.dispatchStatus == 'delivered')
                 ? null
                 : Padding(
                     padding: const EdgeInsets.all(16),

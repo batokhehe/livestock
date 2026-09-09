@@ -424,7 +424,7 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
           children: [
             ProductHeaderCard(
               title: "Rp. ${formatPrice(dispatch.remainingPayment)}",
-              subtitle: "Sisa pembayaran",
+              subtitle: "Sisa pembayaran pengiriman",
               image: AppImages.icMoneyTime,
             ),
           ],

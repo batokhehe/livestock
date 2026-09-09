@@ -463,7 +463,7 @@ class _SalesInvoiceCard extends ConsumerWidget {
 
     final formattedAmount = currencyFormat.format(invoice.amountTotal);
     final isCanceled = invoice.paymentStatus == 'canceled';
-    final isSetor = invoice.setoranStatus == 1;
+    final isSetor = invoice.paymentSettled;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -605,6 +605,93 @@ class _SalesInvoiceCard extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (!isCanceled) ...[
+                      if (!isSetor) ...[
+                        ElevatedButton(
+                          onPressed: () async {
+                            final isOk = await showModalBottomSheet<bool>(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (_) => const ConfirmationBottomSheet(
+                                header: "Konfirmasi Setoran",
+                                title: "Setor Pembayaran?",
+                                subTitle:
+                                    "Apakah Anda yakin ingin menyetor pembayaran ini?",
+                                saveText: "Ya",
+                              ),
+                            );
+
+                            if (isOk != true) return;
+
+                            try {
+                              await ref
+                                  .read(salesOrderApiProvider)
+                                  .settlePayment(invoice.id);
+
+                              if (context.mounted) {
+                                SuccessNotification.show(
+                                  title: "Berhasil",
+                                  subtitle: "Pembayaran berhasil disetor",
+                                );
+                                ref.invalidate(salesInvoiceListAllProvider);
+                                ref.invalidate(
+                                  salesInvoiceListProvider(invoice.salesOrderId),
+                                );
+                              }
+                            } on DioException catch (e) {
+                              if (context.mounted) {
+                                String? msg;
+                                final rd = e.response?.data;
+                                if (rd is Map) {
+                                  msg = rd['message'];
+                                } else if (rd is String) {
+                                  try {
+                                    final parsed = jsonDecode(rd);
+                                    if (parsed is Map) {
+                                      msg = parsed['message'];
+                                    }
+                                  } catch (_) {}
+                                }
+
+                                final errorMessage =
+                                    msg ??
+                                    e.message ??
+                                    "Gagal menyetor pembayaran";
+                                SuccessNotification.show(
+                                  title: "Peringatan",
+                                  subtitle: errorMessage.toString(),
+                                );
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                SuccessNotification.show(
+                                  title: "Peringatan",
+                                  subtitle: e.toString(),
+                                );
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFE6F7ED),
+                            foregroundColor: const Color(0xFF2E7D32),
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            minimumSize: const Size(0, 32),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text(
+                            "Disetor",
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF2E7D32),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
                       Consumer(
                         builder: (context, ref, _) {
                           final canDestroy =
@@ -615,7 +702,7 @@ class _SalesInvoiceCard extends ConsumerWidget {
                               false;
                           if (!canDestroy) return const SizedBox.shrink();
 
-                          return OutlinedButton(
+                          return ElevatedButton(
                             onPressed: () {
                               showModalBottomSheet(
                                 context: context,
@@ -706,13 +793,14 @@ class _SalesInvoiceCard extends ConsumerWidget {
                                 ),
                               );
                             },
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.danger,
-                              side: const BorderSide(color: AppColors.danger),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: const Color(0xFFC62828),
+                              backgroundColor: const Color(0xFFFFF1F0),
+                              elevation: 0,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                               ),
-                              minimumSize: const Size(100, 32),
+                              minimumSize: const Size(0, 32),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),

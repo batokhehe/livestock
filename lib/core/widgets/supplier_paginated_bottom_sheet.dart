@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../features/purchase_order/purchase_order_provider.dart';
+import '../../features/supplier/presentation/views/add_supplier_page.dart';
+import '../data/model/supplier_model.dart';
 import '../theme/AppColors.dart';
 import '../theme/AppTypography.dart';
 import 'dart:async';
@@ -38,6 +40,20 @@ class _SupplierPaginatedBottomSheetState
     super.dispose();
   }
 
+  void _navigateToAddSupplier() async {
+    final newSupplier = await Navigator.push<Supplier>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddSupplierPage(initialType: widget.type),
+      ),
+    );
+
+    if (newSupplier != null && mounted) {
+      ref.invalidate(paginatedSupplierProvider(widget.type));
+      Navigator.pop(context, newSupplier);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncData = ref.watch(paginatedSupplierProvider(widget.type));
@@ -54,7 +70,32 @@ class _SupplierPaginatedBottomSheetState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          const Text("Pilih Pemasok", style: AppTypography.largeBoldBlack),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Pilih Pemasok", style: AppTypography.largeBoldBlack),
+              OutlinedButton.icon(
+                onPressed: _navigateToAddSupplier,
+                icon: const Icon(Icons.add, size: 16, color: AppColors.primary),
+                label: const Text(
+                  "Tambah",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.primary, width: 1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 8),
           const Text(
             "Silakan cari dan pilih pemasok untuk pesanan pembelian ini.",
@@ -97,10 +138,43 @@ class _SupplierPaginatedBottomSheetState
                 final hasMore = items.length < total;
 
                 if (items.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      "Pemasok tidak ditemukan",
-                      style: AppTypography.smallNormalGrey,
+                  return Center(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.business_outlined,
+                            size: 48,
+                            color: AppColors.grey,
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            "Pemasok tidak ditemukan",
+                            style: AppTypography.smallNormalGrey,
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: _navigateToAddSupplier,
+                            icon: const Icon(Icons.add, size: 16, color: Colors.white),
+                            label: const Text(
+                              "Tambah Pemasok Baru",
+                              style: AppTypography.smallBoldWhite,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }

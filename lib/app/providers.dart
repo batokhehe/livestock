@@ -160,14 +160,12 @@ final selectedCityProvider = StateProvider.autoDispose<City?>((ref) => null);
 final citySearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
 // District
-final districtListProvider = FutureProvider.autoDispose<List<District>>((
-  ref,
-) async {
-  final selectedCity = ref.watch(selectedCityProvider);
-  if (selectedCity == null) return [];
+final districtListProvider = FutureProvider.autoDispose
+    .family<List<District>, String>((ref, param) async {
+  if (param.isEmpty) return [];
   return ref
       .read(getMasterDataListUseCaseProvider)
-      .callDistrict(selectedCity.code);
+      .callDistrict(param);
 });
 final selectedDistrictProvider = StateProvider.autoDispose<District?>(
   (ref) => null,
@@ -175,14 +173,12 @@ final selectedDistrictProvider = StateProvider.autoDispose<District?>(
 final districtSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
 // Village
-final villageListProvider = FutureProvider.autoDispose<List<Village>>((
-  ref,
-) async {
-  final selectedDistrict = ref.watch(selectedDistrictProvider);
-  if (selectedDistrict == null) return [];
+final villageListProvider = FutureProvider.autoDispose
+    .family<List<Village>, String>((ref, param) async {
+  if (param.isEmpty) return [];
   return ref
       .read(getMasterDataListUseCaseProvider)
-      .callVillages(selectedDistrict.code);
+      .callVillages(param);
 });
 final selectedVillageProvider = StateProvider.autoDispose<Village?>(
   (ref) => null,

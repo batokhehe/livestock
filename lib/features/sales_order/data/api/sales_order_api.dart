@@ -259,4 +259,25 @@ class SalesOrderApi {
       );
     }
   }
+
+  Future<void> settlePayment(
+    int invoiceId, {
+    bool paymentSettled = true,
+  }) async {
+    final res = await dio.patch(
+      "/transaction/sales-invoice/$invoiceId/payment-settled",
+      data: {
+        "payment_settled": paymentSettled,
+      },
+    );
+
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+  }
 }
+

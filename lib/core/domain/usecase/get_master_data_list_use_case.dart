@@ -72,6 +72,10 @@ class GetMasterDataListUseCase {
     );
   }
 
+  Future<Customer> createCustomer(Map<String, dynamic> data) {
+    return repository.createCustomer(data);
+  }
+
   Future<BaseResponse<AnimalProfile>> callAnimals({
     int? animalClassPriceId,
     String? search,
@@ -126,6 +130,10 @@ class GetMasterDataListUseCase {
     );
   }
 
+  Future<FeedMedicine> createFeedMedicine(Map<String, dynamic> data) {
+    return repository.createFeedMedicine(data);
+  }
+
   Future<List<AnimalGroup>> callAnimalGroups() {
     return repository.getAnimalGroups();
   }
@@ -158,6 +166,10 @@ class GetMasterDataListUseCase {
       perPage: perPage,
       search: search,
     );
+  }
+
+  Future<Supplier> createSupplier(Map<String, dynamic> data) {
+    return repository.createSupplier(data);
   }
 
   Future<AnimalProfile> callAnimalDetail(String id) {

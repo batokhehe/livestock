@@ -76,6 +76,10 @@ class MasterRepository {
     );
   }
 
+  Future<Customer> createCustomer(Map<String, dynamic> data) async {
+    return await api.createCustomer(data);
+  }
+
   Future<BaseResponse<AnimalProfile>> getAnimals(
     int? animalClassPriceId, {
     String? search,
@@ -131,6 +135,10 @@ class MasterRepository {
     );
   }
 
+  Future<FeedMedicine> createFeedMedicine(Map<String, dynamic> data) async {
+    return await api.createFeedMedicine(data);
+  }
+
   Future<List<AnimalGroup>> getAnimalGroups() async {
     final res = await api.getAnimalGroups(page: 1, perPage: 1000);
     return res.data;
@@ -165,6 +173,10 @@ class MasterRepository {
       perPage: perPage,
       search: search,
     );
+  }
+
+  Future<Supplier> createSupplier(Map<String, dynamic> data) async {
+    return await api.createSupplier(data);
   }
 
   Future<AnimalProfile> getAnimalDetail(String id) async {
