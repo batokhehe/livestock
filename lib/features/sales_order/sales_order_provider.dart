@@ -251,6 +251,15 @@ class SalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
         ? state.forecastDate
         : null;
 
+    final totalDiscount = (state.items ?? []).fold<double>(
+      0,
+      (sum, item) => sum + (item.discount ?? 0),
+    );
+    final totalShippingCost = (state.items ?? []).fold<double>(
+      0,
+      (sum, item) => sum + (item.shippingCost ?? 0),
+    );
+
     final updatedItems = state.items?.map((item) {
       return item.copyWith(
         isForecast: isForecastStr,
@@ -258,7 +267,12 @@ class SalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
       );
     }).toList();
 
-    state = state.copyWith(isForecast: isForecastStr, items: updatedItems);
+    state = state.copyWith(
+      isForecast: isForecastStr,
+      items: updatedItems,
+      discountTotal: totalDiscount,
+      shippingCost: totalShippingCost,
+    );
 
     if (state.customer == null) {
       throw Exception("Customer belum dipilih");
@@ -316,7 +330,11 @@ class EditSalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
         qty: e.qty.toInt(),
         unitPrice: e.priceUnit,
         weight: e.weight,
-        subtotal: e.priceSubtotal,
+        subtotal: e.unitPrice > 0
+            ? (e.unitPrice * (e.qty > 0 ? e.qty : 1))
+            : (e.priceUnit > 0
+                ? (e.priceUnit * (e.qty > 0 ? e.qty : 1))
+                : e.subtotal),
         discount: e.discount,
         shippingCost: e.shippingCost,
         dlvDate: e.dlvDate != null ? DateTime.tryParse(e.dlvDate!) : null,
@@ -455,6 +473,15 @@ class EditSalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
         ? state.forecastDate
         : null;
 
+    final totalDiscount = (state.items ?? []).fold<double>(
+      0,
+      (sum, item) => sum + (item.discount ?? 0),
+    );
+    final totalShippingCost = (state.items ?? []).fold<double>(
+      0,
+      (sum, item) => sum + (item.shippingCost ?? 0),
+    );
+
     final updatedItems = state.items?.map((item) {
       return item.copyWith(
         isForecast: isForecastStr,
@@ -462,7 +489,12 @@ class EditSalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
       );
     }).toList();
 
-    state = state.copyWith(isForecast: isForecastStr, items: updatedItems);
+    state = state.copyWith(
+      isForecast: isForecastStr,
+      items: updatedItems,
+      discountTotal: totalDiscount,
+      shippingCost: totalShippingCost,
+    );
 
     if (state.customer == null) {
       throw Exception("Customer belum dipilih");

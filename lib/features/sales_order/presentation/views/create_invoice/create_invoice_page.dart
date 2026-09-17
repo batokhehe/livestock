@@ -46,12 +46,12 @@ class _CreateInvoicePageState extends ConsumerState<CreateInvoicePage> {
   void initState() {
     super.initState();
     _amountController = TextEditingController(
-      text: formatPrice(widget.item.amountRemainder),
+      text: formatPrice(widget.item.calculatedAmountRemainder),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(salesInvoiceFormProvider.notifier)
-          .setAmount(widget.item.amountRemainder.toDouble());
+          .setAmount(widget.item.calculatedAmountRemainder.toDouble());
     });
   }
 
@@ -308,15 +308,15 @@ class _CreateInvoicePageState extends ConsumerState<CreateInvoicePage> {
                     ),
                     _rowSummary(
                       "Sub Total",
-                      "Rp ${formatPrice(widget.item.subtotal)}",
+                      "Rp ${formatPrice(widget.item.calculatedSubtotal)}",
                     ),
                     _rowSummary(
                       "Diskon",
-                      "Rp ${formatPrice(widget.item.discountTotal)}",
+                      "Rp ${formatPrice(widget.item.calculatedDiscountTotal)}",
                     ),
                     _rowSummary(
                       "Total keseluruhan",
-                      "Rp ${formatPrice(widget.item.amountTotal)}",
+                      "Rp ${formatPrice(widget.item.calculatedAmountTotal)}",
                     ),
                     _rowSummary(
                       "Jumlah dibayar",
@@ -325,10 +325,10 @@ class _CreateInvoicePageState extends ConsumerState<CreateInvoicePage> {
                     ),
                     _rowSummary(
                       "Sisa Pembayaran",
-                      "Rp ${formatPrice((widget.item.amountRemainder - (invoiceState.amount ?? 0)).toInt().clamp(0, 999999999))}",
+                      "Rp ${formatPrice((widget.item.calculatedAmountRemainder - (invoiceState.amount ?? 0)).toInt().clamp(0, 999999999))}",
                       isBold: true,
                       valueColor:
-                          (widget.item.amountRemainder -
+                          (widget.item.calculatedAmountRemainder -
                                   (invoiceState.amount ?? 0)) <=
                               0
                           ? AppColors.emerald700

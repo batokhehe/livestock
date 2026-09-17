@@ -108,11 +108,11 @@ class SalesOrderDetailPage extends ConsumerWidget {
                     const SizedBox(height: 12),
                     _summaryCard(
                       totalItem: items.length,
-                      subtotal: data.subtotal.toDouble(),
-                      discount: data.discountTotal.toDouble(),
-                      total: data.amountTotal.toDouble(),
+                      subtotal: data.calculatedSubtotal,
+                      discount: data.calculatedDiscountTotal,
+                      total: data.calculatedAmountTotal,
                       amountPaid: data.amountPaid.toDouble(),
-                      amountRemainder: data.amountRemainder.toDouble(),
+                      amountRemainder: data.calculatedAmountRemainder,
                       formatCurrency: formatCurrency,
                     ),
                     if (userAsync.value?.hasPermission('invoices-read') ??
@@ -708,6 +708,7 @@ class _ProductInfoCard extends StatelessWidget {
                 ),
               ],
             ),
+
             const SizedBox(height: 8.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -717,7 +718,7 @@ class _ProductInfoCard extends StatelessWidget {
                   style: AppTypography.xSmallBoldBlack,
                 ),
                 Text(
-                  "Rp ${formatPrice(data.priceSubtotal)}",
+                  "Rp ${formatPrice(data.netTotal)}",
                   style: AppTypography.smallBoldPrimary,
                 ),
               ],
@@ -820,10 +821,12 @@ class _FeedProductInfoCard extends StatelessWidget {
             const SizedBox(height: 12),
             _rowInfo("Jumlah", "${data.qty}"),
             _rowInfo("Harga Satuan", "Rp ${formatPrice(data.unitPrice)}"),
+            if (data.discount > 0)
+              _rowInfo("Harga diskon", "Rp ${formatPrice(data.discount)}"),
             const Divider(color: AppColors.fieldBorder),
             _rowInfo(
               "Total Harga",
-              "Rp ${formatPrice(data.subtotal)}",
+              "Rp ${formatPrice(data.netTotal)}",
               isBold: true,
             ),
           ],
