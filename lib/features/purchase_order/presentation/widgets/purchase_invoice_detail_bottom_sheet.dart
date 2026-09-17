@@ -66,6 +66,14 @@ class PurchaseInvoiceDetailBottomSheet extends StatelessWidget {
           ),
           _buildInfoRow("Total Item", invoice.totalItem.toString()),
           _buildInfoRow("Sub Total", "Rp ${formatPrice(invoice.subtotal)}"),
+          _buildInfoRow(
+            "Biaya Pengiriman",
+            "Rp ${formatPrice(invoice.shippingCost)}",
+          ),
+          _buildInfoRow(
+            "Biaya Lainnya",
+            "Rp ${formatPrice(invoice.additionalCost)}",
+          ),
           _buildInfoRow("Diskon", "Rp ${formatPrice(invoice.discountTotal)}"),
           _buildInfoRow(
             "Total keseluruhan",
