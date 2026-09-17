@@ -14,6 +14,7 @@ import '../../../features/dispatch/data/model/sales_order_dispatch_model.dart';
 import '../../data/model/base_response.dart';
 import '../../data/model/city_model.dart';
 import '../../data/model/supplier_model.dart';
+import '../../data/model/equipment_model.dart';
 
 class GetMasterDataListUseCase {
   final MasterRepository repository;
@@ -195,5 +196,17 @@ class GetMasterDataListUseCase {
     String search,
   ) {
     return repository.getSoDispatch(paymentStatus, search);
+  }
+
+  Future<BaseResponse<Equipment>> callEquipmentsPaginated({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) {
+    return repository.getEquipmentsPaginated(
+      page: page,
+      perPage: perPage,
+      search: search,
+    );
   }
 }

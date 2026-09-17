@@ -10,6 +10,7 @@ import 'package:livestock/core/data/model/feed_medicine_model.dart';
 import 'package:livestock/core/data/model/province_model.dart';
 import 'package:livestock/core/data/model/shipping_cost_model.dart';
 import 'package:livestock/core/data/model/supplier_model.dart';
+import 'package:livestock/core/data/model/equipment_model.dart';
 
 import '../../../features/dispatch/data/model/sales_order_dispatch_model.dart';
 import '../api/master_api.dart';
@@ -215,5 +216,17 @@ class MasterRepository {
       farmLocationId: farmLocationId,
     );
     return res.data;
+  }
+
+  Future<BaseResponse<Equipment>> getEquipmentsPaginated({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
+    return await api.getEquipments(
+      page: page,
+      perPage: perPage,
+      search: search,
+    );
   }
 }

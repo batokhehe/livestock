@@ -13,6 +13,7 @@ import 'package:livestock/core/data/model/village_model.dart';
 import 'package:livestock/features/dispatch/data/model/sales_order_dispatch_model.dart';
 
 import 'package:livestock/core/data/model/shipping_cost_model.dart';
+import 'package:livestock/core/data/model/equipment_model.dart';
 
 import '../../../../core/data/model/base_response.dart';
 import '../model/base_response_single.dart';
@@ -421,6 +422,35 @@ class MasterApi {
     return BaseResponse.fromJson(
       res.data,
       (json) => ShippingCost.fromJson(json),
+    );
+  }
+
+  Future<BaseResponse<Equipment>> getEquipments({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
+    final queryParams = {
+      'page': page,
+      'per_page': perPage,
+      'search': search,
+    }..removeWhere((k, v) => v == null || v == '');
+
+    final res = await dio.get(
+      '/master/equipment-and-supplies',
+      queryParameters: queryParams,
+    );
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    return BaseResponse.fromJson(
+      res.data,
+      (json) => Equipment.fromJson(json),
     );
   }
 }

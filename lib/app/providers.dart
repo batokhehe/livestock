@@ -11,6 +11,7 @@ import 'package:livestock/core/data/model/feed_medicine_model.dart';
 import 'package:livestock/core/data/model/province_model.dart';
 import 'package:livestock/core/data/model/supplier_model.dart';
 import 'package:livestock/core/data/model/village_model.dart';
+import 'package:livestock/core/data/model/equipment_model.dart';
 import 'package:livestock/core/data/repository/master_repository.dart';
 
 import '../core/constant/enum.dart';
@@ -27,6 +28,7 @@ import '../core/notifier/animal_notifier.dart';
 import '../core/notifier/feed_medicine_notifier.dart';
 import '../core/notifier/animal_group_notifier.dart';
 import '../core/notifier/supplier_notifier.dart';
+import '../core/notifier/equipment_notifier.dart';
 import '../features/dispatch/data/model/sales_order_dispatch_model.dart';
 import '../features/dispatch/dispatch_provider.dart';
 
@@ -199,6 +201,18 @@ final selectedFeedMedicineProvider = StateProvider<FeedMedicine?>(
   (ref) => null,
 );
 final feedMedicineSearchProvider = StateProvider.autoDispose<String>(
+  (ref) => '',
+);
+
+// EQUIPMENT
+final paginatedEquipmentProvider = AsyncNotifierProvider.autoDispose<
+    EquipmentNotifier, BaseResponse<Equipment>>(
+  EquipmentNotifier.new,
+);
+final selectedEquipmentProvider = StateProvider<Equipment?>(
+  (ref) => null,
+);
+final equipmentSearchProvider = StateProvider.autoDispose<String>(
   (ref) => '',
 );
 
