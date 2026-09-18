@@ -12,29 +12,33 @@ class TabMenuCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedTab = ref.watch(dashboardTabProvider);
-    return Row(
-      children: [
-        _TabChip(
-          label: "Penjualan",
-          selected: selectedTab == DashboardTab.selling,
-          onTap: () => ref.read(dashboardTabProvider.notifier).state =
-              DashboardTab.selling,
-        ),
-        const SizedBox(width: 8),
-        _TabChip(
-          label: "Operasional",
-          selected: selectedTab == DashboardTab.operational,
-          onTap: () => ref.read(dashboardTabProvider.notifier).state =
-              DashboardTab.operational,
-        ),
-        const SizedBox(width: 8),
-        _TabChip(
-          label: "Pemantauan",
-          selected: selectedTab == DashboardTab.monitoring,
-          onTap: () => ref.read(dashboardTabProvider.notifier).state =
-              DashboardTab.monitoring,
-        ),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        children: [
+          _TabChip(
+            label: "Penjualan",
+            selected: selectedTab == DashboardTab.selling,
+            onTap: () => ref.read(dashboardTabProvider.notifier).state =
+                DashboardTab.selling,
+          ),
+          const SizedBox(width: 8),
+          _TabChip(
+            label: "Operasional",
+            selected: selectedTab == DashboardTab.operational,
+            onTap: () => ref.read(dashboardTabProvider.notifier).state =
+                DashboardTab.operational,
+          ),
+          const SizedBox(width: 8),
+          _TabChip(
+            label: "Pemantauan",
+            selected: selectedTab == DashboardTab.monitoring,
+            onTap: () => ref.read(dashboardTabProvider.notifier).state =
+                DashboardTab.monitoring,
+          ),
+        ],
+      ),
     );
   }
 }
