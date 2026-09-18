@@ -20,22 +20,54 @@ class SupplierPaginatedBottomSheet extends ConsumerStatefulWidget {
 class _SupplierPaginatedBottomSheetState
     extends ConsumerState<SupplierPaginatedBottomSheet> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
+  String? _selectedType;
+
+  static String? _mapType(String? type) {
+    if (type == null || type.isEmpty) return null;
+    final t = type.toLowerCase();
+    if (t.contains('hewan') || t.contains('animal')) return 'Hewan';
+    if (t.contains('pakan') || t.contains('feed')) return 'Pakan';
+    if (t.contains('obat') || t.contains('med')) return 'Obat';
+    if (t.contains('lain') ||
+        t.contains('equip') ||
+        t.contains('peralatan') ||
+        t.contains('other')) {
+      return 'Lainnya';
+    }
+    return type;
+  }
 
   @override
   void initState() {
     super.initState();
+    _selectedType = _mapType(widget.type);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(supplierSearchProvider.notifier).state = '';
+    });
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
-        ref.read(paginatedSupplierProvider(widget.type).notifier).loadMore();
+        ref.read(paginatedSupplierProvider(_selectedType).notifier).loadMore();
       }
     });
   }
 
   @override
+  void didUpdateWidget(covariant SupplierPaginatedBottomSheet oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.type != widget.type) {
+      setState(() {
+        _selectedType = _mapType(widget.type);
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -44,19 +76,19 @@ class _SupplierPaginatedBottomSheetState
     final newSupplier = await Navigator.push<Supplier>(
       context,
       MaterialPageRoute(
-        builder: (_) => AddSupplierPage(initialType: widget.type),
+        builder: (_) => AddSupplierPage(initialType: _selectedType),
       ),
     );
 
     if (newSupplier != null && mounted) {
-      ref.invalidate(paginatedSupplierProvider(widget.type));
+      ref.invalidate(paginatedSupplierProvider(_selectedType));
       Navigator.pop(context, newSupplier);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final asyncData = ref.watch(paginatedSupplierProvider(widget.type));
+    final asyncData = ref.watch(paginatedSupplierProvider(_selectedType));
     final form = ref.watch(purchaseOrderFormProvider);
 
     return Container(
@@ -105,6 +137,7 @@ class _SupplierPaginatedBottomSheetState
 
           // SEARCH BAR
           TextField(
+            controller: _searchController,
             onChanged: (val) {
               if (_debounce?.isActive ?? false) _debounce!.cancel();
               _debounce = Timer(const Duration(milliseconds: 500), () {
@@ -150,8 +183,10 @@ class _SupplierPaginatedBottomSheetState
                             color: AppColors.grey,
                           ),
                           const SizedBox(height: 12),
-                          const Text(
-                            "Pemasok tidak ditemukan",
+                          Text(
+                            _selectedType != null && _selectedType!.isNotEmpty
+                                ? "Pemasok $_selectedType tidak ditemukan"
+                                : "Pemasok tidak ditemukan",
                             style: AppTypography.smallNormalGrey,
                           ),
                           const SizedBox(height: 16),
@@ -224,10 +259,41 @@ class _SupplierPaginatedBottomSheetState
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    supplier.name,
-                                    style: AppTypography.smallBoldBlack,
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          supplier.name,
+                                          style: AppTypography.smallBoldBlack,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      if (supplier.tipePemasok.isNotEmpty &&
+                                          supplier.tipePemasok != '-') ...[
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primaryShade,
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            supplier.tipePemasok,
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              color: AppColors.primary,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
+                                  const SizedBox(height: 2),
                                   Text(
                                     supplier.contactPhone,
                                     style: AppTypography.xSmallNormalGrey,

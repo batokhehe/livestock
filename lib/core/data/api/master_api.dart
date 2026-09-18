@@ -284,16 +284,32 @@ class MasterApi {
     );
   }
 
+  String? _normalizeSupplierType(String? type) {
+    if (type == null || type.isEmpty) return null;
+    final t = type.toLowerCase();
+    if (t.contains('hewan') || t.contains('animal')) return 'Hewan';
+    if (t.contains('pakan') || t.contains('feed')) return 'Pakan';
+    if (t.contains('obat') || t.contains('med')) return 'Obat';
+    if (t.contains('lain') ||
+        t.contains('equip') ||
+        t.contains('peralatan') ||
+        t.contains('other')) {
+      return 'Lainnya';
+    }
+    return type;
+  }
+
   Future<BaseResponse<Supplier>> getSuppliers({
     String? type,
     int page = 1,
     int perPage = 10,
     String? search,
   }) async {
+    final normalizedType = _normalizeSupplierType(type);
     final res = await dio.get(
       '/master/supplier',
       queryParameters: {
-        'type': type,
+        'type': normalizedType,
         'page': page,
         'per_page': perPage,
         'search': search,
