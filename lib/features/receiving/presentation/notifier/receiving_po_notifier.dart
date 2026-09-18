@@ -8,6 +8,20 @@ class ReceivingPoNotifier extends AutoDisposeAsyncNotifier<BaseResponse<Receivin
   int _page = 1;
   bool _loadingMore = false;
 
+  String? _resolveFilterType(ReceivingTab tab, String? equipmentType) {
+    if (tab == ReceivingTab.equipment) {
+      if (equipmentType == null) return null;
+      final lower = equipmentType.trim().toLowerCase();
+      if (lower == 'peralatan' || lower == 'equipment') {
+        return 'equipment';
+      }
+      if (lower == 'perlengkapan' || lower == 'supply' || lower == 'supplies') {
+        return 'supply';
+      }
+    }
+    return null;
+  }
+
   @override
   Future<BaseResponse<ReceivingPo>> build() async {
     _page = 1;
@@ -16,9 +30,13 @@ class ReceivingPoNotifier extends AutoDisposeAsyncNotifier<BaseResponse<Receivin
     final farmLocationId = ref.watch(animalFarmLocationIdProvider);
     final farmAreaId = ref.watch(animalFarmAreaIdProvider);
     final search = ref.watch(receivingPoSearchProvider);
+    final equipmentType = ref.watch(receivingEquipmentTypeProvider);
+
+    final filterType = _resolveFilterType(tab, equipmentType);
 
     return await api.getReceivingPo(
       type: tab.apiValue,
+      filterType: filterType,
       farmLocationId: farmLocationId,
       farmAreaId: farmAreaId,
       page: _page,
@@ -42,9 +60,13 @@ class ReceivingPoNotifier extends AutoDisposeAsyncNotifier<BaseResponse<Receivin
     final farmLocationId = ref.read(animalFarmLocationIdProvider);
     final farmAreaId = ref.read(animalFarmAreaIdProvider);
     final search = ref.read(receivingPoSearchProvider);
+    final equipmentType = ref.read(receivingEquipmentTypeProvider);
+
+    final filterType = _resolveFilterType(tab, equipmentType);
 
     final result = await api.getReceivingPo(
       type: tab.apiValue,
+      filterType: filterType,
       farmLocationId: farmLocationId,
       farmAreaId: farmAreaId,
       page: _page,

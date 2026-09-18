@@ -36,6 +36,7 @@ class ReceivingApi {
 
   Future<BaseResponse<ReceivingPo>> getReceivingPo({
     required String type,
+    String? filterType,
     int? farmLocationId,
     int? farmAreaId,
     int page = 1,
@@ -48,10 +49,15 @@ class ReceivingApi {
       'search': search,
     };
 
+    if (filterType != null && filterType.isNotEmpty) {
+      queryParams['type'] = filterType;
+    }
+
     if (type != 'feed' &&
         type != 'medicine' &&
         type != 'equipment' &&
-        type != 'supplies') {
+        type != 'supplies' &&
+        type != 'equipment-supplies') {
       queryParams['farm_location_id'] = farmLocationId;
       queryParams['farm_area_id'] = farmAreaId;
     }
@@ -61,7 +67,9 @@ class ReceivingApi {
     String endpoint = '/inventory/receiving/purchase-orders/$type';
     if (type == 'feed' || type == 'medicine') {
       endpoint = '/inventory/receiving/purchase-orders/feed-medicine';
-    } else if (type == 'equipment' || type == 'supplies') {
+    } else if (type == 'equipment' ||
+        type == 'supplies' ||
+        type == 'equipment-supplies') {
       endpoint = '/inventory/receiving/purchase-orders/equipment-supplies';
     }
 
@@ -80,6 +88,7 @@ class ReceivingApi {
     required String remarks,
     required List<Map<String, dynamic>> items,
     required String type,
+    String? equipmentType,
   }) async {
     final payload = <String, dynamic>{
       "receive_date": receiveDate.toIso8601String().split('T').first,
@@ -99,16 +108,23 @@ class ReceivingApi {
         payload["feed_type"] = ft == 'obat' ? 'medicine' : 'feed';
       }
 
-      final ft2 = items.first['type'];
+      final ft2 = items.first['type'] ?? equipmentType;
       if (ft2 != null) {
-        payload["equipment_type"] = ft2;
+        final lower = ft2.toString().trim().toLowerCase();
+        payload["equipment_type"] = (lower == 'perlengkapan' ||
+                lower == 'supply' ||
+                lower == 'supplies')
+            ? 'supply'
+            : 'equipment';
       }
     }
 
     String endpoint = '/inventory/receiving/$type';
     if (type == 'feed' || type == 'medicine') {
       endpoint = '/inventory/receiving/feed-medicine';
-    } else if (type == 'equipment' || type == 'supplies') {
+    } else if (type == 'equipment' ||
+        type == 'supplies' ||
+        type == 'equipment-supplies') {
       endpoint = '/inventory/receiving/equipment-supplies';
     }
 
