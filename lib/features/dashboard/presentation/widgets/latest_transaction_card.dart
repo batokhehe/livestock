@@ -41,7 +41,7 @@ class LatestTransactionCard extends ConsumerWidget {
                     locale: 'id',
                     symbol: 'Rp ',
                     decimalDigits: 0,
-                  ).format(sale.amountTotal);
+                  ).format(sale.amountPaid);
                   
                   final date = DateTime.tryParse(sale.invoiceDate);
                   final dateFormatted = date != null 
@@ -53,6 +53,7 @@ class LatestTransactionCard extends ConsumerWidget {
                     code: sale.invoiceId,
                     price: priceFormatted,
                     date: dateFormatted,
+                    paymentStatus: sale.paymentStatus,
                   );
                 }).toList(),
               );
@@ -63,11 +64,63 @@ class LatestTransactionCard extends ConsumerWidget {
     );
   }
 
+  String _getPaymentStatus(String status) {
+    switch (status.toLowerCase()) {
+      case 'down_payment':
+        return 'Uang Muka';
+      case 'partial':
+        return 'Pembayaran Sebagian';
+      case 'full_payment':
+      case 'paid':
+        return 'Pelunasan';
+      case 'canceled':
+      case 'cancelled':
+        return 'Dibatalkan';
+      default:
+        return status.isNotEmpty ? status : '-';
+    }
+  }
+
+  Color _getPaymentStatusBgColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'full_payment':
+      case 'paid':
+        return const Color(0xFFE6F7ED);
+      case 'down_payment':
+        return const Color(0xFFE3F2FD);
+      case 'partial':
+        return const Color(0xFFFFF7E6);
+      case 'canceled':
+      case 'cancelled':
+        return const Color(0xFFFFF1F0);
+      default:
+        return AppColors.greyBg;
+    }
+  }
+
+  Color _getPaymentStatusTextColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'full_payment':
+      case 'paid':
+        return const Color(0xFF2E7D32);
+      case 'down_payment':
+        return const Color(0xFF1976D2);
+      case 'partial':
+        return const Color(0xFFD97706);
+      case 'canceled':
+      case 'cancelled':
+        return AppColors.danger;
+      default:
+        return AppColors.grey2;
+    }
+  }
+
   Widget _transactionItem({
     required String name,
     required String code,
     required String price,
     required String date,
+    required String paymentStatus,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -78,12 +131,20 @@ class LatestTransactionCard extends ConsumerWidget {
         border: Border.all(color: AppColors.fieldBorder),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(name, style: AppTypography.smallBoldBlack),
-
+              Expanded(
+                child: Text(
+                  name,
+                  style: AppTypography.smallBoldBlack,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -107,6 +168,28 @@ class LatestTransactionCard extends ConsumerWidget {
               Text(date, style: AppTypography.smallNormalGrey),
             ],
           ),
+
+          if (paymentStatus.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 3,
+              ),
+              decoration: BoxDecoration(
+                color: _getPaymentStatusBgColor(paymentStatus),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                _getPaymentStatus(paymentStatus),
+                style: TextStyle(
+                  color: _getPaymentStatusTextColor(paymentStatus),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
