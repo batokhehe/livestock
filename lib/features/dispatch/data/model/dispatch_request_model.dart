@@ -70,6 +70,9 @@ class DispatchRequest {
   }
 
   int get totalShipping {
+    if (shippingCostTotal != null && shippingCostTotal! > 0) {
+      return shippingCostTotal!;
+    }
     if (items == null || items!.isEmpty) return 0;
 
     final uniqueOrders = <String, int>{};
@@ -92,11 +95,10 @@ class DispatchRequest {
   }
 
   int get remainingPayment {
-    final itemRemainder = totalItemRemainder;
     final shipping = totalShipping;
     final dp = downPayment ?? 0;
     final additional = additionalCost ?? 0;
 
-    return itemRemainder + shipping + additional - dp;
+    return shipping + additional - dp;
   }
 }

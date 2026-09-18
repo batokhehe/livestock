@@ -12,6 +12,7 @@ import '../../../data/model/purchase_order_list_model.dart';
 import '../../../purchase_order_provider.dart';
 import '../../widgets/add_item_bottom_sheet_animal.dart';
 import '../../widgets/add_item_bottom_sheet_feed.dart';
+import '../../widgets/add_item_bottom_sheet_equipment.dart';
 import 'widgets/delete_confirm_bottom_sheet.dart';
 import 'widgets/edit_animal_item_card.dart';
 import 'widgets/edit_equipment_item_card.dart';
@@ -36,6 +37,8 @@ class _EditPurchaseOrderStep2PageState
     Widget sheet;
     if (type == 'animal') {
       sheet = const AddItemBottomSheetAnimal();
+    } else if (type == 'equipment') {
+      sheet = const AddItemBottomSheetEquipment();
     } else {
       sheet = const AddItemBottomSheetFeed();
     }
@@ -62,6 +65,8 @@ class _EditPurchaseOrderStep2PageState
     Widget sheet;
     if (type == 'animal') {
       sheet = AddItemBottomSheetAnimal(initialData: item);
+    } else if (type == 'equipment') {
+      sheet = AddItemBottomSheetEquipment(initialData: item);
     } else {
       sheet = AddItemBottomSheetFeed(initialData: item);
     }

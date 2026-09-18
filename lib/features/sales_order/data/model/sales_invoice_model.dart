@@ -16,6 +16,7 @@ class SalesInvoice {
   final double amountTotalPaid;
   final double sisaTagihan;
   final String? notes;
+  final bool paymentSettled;
 
   SalesInvoice({
     required this.id,
@@ -35,9 +36,17 @@ class SalesInvoice {
     required this.amountTotalPaid,
     required this.sisaTagihan,
     this.notes,
+    this.paymentSettled = false,
   });
 
   factory SalesInvoice.fromJson(Map<String, dynamic> json) {
+    bool parseSettled(dynamic val) {
+      if (val is bool) return val;
+      if (val is num) return val == 1;
+      if (val is String) return val.toLowerCase() == 'true' || val == '1';
+      return false;
+    }
+
     return SalesInvoice(
       id: json['id'] ?? 0,
       invoiceId: json['invoice_id'] ?? '',
@@ -56,6 +65,9 @@ class SalesInvoice {
       amountTotalPaid: double.tryParse(json['amount_total_paid']?.toString() ?? '0') ?? 0,
       sisaTagihan: double.tryParse(json['sisa_tagihan']?.toString() ?? '0') ?? 0,
       notes: json['notes'],
+      paymentSettled: parseSettled(
+        json['payment_settled'] ?? json['setoran_status'],
+      ),
     );
   }
 }

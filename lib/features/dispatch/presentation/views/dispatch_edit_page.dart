@@ -141,7 +141,8 @@ class _DispatchEditPageState extends ConsumerState<DispatchEditPage> {
 
                             SuccessNotification.show(
                               title: "Pengiriman Berhasil",
-                              subtitle: "Perubahan data pengiriman berhasil disimpan",
+                              subtitle:
+                                  "Perubahan data pengiriman berhasil disimpan",
                             );
 
                             context.go('/dispatch');

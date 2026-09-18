@@ -58,7 +58,8 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
                 sum +
                 (item.purchPrice * (item.quantity > 0 ? item.quantity : 1)),
           );
-          final total = subtotal + (data.shippingCost);
+          final total =
+              subtotal + (data.shippingCost) + (data.additionalCost);
 
           return Stack(
             children: [
@@ -82,6 +83,7 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
                         totalItem: totalItem,
                         subtotal: subtotal,
                         shippingCost: data.shippingCost,
+                        additionalCost: data.additionalCost,
                         total: total,
                         isAnimal: data.animalGroup != null,
                         amountRemainder: data.amountRemainder,
@@ -119,7 +121,8 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
     }
 
     final user = ref.watch(userProvider).value;
-    final canCreateInvoice = (user?.hasPermission('invoices-create') ?? false) &&
+    final canCreateInvoice =
+        (user?.hasPermission('invoices-create') ?? false) &&
         data.amountRemainder > 0;
     bool canUpdatePO = true;
 
@@ -311,6 +314,7 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
     required int totalItem,
     required double subtotal,
     required double shippingCost,
+    required double additionalCost,
     required double total,
     required bool isAnimal,
     required double amountRemainder,
@@ -326,6 +330,7 @@ class PurchaseOrderDetailPage extends ConsumerWidget {
             ),
             _rowSummary("Subtotal", formatPrice(subtotal)),
             _rowSummary("Biaya Pengiriman", formatPrice(shippingCost)),
+            _rowSummary("Biaya Lainnya", formatPrice(additionalCost)),
             _rowSummary("Total Keseluruhan", formatPrice(total), isBold: true),
             _rowSummary("Sisa Pembayaran", formatPrice(amountRemainder)),
           ],

@@ -19,7 +19,7 @@ final salesInvoiceListProvider = FutureProvider.autoDispose
       return ref.read(salesOrderApiProvider).getSalesInvoices(soId);
     });
 
-enum SalesOrderTab { draft, confirmed, closed, canceled, all }
+enum SalesOrderTab { all, draft, confirmed, closed, canceled }
 
 extension SalesOrderTabX on SalesOrderTab {
   String get apiValue {
@@ -81,6 +81,58 @@ final paymentTypeListProvider = FutureProvider.autoDispose<List<PaymentType>>((
 final selectedPaymentTypeProvider = StateProvider<PaymentType?>((ref) => null);
 final paymentTypeSearchProvider = StateProvider.autoDispose<String>(
   (ref) => '',
+);
+
+enum SalesOrderMainTab { penjualan, nota }
+
+final salesOrderMainTabProvider = StateProvider<SalesOrderMainTab>((ref) {
+  return SalesOrderMainTab.penjualan;
+});
+
+enum SalesInvoiceFilter { all, sudahDisetor, belumDisetor }
+
+extension SalesInvoiceFilterX on SalesInvoiceFilter {
+  String get label {
+    switch (this) {
+      case SalesInvoiceFilter.all:
+        return 'Semua';
+      case SalesInvoiceFilter.sudahDisetor:
+        return 'Sudah Disetor';
+      case SalesInvoiceFilter.belumDisetor:
+        return 'Belum Disetor';
+    }
+  }
+}
+
+final salesInvoiceFilterProvider = StateProvider<SalesInvoiceFilter>((ref) {
+  return SalesInvoiceFilter.all;
+});
+
+final salesInvoiceListAllProvider = FutureProvider.autoDispose<List<SalesInvoice>>(
+  (ref) async {
+    final api = ref.read(salesOrderApiProvider);
+    final filter = ref.watch(salesInvoiceFilterProvider);
+    final search = ref.watch(salesOrderSearchProvider);
+
+    String? setoranStatusParam;
+    if (filter == SalesInvoiceFilter.sudahDisetor) {
+      setoranStatusParam = '1';
+    } else if (filter == SalesInvoiceFilter.belumDisetor) {
+      setoranStatusParam = '0';
+    }
+
+    final allInvoices = await api.getSalesInvoicesList(
+      setoranStatus: setoranStatusParam,
+      search: search,
+    );
+
+    if (filter == SalesInvoiceFilter.sudahDisetor) {
+      return allInvoices.where((inv) => inv.paymentSettled).toList();
+    } else if (filter == SalesInvoiceFilter.belumDisetor) {
+      return allInvoices.where((inv) => !inv.paymentSettled).toList();
+    }
+    return allInvoices;
+  },
 );
 
 final salesOrderListProvider = FutureProvider.autoDispose<List<SalesOrderList>>(
@@ -199,6 +251,15 @@ class SalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
         ? state.forecastDate
         : null;
 
+    final totalDiscount = (state.items ?? []).fold<double>(
+      0,
+      (sum, item) => sum + (item.discount ?? 0),
+    );
+    final totalShippingCost = (state.items ?? []).fold<double>(
+      0,
+      (sum, item) => sum + (item.shippingCost ?? 0),
+    );
+
     final updatedItems = state.items?.map((item) {
       return item.copyWith(
         isForecast: isForecastStr,
@@ -206,7 +267,12 @@ class SalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
       );
     }).toList();
 
-    state = state.copyWith(isForecast: isForecastStr, items: updatedItems);
+    state = state.copyWith(
+      isForecast: isForecastStr,
+      items: updatedItems,
+      discountTotal: totalDiscount,
+      shippingCost: totalShippingCost,
+    );
 
     if (state.customer == null) {
       throw Exception("Customer belum dipilih");
@@ -264,7 +330,11 @@ class EditSalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
         qty: e.qty.toInt(),
         unitPrice: e.priceUnit,
         weight: e.weight,
-        subtotal: e.priceSubtotal,
+        subtotal: e.unitPrice > 0
+            ? (e.unitPrice * (e.qty > 0 ? e.qty : 1))
+            : (e.priceUnit > 0
+                ? (e.priceUnit * (e.qty > 0 ? e.qty : 1))
+                : e.subtotal),
         discount: e.discount,
         shippingCost: e.shippingCost,
         dlvDate: e.dlvDate != null ? DateTime.tryParse(e.dlvDate!) : null,
@@ -403,6 +473,15 @@ class EditSalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
         ? state.forecastDate
         : null;
 
+    final totalDiscount = (state.items ?? []).fold<double>(
+      0,
+      (sum, item) => sum + (item.discount ?? 0),
+    );
+    final totalShippingCost = (state.items ?? []).fold<double>(
+      0,
+      (sum, item) => sum + (item.shippingCost ?? 0),
+    );
+
     final updatedItems = state.items?.map((item) {
       return item.copyWith(
         isForecast: isForecastStr,
@@ -410,7 +489,12 @@ class EditSalesOrderFormNotifier extends StateNotifier<SalesOrderRequest> {
       );
     }).toList();
 
-    state = state.copyWith(isForecast: isForecastStr, items: updatedItems);
+    state = state.copyWith(
+      isForecast: isForecastStr,
+      items: updatedItems,
+      discountTotal: totalDiscount,
+      shippingCost: totalShippingCost,
+    );
 
     if (state.customer == null) {
       throw Exception("Customer belum dipilih");

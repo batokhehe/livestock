@@ -332,9 +332,15 @@ class _FarmInfoSection extends StatelessWidget {
       children: [
         CardWrapper(
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(data.farmLocationName, style: AppTypography.smallBoldBlack),
+              Expanded(
+                child: Text(
+                  data.farmLocationName,
+                  style: AppTypography.smallBoldBlack,
+                ),
+              ),
+              const SizedBox(width: 12),
               Text(data.farmAreaName, style: AppTypography.smallBoldRed),
             ],
           ),

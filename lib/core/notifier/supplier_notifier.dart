@@ -31,27 +31,31 @@ class SupplierNotifier
     if (current.data.length >= total) return;
 
     _loadingMore = true;
-    _page++;
+    try {
+      _page++;
 
-    final search = ref.read(supplierSearchProvider);
-    final useCase = ref.read(getMasterDataListUseCaseProvider);
+      final search = ref.read(supplierSearchProvider);
+      final useCase = ref.read(getMasterDataListUseCaseProvider);
 
-    final result = await useCase.callSuppliersPaginated(
-      type: arg,
-      search: (search.length >= 2) ? search : null,
-      page: _page,
-      perPage: 10,
-    );
+      final result = await useCase.callSuppliersPaginated(
+        type: arg,
+        search: (search.length >= 2) ? search : null,
+        page: _page,
+        perPage: 10,
+      );
 
-    state = AsyncData(
-      BaseResponse(
-        status: result.status,
-        message: result.message,
-        total: result.total,
-        data: [...current.data, ...result.data],
-      ),
-    );
-
-    _loadingMore = false;
+      state = AsyncData(
+        BaseResponse(
+          status: result.status,
+          message: result.message,
+          total: result.total,
+          data: [...current.data, ...result.data],
+        ),
+      );
+    } catch (_) {
+      _page--;
+    } finally {
+      _loadingMore = false;
+    }
   }
 }

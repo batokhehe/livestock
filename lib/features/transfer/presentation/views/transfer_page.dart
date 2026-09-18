@@ -138,7 +138,9 @@ class _TransferPageState extends ConsumerState<TransferPage> {
                 data: (response) {
                   final list = response.data;
                   final total = response.total ?? response.totalRows ?? 0;
-                  final hasMore = list.length < total;
+                  final hasMore = total > 0
+                      ? list.length < total
+                      : (list.isNotEmpty && list.length % 10 == 0);
 
                   return _TransferList(
                     list: list,

@@ -311,9 +311,15 @@ class _FarmInfoSection extends ConsumerWidget {
       children: [
         CardWrapper(
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(farm?.name ?? "-", style: AppTypography.smallBoldBlack),
+              Expanded(
+                child: Text(
+                  farm?.name ?? "-",
+                  style: AppTypography.smallBoldBlack,
+                ),
+              ),
+              const SizedBox(width: 12),
               Text(area?.name ?? "-", style: AppTypography.smallBoldRed),
             ],
           ),

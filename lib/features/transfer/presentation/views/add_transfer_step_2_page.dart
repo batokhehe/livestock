@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/core/theme/AppImages.dart';
 import 'package:livestock/core/theme/AppTypography.dart';
 import 'package:livestock/core/widgets/card_wrapper.dart';
-import 'package:livestock/core/widgets/input_field_card.dart';
-import 'package:livestock/core/widgets/product_header_card.dart';
 import 'package:livestock/core/widgets/section_card.dart';
 import 'package:livestock/core/widgets/select_field.dart';
 import 'package:livestock/core/widgets/step_info_card.dart';
@@ -23,36 +19,11 @@ class AddTransferStep2Page extends ConsumerStatefulWidget {
   const AddTransferStep2Page({super.key});
 
   @override
-  ConsumerState<AddTransferStep2Page> createState() => _AddTransferStep2PageState();
+  ConsumerState<AddTransferStep2Page> createState() =>
+      _AddTransferStep2PageState();
 }
 
 class _AddTransferStep2PageState extends ConsumerState<AddTransferStep2Page> {
-  late final TextEditingController _deliveryCostController;
-
-  @override
-  void initState() {
-    super.initState();
-    _deliveryCostController = TextEditingController();
-    
-    // Set initial value from provider if exists
-    final initialCost = ref.read(transferDeliveryCostProvider);
-    if (initialCost != null) {
-      _deliveryCostController.text = formatPrice(initialCost.toInt());
-    }
-
-    _deliveryCostController.addListener(() {
-      final raw = _deliveryCostController.text.replaceAll('.', '');
-      final value = double.tryParse(raw);
-      ref.read(transferDeliveryCostProvider.notifier).state = value;
-    });
-  }
-
-  @override
-  void dispose() {
-    _deliveryCostController.dispose();
-    super.dispose();
-  }
-
   void _showFarmLocationPicker(BuildContext context, WidgetRef ref) async {
     final result = await showModalBottomSheet<FarmLocation?>(
       context: context,
@@ -91,12 +62,14 @@ class _AddTransferStep2PageState extends ConsumerState<AddTransferStep2Page> {
 
   @override
   Widget build(BuildContext context) {
-    // Keep Step 1 providers alive during Step 2
     ref.watch(selectedTransferDateProvider);
-    final selectedAnimal = ref.watch(selectedTransferAnimalProvider);
+    final selectedAnimals = ref.watch(selectedTransferAnimalsProvider);
 
     final selectedToLocation = ref.watch(selectedTransferToLocationProvider);
     final selectedToArea = ref.watch(selectedTransferToAreaProvider);
+
+    final firstAnimal =
+        selectedAnimals.isNotEmpty ? selectedAnimals.first.animal : null;
 
     final bool isValid = selectedToLocation != null && selectedToArea != null;
 
@@ -122,17 +95,67 @@ class _AddTransferStep2PageState extends ConsumerState<AddTransferStep2Page> {
                   totalStep: 3,
                 ),
                 const SizedBox(height: 12),
-                if (selectedAnimal != null) ...[
+                if (selectedAnimals.isNotEmpty) ...[
                   SectionCard(
-                    title: "Informasi Hewan",
+                    title: "Ringkasan Hewan",
                     children: [
                       CardWrapper(
-                        child: ProductHeaderCard(
-                          title: selectedAnimal.animalCode,
-                          subtitle:
-                              "${selectedAnimal.name} • ${selectedAnimal.weight.floor()} kg",
-                          image: AppImages.icProduct,
-                          status: selectedAnimal.available,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  "Total Hewan Dipindahkan",
+                                  style: AppTypography.smallBoldBlack,
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryShade,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    "${selectedAnimals.length} Ekor",
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: selectedAnimals.map((e) {
+                                return Chip(
+                                  label: Text(
+                                    "${e.animal.animalCode} (${e.animal.name})",
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.black,
+                                    ),
+                                  ),
+                                  backgroundColor: AppColors.baseBackground,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    side: const BorderSide(
+                                      color: AppColors.fieldBorder,
+                                    ),
+                                  ),
+                                  visualDensity: VisualDensity.compact,
+                                  padding: EdgeInsets.zero,
+                                );
+                              }).toList(),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -144,14 +167,14 @@ class _AddTransferStep2PageState extends ConsumerState<AddTransferStep2Page> {
                   children: [
                     SelectField(
                       label: "Lokasi peternakan",
-                      hint: selectedAnimal?.farmLocation?.name ?? '-',
+                      hint: firstAnimal?.farmLocation?.name ?? '-',
                       enabled: false,
                       icon: AppImages.icHomeHashTag,
                     ),
                     const SizedBox(height: 12),
                     SelectField(
                       label: "Area peternakan",
-                      hint: selectedAnimal?.farmArea?.name ?? '-',
+                      hint: firstAnimal?.farmArea?.name ?? '-',
                       enabled: false,
                       icon: AppImages.icMap,
                     ),
@@ -176,23 +199,6 @@ class _AddTransferStep2PageState extends ConsumerState<AddTransferStep2Page> {
                       icon: AppImages.icMap,
                       enabled: selectedToLocation != null,
                       onTap: () => _showFarmAreaPicker(context, ref),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                SectionCard(
-                  title: "Rincian Biaya",
-                  children: [
-                    TextFields(
-                      label: "Biaya Pengiriman (Opsional)",
-                      hint: "Masukkan biaya pengiriman",
-                      prefixText: "Rp ",
-                      controller: _deliveryCostController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        CurrencyInputFormatter(),
-                      ],
                     ),
                   ],
                 ),

@@ -12,6 +12,8 @@ class PurchaseInvoice {
   final String? coaName;
   final int totalItem;
   final double subtotal;
+  final double shippingCost;
+  final double additionalCost;
   final double discountTotal;
   final double amountTotal;
   final double amountPaid;
@@ -32,6 +34,8 @@ class PurchaseInvoice {
     this.coaName,
     this.totalItem = 0,
     required this.subtotal,
+    this.shippingCost = 0,
+    this.additionalCost = 0,
     required this.discountTotal,
     required this.amountTotal,
     required this.amountPaid,
@@ -118,6 +122,20 @@ class PurchaseInvoice {
       coaName: json['chart_of_account']?['name'],
       totalItem: totalItem,
       subtotal: subtotal,
+      shippingCost:
+          double.tryParse(
+            json['shipping_cost']?.toString() ??
+                json['purch_order']?['shipping_cost']?.toString() ??
+                '0',
+          ) ??
+          0,
+      additionalCost:
+          double.tryParse(
+            json['additional_cost']?.toString() ??
+                json['purch_order']?['additional_cost']?.toString() ??
+                '0',
+          ) ??
+          0,
       discountTotal:
           double.tryParse(
             json['discount_total']?.toString() ??

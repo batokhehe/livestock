@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../../core/helpers/utils.dart';
 import '../../../../../../core/theme/AppColors.dart';
 import '../../../../../../core/theme/AppImages.dart';
 import '../../../../../../core/theme/AppTypography.dart';
+import '../../../../../../core/widgets/input_field_card.dart';
 import '../../../../../../core/widgets/select_field.dart';
 import '../../../../../../core/widgets/text_field_with_inner_counter.dart';
 import '../../../../data/monitoring_item_model.dart';
@@ -39,6 +41,11 @@ class _AddItemMedicineBottomSheetState
   @override
   void initState() {
     super.initState();
+    Future.microtask(() {
+      if (mounted) {
+        ref.read(selectedMonitoringMedicineProvider.notifier).state = null;
+      }
+    });
     qtyCtrl.addListener(() => setState(() {}));
   }
 
@@ -226,13 +233,6 @@ class _AddItemMedicineBottomSheetState
     final selectedObat = ref.watch(selectedMonitoringMedicineProvider);
     final stock = selectedObat?.quantity.toDouble() ?? 0.0;
 
-    if (selectedObat != null) {
-      if (jumlahCtrl.text != selectedObat.quantity.toString()) {
-        jumlahCtrl.text = selectedObat.quantity.toString();
-        qtyCtrl.text = selectedObat.quantity.toString();
-      }
-    }
-
     return Container(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -244,78 +244,162 @@ class _AddItemMedicineBottomSheetState
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("Tambah Item", style: AppTypography.largeBoldBlack),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.cancel_outlined),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          SelectField(
-            label: "Obat",
-            hint: selectedObat?.name ?? "Pilih obat",
-            style: selectedObat != null ? AppTypography.smallNormalBlack : null,
-            icon: AppImages.icProduct,
-            isMandatoryField: true,
-            onTap: _openObatSheet,
-          ),
-          const SizedBox(height: 8),
-          _buildQtyField(stock, selectedObat != null),
-          TextFieldWithInnerCounter(
-            label: "Catatan",
-            subLabel: "(Opsional)",
-            hint: "Masukkan catatan",
-            maxLength: 80,
-            controller: noteCtrl,
-          ),
-          const SizedBox(height: 8),
-          const Divider(),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                disabledBackgroundColor: AppColors.grey3,
-                disabledForegroundColor: AppColors.white,
-                padding: const EdgeInsets.all(14),
-                elevation: _isValid ? 2 : 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("Tambah Item", style: AppTypography.largeBoldBlack),
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: const Icon(Icons.cancel_outlined),
                 ),
-              ),
-              onPressed: _isValid
-                  ? () {
-                      Navigator.pop(
-                        context,
-                        MonitoringItem(
-                          name: selectedObat?.name,
-                          code: selectedObat?.code,
-                          unit: selectedObat?.uom.isNotEmpty == true
-                              ? selectedObat!.uom
-                              : "Botol",
-                          price: selectedObat?.price,
-                          quantity: double.tryParse(
-                            qtyCtrl.text.replaceAll(',', '.'),
-                          ),
-                          note: noteCtrl.text.isEmpty ? null : noteCtrl.text,
-                          stock: selectedObat?.quantity.toString() ?? "0",
-                        ),
-                      );
-                    }
-                  : null,
-              child: const Text("Tambah Item", style: AppTypography.mediumBoldWhite),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            SelectField(
+              label: "Obat",
+              hint: selectedObat?.name ?? "Pilih obat",
+              style: selectedObat != null ? AppTypography.smallNormalBlack : null,
+              icon: AppImages.icProduct,
+              isMandatoryField: true,
+              onTap: _openObatSheet,
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.greyBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.fieldBorder),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Nama Obat",
+                          style: AppTypography.smallNormalGrey,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          selectedObat?.name.isEmpty ?? true
+                              ? "-"
+                              : selectedObat!.name,
+                          style: AppTypography.smallBoldBlack,
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          "Kuantitas Tersedia",
+                          style: AppTypography.smallNormalGrey,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          selectedObat == null
+                              ? "0"
+                              : selectedObat.quantity.toString(),
+                          style: AppTypography.smallBoldBlack,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Kode",
+                          style: AppTypography.smallNormalGrey,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          selectedObat?.code.isEmpty ?? true
+                              ? "-"
+                              : selectedObat!.code,
+                          style: AppTypography.smallBoldBlack,
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          "Harga Satuan",
+                          style: AppTypography.smallNormalGrey,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          selectedObat == null
+                              ? "Rp 0"
+                              : "Rp ${formatPrice(selectedObat.price)}",
+                          style: AppTypography.smallBoldBlack,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // _buildQtyField(stock, selectedObat != null),
+            TextFields(
+              label: "Kuantitas",
+              hint: "Kuantitas",
+              controller: qtyCtrl,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            ),
+            TextFieldWithInnerCounter(
+              label: "Catatan",
+              subLabel: "(Opsional)",
+              hint: "Masukkan catatan",
+              maxLength: 80,
+              controller: noteCtrl,
+            ),
+            const SizedBox(height: 8),
+            const Divider(),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  disabledBackgroundColor: AppColors.grey3,
+                  disabledForegroundColor: AppColors.white,
+                  padding: const EdgeInsets.all(14),
+                  elevation: _isValid ? 2 : 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: _isValid
+                    ? () {
+                        Navigator.pop(
+                          context,
+                          MonitoringItem(
+                            name: selectedObat?.name,
+                            code: selectedObat?.code,
+                            unit: selectedObat?.uom.isNotEmpty == true
+                                ? selectedObat!.uom
+                                : "Botol",
+                            price: selectedObat?.price,
+                            quantity: double.tryParse(
+                              qtyCtrl.text.replaceAll(',', '.'),
+                            ),
+                            note: noteCtrl.text.isEmpty ? null : noteCtrl.text,
+                            stock: selectedObat?.quantity.toString() ?? "0",
+                          ),
+                        );
+                      }
+                    : null,
+                child: const Text("Tambah Item", style: AppTypography.mediumBoldWhite),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

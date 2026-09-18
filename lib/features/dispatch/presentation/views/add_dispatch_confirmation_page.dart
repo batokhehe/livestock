@@ -196,11 +196,19 @@ class AddDispatchConfirmationPage extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Text(
+                      //   item.animalProfileName,
+                      //   style: AppTypography.smallBoldBlack,
+                      // ),
+                      // Text(item.orderId, style: AppTypography.smallNormalGrey),
                       Text(
-                        item.animalProfileName,
+                        item.animalProfileCode,
                         style: AppTypography.smallBoldBlack,
                       ),
-                      Text(item.orderId, style: AppTypography.smallNormalGrey),
+                      Text(
+                        item.recipientName,
+                        style: AppTypography.smallNormalGrey,
+                      ),
                     ],
                   ),
                 ),

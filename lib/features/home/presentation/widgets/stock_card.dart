@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/features/home/presentation/widgets/stock_item_card.dart';
 
@@ -20,17 +21,61 @@ class StockCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Persediaan", style: AppTypography.mediumNormalBlack),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Persediaan", style: AppTypography.mediumNormalBlack),
+              InkWell(
+                onTap: () => context.push('/stock-detail?type=all'),
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Lihat Semua",
+                        style: AppTypography.xSmallNormalPrimary.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      const Icon(
+                        Icons.chevron_right,
+                        size: 16,
+                        color: AppColors.primary,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: const [
-                StockItemCard(AppImages.icBox, "7.800", "Pakan"),
-                SizedBox(width: 12),
-                StockItemCard(AppImages.icBlend, "1.000", "Obat"),
-                SizedBox(width: 12),
-                StockItemCard(AppImages.icRulerPen, "5.800", "Lainnya"),
+              children: [
+                StockItemCard(
+                  AppImages.icBox,
+                  "7.800",
+                  "Pakan",
+                  onTap: () => context.push('/stock-detail?type=feed'),
+                ),
+                const SizedBox(width: 12),
+                StockItemCard(
+                  AppImages.icBlend,
+                  "1.000",
+                  "Obat",
+                  onTap: () => context.push('/stock-detail?type=medicine'),
+                ),
+                const SizedBox(width: 12),
+                StockItemCard(
+                  AppImages.icRulerPen,
+                  "5.800",
+                  "Lainnya",
+                  onTap: () => context.push('/stock-detail?type=all'),
+                ),
               ],
             ),
           ),

@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:livestock/features/dashboard/providers/dashboard_provider.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppTypography.dart';
 
-class LatestTransactionCard extends StatelessWidget {
+class LatestTransactionCard extends ConsumerWidget {
   const LatestTransactionCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final latestSalesAsync = ref.watch(latestSalesOrderProvider);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -18,28 +23,40 @@ class LatestTransactionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Penjualan Terbaru",
-            style: AppTypography.mediumNormalBlack,
+            style: AppTypography.mediumNormalBlack.copyWith(color: AppColors.grey2),
           ),
-          const SizedBox(height: 8),
-          _transactionItem(
-            name: 'Dawn Johnsonnn',
-            code: 'SO-2511-00010',
-            price: 'Rp 100.000',
-            date: '15 Nov 2025 · 23:10',
-          ),
-          _transactionItem(
-            name: 'Jihan Putri Sulaiman',
-            code: 'SO-2511-00009',
-            price: 'Rp 70.000.000',
-            date: '15 Nov 2025 · 23:06',
-          ),
-          _transactionItem(
-            name: 'H. Imron Saga',
-            code: 'SO-2511-00008',
-            price: 'Rp 38.000.000',
-            date: '14 Nov 2025 · 18:00',
+          const SizedBox(height: 12),
+          latestSalesAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, s) => Center(child: Text("Error: $e")),
+            data: (sales) {
+              if (sales.isEmpty) {
+                return const Center(child: Text("Belum ada penjualan terbaru"));
+              }
+              return Column(
+                children: sales.map((sale) {
+                  final priceFormatted = NumberFormat.currency(
+                    locale: 'id',
+                    symbol: 'Rp ',
+                    decimalDigits: 0,
+                  ).format(sale.amountTotal);
+                  
+                  final date = DateTime.tryParse(sale.invoiceDate);
+                  final dateFormatted = date != null 
+                      ? DateFormat('dd MMM yyyy').format(date) 
+                      : sale.invoiceDate;
+
+                  return _transactionItem(
+                    name: sale.customerName ?? '-',
+                    code: sale.invoiceId,
+                    price: priceFormatted,
+                    date: dateFormatted,
+                  );
+                }).toList(),
+              );
+            },
           ),
         ],
       ),
