@@ -1,22 +1,27 @@
 📱 Release Notes
 🔧 Perbaikan & Peningkatan
 
-Module Transfer
-- Fitur Batch Animal Transfer (pemindahan multi-hewan)
-- Infinite scroll pagination pada list pemindahan hewan
-- Rincian biaya kirim & catatan per hewan pada detail pemindahan
+Module Dashboard
+- Nilai transaksi penjualan terbaru disesuaikan menggunakan nominal pembayaran (amount paid)
+- Penambahan badge status pembayaran (payment status) pada daftar penjualan terbaru
+- Peningkatan responsivitas tab menu dashboard (Penjualan, Operasional, Pemantauan) agar dapat digeser secara horizontal di berbagai resolusi layar
 
-Module Home & Stock Inventory
-- Integrasi API inventaris stok pakan/obat
-- Halaman detail stok inventaris
-- Penegasan informasi kuantitas stok akhir
+Module Receiving (Penerimaan)
+- Penambahan filter tipe penerimaan (peralatan / perlengkapan) pada daftar purchase order peralatan
+- Sinkronisasi tipe item peralatan saat konfirmasi dan simpan penerimaan barang
+
+Module Purchase Order
+- Integrasi data master peralatan & perlengkapan pada alur penambahan dan pengeditan item PO peralatan
+- Komponen bottom sheet pencarian dan pemilihan master item peralatan
+- Penambahan dan kalkulasi komponen biaya lainnya (additional cost) pada rincian bayar PO dan faktur pembelian
 
 Module Sales Order
-- Fitur setor invoice (payment settled)
+- Penyelarasan kalkulasi rincian harga (subtotal, diskon, dan sisa pembayaran) pada Sales Order dan pembuatan nota
+- Validasi sisa pembayaran dan perbaikan default jumlah bayar pada faktur penjualan
 
-Module Dispatch
-- Peningkatan halaman detail, edit, dan alur pengiriman
+Module Dispatch (Pengiriman)
+- Perbaikan kalkulasi akumulasi total kuantitas hewan pada kartu pengiriman
+- Penyesuaian nilai dan kalkulasi total sisa pembayaran pada rincian pengiriman
 
-Module Master & Registrasi
-- Form penambahan Pelanggan, Pemasok, dan Pakan/Obat baru
-- Peningkatan selector paginasi data master
+Module Master & Supplier
+- Perbaikan dan penyesuaian filter jenis supplier pada pemilih pemasok
