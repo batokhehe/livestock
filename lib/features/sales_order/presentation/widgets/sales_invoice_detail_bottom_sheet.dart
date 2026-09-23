@@ -75,7 +75,7 @@ class SalesInvoiceDetailBottomSheet extends StatelessWidget {
           ),
           _buildInfoRow(
             "Jumlah dibayar",
-            "Rp ${formatPrice(invoice.amountTotalPaid)}",
+            "Rp ${formatPrice(invoice.amountPaid)}",
             isBold: true,
             valueColor: AppColors.primary, // Orange/Primary
           ),
