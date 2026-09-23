@@ -1,27 +1,15 @@
 📱 Release Notes
 🔧 Perbaikan & Peningkatan
 
-Module Dashboard
-- Nilai transaksi penjualan terbaru disesuaikan menggunakan nominal pembayaran (amount paid)
-- Penambahan badge status pembayaran (payment status) pada daftar penjualan terbaru
-- Peningkatan responsivitas tab menu dashboard (Penjualan, Operasional, Pemantauan) agar dapat digeser secara horizontal di berbagai resolusi layar
+Module Absensi (Attendance)
+- Penambahan fitur pemilihan lokasi peternakan (farm location) dengan paginated bottom sheet pada formulir absensi
+- Sinkronisasi dan pengiriman ID lokasi peternakan secara dinamis pada pembuatan absensi karyawan reguler dan menginap (overnight)
 
-Module Receiving (Penerimaan)
-- Penambahan filter tipe penerimaan (peralatan / perlengkapan) pada daftar purchase order peralatan
-- Sinkronisasi tipe item peralatan saat konfirmasi dan simpan penerimaan barang
+Module Home & Persediaan (Stock Detail)
+- Pembaruan tampilan kartu Detail Persediaan pada halaman utama dengan navigasi kategori Pakan dan Obat
+- Penambahan tombol akses cepat "Lihat Semua" dan integrasi filter kategori rincian stok
 
-Module Purchase Order
-- Integrasi data master peralatan & perlengkapan pada alur penambahan dan pengeditan item PO peralatan
-- Komponen bottom sheet pencarian dan pemilihan master item peralatan
-- Penambahan dan kalkulasi komponen biaya lainnya (additional cost) pada rincian bayar PO dan faktur pembelian
-
-Module Sales Order
-- Penyelarasan kalkulasi rincian harga (subtotal, diskon, dan sisa pembayaran) pada Sales Order dan pembuatan nota
-- Validasi sisa pembayaran dan perbaikan default jumlah bayar pada faktur penjualan
-
-Module Dispatch (Pengiriman)
-- Perbaikan kalkulasi akumulasi total kuantitas hewan pada kartu pengiriman
-- Penyesuaian nilai dan kalkulasi total sisa pembayaran pada rincian pengiriman
-
-Module Master & Supplier
-- Perbaikan dan penyesuaian filter jenis supplier pada pemilih pemasok
+Module Pengguna & Profil (User & Profile)
+- Peningkatan sinkronisasi dan parsing data profil pengguna dari API
+- Penambahan manajemen data pengguna (lokasi farm, role, telepon) untuk mendukung integrasi antar-modul
+- Dukungan pembaruan data profil dan ubah kata sandi akun
