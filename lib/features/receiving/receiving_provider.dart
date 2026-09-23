@@ -162,6 +162,7 @@ class ReceivingProvider extends ChangeNotifier {
     required int farmAreaId,
     required DateTime receiveDate,
     required String remarks,
+    String? equipmentType,
   }) async {
     // if (proofImage == null) {
     //   throw Exception("Proof image is required");
@@ -178,6 +179,7 @@ class ReceivingProvider extends ChangeNotifier {
       farmAreaId: farmAreaId,
       remarks: remarks,
       items: itemsPayload,
+      equipmentType: equipmentType,
       // proofImage: proofImage!,
     );
   }

@@ -1,5 +1,15 @@
 📱 Release Notes
 🔧 Perbaikan & Peningkatan
 
-Module Sales Order
-- Fix Feature Invoice
+Module Absensi (Attendance)
+- Penambahan fitur pemilihan lokasi peternakan (farm location) dengan paginated bottom sheet pada formulir absensi
+- Sinkronisasi dan pengiriman ID lokasi peternakan secara dinamis pada pembuatan absensi karyawan reguler dan menginap (overnight)
+
+Module Home & Persediaan (Stock Detail)
+- Pembaruan tampilan kartu Detail Persediaan pada halaman utama dengan navigasi kategori Pakan dan Obat
+- Penambahan tombol akses cepat "Lihat Semua" dan integrasi filter kategori rincian stok
+
+Module Pengguna & Profil (User & Profile)
+- Peningkatan sinkronisasi dan parsing data profil pengguna dari API
+- Penambahan manajemen data pengguna (lokasi farm, role, telepon) untuk mendukung integrasi antar-modul
+- Dukungan pembaruan data profil dan ubah kata sandi akun

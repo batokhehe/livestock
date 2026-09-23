@@ -13,6 +13,7 @@ import 'package:livestock/core/data/model/village_model.dart';
 import 'package:livestock/features/dispatch/data/model/sales_order_dispatch_model.dart';
 
 import 'package:livestock/core/data/model/shipping_cost_model.dart';
+import 'package:livestock/core/data/model/equipment_model.dart';
 
 import '../../../../core/data/model/base_response.dart';
 import '../model/base_response_single.dart';
@@ -31,14 +32,10 @@ class MasterApi {
   }) async {
     final res = await dio.get(
       '/master/farm-location',
-      queryParameters: {
-        'page': page,
-        'per_page': perPage,
-        'search': search,
-      }..removeWhere((k, v) => v == null),
+      queryParameters: {'page': page, 'per_page': perPage, 'search': search}
+        ..removeWhere((k, v) => v == null),
     );
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -68,7 +65,6 @@ class MasterApi {
       }..removeWhere((k, v) => v == null),
     );
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -95,7 +91,6 @@ class MasterApi {
       }..removeWhere((k, v) => v == null),
     );
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -104,6 +99,23 @@ class MasterApi {
       );
     }
     return BaseResponse.fromJson(res.data, (json) => Customer.fromJson(json));
+  }
+
+  Future<Customer> createCustomer(Map<String, dynamic> data) async {
+    final res = await dio.post('/master/customer', data: data);
+
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+
+    if (res.data is Map && res.data['data'] != null) {
+      return Customer.fromJson(res.data['data']);
+    }
+    return Customer.fromJson(res.data);
   }
 
   Future<BaseResponse<AnimalProfile>> getAnimals(
@@ -130,7 +142,6 @@ class MasterApi {
       }..removeWhere((k, v) => v == null),
     );
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -151,11 +162,8 @@ class MasterApi {
   }) async {
     final res = await dio.get(
       '/master/feed-medicine',
-      queryParameters: {
-        'page': page,
-        'per_page': perPage,
-        'search': search,
-      }..removeWhere((k, v) => v == null),
+      queryParameters: {'page': page, 'per_page': perPage, 'search': search}
+        ..removeWhere((k, v) => v == null),
     );
 
     if (res.statusCode != 200) {
@@ -171,10 +179,26 @@ class MasterApi {
     );
   }
 
+  Future<FeedMedicine> createFeedMedicine(Map<String, dynamic> data) async {
+    final res = await dio.post('/master/feed-medicine', data: data);
+
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+
+    if (res.data is Map && res.data['data'] != null) {
+      return FeedMedicine.fromJson(res.data['data']);
+    }
+    return FeedMedicine.fromJson(res.data);
+  }
+
   Future<List<Province>> getProvinces() async {
     final res = await dio.get('/transaction/list-provinces');
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -191,7 +215,6 @@ class MasterApi {
   Future<List<City>> getCities(String param) async {
     final res = await dio.get('/transaction/list-cities/$param');
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -208,7 +231,6 @@ class MasterApi {
   Future<List<District>> getDistricts(String param) async {
     final res = await dio.get('/transaction/list-districts/$param');
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -225,7 +247,6 @@ class MasterApi {
   Future<List<Village>> getVillages(String param) async {
     final res = await dio.get('/transaction/list-villages/$param');
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -246,14 +267,10 @@ class MasterApi {
   }) async {
     final res = await dio.get(
       '/master/animal-group',
-      queryParameters: {
-        'page': page,
-        'per_page': perPage,
-        'search': search,
-      }..removeWhere((k, v) => v == null),
+      queryParameters: {'page': page, 'per_page': perPage, 'search': search}
+        ..removeWhere((k, v) => v == null),
     );
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -267,23 +284,38 @@ class MasterApi {
     );
   }
 
+  String? _normalizeSupplierType(String? type) {
+    if (type == null || type.isEmpty) return null;
+    final t = type.toLowerCase();
+    if (t.contains('hewan') || t.contains('animal')) return 'Hewan';
+    if (t.contains('pakan') || t.contains('feed')) return 'Pakan';
+    if (t.contains('obat') || t.contains('med')) return 'Obat';
+    if (t.contains('lain') ||
+        t.contains('equip') ||
+        t.contains('peralatan') ||
+        t.contains('other')) {
+      return 'Lainnya';
+    }
+    return type;
+  }
+
   Future<BaseResponse<Supplier>> getSuppliers({
     String? type,
     int page = 1,
     int perPage = 10,
     String? search,
   }) async {
+    final normalizedType = _normalizeSupplierType(type);
     final res = await dio.get(
       '/master/supplier',
       queryParameters: {
-        'type': type,
+        'type': normalizedType,
         'page': page,
         'per_page': perPage,
         'search': search,
       }..removeWhere((k, v) => v == null || v == ''),
     );
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -291,13 +323,30 @@ class MasterApi {
         type: DioExceptionType.badResponse,
       );
     }
+
     return BaseResponse.fromJson(res.data, (json) => Supplier.fromJson(json));
+  }
+
+  Future<Supplier> createSupplier(Map<String, dynamic> data) async {
+    final res = await dio.post('/master/supplier', data: data);
+
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+
+    if (res.data is Map && res.data['data'] != null) {
+      return Supplier.fromJson(res.data['data']);
+    }
+    return Supplier.fromJson(res.data);
   }
 
   Future<BaseResponseSingle<AnimalProfile>> getAnimalDetail(String id) async {
     final res = await dio.get('/master/animal-profile/$id');
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -328,7 +377,6 @@ class MasterApi {
       }..removeWhere((k, v) => v == null),
     );
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -357,7 +405,6 @@ class MasterApi {
       queryParameters: query.isNotEmpty ? query : null,
     );
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -381,7 +428,6 @@ class MasterApi {
       queryParameters: {'city_id': cityId, 'farm_location_id': farmLocationId},
     );
 
-    
     if (res.statusCode != 200) {
       throw DioException(
         requestOptions: res.requestOptions,
@@ -392,6 +438,35 @@ class MasterApi {
     return BaseResponse.fromJson(
       res.data,
       (json) => ShippingCost.fromJson(json),
+    );
+  }
+
+  Future<BaseResponse<Equipment>> getEquipments({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
+    final queryParams = {
+      'page': page,
+      'per_page': perPage,
+      'search': search,
+    }..removeWhere((k, v) => v == null || v == '');
+
+    final res = await dio.get(
+      '/master/equipment-and-supplies',
+      queryParameters: queryParams,
+    );
+
+    if (res.statusCode != 200) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        type: DioExceptionType.badResponse,
+      );
+    }
+    return BaseResponse.fromJson(
+      res.data,
+      (json) => Equipment.fromJson(json),
     );
   }
 }

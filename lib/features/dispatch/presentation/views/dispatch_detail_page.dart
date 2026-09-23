@@ -43,9 +43,7 @@ class DispatchDetailPage extends ConsumerWidget {
           return Scaffold(
             backgroundColor: AppColors.greyBg,
             body: _body(context, detail),
-            bottomNavigationBar:
-                (detail.dispatchStatus == 'delivered' ||
-                    detail.dispatchStatus == 'in_transit')
+            bottomNavigationBar: (detail.dispatchStatus == 'delivered')
                 ? null
                 : Padding(
                     padding: const EdgeInsets.all(16),
@@ -97,11 +95,13 @@ class DispatchDetailPage extends ConsumerWidget {
           _infoItem(items),
           const SizedBox(height: 12),
           _summaryCard(
-            totalItem: items.length,
-            deliveryFee: double.parse(detail.shippingCostTotal),
-            downPayment: double.parse(detail.downPayment),
-            additionalFee: double.parse(detail.additionalCost),
-            total: double.parse(detail.shippingCostTotal),
+            totalItem: detail.computedTotalQuantity > 0
+                ? detail.computedTotalQuantity
+                : items.length,
+            deliveryFee: double.tryParse(detail.shippingCostTotal) ?? 0,
+            downPayment: double.tryParse(detail.downPayment) ?? 0,
+            additionalFee: double.tryParse(detail.additionalCost) ?? 0,
+            total: detail.remainingPayment,
           ),
         ],
       ),

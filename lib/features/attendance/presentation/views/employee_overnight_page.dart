@@ -365,6 +365,7 @@ class _EmployeeAttendancePageState
     final selectedDate = ref.read(attendanceDateProvider);
     final statuses = ref.read(attendanceStatusProvider);
     final farmId = ref.watch(userFarmProvider);
+    final userId = ref.read(userIdProvider);
 
     return {
       "trans_date": DateFormat(
@@ -372,7 +373,7 @@ class _EmployeeAttendancePageState
       ).format(selectedDate ?? DateTime.now()),
       "additional_information": noteCtrl.text,
       "farm_location_id": farmId,
-      "record_by": 1,
+      "record_by": userId,
       "type": "overnight",
       "details": employees.map((e) {
         final attendanceState = statuses[e.id] ??

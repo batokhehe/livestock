@@ -40,6 +40,10 @@ class UserRepository {
       final currentUser = await getUser();
       if (currentUser != null) {
         final updatedUser = currentUser.copyWith(
+          id: (json['id'] != null || json['user_id'] != null)
+              ? (UserModel.parseInt(json['id']) ??
+                  UserModel.parseInt(json['user_id']))
+              : currentUser.id,
           name: (json['name'] ?? currentUser.name).toString(),
           email: (json['email'] ?? currentUser.email).toString(),
           phone: (json['phone'] ?? currentUser.phone).toString(),

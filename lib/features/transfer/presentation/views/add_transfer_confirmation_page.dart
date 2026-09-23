@@ -20,10 +20,18 @@ class AddTransferConfirmationPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedDate = ref.watch(selectedTransferDateProvider);
-    final animal = ref.watch(selectedTransferAnimalProvider);
+    final selectedNotes = ref.watch(selectedTransferNotesProvider);
+    final selectedAnimals = ref.watch(selectedTransferAnimalsProvider);
     final toLocation = ref.watch(selectedTransferToLocationProvider);
     final toArea = ref.watch(selectedTransferToAreaProvider);
-    final shippingCost = ref.watch(transferDeliveryCostProvider);
+
+    final firstAnimal =
+        selectedAnimals.isNotEmpty ? selectedAnimals.first.animal : null;
+
+    final double totalShippingCost = selectedAnimals.fold<double>(
+      0,
+      (sum, item) => sum + (item.shippingCost ?? 0),
+    );
 
     return Scaffold(
       backgroundColor: AppColors.greyBg,
@@ -65,17 +73,52 @@ class AddTransferConfirmationPage extends ConsumerWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  formatDateTime(selectedDate),
-                                  style: AppTypography.smallBoldBlack.copyWith(
-                                    fontSize: 16,
-                                  ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      formatDateTime(selectedDate),
+                                      style: AppTypography.smallBoldBlack
+                                          .copyWith(fontSize: 16),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primaryShade,
+                                        borderRadius:
+                                            BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        "${selectedAnimals.length} Ekor",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(height: 4),
                                 const Text(
-                                  "Pemindahan Hewan",
+                                  "Pemindahan Batch Hewan",
                                   style: AppTypography.smallNormalGrey,
                                 ),
+                                if (selectedNotes.trim().isNotEmpty) ...[
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    "Catatan: $selectedNotes",
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.black,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -84,17 +127,69 @@ class AddTransferConfirmationPage extends ConsumerWidget {
                             thickness: 1,
                             color: AppColors.fieldBorder,
                           ),
-                          if (animal != null)
-                            Padding(
+                          ...selectedAnimals.asMap().entries.map((entry) {
+                            final idx = entry.key;
+                            final item = entry.value;
+                            final animal = item.animal;
+
+                            return Container(
                               padding: const EdgeInsets.all(16),
-                              child: ProductHeaderCard(
-                                title: animal.animalCode,
-                                subtitle:
-                                    "${animal.name} • ${animal.weight.floor()} kg",
-                                image: AppImages.icProduct,
-                                status: animal.available,
+                              decoration: BoxDecoration(
+                                border: idx < selectedAnimals.length - 1
+                                    ? const Border(
+                                        bottom: BorderSide(
+                                          color: AppColors.fieldBorder,
+                                        ),
+                                      )
+                                    : null,
                               ),
-                            ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ProductHeaderCard(
+                                    title: animal.animalCode,
+                                    subtitle:
+                                        "${animal.name} • ${animal.weight.floor()} kg",
+                                    image: AppImages.icProduct,
+                                    status: animal.available,
+                                  ),
+                                  if ((item.shippingCost != null &&
+                                          item.shippingCost! > 0) ||
+                                      item.notes.isNotEmpty) ...[
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        if (item.shippingCost != null &&
+                                            item.shippingCost! > 0)
+                                          Text(
+                                            "Biaya: Rp ${formatPrice(item.shippingCost!.toInt())}",
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
+                                        if (item.notes.isNotEmpty)
+                                          Expanded(
+                                            child: Text(
+                                              "Catatan: ${item.notes}",
+                                              textAlign: TextAlign.end,
+                                              style: const TextStyle(
+                                                fontSize: 11,
+                                                color: AppColors.grey,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            );
+                          }),
                         ],
                       ),
                     ),
@@ -115,8 +210,8 @@ class AddTransferConfirmationPage extends ConsumerWidget {
                           const SizedBox(height: 4),
                           InfoItemCard(
                             icon: AppImages.icHome,
-                            title: animal?.farmLocation?.name ?? "-",
-                            subtitle: animal?.farmArea?.name ?? "-",
+                            title: firstAnimal?.farmLocation?.name ?? "-",
+                            subtitle: firstAnimal?.farmArea?.name ?? "-",
                           ),
                           const SizedBox(height: 12),
                           const Text(
@@ -143,12 +238,12 @@ class AddTransferConfirmationPage extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            "Biaya Pengiriman",
+                            "Total Biaya Pengiriman",
                             style: AppTypography.smallNormalBlack,
                           ),
                           Text(
-                            shippingCost != null
-                                ? "Rp ${formatPrice(shippingCost.toInt())}"
+                            totalShippingCost > 0
+                                ? "Rp ${formatPrice(totalShippingCost.toInt())}"
                                 : "Rp 0",
                             style: AppTypography.mediumBoldPrimary,
                           ),
@@ -202,12 +297,12 @@ class _NextButtonState extends ConsumerState<_NextButton> {
       context.go('/transfer');
       SuccessNotification.show(
         title: 'Data berhasil disimpan',
-        subtitle: 'Pemindahan tercatat di sistem.',
+        subtitle: 'Pemindahan batch hewan tercatat di sistem.',
       );
     } else {
       final err = ref.read(submitTransferProvider).error;
       SuccessNotification.showError(
-        title: 'Gagal menyimpan Monitoring',
+        title: 'Gagal menyimpan Pemindahan',
         subtitle: err?.toString() ?? 'Terjadi kesalahan, coba lagi.',
       );
     }

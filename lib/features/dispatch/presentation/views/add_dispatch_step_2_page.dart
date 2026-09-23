@@ -182,11 +182,19 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Text(
+                      //   item.animalProfileName,
+                      //   style: AppTypography.smallBoldBlack,
+                      // ),
+                      // Text(item.orderId, style: AppTypography.smallNormalGrey),
                       Text(
-                        item.animalProfileName,
+                        item.animalProfileCode,
                         style: AppTypography.smallBoldBlack,
                       ),
-                      Text(item.orderId, style: AppTypography.smallNormalGrey),
+                      Text(
+                        item.recipientName,
+                        style: AppTypography.smallNormalGrey,
+                      ),
                     ],
                   ),
                 ),
@@ -416,7 +424,7 @@ class _AddDispatchStep2PageState extends ConsumerState<AddDispatchStep2Page> {
           children: [
             ProductHeaderCard(
               title: "Rp. ${formatPrice(dispatch.remainingPayment)}",
-              subtitle: "Sisa pembayaran",
+              subtitle: "Sisa pembayaran pengiriman",
               image: AppImages.icMoneyTime,
             ),
           ],

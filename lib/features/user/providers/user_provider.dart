@@ -7,10 +7,10 @@ final userProvider = FutureProvider<UserModel?>((ref) async {
   return ref.read(userRepositoryProvider).getUser();
 });
 
-// final userIdProvider = Provider<int>((ref) {
-//   final user = ref.watch(userProvider).value;
-//   return user?.id ?? "..";
-// });
+final userIdProvider = Provider<int>((ref) {
+  final user = ref.watch(userProvider).value;
+  return user?.id ?? 0;
+});
 
 final userNameProvider = Provider<String>((ref) {
   final user = ref.watch(userProvider).value;

@@ -7,7 +7,8 @@ import '../theme/AppColors.dart';
 import '../theme/AppTypography.dart';
 
 class DistrictBottomSheet extends ConsumerStatefulWidget {
-  const DistrictBottomSheet({super.key, required String param});
+  final String param;
+  const DistrictBottomSheet({super.key, required this.param});
 
   @override
   ConsumerState<DistrictBottomSheet> createState() =>
@@ -22,7 +23,9 @@ class _DistrictBottomSheetState extends ConsumerState<DistrictBottomSheet> {
     super.initState();
     searchCtrl = TextEditingController();
 
-    ref.read(districtSearchProvider.notifier).state = '';
+    Future.microtask(() {
+      ref.read(districtSearchProvider.notifier).state = '';
+    });
   }
 
   @override
@@ -33,7 +36,7 @@ class _DistrictBottomSheetState extends ConsumerState<DistrictBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final dataAsync = ref.watch(districtListProvider);
+    final dataAsync = ref.watch(districtListProvider(widget.param));
     final selectedItem = ref.watch(selectedDistrictProvider);
     final keyword = ref.watch(districtSearchProvider);
 
@@ -41,7 +44,7 @@ class _DistrictBottomSheetState extends ConsumerState<DistrictBottomSheet> {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => Center(
         child: Text(
-          "Gagal memuat data kota\n$error",
+          "Gagal memuat data kecamatan\n$error",
           textAlign: TextAlign.center,
           style: AppTypography.smallNormalGrey,
         ),
@@ -59,7 +62,7 @@ class _DistrictBottomSheetState extends ConsumerState<DistrictBottomSheet> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Kota", style: AppTypography.mediumBoldBlack),
+                  const Text("Kecamatan", style: AppTypography.mediumBoldBlack),
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
@@ -69,7 +72,7 @@ class _DistrictBottomSheetState extends ConsumerState<DistrictBottomSheet> {
 
               // ===== SEARCH =====
               SearchBarCard(
-                hint: "Cari kota",
+                hint: "Cari kecamatan",
                 controller: searchCtrl,
                 onChanged: (value) {
                   ref.read(districtSearchProvider.notifier).state = value;
@@ -85,9 +88,9 @@ class _DistrictBottomSheetState extends ConsumerState<DistrictBottomSheet> {
               // ===== LIST =====
               Expanded(
                 child: filtered.isEmpty
-                    ? Center(
+                    ? const Center(
                         child: Text(
-                          "kota tidak ditemukan",
+                          "Kecamatan tidak ditemukan",
                           style: AppTypography.smallNormalGrey,
                         ),
                       )
@@ -100,9 +103,8 @@ class _DistrictBottomSheetState extends ConsumerState<DistrictBottomSheet> {
                           return GestureDetector(
                             onTap: () {
                               ref
-                                      .read(selectedDistrictProvider.notifier)
-                                      .state =
-                                  e;
+                                  .read(selectedDistrictProvider.notifier)
+                                  .state = e;
                             },
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 10),

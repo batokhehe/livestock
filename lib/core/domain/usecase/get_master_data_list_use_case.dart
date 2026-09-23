@@ -14,6 +14,7 @@ import '../../../features/dispatch/data/model/sales_order_dispatch_model.dart';
 import '../../data/model/base_response.dart';
 import '../../data/model/city_model.dart';
 import '../../data/model/supplier_model.dart';
+import '../../data/model/equipment_model.dart';
 
 class GetMasterDataListUseCase {
   final MasterRepository repository;
@@ -72,6 +73,10 @@ class GetMasterDataListUseCase {
     );
   }
 
+  Future<Customer> createCustomer(Map<String, dynamic> data) {
+    return repository.createCustomer(data);
+  }
+
   Future<BaseResponse<AnimalProfile>> callAnimals({
     int? animalClassPriceId,
     String? search,
@@ -126,6 +131,10 @@ class GetMasterDataListUseCase {
     );
   }
 
+  Future<FeedMedicine> createFeedMedicine(Map<String, dynamic> data) {
+    return repository.createFeedMedicine(data);
+  }
+
   Future<List<AnimalGroup>> callAnimalGroups() {
     return repository.getAnimalGroups();
   }
@@ -160,6 +169,10 @@ class GetMasterDataListUseCase {
     );
   }
 
+  Future<Supplier> createSupplier(Map<String, dynamic> data) {
+    return repository.createSupplier(data);
+  }
+
   Future<AnimalProfile> callAnimalDetail(String id) {
     return repository.getAnimalDetail(id);
   }
@@ -183,5 +196,17 @@ class GetMasterDataListUseCase {
     String search,
   ) {
     return repository.getSoDispatch(paymentStatus, search);
+  }
+
+  Future<BaseResponse<Equipment>> callEquipmentsPaginated({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) {
+    return repository.getEquipmentsPaginated(
+      page: page,
+      perPage: perPage,
+      search: search,
+    );
   }
 }

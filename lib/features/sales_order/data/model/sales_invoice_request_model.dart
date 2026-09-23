@@ -26,7 +26,7 @@ class SalesInvoiceRequest {
     this.amount,
     this.imageFile,
     this.notes,
-    this.setoranStatus = true,
+    this.setoranStatus = false,
   });
 
   SalesInvoiceRequest copyWith({

@@ -124,9 +124,9 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
           FilterChips(
             items: [
               FilterChipItem('Pakan', ItemFilter.feed),
-              FilterChipItem('Obat', ItemFilter.medicine),
+              FilterChipItem('Kesehatan', ItemFilter.medicine),
               FilterChipItem('Bobot', ItemFilter.weight),
-              FilterChipItem('Kesehatan', ItemFilter.health),
+              FilterChipItem('Pengobatan', ItemFilter.health),
             ],
           ),
           const SizedBox(height: 4),

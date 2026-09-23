@@ -119,7 +119,7 @@ class _CustomBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const enabledIndices = {0, 3};
+    const enabledIndices = {0, 1, 3};
     final List<Widget> items = List.generate(_navItems.length, (index) {
       final item = _navItems[index];
       final isEnabled = enabledIndices.contains(item.pageIndex);

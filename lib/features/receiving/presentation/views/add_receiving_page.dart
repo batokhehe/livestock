@@ -17,6 +17,7 @@ import '../../../../core/widgets/custom_date_picker_sheet.dart';
 import '../../../../core/widgets/section_card.dart';
 import '../../../../core/widgets/select_field.dart';
 import '../../receiving_provider.dart';
+import '../notifier/receiving_po_notifier.dart';
 import '../widgets/select_receiving_item_sheet.dart';
 
 class AddReceivingPage extends ConsumerStatefulWidget {
@@ -38,6 +39,8 @@ class _AddReceivingPageState extends ConsumerState<AddReceivingPage> {
       ref.read(selectedFarmAreaProvider.notifier).state = null;
       ref.read(animalFarmLocationIdProvider.notifier).state = null;
       ref.read(animalFarmAreaIdProvider.notifier).state = null;
+      ref.read(receivingFeedTypeProvider.notifier).state = null;
+      ref.read(receivingEquipmentTypeProvider.notifier).state = null;
 
       ref.read(receivingFormProvider).setRemarks('');
     });
@@ -342,6 +345,7 @@ class _NextButton extends ConsumerWidget {
             onPressed: isValid
                 ? () {
                     ref.read(receivingPoSearchProvider.notifier).state = '';
+                    ref.invalidate(paginatedReceivingPoProvider);
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,

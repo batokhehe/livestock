@@ -10,6 +10,7 @@ import 'data/model/transfer_list_model.dart';
 import 'data/model/transfer_detail_model.dart';
 import 'data/model/stock_transfer_item_model.dart';
 import 'data/model/stock_transfer_detail_model.dart';
+import 'data/model/batch_animal_transfer_model.dart';
 
 final transferSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
@@ -59,7 +60,7 @@ class TransferListNotifier extends AutoDisposeAsyncNotifier<BaseResponse<Transfe
     if (current == null || _loadingMore) return;
 
     final total = current.total ?? current.totalRows ?? 0;
-    if (current.data.length >= total) return;
+    if (total > 0 && current.data.length >= total) return;
 
     _loadingMore = true;
     _page++;
@@ -86,17 +87,22 @@ class TransferListNotifier extends AutoDisposeAsyncNotifier<BaseResponse<Transfe
         all: false,
       );
 
+      if (result.data.isEmpty) {
+        _page--;
+        return;
+      }
+
       state = AsyncData(
         BaseResponse(
           status: result.status,
           message: result.message,
-          total: result.total ?? result.totalRows,
-          totalRows: result.totalRows ?? result.total,
+          total: result.total ?? result.totalRows ?? (current.data.length + result.data.length),
+          totalRows: result.totalRows ?? result.total ?? (current.data.length + result.data.length),
           data: [...current.data, ...result.data],
         ),
       );
-    } catch (e, st) {
-      state = AsyncError(e, st);
+    } catch (e) {
+      _page--;
     } finally {
       _loadingMore = false;
     }
@@ -171,6 +177,8 @@ final transferAnimalProfilesProvider = AsyncNotifierProvider.autoDispose<
 );
 
 final selectedTransferDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
+final selectedTransferNotesProvider = StateProvider<String>((ref) => '');
+final selectedTransferAnimalsProvider = StateProvider<List<BatchAnimalTransferItem>>((ref) => []);
 final selectedTransferAnimalProvider = StateProvider<AnimalProfile?>((ref) => null);
 
 final selectedTransferToLocationProvider = StateProvider<FarmLocation?>((ref) => null);
@@ -186,13 +194,13 @@ class SubmitTransferNotifier extends AutoDisposeAsyncNotifier<void> {
     try {
       final api = ref.read(transferApiProvider);
       final date = ref.read(selectedTransferDateProvider);
-      final animal = ref.read(selectedTransferAnimalProvider);
+      final items = ref.read(selectedTransferAnimalsProvider);
       final toLocation = ref.read(selectedTransferToLocationProvider);
       final toArea = ref.read(selectedTransferToAreaProvider);
-      final shippingCost = ref.read(transferDeliveryCostProvider);
+      final notes = ref.read(selectedTransferNotesProvider);
 
-      if (animal == null) {
-        throw Exception("Hewan harus dipilih");
+      if (items.isEmpty) {
+        throw Exception("Minimal satu hewan harus dipilih");
       }
       if (toLocation == null) {
         throw Exception("Lokasi tujuan harus dipilih");
@@ -200,10 +208,15 @@ class SubmitTransferNotifier extends AutoDisposeAsyncNotifier<void> {
       if (toArea == null) {
         throw Exception("Area tujuan harus dipilih");
       }
-      if (animal.farmLocation == null) {
+
+      final firstAnimal = items.first.animal;
+      final fromLocationId = firstAnimal.farmLocation?.id;
+      final fromAreaId = firstAnimal.farmArea?.id;
+
+      if (fromLocationId == null) {
         throw Exception("Lokasi asal hewan tidak ditemukan");
       }
-      if (animal.farmArea == null) {
+      if (fromAreaId == null) {
         throw Exception("Area asal hewan tidak ditemukan");
       }
 
@@ -211,14 +224,16 @@ class SubmitTransferNotifier extends AutoDisposeAsyncNotifier<void> {
       final formattedDate =
           "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
 
-      await api.createAnimalTransfer(
+      final details = items.map((e) => e.toJson()).toList();
+
+      await api.createBatchAnimalTransfer(
         transferDate: formattedDate,
-        fromFarmLocationId: animal.farmLocation!.id,
+        fromFarmLocationId: fromLocationId,
         toFarmLocationId: toLocation.id,
-        fromFarmAreaId: animal.farmArea!.id,
+        fromFarmAreaId: fromAreaId,
         toFarmAreaId: toArea.id,
-        animalProfileId: animal.id,
-        shippingCost: shippingCost,
+        notes: notes.trim().isNotEmpty ? notes.trim() : null,
+        details: details,
       );
 
       state = const AsyncData(null);
@@ -230,7 +245,9 @@ class SubmitTransferNotifier extends AutoDisposeAsyncNotifier<void> {
   }
 
   void reset() {
+    ref.invalidate(selectedTransferAnimalsProvider);
     ref.invalidate(selectedTransferAnimalProvider);
+    ref.invalidate(selectedTransferNotesProvider);
     ref.invalidate(selectedTransferToLocationProvider);
     ref.invalidate(selectedTransferToAreaProvider);
     ref.invalidate(transferDeliveryCostProvider);
