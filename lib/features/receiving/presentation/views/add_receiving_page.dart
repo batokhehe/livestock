@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/core/theme/AppImages.dart';
-import 'package:livestock/core/widgets/farm_area_bottom_sheet.dart';
 import 'package:livestock/core/widgets/farm_location_paginated_bottom_sheet.dart';
 import 'package:livestock/features/receiving/presentation/widgets/farm_area_paginated_bottom_sheet.dart';
 import 'package:livestock/core/widgets/step_info_card.dart';
@@ -295,6 +294,7 @@ class _FarmInfoSection extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       builder: (_) => FarmAreaPaginatedBottomSheet(
         initialSelectedId: ref.read(selectedFarmAreaProvider)?.id,
+        farmLocationId: ref.read(selectedFarmLocationProvider)?.id,
       ),
     );
 

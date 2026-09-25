@@ -9,6 +9,7 @@ import '../../../../core/theme/AppTypography.dart';
 
 class FarmAreaPaginatedBottomSheet extends ConsumerStatefulWidget {
   final int? initialSelectedId;
+  final int? farmLocationId;
   final String title;
   final String description;
   final bool showSearch;
@@ -16,6 +17,7 @@ class FarmAreaPaginatedBottomSheet extends ConsumerStatefulWidget {
   const FarmAreaPaginatedBottomSheet({
     super.key,
     this.initialSelectedId,
+    this.farmLocationId,
     this.title = "Pilih Area Peternakan",
     this.description = "Silakan pilih salah satu area peternakan.",
     this.showSearch = true,
@@ -39,7 +41,11 @@ class _FarmAreaPaginatedBottomSheetState
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
-        ref.read(paginatedFarmAreaProvider.notifier).loadMore();
+        final farmLocationId =
+            widget.farmLocationId ?? ref.read(animalFarmLocationIdProvider);
+        ref
+            .read(paginatedFarmAreaProvider(farmLocationId).notifier)
+            .loadMore();
       }
     });
 
@@ -58,7 +64,9 @@ class _FarmAreaPaginatedBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final asyncData = ref.watch(paginatedFarmAreaProvider);
+    final farmLocationId =
+        widget.farmLocationId ?? ref.watch(animalFarmLocationIdProvider);
+    final asyncData = ref.watch(paginatedFarmAreaProvider(farmLocationId));
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
@@ -177,7 +185,9 @@ class _FarmAreaPaginatedBottomSheetState
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withOpacity(0.08) : Colors.white,
+          color: isSelected
+              ? AppColors.primary.withOpacity(0.08)
+              : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.fieldBorder,

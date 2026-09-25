@@ -175,6 +175,7 @@ class _FarmInfoSection extends ConsumerWidget {
   }
 
   void _showFarmAreaPicker(BuildContext context, WidgetRef ref) async {
+    final selectedFarm = ref.read(editSelectedMedicineMonitoringFarmProvider);
     final result = await showModalBottomSheet<FarmArea?>(
       context: context,
       isScrollControlled: true,
@@ -183,6 +184,7 @@ class _FarmInfoSection extends ConsumerWidget {
         initialSelectedId: ref
             .read(editSelectedMedicineMonitoringAreaProvider)
             ?.id,
+        farmLocationId: selectedFarm?.id,
       ),
     );
     if (result != null) {

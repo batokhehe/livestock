@@ -51,6 +51,7 @@ class _AddTransferStep2PageState extends ConsumerState<AddTransferStep2Page> {
       backgroundColor: Colors.transparent,
       builder: (_) => FarmAreaPaginatedBottomSheet(
         initialSelectedId: ref.read(selectedTransferToAreaProvider)?.id,
+        farmLocationId: ref.read(selectedTransferToLocationProvider)?.id,
       ),
     );
 

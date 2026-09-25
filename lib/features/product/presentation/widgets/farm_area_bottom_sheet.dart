@@ -19,7 +19,8 @@ class _FarmAreaBottomSheetState extends ConsumerState<FarmAreaBottomSheet> {
     super.initState();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-        ref.read(paginatedFarmAreaProvider.notifier).loadMore();
+        final farmLocationId = ref.read(animalFarmLocationIdProvider);
+        ref.read(paginatedFarmAreaProvider(farmLocationId).notifier).loadMore();
       }
     });
   }
@@ -32,7 +33,8 @@ class _FarmAreaBottomSheetState extends ConsumerState<FarmAreaBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final asyncData = ref.watch(paginatedFarmAreaProvider);
+    final farmLocationId = ref.watch(animalFarmLocationIdProvider);
+    final asyncData = ref.watch(paginatedFarmAreaProvider(farmLocationId));
     final selectedId = ref.watch(animalFarmAreaIdProvider);
 
     return Container(

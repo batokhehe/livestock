@@ -141,12 +141,14 @@ class _FarmInfoSection extends ConsumerWidget {
   }
 
   void _showFarmAreaPicker(BuildContext context, WidgetRef ref) async {
+    final selectedFarm = ref.read(selectedMonitoringFarmProvider);
     final result = await showModalBottomSheet<FarmArea?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => FarmAreaPaginatedBottomSheet(
         initialSelectedId: ref.read(selectedMonitoringAreaProvider)?.id,
+        farmLocationId: selectedFarm?.id,
       ),
     );
     if (result != null) {
