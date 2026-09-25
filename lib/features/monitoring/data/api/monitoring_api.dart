@@ -135,7 +135,7 @@ class MonitoringApi {
     required int farmAreaId,
     required String uom,
     required int totalAnimal,
-    required int totalFeed,
+    required num totalFeed,
     required int totalCost,
     required List<Map<String, dynamic>> items,
     String status = 'confirmed',

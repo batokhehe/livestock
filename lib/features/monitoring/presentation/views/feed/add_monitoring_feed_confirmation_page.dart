@@ -154,6 +154,7 @@ class AddMonitoringFeedConfirmationPage extends ConsumerWidget {
 
     final satuan = ref.watch(monitoringFeedSatuanProvider);
     final qty = item.quantity ?? 0;
+    final qtyStr = qty % 1 == 0 ? qty.toInt().toString() : qty.toString();
     final ratio = availableCount > 0 ? (qty / availableCount) : 0.0;
     final ratioStr = ratio == ratio.toInt()
         ? ratio.toInt().toString()
@@ -205,7 +206,7 @@ class AddMonitoringFeedConfirmationPage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "$qty ${satuan.isNotEmpty ? satuan : ''}".trim(),
+                    "$qtyStr ${satuan.isNotEmpty ? satuan : ''}".trim(),
                     style: AppTypography.smallBoldBlack,
                   ),
                   const Text("Kuantitas", style: AppTypography.smallNormalGrey),
@@ -426,18 +427,18 @@ class _NextButtonState extends ConsumerState<_NextButton> {
                           addedMonitoringFeedItemsProvider,
                         );
 
-                        int totalFeed = 0;
+                        num totalFeed = 0;
                         int totalCost = 0;
                         final payloadItems = <Map<String, dynamic>>[];
 
                         for (final item in items) {
                           final qty = item.quantity ?? 0;
                           final price = item.price ?? 0;
-                          totalFeed += qty.toInt();
-                          totalCost += (qty * price).toInt();
+                          totalFeed += qty;
+                          totalCost += (qty * price).round();
                           payloadItems.add({
                             "feed_medicine_code": item.code ?? "",
-                            "quantity": qty.toInt(),
+                            "quantity": qty % 1 == 0 ? qty.toInt() : qty,
                             "uom": item.unit ?? "",
                             "unit_price": price.toInt(),
                           });

@@ -263,7 +263,9 @@ class _AddItemMedicineBottomSheetState
             SelectField(
               label: "Obat",
               hint: selectedObat?.name ?? "Pilih obat",
-              style: selectedObat != null ? AppTypography.smallNormalBlack : null,
+              style: selectedObat != null
+                  ? AppTypography.smallNormalBlack
+                  : null,
               icon: AppImages.icProduct,
               isMandatoryField: true,
               onTap: _openObatSheet,
@@ -349,8 +351,17 @@ class _AddItemMedicineBottomSheetState
               label: "Kuantitas",
               hint: "Kuantitas",
               controller: qtyCtrl,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                TextInputFormatter.withFunction((oldValue, newValue) {
+                  final text = newValue.text;
+                  if (text.isEmpty) return newValue;
+                  return RegExp(r'^\d*([.,]\d*)?$').hasMatch(text)
+                      ? newValue
+                      : oldValue;
+                }),
+              ],
             ),
             TextFieldWithInnerCounter(
               label: "Catatan",
@@ -377,6 +388,9 @@ class _AddItemMedicineBottomSheetState
                 ),
                 onPressed: _isValid
                     ? () {
+                        final parsedQty = double.tryParse(
+                          qtyCtrl.text.replaceAll(',', '.'),
+                        );
                         Navigator.pop(
                           context,
                           MonitoringItem(
@@ -386,16 +400,19 @@ class _AddItemMedicineBottomSheetState
                                 ? selectedObat!.uom
                                 : "Botol",
                             price: selectedObat?.price,
-                            quantity: double.tryParse(
-                              qtyCtrl.text.replaceAll(',', '.'),
-                            ),
+                            quantity: parsedQty != null && parsedQty % 1 == 0
+                                ? parsedQty.toInt()
+                                : parsedQty,
                             note: noteCtrl.text.isEmpty ? null : noteCtrl.text,
                             stock: selectedObat?.quantity.toString() ?? "0",
                           ),
                         );
                       }
                     : null,
-                child: const Text("Tambah Item", style: AppTypography.mediumBoldWhite),
+                child: const Text(
+                  "Tambah Item",
+                  style: AppTypography.mediumBoldWhite,
+                ),
               ),
             ),
           ],

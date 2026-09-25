@@ -70,7 +70,7 @@ class MonitoringMedicineItemCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              "${item.quantity} Obat",
+              "${item.quantity != null && item.quantity! % 1 == 0 ? item.quantity!.toInt() : (item.quantity ?? 0)} Obat",
               style: AppTypography.xSmallNormalPrimary,
             ),
           ),
