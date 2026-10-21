@@ -364,6 +364,9 @@ class MasterApi {
   Future<BaseResponse<AnimalClass>> getAnimalClasses({
     String? search,
     String? status,
+    String? available,
+    int? farmLocationId,
+    int? farmAreaId,
     required int page,
     required int perPage,
   }) async {
@@ -372,6 +375,9 @@ class MasterApi {
       queryParameters: {
         'search': (search?.isNotEmpty ?? false) ? search : null,
         'status': (status?.isNotEmpty ?? false) ? status : null,
+        'available': (available?.isNotEmpty ?? false) ? available : null,
+        'farm_location_id': farmLocationId,
+        'farm_area_id': farmAreaId,
         'page': page,
         'per_page': perPage,
       }..removeWhere((k, v) => v == null),

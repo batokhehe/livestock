@@ -38,6 +38,9 @@ class ProductNotifier extends AutoDisposeAsyncNotifier<BaseResponse<dynamic>> {
       return await useCase.callAnimalClass(
         search: search,
         status: ref.watch(animalClassStatusProvider),
+        available: available.isNotEmpty ? available : null,
+        farmLocationId: farmLocationId,
+        farmAreaId: farmAreaId,
         page: 1,
         perPage: 1000,
       );
@@ -90,14 +93,20 @@ class ProductNotifier extends AutoDisposeAsyncNotifier<BaseResponse<dynamic>> {
         ),
       );
     } else {
-      final keyword = ref.read(animalClassSearchProvider);
+      final keyword = ref.read(animalSearchProvider);
       final status = ref.read(animalClassStatusProvider);
+      final available = ref.read(animalAvailableProvider);
+      final farmLocationId = ref.read(animalFarmLocationIdProvider);
+      final farmAreaId = ref.read(animalFarmAreaIdProvider);
 
       final search = keyword.length >= 2 ? keyword : null;
 
       final result = await useCase.callAnimalClass(
         search: search,
         status: status.isNotEmpty ? status : null,
+        available: available.isNotEmpty ? available : null,
+        farmLocationId: farmLocationId,
+        farmAreaId: farmAreaId,
         page: _page,
         perPage: 10,
       );

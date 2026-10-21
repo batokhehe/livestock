@@ -180,12 +180,18 @@ class GetMasterDataListUseCase {
   Future<BaseResponse<AnimalClass>> callAnimalClass({
     String? search,
     String? status,
+    String? available,
+    int? farmLocationId,
+    int? farmAreaId,
     required int page,
     required int perPage,
   }) {
     return repository.getAnimalClass(
       search: search,
       status: status,
+      available: available,
+      farmLocationId: farmLocationId,
+      farmAreaId: farmAreaId,
       page: page,
       perPage: perPage,
     );

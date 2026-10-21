@@ -188,12 +188,18 @@ class MasterRepository {
   Future<BaseResponse<AnimalClass>> getAnimalClass({
     String? search,
     String? status,
+    String? available,
+    int? farmLocationId,
+    int? farmAreaId,
     required int page,
     required int perPage,
   }) async {
     return await api.getAnimalClasses(
       search: search,
       status: status,
+      available: available,
+      farmLocationId: farmLocationId,
+      farmAreaId: farmAreaId,
       page: page,
       perPage: perPage,
     );

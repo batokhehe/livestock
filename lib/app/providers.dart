@@ -266,11 +266,17 @@ final selectedAnimalClassPriceIdProvider = StateProvider<int?>((ref) => null);
 final animalListByClassProvider =
     FutureProvider.autoDispose<BaseResponse<AnimalProfile>>((ref) async {
       final animalClassPriceId = ref.watch(selectedAnimalClassPriceIdProvider);
+      final available = ref.watch(animalAvailableProvider);
+      final farmLocationId = ref.watch(animalFarmLocationIdProvider);
+      final farmAreaId = ref.watch(animalFarmAreaIdProvider);
 
       return ref
           .read(getMasterDataListUseCaseProvider)
           .callAnimals(
             animalClassPriceId: animalClassPriceId,
+            available: available.isNotEmpty ? available : null,
+            farmLocationId: farmLocationId,
+            farmAreaId: farmAreaId,
             page: 1,
             perPage: 1000,
           );
