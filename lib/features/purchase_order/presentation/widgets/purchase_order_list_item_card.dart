@@ -15,7 +15,7 @@ class PurchaseOrderAnimalCard extends StatelessWidget {
       item: item,
       typeLabel: 'hewan',
       tags: [
-        InfoTag(label: item.supplierName.toString()),
+        InfoTag(label: item.supplierName ?? '-'),
       ],
     );
   }
@@ -31,7 +31,7 @@ class PurchaseOrderFeedCard extends StatelessWidget {
       item: item,
       typeLabel: 'pakan',
       tags: [
-        InfoTag(label: item.supplierName.toString()),
+        InfoTag(label: item.supplierName ?? '-'),
       ],
     );
   }
@@ -47,7 +47,7 @@ class PurchaseOrderEquipmentCard extends StatelessWidget {
       item: item,
       typeLabel: 'peralatan',
       tags: [
-        InfoTag(label: item.supplierName.toString()),
+        InfoTag(label: item.supplierName ?? '-'),
       ],
     );
   }
@@ -90,6 +90,14 @@ class _BasePurchaseOrderCard extends StatelessWidget {
         statusText = '-';
     }
 
+    final bool isPaid = item.isPaid;
+    final String paymentStatusText = item.paymentStatusLabel;
+    final Color paymentStatusColor =
+        isPaid ? AppColors.emerald700 : AppColors.danger;
+    final Color paymentStatusBg = isPaid
+        ? AppColors.bgColorShadeSuccessFull
+        : AppColors.bgColorShadeError;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
@@ -108,10 +116,14 @@ class _BasePurchaseOrderCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      item.purchOrderNo,
-                      style: AppTypography.smallBoldBlack,
+                    Expanded(
+                      child: Text(
+                        item.purchOrderNo,
+                        style: AppTypography.smallBoldBlack,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -151,8 +163,34 @@ class _BasePurchaseOrderCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: tags,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      ...tags.map((tag) => Flexible(child: tag)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: paymentStatusBg,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    paymentStatusText,
+                    style: AppTypography.xSmallNormalPrimary.copyWith(
+                      color: paymentStatusColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
