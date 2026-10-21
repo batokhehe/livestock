@@ -16,7 +16,6 @@ import 'package:livestock/features/monitoring/presentation/widgets/feed_monitori
 import 'package:livestock/features/monitoring/presentation/widgets/health_monitoring_card.dart';
 import 'package:livestock/features/monitoring/data/animal_health_check_model.dart';
 import 'package:livestock/features/monitoring/presentation/widgets/animal_health_check_card.dart';
-import '../widgets/monitoring_type_bottom_sheet.dart';
 
 import '../../../../core/constant/enum.dart';
 import '../../../../core/data/model/filter_chip_item_model.dart';
@@ -131,7 +130,7 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
           ),
           const SizedBox(height: 4),
           Expanded(child: _buildList(filter)),
-          _BottomButton(),
+          _BottomButton(filter: filter),
         ],
       ),
     );
@@ -577,6 +576,10 @@ class _AnimalHealthCheckDateGroup extends StatelessWidget {
 }
 
 class _BottomButton extends StatelessWidget {
+  final ItemFilter filter;
+
+  const _BottomButton({required this.filter});
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -593,12 +596,23 @@ class _BottomButton extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                backgroundColor: Colors.transparent,
-                isScrollControlled: false,
-                builder: (_) => const MonitoringTypeBottomSheet(),
-              );
+              final String type;
+              switch (filter) {
+                case ItemFilter.weight:
+                  type = 'weight';
+                  break;
+                case ItemFilter.medicine:
+                  type = 'medicine';
+                  break;
+                case ItemFilter.health:
+                  type = 'health';
+                  break;
+                case ItemFilter.feed:
+                default:
+                  type = 'feed';
+                  break;
+              }
+              context.push('/monitoring/add?type=$type');
             },
             child: const Text(
               "Tambah Monitoring",
