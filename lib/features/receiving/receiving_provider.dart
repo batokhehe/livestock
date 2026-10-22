@@ -81,6 +81,10 @@ class ReceivingProvider extends ChangeNotifier {
   void setItems(List<ReceivingItem> data, {int? animalGroupId}) {
     items = data.map((e) {
       e.animalGroupId = animalGroupId ?? 0;
+      final defaultQty = (e.qtyRemaining != null && e.qtyRemaining!.isNotEmpty)
+          ? e.qtyRemaining!
+          : (e.purchQty ?? '');
+      e.qty = defaultQty.replaceAll(RegExp(r'\.0+$'), '');
       return e;
     }).toList();
 
