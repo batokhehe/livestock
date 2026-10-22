@@ -141,4 +141,17 @@ class SalesOrderItem {
 
   /// helper UI
   double get subTotal => subtotal;
+
+  /// Harga jual kotor per item (sebelum diskon)
+  double get grossPrice {
+    final price = priceUnit > 0 ? priceUnit : unitPrice;
+    final q = qty > 0 ? qty : 1.0;
+    return price * q;
+  }
+
+  /// Total bersih per item (setelah diskon)
+  double get netTotal {
+    final total = grossPrice - discount;
+    return total > 0 ? total : 0;
+  }
 }

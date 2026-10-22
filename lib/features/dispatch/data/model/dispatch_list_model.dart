@@ -18,6 +18,7 @@ class DispatchList {
   final String shippingCostTotal;
   final String downPayment;
   final String additionalCost;
+  final String amountRemaining;
   final List<DispatchLine> items;
 
   DispatchList({
@@ -39,11 +40,34 @@ class DispatchList {
     required this.items,
     required this.downPayment,
     required this.additionalCost,
+    this.amountRemaining = '',
   });
+
+  int get computedTotalQuantity {
+    if (items.isNotEmpty) {
+      final sum = items.fold<double>(
+        0,
+        (prev, el) => prev + (double.tryParse(el.quantity) ?? 0),
+      );
+      if (sum > 0) return sum.toInt();
+    }
+    return (double.tryParse(totalQuantity) ?? 0).toInt();
+  }
+
+  double get remainingPayment {
+    final parsed = double.tryParse(amountRemaining);
+    if (parsed != null && amountRemaining.isNotEmpty) {
+      return parsed;
+    }
+    final shipping = double.tryParse(shippingCostTotal) ?? 0;
+    final additional = double.tryParse(additionalCost) ?? 0;
+    final dp = double.tryParse(downPayment) ?? 0;
+    return shipping + additional - dp;
+  }
 
   factory DispatchList.fromJson(Map<String, dynamic> json) {
     return DispatchList(
-      id: json['id'],
+      id: json['id'] ?? 0,
       dispatchDate: json['dispatch_date'] ?? '',
       stockCode: json['stock_code'] ?? '',
       deliveryAddress: json['delivery_address'] ?? '',
@@ -55,11 +79,16 @@ class DispatchList {
       createdBy: json['created_by'] ?? '',
       farmLocationName: json['farm_location_name'] ?? '',
       customerName: json['customer_name'] ?? '',
-      totalQuantity: json['total_quantity'] ?? '',
-      shippingCost: json['shipping_cost'] ?? '',
-      shippingCostTotal: json['shipping_cost_total'] ?? '',
-      downPayment: json['down_payment'] ?? '',
-      additionalCost: json['additional_cost'] ?? '',
+      totalQuantity: json['total_quantity']?.toString() ?? '',
+      shippingCost: json['shipping_cost']?.toString() ?? '',
+      shippingCostTotal: json['shipping_cost_total']?.toString() ?? '',
+      downPayment: json['down_payment']?.toString() ?? '',
+      additionalCost: json['additional_cost']?.toString() ?? '',
+      amountRemaining: (json['amount_remaining'] ??
+              json['amount_remainder'] ??
+              json['remaining_amount'])
+          ?.toString() ??
+          '',
       items: ((json['items'] ?? json['dispatch_lines']) as List? ?? [])
           .map((e) => DispatchLine.fromJson(e))
           .toList(),

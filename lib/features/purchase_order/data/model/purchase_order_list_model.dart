@@ -22,6 +22,7 @@ class PurchaseOrderList {
   final double additionalCost;
   final List<PurchaseOrderDetail> details;
   final DateTime? createdAt;
+  final String? paymentStatus;
 
   PurchaseOrderList({
     required this.id,
@@ -42,6 +43,7 @@ class PurchaseOrderList {
     required this.additionalCost,
     required this.details,
     this.createdAt,
+    this.paymentStatus,
   });
 
   factory PurchaseOrderList.fromJson(Map<String, dynamic> json) {
@@ -62,7 +64,9 @@ class PurchaseOrderList {
       amountTotal: (json['amount_total'] as num?)?.toDouble() ?? 0,
       amountPurchased: (json['amount_purchased'] as num?)?.toDouble() ?? 0,
       amountPaid: (json['amount_paid'] as num?)?.toDouble() ?? 0,
-      amountRemainder: (json['amount_remainder'] as num?)?.toDouble() ?? 0,
+      amountRemainder: (json['amount_remainder'] as num?)?.toDouble() ??
+          (((json['amount_total'] as num?)?.toDouble() ?? 0) -
+              ((json['amount_paid'] as num?)?.toDouble() ?? 0)),
       purchStatus: json['purch_status'] ?? '-',
       feedType: json['feed_type'],
       farmLocation: json['farm_location'] != null
@@ -76,6 +80,27 @@ class PurchaseOrderList {
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : null,
+      paymentStatus: json['payment_status'] ?? json['settlement_status'],
     );
   }
+
+  bool get isPaid {
+    if (paymentStatus != null && paymentStatus!.isNotEmpty) {
+      final s = paymentStatus!.toLowerCase();
+      if (s == 'paid' || s == 'settled' || s == 'lunas' || s == 'full_payment') {
+        return true;
+      }
+      if (s == 'unpaid' ||
+          s == 'not_settled' ||
+          s == 'belum_lunas' ||
+          s == 'partial' ||
+          s == 'down_payment') {
+        return false;
+      }
+    }
+    if (amountTotal <= 0) return false;
+    return amountRemainder <= 0 || amountPaid >= amountTotal;
+  }
+
+  String get paymentStatusLabel => isPaid ? 'Lunas' : 'Belum Lunas';
 }

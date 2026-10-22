@@ -10,6 +10,7 @@ import 'package:livestock/features/user/providers/user_provider.dart';
 import '../widgets/other_menu_card.dart';
 import '../widgets/quick_menu_card.dart';
 import '../widgets/stock_card.dart';
+import '../widgets/stock_detail_card.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -56,7 +57,9 @@ class HomePage extends ConsumerWidget {
                       const SwipeIndicator(),
                       if (hasStockRead) ...[
                         const SizedBox(height: 16),
-                        const StockCard(),
+                        // const StockCard(),
+                        // const SizedBox(height: 16),
+                        const StockDetailCard(),
                       ],
                       const SizedBox(height: 20),
                       const QuickMenu(),

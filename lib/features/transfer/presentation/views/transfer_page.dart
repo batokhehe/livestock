@@ -13,7 +13,6 @@ import 'package:livestock/core/theme/AppTypography.dart';
 import '../../transfer_provider.dart';
 import '../../data/model/transfer_list_model.dart';
 import '../widgets/transfer_date_group_card.dart';
-import '../widgets/transfer_type_bottom_sheet.dart';
 
 class TransferPage extends ConsumerStatefulWidget {
   const TransferPage({super.key});
@@ -138,7 +137,9 @@ class _TransferPageState extends ConsumerState<TransferPage> {
                 data: (response) {
                   final list = response.data;
                   final total = response.total ?? response.totalRows ?? 0;
-                  final hasMore = list.length < total;
+                  final hasMore = total > 0
+                      ? list.length < total
+                      : (list.isNotEmpty && list.length % 10 == 0);
 
                   return _TransferList(
                     list: list,
@@ -152,12 +153,12 @@ class _TransferPageState extends ConsumerState<TransferPage> {
           BottomButton(
             text: 'Tambah Pemindahan',
             onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                backgroundColor: Colors.transparent,
-                isScrollControlled: false,
-                builder: (_) => const TransferTypeBottomSheet(),
-              );
+              final filter = ref.read(itemFilterProvider);
+              if (filter == ItemFilter.feed) {
+                context.push('/transfer/stock-add-step-1');
+              } else {
+                context.push('/transfer/add-step-1');
+              }
             },
           ),
         ],

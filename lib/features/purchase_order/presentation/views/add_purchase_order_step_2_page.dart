@@ -13,6 +13,7 @@ import '../../data/model/purchase_order_item_request_model.dart';
 import '../../purchase_order_provider.dart';
 import '../widgets/add_item_bottom_sheet_animal.dart';
 import '../widgets/add_item_bottom_sheet_feed.dart';
+import '../widgets/add_item_bottom_sheet_equipment.dart';
 
 class AddPurchaseOrderStep2Page extends ConsumerStatefulWidget {
   const AddPurchaseOrderStep2Page({super.key});
@@ -32,6 +33,8 @@ class _AddPurchaseOrderStep2PageState
 
     if (type == 'animal') {
       sheet = const AddItemBottomSheetAnimal();
+    } else if (type == 'equipment') {
+      sheet = const AddItemBottomSheetEquipment();
     } else {
       sheet = const AddItemBottomSheetFeed();
     }
@@ -204,6 +207,8 @@ class _AddPurchaseOrderStep2PageState
 
     if (type == 'animal') {
       sheet = AddItemBottomSheetAnimal(initialData: item);
+    } else if (type == 'equipment') {
+      sheet = AddItemBottomSheetEquipment(initialData: item);
     } else {
       sheet = AddItemBottomSheetFeed(initialData: item);
     }

@@ -9,26 +9,27 @@ import '../../features/attendance/data/model/employee_model.dart';
 import '../data/model/base_response.dart';
 import '../../app/providers.dart';
 
-final paginatedEmployeeProvider = AsyncNotifierProvider.autoDispose<
-    EmployeePaginatedNotifier, BaseResponse<Employee>>(
+final paginatedEmployeeProvider = AsyncNotifierProvider.autoDispose.family<
+    EmployeePaginatedNotifier, BaseResponse<Employee>, int?>(
   EmployeePaginatedNotifier.new,
 );
 
 class EmployeePaginatedNotifier
-    extends AutoDisposeAsyncNotifier<BaseResponse<Employee>> {
+    extends AutoDisposeFamilyAsyncNotifier<BaseResponse<Employee>, int?> {
   int _page = 1;
   bool _loadingMore = false;
 
   @override
-  Future<BaseResponse<Employee>> build() async {
+  Future<BaseResponse<Employee>> build(int? arg) async {
     _page = 1;
     final keyword = ref.watch(employeeSearchProvider);
     final api = ref.read(attendanceApiProvider);
-    final farmLocation = ref.watch(attendanceFormFarmLocationProvider) ??
+    final fallbackLocation = ref.watch(attendanceFormFarmLocationProvider) ??
         ref.watch(selectedFarmLocationProvider);
+    final farmLocationId = arg ?? fallbackLocation?.id;
 
     return await api.getEmployees(
-      farmLocationId: farmLocation?.id,
+      farmLocationId: farmLocationId,
       search: keyword.isNotEmpty ? keyword : null,
       page: _page,
       perPage: 10,
@@ -47,37 +48,45 @@ class EmployeePaginatedNotifier
 
     final keyword = ref.read(employeeSearchProvider);
     final api = ref.read(attendanceApiProvider);
-    final farmLocation = ref.read(attendanceFormFarmLocationProvider) ??
+    final fallbackLocation = ref.read(attendanceFormFarmLocationProvider) ??
         ref.read(selectedFarmLocationProvider);
+    final farmLocationId = arg ?? fallbackLocation?.id;
 
-    final result = await api.getEmployees(
-      farmLocationId: farmLocation?.id,
-      search: keyword.isNotEmpty ? keyword : null,
-      page: _page,
-      perPage: 10,
-    );
+    try {
+      final result = await api.getEmployees(
+        farmLocationId: farmLocationId,
+        search: keyword.isNotEmpty ? keyword : null,
+        page: _page,
+        perPage: 10,
+      );
 
-    state = AsyncData(
-      BaseResponse(
-        status: result.status,
-        message: result.message,
-        total: result.total,
-        data: [...current.data, ...result.data],
-      ),
-    );
-
-    _loadingMore = false;
+      state = AsyncData(
+        BaseResponse(
+          status: result.status,
+          message: result.message,
+          total: result.total,
+          data: [...current.data, ...result.data],
+        ),
+      );
+    } catch (e, st) {
+      _page--;
+      state = AsyncError(e, st);
+    } finally {
+      _loadingMore = false;
+    }
   }
 }
 
 class EmployeeBottomSheet extends ConsumerStatefulWidget {
   final int? initialSelectedId;
+  final int? farmLocationId;
   final String title;
   final String description;
 
   const EmployeeBottomSheet({
     super.key,
     this.initialSelectedId,
+    this.farmLocationId,
     this.title = "Pilih Karyawan",
     this.description = "Silakan pilih salah satu karyawan.",
   });
@@ -100,7 +109,9 @@ class _EmployeeBottomSheetState extends ConsumerState<EmployeeBottomSheet> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
-        ref.read(paginatedEmployeeProvider.notifier).loadMore();
+        ref
+            .read(paginatedEmployeeProvider(widget.farmLocationId).notifier)
+            .loadMore();
       }
     });
 
@@ -119,7 +130,8 @@ class _EmployeeBottomSheetState extends ConsumerState<EmployeeBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final asyncData = ref.watch(paginatedEmployeeProvider);
+    final asyncData =
+        ref.watch(paginatedEmployeeProvider(widget.farmLocationId));
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,

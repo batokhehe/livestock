@@ -100,10 +100,6 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
                   totalItem: items.length,
                   subtotal: subtotal,
                   discount: discount,
-                  shippingCost: items.fold<double>(
-                    0,
-                    (sum, item) => sum + (item.shippingCost ?? 0),
-                  ),
                   total: total,
                   formatCurrency: formatCurrency,
                 ),
@@ -226,7 +222,6 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
     required int totalItem,
     required double subtotal,
     required double discount,
-    required double shippingCost,
     required double total,
     required String Function(double) formatCurrency,
   }) {
@@ -243,7 +238,6 @@ class AddSalesOrderConfirmationPage extends ConsumerWidget {
               formatCurrency(total),
               isBold: true,
             ),
-            _rowSummary("Biaya Pengiriman", formatCurrency(shippingCost)),
           ],
         ),
       ],
@@ -362,7 +356,7 @@ class _ProductInfoCard extends StatelessWidget {
                   style: AppTypography.xSmallBoldBlack,
                 ),
                 Text(
-                  "Rp ${formatPrice(data.subtotal ?? 0)}",
+                  "Rp ${formatPrice(((data.unitPrice ?? 0) * (data.qty ?? 1)) - (data.discount ?? 0))}",
                   style: AppTypography.smallBoldPrimary,
                 ),
               ],

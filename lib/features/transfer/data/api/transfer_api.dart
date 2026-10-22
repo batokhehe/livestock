@@ -87,7 +87,7 @@ class TransferApi {
     String? sortDir,
     bool? all,
   }) async {
-    final endpoint = isStock ? '/inventory/stock-transfer' : '/inventory/animal-transfer';
+    final endpoint = isStock ? '/inventory/stock-transfer' : '/inventory/batch-animal-transfer';
     final res = await dio.get(
       endpoint,
       queryParameters: {
@@ -105,7 +105,7 @@ class TransferApi {
 
     return BaseResponse.fromJson(
       res.data,
-      (json) => TransferList.fromJson(json),
+      (json) => TransferList.fromJson(json, isStock: isStock),
     );
   }
 
@@ -130,7 +130,7 @@ class TransferApi {
   }
 
   Future<TransferDetail> getTransferDetail(int id) async {
-    final res = await dio.get('/inventory/animal-transfer/$id');
+    final res = await dio.get('/inventory/batch-animal-transfer/$id');
     final responseData = res.data;
     if (responseData is Map && responseData['data'] != null) {
       return TransferDetail.fromJson(responseData['data']);
@@ -166,6 +166,29 @@ class TransferApi {
         'to_farm_area_id': toFarmAreaId,
         'animal_profile_id': animalProfileId,
         'shipping_cost': shippingCost,
+      }..removeWhere((k, v) => v == null),
+    );
+  }
+
+  Future<Response> createBatchAnimalTransfer({
+    required String transferDate,
+    required int fromFarmLocationId,
+    required int toFarmLocationId,
+    required int fromFarmAreaId,
+    required int toFarmAreaId,
+    String? notes,
+    required List<Map<String, dynamic>> details,
+  }) async {
+    return await dio.post(
+      '/inventory/batch-animal-transfer',
+      data: {
+        'transfer_date': transferDate,
+        'from_farm_location_id': fromFarmLocationId,
+        'to_farm_location_id': toFarmLocationId,
+        'from_farm_area_id': fromFarmAreaId,
+        'to_farm_area_id': toFarmAreaId,
+        'notes': notes,
+        'details': details,
       }..removeWhere((k, v) => v == null),
     );
   }

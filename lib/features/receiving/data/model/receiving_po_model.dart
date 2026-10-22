@@ -14,6 +14,7 @@ class ReceivingPo {
   final String amountPaid;
   final String amountRemainder;
   final String? feedType;
+  final String? type;
   final String? unitPrice;
   final List<ReceivingItem> items;
 
@@ -28,6 +29,7 @@ class ReceivingPo {
     this.farmLocationId,
     this.animalGroupId,
     this.feedType,
+    this.type,
     this.unitPrice,
     required this.amountTotal,
     required this.amountPaid,
@@ -50,6 +52,7 @@ class ReceivingPo {
       amountPaid: json['amount_paid'],
       amountRemainder: json['amount_remainder'],
       feedType: json['feed_type'],
+      type: json['type'],
       unitPrice: json['unit_price'],
       items: (json['items'] as List? ?? [])
           .map((e) => ReceivingItem.fromJson(e))

@@ -136,7 +136,7 @@ class ReceivingDetailFormCard extends ConsumerWidget {
                         suffix: onItemCodeChanged != null ? "kg" : null,
                         initial: onItemCodeChanged != null
                             ? item.receivedWeight?.toString()
-                            : null,
+                            : (item.qtyRemaining ?? item.qty ?? item.purchQty),
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
@@ -151,18 +151,19 @@ class ReceivingDetailFormCard extends ConsumerWidget {
                         Builder(
                           builder: (context) {
                             final double? qtyVal =
-                                double.tryParse(item.qty ?? '');
-                            final double? qtyRemaining =
-                                double.tryParse(item.qtyRemaining ?? '');
+                                double.tryParse((item.qty ?? '').replaceAll(',', '.'));
+                            final double? purchQty = double.tryParse(
+                              (item.qtyRemaining ?? item.purchQty ?? '').replaceAll(',', '.'),
+                            );
 
                             String? errorMessage;
                             if (qtyVal == null || qtyVal <= 0) {
                               errorMessage = '* Jumlah diterima wajib diisi';
-                            } else if (qtyRemaining != null &&
-                                qtyVal > qtyRemaining) {
-                              final displayQtyRemaining = item.qtyRemaining?.replaceAll(RegExp(r"\.0+$"), "");
+                            } else if (purchQty != null && qtyVal != purchQty) {
+                              final displayPurchQty = (item.qtyRemaining ?? item.purchQty ?? '')
+                                  .replaceAll(RegExp(r"\.0+$"), "");
                               errorMessage =
-                                  '* Jumlah diterima melebihi sisa ($displayQtyRemaining)';
+                                  '* Jumlah diterima harus sama dengan jumlah pembelian ($displayPurchQty)';
                             }
 
                             if (errorMessage != null) {

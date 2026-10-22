@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:livestock/features/dashboard/providers/dashboard_provider.dart';
 
 import '../../../../core/theme/AppColors.dart';
 import '../../../../core/theme/AppImages.dart';
 import '../../../../core/theme/AppTypography.dart';
 
-class SummaryCard extends StatelessWidget {
+class SummaryCard extends ConsumerWidget {
   const SummaryCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final salesAsync = ref.watch(dashboardSalesProvider);
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -36,9 +40,24 @@ class SummaryCard extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "6 Pesanan",
-                          style: AppTypography.mediumBoldWhite,
+                        salesAsync.when(
+                          loading: () => const Text(
+                            "Loading...",
+                            style: AppTypography.mediumBoldWhite,
+                          ),
+                          error: (e, s) => const Text(
+                            "- Pesanan",
+                            style: AppTypography.mediumBoldWhite,
+                          ),
+                          data: (sales) {
+                            final total =
+                                sales.salesOrderConfirmed +
+                                sales.salesOrderClosed;
+                            return Text(
+                              "$total Pesanan",
+                              style: AppTypography.mediumBoldWhite,
+                            );
+                          },
                         ),
                         const SizedBox(height: 6),
                         const Text(
@@ -77,10 +96,22 @@ class SummaryCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Image.asset(AppImages.icTruckFast, width: 16),
+                    Image.asset(
+                      AppImages.icTruckFast,
+                      width: 16,
+                      color: AppColors.primary,
+                    ),
                     const SizedBox(width: 4),
-                    const Text(
-                      "8 Pengiriman Aktif",
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "8 ",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(text: "Pengiriman aktif"),
+                        ],
+                      ),
                       style: AppTypography.xSmallNormalBlack,
                     ),
                   ],

@@ -38,10 +38,14 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
       nameCtrl.text = item.name ?? '';
       codeCtrl.text = item.code ?? '';
       stockCtrl.text = item.stock ?? '0';
-      qtyCtrl.text = item.quantity.toString();
-      priceCtrl.text = item.price.toString();
+      final q = item.quantity;
+      qtyCtrl.text = q != null
+          ? (q % 1 == 0 ? q.toInt().toString() : q.toString())
+          : '';
+      priceCtrl.text = item.price?.toString() ?? '';
       noteCtrl.text = item.note ?? '';
-      totalPriceCtrl.text = formatPrice((item.quantity ?? 0) * (item.price ?? 0));
+      final p = item.price ?? 0;
+      totalPriceCtrl.text = formatPrice(((q ?? 0) * p).round());
     }
 
     qtyCtrl.addListener(_calculateTotal);
@@ -49,17 +53,19 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
   }
 
   void _calculateTotal() {
-    int qty = int.tryParse(qtyCtrl.text) ?? 0;
-    final stock = int.tryParse(stockCtrl.text) ?? 0;
+    final qtyText = qtyCtrl.text.replaceAll(',', '.');
+    double qty = double.tryParse(qtyText) ?? 0;
+    final stockText = stockCtrl.text.replaceAll(',', '.');
+    final stock = double.tryParse(stockText) ?? 0;
 
     bool qtyChanged = false;
-    if (qty > stock) {
+    if (stock > 0 && qty > stock) {
       qty = stock;
       qtyChanged = true;
     }
 
     final price = int.tryParse(priceCtrl.text) ?? 0;
-    final rawTotal = (qty > 0 && price > 0) ? (qty * price) : 0;
+    final rawTotal = (qty > 0 && price > 0) ? (qty * price).round() : 0;
     final formattedTotal = formatPrice(rawTotal);
 
     if (totalPriceCtrl.text != formattedTotal) {
@@ -67,9 +73,10 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
     }
 
     if (qtyChanged) {
+      final newText = qty % 1 == 0 ? qty.toInt().toString() : qty.toString();
       qtyCtrl.value = TextEditingValue(
-        text: qty.toString(),
-        selection: TextSelection.collapsed(offset: qty.toString().length),
+        text: newText,
+        selection: TextSelection.collapsed(offset: newText.length),
       );
     }
 
@@ -182,8 +189,17 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
               label: "Jumlah Pakan",
               hint: "Jumlah Pakan",
               controller: qtyCtrl,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                TextInputFormatter.withFunction((oldValue, newValue) {
+                  final text = newValue.text;
+                  if (text.isEmpty) return newValue;
+                  return RegExp(r'^\d*([.,]\d*)?$').hasMatch(text)
+                      ? newValue
+                      : oldValue;
+                }),
+              ],
             ),
             TextFields(
               label: "Harga Total",
@@ -203,8 +219,11 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: (int.tryParse(qtyCtrl.text) ?? 0) > 0
+                onPressed: ((double.tryParse(qtyCtrl.text.replaceAll(',', '.')) ?? 0) > 0)
                     ? () {
+                        final parsedQty = double.tryParse(
+                          qtyCtrl.text.replaceAll(',', '.'),
+                        ) ?? 0;
                         Navigator.pop(
                           context,
                           MonitoringItem(
@@ -215,7 +234,9 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                                 (selectedFeed?.uom.isNotEmpty == true
                                     ? selectedFeed!.uom
                                     : "Pakan"),
-                            quantity: int.tryParse(qtyCtrl.text) ?? 0,
+                            quantity: parsedQty % 1 == 0
+                                ? parsedQty.toInt()
+                                : parsedQty,
                             price: int.tryParse(priceCtrl.text) ?? 0,
                             note: noteCtrl.text,
                             stock: stockCtrl.text,

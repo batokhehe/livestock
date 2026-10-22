@@ -144,6 +144,7 @@ class ReceivingDetailPage extends ConsumerWidget {
                   isVaccinated: e.isVaccinated,
                   vaccineDate: e.vaccineDate,
                   gender: e.gender,
+                  purchQty: e.quantity,
                   qty: e.quantity,
                   unitPrice: '',
                   amountRemainder: 0,

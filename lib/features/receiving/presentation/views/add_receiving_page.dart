@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:livestock/core/data/model/farm_area_model.dart';
 import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/core/theme/AppImages.dart';
-import 'package:livestock/core/widgets/farm_area_bottom_sheet.dart';
 import 'package:livestock/core/widgets/farm_location_paginated_bottom_sheet.dart';
 import 'package:livestock/features/receiving/presentation/widgets/farm_area_paginated_bottom_sheet.dart';
 import 'package:livestock/core/widgets/step_info_card.dart';
@@ -17,6 +16,7 @@ import '../../../../core/widgets/custom_date_picker_sheet.dart';
 import '../../../../core/widgets/section_card.dart';
 import '../../../../core/widgets/select_field.dart';
 import '../../receiving_provider.dart';
+import '../notifier/receiving_po_notifier.dart';
 import '../widgets/select_receiving_item_sheet.dart';
 
 class AddReceivingPage extends ConsumerStatefulWidget {
@@ -38,6 +38,8 @@ class _AddReceivingPageState extends ConsumerState<AddReceivingPage> {
       ref.read(selectedFarmAreaProvider.notifier).state = null;
       ref.read(animalFarmLocationIdProvider.notifier).state = null;
       ref.read(animalFarmAreaIdProvider.notifier).state = null;
+      ref.read(receivingFeedTypeProvider.notifier).state = null;
+      ref.read(receivingEquipmentTypeProvider.notifier).state = null;
 
       ref.read(receivingFormProvider).setRemarks('');
     });
@@ -292,6 +294,7 @@ class _FarmInfoSection extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       builder: (_) => FarmAreaPaginatedBottomSheet(
         initialSelectedId: ref.read(selectedFarmAreaProvider)?.id,
+        farmLocationId: ref.read(selectedFarmLocationProvider)?.id,
       ),
     );
 
@@ -342,6 +345,7 @@ class _NextButton extends ConsumerWidget {
             onPressed: isValid
                 ? () {
                     ref.read(receivingPoSearchProvider.notifier).state = '';
+                    ref.invalidate(paginatedReceivingPoProvider);
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,

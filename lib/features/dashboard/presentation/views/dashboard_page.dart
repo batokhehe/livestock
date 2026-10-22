@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:livestock/features/dashboard/providers/dashboard_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livestock/core/theme/AppColors.dart';
 import 'package:livestock/features/home/presentation/providers/home_navigation_provider.dart';
@@ -23,25 +25,13 @@ class DashboardPage extends ConsumerWidget {
     final selectedTab = ref.watch(dashboardTabProvider);
     return Scaffold(
       backgroundColor: AppColors.greyBg,
-
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-        title: const Text("Dashboard", style: AppTypography.largeBoldBlack),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            ref.read(mainNavIndexProvider.notifier).state = 0;
-          },
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _searchBar(),
-            const SizedBox(height: 16),
-            const SummaryCard(),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SummaryCard(),
             const SizedBox(height: 16),
             const TabMenuCard(),
             const SizedBox(height: 16),
@@ -52,111 +42,119 @@ class DashboardPage extends ConsumerWidget {
             ] else if (selectedTab == DashboardTab.operational) ...[
               const OperationalView(),
             ] else ...[
-              Column(
-                children: [
-                  MonitoringView(
-                    title: "Feed Monitoring",
-                    subtitle: "Penggunaan pakan dan biaya",
-                    badgeText: "Data bulan ini : 8",
-                    items: [
-                      MonitoringItem(
-                        label: "Total data",
-                        value: "8",
-                        valueColor: AppColors.primary,
-                      ),
-                      MonitoringItem(
-                        label: "Total biaya",
-                        value: "Rp 185.250.000",
-                      ),
-                      MonitoringItem(
-                        label: "Monitoring terakhir",
-                        value: "15 Nov 2025",
-                      ),
-                      MonitoringItem(
-                        label: "Lokasi terakhir",
-                        value: "Sapi Jawara Bandung",
-                      ),
-                    ],
-                    badgeColor: AppColors.success,
-                  ),
-
-                  MonitoringView(
-                    title: "Weight Monitoring",
-                    subtitle: "Performa pertumbuhan ternak",
-                    badgeText: "Data bulan ini : 8",
-                    items: [
-                      MonitoringItem(
-                        label: "Total data",
-                        value: "5",
-                        valueColor: AppColors.primary,
-                      ),
-                      MonitoringItem(
-                        label: "Total data",
-                        value: "3",
-                        valueColor: AppColors.primary,
-                      ),
-                      MonitoringItem(
-                        label: "Ternak dimonitor",
-                        value: "6 Hewan",
-                      ),
-                      MonitoringItem(
-                        label: "Monitoring terakhir",
-                        value: "15 Nov 2025",
-                      ),
-                      MonitoringItem(
-                        label: "Rata-rata ADG",
-                        value: "0.59 kg/day",
-                      ),
-                    ],
-                    badgeColor: AppColors.primary,
-                  ),
-
-                  MonitoringView(
-                    title: "Health Monitoring",
-                    subtitle: "Catatan kesehatan dan perawatan",
-                    badgeText: "Data bulan ini : 3",
-                    items: [
-                      MonitoringItem(
-                        label: "Total data",
-                        value: "3",
-                        valueColor: AppColors.primary,
-                      ),
-                      MonitoringItem(
-                        label: "Total biaya",
-                        value: "Rp 2.620.000",
-                      ),
-                      MonitoringItem(
-                        label: "Monitoring terakhir",
-                        value: "15 Nov 2025",
-                      ),
-                      MonitoringItem(
-                        label: "Lokasi terakhir",
-                        value: "Sapi Jawara Bandung",
-                      ),
-                    ],
-                    badgeColor: AppColors.success,
-                  ),
-                ],
-              ),
+              const _MonitoringSection(),
             ],
           ],
         ),
       ),
-    );
-  }
-
-  Widget _searchBar() {
-    return TextField(
-      decoration: InputDecoration(
-        hintText: "Cari Apapun",
-        prefixIcon: const Icon(Icons.search),
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
       ),
     );
   }
 }
+
+class _MonitoringSection extends ConsumerWidget {
+  const _MonitoringSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final monitoringAsync = ref.watch(dashboardMonitoringProvider);
+
+    return monitoringAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, s) => Center(child: Text("Error: $e")),
+      data: (monitoring) {
+        final feed = monitoring.feedMonitoring;
+        final weight = monitoring.weightMonitoring;
+        final health = monitoring.healthMonitoring;
+        
+        final currencyFormat = NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0);
+
+        return Column(
+          children: [
+            MonitoringView(
+              title: "Feed Monitoring",
+              subtitle: "Penggunaan pakan dan biaya",
+              badgeText: "Data bulan ini : ${feed.totalData}",
+              items: [
+                MonitoringItem(
+                  label: "Total data",
+                  value: feed.totalData.toString(),
+                  valueColor: AppColors.primary,
+                ),
+                MonitoringItem(
+                  label: "Total biaya",
+                  value: currencyFormat.format(feed.totalCost),
+                ),
+                if (feed.lastMonitoringDate != null)
+                  MonitoringItem(
+                    label: "Monitoring terakhir",
+                    value: feed.lastMonitoringDate!,
+                  ),
+                if (feed.lastFarmLocation != null)
+                  MonitoringItem(
+                    label: "Lokasi terakhir",
+                    value: feed.lastFarmLocation!,
+                  ),
+              ],
+              badgeColor: AppColors.success,
+            ),
+            MonitoringView(
+              title: "Weight Monitoring",
+              subtitle: "Performa pertumbuhan ternak",
+              badgeText: "Data bulan ini : ${weight.totalData}",
+              items: [
+                MonitoringItem(
+                  label: "Total data",
+                  value: weight.totalData.toString(),
+                  valueColor: AppColors.primary,
+                ),
+                MonitoringItem(
+                  label: "Ternak dimonitor",
+                  value: "${weight.totalAnimal} Hewan",
+                ),
+                if (weight.lastMonitoringDate != null)
+                  MonitoringItem(
+                    label: "Monitoring terakhir",
+                    value: weight.lastMonitoringDate!,
+                  ),
+                MonitoringItem(
+                  label: "Rata-rata ADG",
+                  value: "${weight.averageADG} kg/day",
+                ),
+              ],
+              badgeColor: AppColors.primary,
+            ),
+            MonitoringView(
+              title: "Health Monitoring",
+              subtitle: "Catatan kesehatan dan perawatan",
+              badgeText: "Data bulan ini : ${health.totalData}",
+              items: [
+                MonitoringItem(
+                  label: "Total data",
+                  value: health.totalData.toString(),
+                  valueColor: AppColors.primary,
+                ),
+                MonitoringItem(
+                  label: "Total biaya",
+                  value: currencyFormat.format(health.totalCost),
+                ),
+                if (health.lastMonitoringDate != null)
+                  MonitoringItem(
+                    label: "Monitoring terakhir",
+                    value: health.lastMonitoringDate!,
+                  ),
+                if (health.lastFarmLocation != null)
+                  MonitoringItem(
+                    label: "Lokasi terakhir",
+                    value: health.lastFarmLocation!,
+                  ),
+              ],
+              badgeColor: AppColors.success,
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+

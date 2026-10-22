@@ -148,13 +148,16 @@ class _NextButtonStep2 extends ConsumerWidget {
               item.receivedWeight == null || item.receivedWeight! <= 0;
           return codeEmpty || weightEmpty;
         } else {
-          // Untuk Pakan/Peralatan, qty wajib diisi > 0 dan <= qtyRemaining
-          final double? qtyVal = double.tryParse(item.qty ?? '');
-          final double? qtyRemaining = double.tryParse(item.qtyRemaining ?? '');
-          
+          // Untuk Pakan/Peralatan, qty wajib diisi > 0 dan harus sama dengan jumlah pembelian
+          final double? qtyVal =
+              double.tryParse((item.qty ?? '').replaceAll(',', '.'));
+          final double? purchQty = double.tryParse(
+            (item.qtyRemaining ?? item.purchQty ?? '').replaceAll(',', '.'),
+          );
+
           if (qtyVal == null || qtyVal <= 0) return true;
-          if (qtyRemaining != null && qtyVal > qtyRemaining) return true;
-          
+          if (purchQty != null && qtyVal != purchQty) return true;
+
           return false;
         }
       });

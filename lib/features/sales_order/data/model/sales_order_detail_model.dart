@@ -148,4 +148,40 @@ class SalesOrderDetail {
   /// helper UI
   bool get isClosed => salesStatus == 'closed';
   bool get isCanceled => salesStatus == 'canceled';
+
+  double get calculatedSubtotal {
+    if (items.isEmpty) return subtotal;
+    final total = items.fold<double>(
+      0,
+      (sum, item) {
+        final price = item.priceUnit > 0 ? item.priceUnit : item.unitPrice;
+        final qty = item.qty > 0 ? item.qty : 1.0;
+        return sum + (price * qty);
+      },
+    );
+    return total > 0 ? total : subtotal;
+  }
+
+  double get calculatedDiscountTotal {
+    if (items.isEmpty) return discountTotal;
+    final total = items.fold<double>(0, (sum, item) => sum + item.discount);
+    return total > 0 ? total : discountTotal;
+  }
+
+  double get calculatedShippingCost {
+    if (items.isEmpty) return shippingCost;
+    final total = items.fold<double>(0, (sum, item) => sum + item.shippingCost);
+    return total > 0 ? total : shippingCost;
+  }
+
+  double get calculatedAmountTotal {
+    if (items.isEmpty) return amountTotal;
+    final total = calculatedSubtotal - calculatedDiscountTotal;
+    return total > 0 ? total : amountTotal;
+  }
+
+  double get calculatedAmountRemainder {
+    final rem = calculatedAmountTotal - amountPaid;
+    return rem >= 0 ? rem : 0;
+  }
 }

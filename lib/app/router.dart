@@ -12,6 +12,9 @@ import 'package:livestock/features/dispatch/presentation/views/add_dispatch_page
 import 'package:livestock/features/dispatch/presentation/views/dispatch_edit_page.dart';
 import 'package:livestock/features/dispatch/presentation/views/dispatch_page.dart';
 import 'package:livestock/features/home/presentation/views/home_page.dart';
+import 'package:livestock/features/home/presentation/views/stock_detail_page.dart';
+import 'package:livestock/features/customer/presentation/views/add_customer_page.dart';
+import 'package:livestock/features/supplier/presentation/views/add_supplier_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/feed/add_monitoring_feed_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/feed/add_monitoring_feed_step_2_page.dart';
 import 'package:livestock/features/monitoring/presentation/views/feed/add_monitoring_feed_confirmation_page.dart';
@@ -40,6 +43,7 @@ import 'package:livestock/features/monitoring/presentation/views/health/detail/a
 import 'package:livestock/features/product/presentation/views/product_detail_page.dart';
 import 'package:livestock/features/product/presentation/views/product_page.dart';
 import 'package:livestock/features/product/presentation/views/update_product_page.dart';
+import 'package:livestock/features/product/presentation/views/add_feed_medicine_page.dart';
 import 'package:livestock/features/purchase_order/presentation/views/add_purchase_order_confirmation_page.dart';
 import 'package:livestock/features/purchase_order/presentation/views/add_purchase_order_page.dart';
 import 'package:livestock/features/purchase_order/presentation/views/add_purchase_order_step_2_page.dart';
@@ -404,6 +408,31 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: "/home", builder: (_, __) => const HomePage()),
+      GoRoute(
+        path: '/stock-detail',
+        builder: (context, state) {
+          final type = state.uri.queryParameters['type'];
+          return StockDetailPage(initialType: type);
+        },
+      ),
+      GoRoute(
+        path: '/customer/add',
+        builder: (context, state) => const AddCustomerPage(),
+      ),
+      GoRoute(
+        path: '/supplier/add',
+        builder: (context, state) {
+          final type = state.uri.queryParameters['type'];
+          return AddSupplierPage(initialType: type);
+        },
+      ),
+      GoRoute(
+        path: '/feed-medicine/add',
+        builder: (context, state) {
+          final type = state.uri.queryParameters['type'];
+          return AddFeedMedicinePage(initialType: type);
+        },
+      ),
 
       GoRoute(
         path: '/purchase-order',

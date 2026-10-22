@@ -221,6 +221,11 @@ class PurchaseOrderDetailInvoiceBottomSheet extends StatelessWidget {
             "Biaya Pengiriman",
             "Rp ${formatPrice(item.shippingCost)}",
           ),
+          const SizedBox(height: 8),
+          _buildPricingRow(
+            "Biaya Lainnya",
+            "Rp ${formatPrice(item.additionalCost)}",
+          ),
           const Divider(height: 24, color: AppColors.fieldBorder),
           _buildPricingRow(
             "Total Keseluruhan",

@@ -76,7 +76,7 @@ class DispatchItemDoubleCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${(double.tryParse(item.totalQuantity) ?? 0).toInt()} Hewan • ${item.vehicleNumber}',
+                      '${item.computedTotalQuantity} Hewan • ${item.vehicleNumber}',
                       style: AppTypography.xSmallNormalBlack,
                     ),
                     Text(

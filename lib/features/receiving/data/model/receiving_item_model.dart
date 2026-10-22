@@ -19,6 +19,7 @@ class ReceivingItem {
   final String? vaccineDate;
   final String? gender;
 
+  final String? purchQty;
   String? qty;
   final String? unitPrice;
   final int amountRemainder;
@@ -52,6 +53,7 @@ class ReceivingItem {
     this.isVaccinated,
     this.vaccineDate,
     this.gender,
+    this.purchQty,
     this.qty,
     this.feedType,
     this.type,
@@ -69,7 +71,23 @@ class ReceivingItem {
     this.qtyRemaining,
   });
 
+  static String _formatCleanQty(dynamic val) {
+    if (val == null) return '';
+    final str = val.toString().trim();
+    final d = double.tryParse(str.replaceAll(',', '.'));
+    if (d == null) return str;
+    if (d == d.roundToDouble()) {
+      return d.toInt().toString();
+    }
+    return str.replaceAll(RegExp(r'\.0+$'), '');
+  }
+
   factory ReceivingItem.fromJson(Map<String, dynamic> json) {
+    final cleanRemaining = _formatCleanQty(json['qty_remainder']);
+    final rawPurchQty = cleanRemaining.isNotEmpty
+        ? cleanRemaining
+        : _formatCleanQty(json['quantity'] ?? json['qty']);
+
     return ReceivingItem(
       id: json['id'],
       supplierId: json['supplier_id'],
@@ -86,7 +104,8 @@ class ReceivingItem {
       isVaccinated: json['is_vaccinated'] ?? false,
       vaccineDate: json['vaccine_date'] ?? '',
       gender: json['gender'] ?? '0',
-      qty: json['qty'] ?? json['quantity'],
+      purchQty: rawPurchQty,
+      qty: rawPurchQty,
       unitPrice: json['unit_price'],
       amountRemainder: json['amount_remainder'],
       subtotal: json['subtotal'],
@@ -118,7 +137,7 @@ class ReceivingItem {
     return {
       "purch_order_detail_id": purchOrderDetailId,
       "item_code": itemCode,
-      "qty": double.tryParse(qty ?? '0') ?? 0,
+      "qty": double.tryParse((qty ?? '0').replaceAll(',', '.')) ?? 0,
       "unit_price": int.tryParse(unitPrice ?? '0') ?? 0,
       "feed_type": feedType,
       "type": type,

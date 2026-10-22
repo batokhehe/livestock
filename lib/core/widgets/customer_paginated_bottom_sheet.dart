@@ -1,10 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:livestock/core/data/model/customer_model.dart';
+import 'package:livestock/features/customer/presentation/views/add_customer_page.dart';
 import 'package:livestock/features/sales_order/sales_order_provider.dart';
 import '../../app/providers.dart';
 import '../theme/AppColors.dart';
 import '../theme/AppTypography.dart';
-import 'dart:async';
 
 class CustomerPaginatedBottomSheet extends ConsumerStatefulWidget {
   final String? status;
@@ -41,6 +43,18 @@ class _CustomerPaginatedBottomSheetState
     super.dispose();
   }
 
+  void _navigateToAddCustomer() async {
+    final newCustomer = await Navigator.push<Customer?>(
+      context,
+      MaterialPageRoute(builder: (_) => const AddCustomerPage()),
+    );
+
+    if (newCustomer != null && mounted) {
+      ref.invalidate(paginatedCustomerProvider);
+      Navigator.pop(context, newCustomer);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncData = ref.watch(paginatedCustomerProvider);
@@ -57,7 +71,32 @@ class _CustomerPaginatedBottomSheetState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          const Text("Pilih Pelanggan", style: AppTypography.largeBoldBlack),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Pilih Pelanggan", style: AppTypography.largeBoldBlack),
+              OutlinedButton.icon(
+                onPressed: _navigateToAddCustomer,
+                icon: const Icon(Icons.add, size: 16, color: AppColors.primary),
+                label: const Text(
+                  "Tambah",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.primary, width: 1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 8),
           const Text(
             "Silakan cari dan pilih pelanggan untuk pesanan penjualan ini.",
@@ -100,10 +139,43 @@ class _CustomerPaginatedBottomSheetState
                 final hasMore = items.length < total;
 
                 if (items.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      "Pelanggan tidak ditemukan",
-                      style: AppTypography.smallNormalGrey,
+                  return Center(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.person_off_outlined,
+                            size: 48,
+                            color: AppColors.grey,
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            "Pelanggan tidak ditemukan",
+                            style: AppTypography.smallNormalGrey,
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: _navigateToAddCustomer,
+                            icon: const Icon(Icons.add, size: 16, color: Colors.white),
+                            label: const Text(
+                              "Tambah Pelanggan Baru",
+                              style: AppTypography.smallBoldWhite,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }

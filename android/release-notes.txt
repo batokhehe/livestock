@@ -1,5 +1,7 @@
 📱 Release Notes
 🔧 Perbaikan & Peningkatan
 
-Module Sales Order
-- Fix Feature Invoice
+Module Monitoring
+- Penyesuaian filter area peternakan (farm area) agar tampil berdasarkan lokasi peternakan yang dipilih di seluruh formulir monitoring (Pakan, Kesehatan, dan Obat)
+- Dukungan input angka desimal pada kolom kuantitas pakan dan obat di formulir monitoring
+- Penyesuaian kalkulasi total harga dan pengiriman payload API untuk mendukung kuantitas desimal

@@ -92,6 +92,14 @@ class SalesOrderRequest {
   }
 
   Map<String, dynamic> toJson() {
+    final computedDiscountTotal = (discountTotal != null && discountTotal! > 0)
+        ? discountTotal!
+        : (items?.fold<double>(0, (sum, e) => sum + (e.discount ?? 0)) ?? 0);
+
+    final computedShippingCost = (shippingCost != null && shippingCost! > 0)
+        ? shippingCost!
+        : (items?.fold<double>(0, (sum, e) => sum + (e.shippingCost ?? 0)) ?? 0);
+
     return {
       "customer_id": customer?.id,
       if (orderDate != null) "order_date": formatterJson.format(orderDate!),
@@ -105,8 +113,8 @@ class SalesOrderRequest {
       "delivery_address": deliveryAddress ?? '-',
       "recipient_name": recipientName,
       "recipient_number": recipientNumber,
-      "shipping_cost": shippingCost ?? 0,
-      "discount_total": discountTotal ?? 0,
+      "shipping_cost": computedShippingCost,
+      "discount_total": computedDiscountTotal,
       "notes": notes,
       "is_forecast": isForecast ?? ((useForecast ?? true) ? "yes" : "no"),
       "items": items?.map((e) => e.toJson()).toList() ?? [],

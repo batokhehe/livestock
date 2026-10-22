@@ -444,16 +444,6 @@ class SalesOrderItemDetailBottomSheet extends ConsumerWidget {
               "Rp ${formatPrice(item.discount ?? 0)}",
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12.0,
-              vertical: 4.0,
-            ),
-            child: _buildPricingRow(
-              "Biaya Pengiriman",
-              "Rp ${formatPrice(item.shippingCost ?? 0)}",
-            ),
-          ),
         ],
       ),
     );

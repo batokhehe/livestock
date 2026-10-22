@@ -545,6 +545,8 @@ class _ProductPage extends ConsumerState<ProductPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _filterRow(),
+        const SizedBox(height: 12),
         Expanded(
           child: classes.isEmpty
               ? Center(

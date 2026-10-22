@@ -63,24 +63,9 @@ class AddMonitoringMedicinePage extends StatelessWidget {
 class _MonitoringInfoSection extends ConsumerWidget {
   const _MonitoringInfoSection();
 
-  void _showEmployeePicker(BuildContext context, WidgetRef ref) async {
-    final result = await showModalBottomSheet<Employee>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => EmployeeBottomSheet(
-        initialSelectedId: ref.read(selectedMonitoringEmployeeProvider)?.id,
-      ),
-    );
-    if (result != null) {
-      ref.read(selectedMonitoringEmployeeProvider.notifier).state = result;
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedDate = ref.watch(selectedMedicineMonitoringDateProvider);
-    final selectedEmployee = ref.watch(selectedMonitoringEmployeeProvider);
     return SectionCard(
       title: "Informasi Monitoring",
       children: [
@@ -107,19 +92,6 @@ class _MonitoringInfoSection extends ConsumerWidget {
             }
           },
         ),
-        const SizedBox(height: 12),
-        SelectField(
-          label: "Karyawan",
-          isMandatoryField: true,
-          hint: selectedEmployee != null
-              ? "${selectedEmployee.name} \u2022 ${selectedEmployee.phone}"
-              : "Pilih karyawan",
-          style: selectedEmployee != null
-              ? AppTypography.smallNormalBlack
-              : null,
-          icon: AppImages.icUserTag,
-          onTap: () => _showEmployeePicker(context, ref),
-        ),
       ],
     );
   }
@@ -139,17 +111,37 @@ class _FarmInfoSection extends ConsumerWidget {
     );
     if (result != null) {
       ref.read(selectedMonitoringFarmProvider.notifier).state = result;
+      // Clear area & employee if location changes
       ref.read(selectedMonitoringAreaProvider.notifier).state = null;
+      ref.read(selectedMonitoringEmployeeProvider.notifier).state = null;
+    }
+  }
+
+  void _showEmployeePicker(BuildContext context, WidgetRef ref) async {
+    final selectedFarm = ref.read(selectedMonitoringFarmProvider);
+    final result = await showModalBottomSheet<Employee>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => EmployeeBottomSheet(
+        initialSelectedId: ref.read(selectedMonitoringEmployeeProvider)?.id,
+        farmLocationId: selectedFarm?.id,
+      ),
+    );
+    if (result != null) {
+      ref.read(selectedMonitoringEmployeeProvider.notifier).state = result;
     }
   }
 
   void _showFarmAreaPicker(BuildContext context, WidgetRef ref) async {
+    final selectedFarm = ref.read(selectedMonitoringFarmProvider);
     final result = await showModalBottomSheet<FarmArea?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => FarmAreaPaginatedBottomSheet(
         initialSelectedId: ref.read(selectedMonitoringAreaProvider)?.id,
+        farmLocationId: selectedFarm?.id,
       ),
     );
     if (result != null) {
@@ -160,6 +152,7 @@ class _FarmInfoSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedFarm = ref.watch(selectedMonitoringFarmProvider);
+    final selectedEmployee = ref.watch(selectedMonitoringEmployeeProvider);
     final selectedArea = ref.watch(selectedMonitoringAreaProvider);
     final availableCountAsync = ref.watch(
       monitoringAnimalAvailableCountProvider,
@@ -176,6 +169,20 @@ class _FarmInfoSection extends ConsumerWidget {
           style: selectedFarm != null ? AppTypography.smallNormalBlack : null,
           icon: AppImages.icHomeHashTag,
           onTap: () => _showFarmLocationPicker(context, ref),
+        ),
+        const SizedBox(height: 12),
+        SelectField(
+          label: "Karyawan",
+          isMandatoryField: true,
+          hint: selectedEmployee != null
+              ? "${selectedEmployee.name} • ${selectedEmployee.phone}"
+              : "Pilih karyawan",
+          style: selectedEmployee != null
+              ? AppTypography.smallNormalBlack
+              : null,
+          icon: AppImages.icUserTag,
+          enabled: selectedFarm != null,
+          onTap: () => _showEmployeePicker(context, ref),
         ),
         const SizedBox(height: 12),
         SelectField(

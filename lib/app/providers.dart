@@ -11,6 +11,7 @@ import 'package:livestock/core/data/model/feed_medicine_model.dart';
 import 'package:livestock/core/data/model/province_model.dart';
 import 'package:livestock/core/data/model/supplier_model.dart';
 import 'package:livestock/core/data/model/village_model.dart';
+import 'package:livestock/core/data/model/equipment_model.dart';
 import 'package:livestock/core/data/repository/master_repository.dart';
 
 import '../core/constant/enum.dart';
@@ -27,6 +28,7 @@ import '../core/notifier/animal_notifier.dart';
 import '../core/notifier/feed_medicine_notifier.dart';
 import '../core/notifier/animal_group_notifier.dart';
 import '../core/notifier/supplier_notifier.dart';
+import '../core/notifier/equipment_notifier.dart';
 import '../features/dispatch/data/model/sales_order_dispatch_model.dart';
 import '../features/dispatch/dispatch_provider.dart';
 
@@ -59,10 +61,11 @@ final farmLocationListProvider = FutureProvider.autoDispose<List<FarmLocation>>(
   },
 );
 
-final paginatedFarmLocationProvider = AsyncNotifierProvider.autoDispose<
-    FarmLocationNotifier, BaseResponse<FarmLocation>>(
-  FarmLocationNotifier.new,
-);
+final paginatedFarmLocationProvider =
+    AsyncNotifierProvider.autoDispose<
+      FarmLocationNotifier,
+      BaseResponse<FarmLocation>
+    >(FarmLocationNotifier.new);
 final selectedFarmLocationProvider = StateProvider<FarmLocation?>(
   (ref) => null,
 );
@@ -71,19 +74,19 @@ final farmLocationSearchProvider = StateProvider.autoDispose<String>(
 );
 
 // FARM AREA
-final farmAreaListProvider = FutureProvider.autoDispose<List<FarmArea>>(
-  (ref) async {
-    final farmLocationId = ref.watch(animalFarmLocationIdProvider);
-    return ref
-        .read(getMasterDataListUseCaseProvider)
-        .callFarmAreas(farmLocationId: farmLocationId);
-  },
-);
+final farmAreaListProvider = FutureProvider.autoDispose<List<FarmArea>>((
+  ref,
+) async {
+  final farmLocationId = ref.watch(animalFarmLocationIdProvider);
+  return ref
+      .read(getMasterDataListUseCaseProvider)
+      .callFarmAreas(farmLocationId: farmLocationId);
+});
 
-final paginatedFarmAreaProvider = AsyncNotifierProvider.autoDispose<
-    FarmAreaNotifier, BaseResponse<FarmArea>>(
-  FarmAreaNotifier.new,
-);
+final paginatedFarmAreaProvider = AsyncNotifierProvider.autoDispose
+    .family<FarmAreaNotifier, BaseResponse<FarmArea>, int?>(
+      FarmAreaNotifier.new,
+    );
 final selectedFarmAreaProvider = StateProvider<FarmArea?>((ref) => null);
 final farmAreaSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
@@ -94,42 +97,43 @@ final customerListProvider = FutureProvider.autoDispose<List<Customer>>((
   return ref.read(getMasterDataListUseCaseProvider).callCustomer();
 });
 
-final paginatedCustomerProvider = AsyncNotifierProvider.autoDispose<
-    CustomerNotifier, BaseResponse<Customer>>(
-  CustomerNotifier.new,
-);
+final paginatedCustomerProvider =
+    AsyncNotifierProvider.autoDispose<CustomerNotifier, BaseResponse<Customer>>(
+      CustomerNotifier.new,
+    );
 
 final selectedCustomerProvider = StateProvider<Customer?>((ref) => null);
 final customerSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 final customerStatusProvider = StateProvider.autoDispose<String>((ref) => '');
 
 // ANIMAL
-final animalListProvider = FutureProvider.autoDispose.family<
-  BaseResponse<AnimalProfile>,
-  ({String? available, String? search, int? farmLocationId})
->((ref, arg) async {
-  return ref.read(getMasterDataListUseCaseProvider).callAnimals(
-    available: (arg.available?.isEmpty ?? true) ? null : arg.available,
-    search: (arg.search?.length ?? 0) >= 2 ? arg.search : null,
-    farmLocationId: arg.farmLocationId,
-    page: 1,
-    perPage: 1000,
-  );
-});
-final paginatedAnimalProvider = AsyncNotifierProvider.autoDispose.family<
-    AnimalNotifier,
-    BaseResponse<AnimalProfile>,
-    ({String? available, int? farmLocationId})>(
-  AnimalNotifier.new,
-);
+final animalListProvider = FutureProvider.autoDispose
+    .family<
+      BaseResponse<AnimalProfile>,
+      ({String? available, String? search, int? farmLocationId})
+    >((ref, arg) async {
+      return ref
+          .read(getMasterDataListUseCaseProvider)
+          .callAnimals(
+            available: (arg.available?.isEmpty ?? true) ? null : arg.available,
+            search: (arg.search?.length ?? 0) >= 2 ? arg.search : null,
+            farmLocationId: arg.farmLocationId,
+            page: 1,
+            perPage: 1000,
+          );
+    });
+final paginatedAnimalProvider = AsyncNotifierProvider.autoDispose
+    .family<
+      AnimalNotifier,
+      BaseResponse<AnimalProfile>,
+      ({String? available, int? farmLocationId})
+    >(AnimalNotifier.new);
 
 final selectedAnimalProvider = StateProvider<AnimalProfile?>((ref) => null);
 final animalSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 final animalStatusProvider = StateProvider.autoDispose<String>((ref) => '');
 final animalAvailableProvider = StateProvider.autoDispose<String>((ref) => '');
-final animalFarmLocationIdProvider = StateProvider<int?>(
-  (ref) => null,
-);
+final animalFarmLocationIdProvider = StateProvider<int?>((ref) => null);
 final animalFarmAreaIdProvider = StateProvider<int?>((ref) => null);
 final animalDetailProvider = FutureProvider.autoDispose
     .family<AnimalProfile, String>((ref, id) async {
@@ -160,30 +164,22 @@ final selectedCityProvider = StateProvider.autoDispose<City?>((ref) => null);
 final citySearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
 // District
-final districtListProvider = FutureProvider.autoDispose<List<District>>((
-  ref,
-) async {
-  final selectedCity = ref.watch(selectedCityProvider);
-  if (selectedCity == null) return [];
-  return ref
-      .read(getMasterDataListUseCaseProvider)
-      .callDistrict(selectedCity.code);
-});
+final districtListProvider = FutureProvider.autoDispose
+    .family<List<District>, String>((ref, param) async {
+      if (param.isEmpty) return [];
+      return ref.read(getMasterDataListUseCaseProvider).callDistrict(param);
+    });
 final selectedDistrictProvider = StateProvider.autoDispose<District?>(
   (ref) => null,
 );
 final districtSearchProvider = StateProvider.autoDispose<String>((ref) => '');
 
 // Village
-final villageListProvider = FutureProvider.autoDispose<List<Village>>((
-  ref,
-) async {
-  final selectedDistrict = ref.watch(selectedDistrictProvider);
-  if (selectedDistrict == null) return [];
-  return ref
-      .read(getMasterDataListUseCaseProvider)
-      .callVillages(selectedDistrict.code);
-});
+final villageListProvider = FutureProvider.autoDispose
+    .family<List<Village>, String>((ref, param) async {
+      if (param.isEmpty) return [];
+      return ref.read(getMasterDataListUseCaseProvider).callVillages(param);
+    });
 final selectedVillageProvider = StateProvider.autoDispose<Village?>(
   (ref) => null,
 );
@@ -195,10 +191,11 @@ final feedMedicineListProvider = FutureProvider.autoDispose<List<FeedMedicine>>(
     return ref.read(getMasterDataListUseCaseProvider).callFeedMedicines();
   },
 );
-final paginatedFeedMedicineProvider = AsyncNotifierProvider.autoDispose<
-    FeedMedicineNotifier, BaseResponse<FeedMedicine>>(
-  FeedMedicineNotifier.new,
-);
+final paginatedFeedMedicineProvider =
+    AsyncNotifierProvider.autoDispose<
+      FeedMedicineNotifier,
+      BaseResponse<FeedMedicine>
+    >(FeedMedicineNotifier.new);
 final selectedFeedMedicineProvider = StateProvider<FeedMedicine?>(
   (ref) => null,
 );
@@ -206,16 +203,26 @@ final feedMedicineSearchProvider = StateProvider.autoDispose<String>(
   (ref) => '',
 );
 
+// EQUIPMENT
+final paginatedEquipmentProvider =
+    AsyncNotifierProvider.autoDispose<
+      EquipmentNotifier,
+      BaseResponse<Equipment>
+    >(EquipmentNotifier.new);
+final selectedEquipmentProvider = StateProvider<Equipment?>((ref) => null);
+final equipmentSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+
 // ANIMAL GROUP
 final animalGroupListProvider = FutureProvider.autoDispose<List<AnimalGroup>>((
   ref,
 ) async {
   return ref.read(getMasterDataListUseCaseProvider).callAnimalGroups();
 });
-final paginatedAnimalGroupProvider = AsyncNotifierProvider.autoDispose<
-    AnimalGroupNotifier, BaseResponse<AnimalGroup>>(
-  AnimalGroupNotifier.new,
-);
+final paginatedAnimalGroupProvider =
+    AsyncNotifierProvider.autoDispose<
+      AnimalGroupNotifier,
+      BaseResponse<AnimalGroup>
+    >(AnimalGroupNotifier.new);
 final selectedAnimalGroupProvider = StateProvider<AnimalGroup?>((ref) => null);
 final animalGroupSearchProvider = StateProvider.autoDispose<String>(
   (ref) => '',
@@ -259,11 +266,17 @@ final selectedAnimalClassPriceIdProvider = StateProvider<int?>((ref) => null);
 final animalListByClassProvider =
     FutureProvider.autoDispose<BaseResponse<AnimalProfile>>((ref) async {
       final animalClassPriceId = ref.watch(selectedAnimalClassPriceIdProvider);
+      final available = ref.watch(animalAvailableProvider);
+      final farmLocationId = ref.watch(animalFarmLocationIdProvider);
+      final farmAreaId = ref.watch(animalFarmAreaIdProvider);
 
       return ref
           .read(getMasterDataListUseCaseProvider)
           .callAnimals(
             animalClassPriceId: animalClassPriceId,
+            available: available.isNotEmpty ? available : null,
+            farmLocationId: farmLocationId,
+            farmAreaId: farmAreaId,
             page: 1,
             perPage: 1000,
           );

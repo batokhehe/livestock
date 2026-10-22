@@ -177,7 +177,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetFeed> {
                           onChanged: (_) => setState(() {}),
                         ),
                         TextFields(
-                          label: "Harga Beli",
+                          label: "Harga Beli Satuan",
                           hint: "0",
                           isMandatoryField: true,
                           prefixText: 'Rp ',
@@ -240,7 +240,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetFeed> {
                       if (priceCtrl.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text("Harga Beli wajib diisi"),
+                            content: Text("Harga Beli Satuan wajib diisi"),
                           ),
                         );
                         return;

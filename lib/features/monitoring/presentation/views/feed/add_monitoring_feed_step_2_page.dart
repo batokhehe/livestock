@@ -163,7 +163,7 @@ class _AddMonitoringFeedStep2PageState
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              "${item.quantity} Pakan",
+              "${item.quantity != null && item.quantity! % 1 == 0 ? item.quantity!.toInt() : (item.quantity ?? 0)} Pakan",
               style: AppTypography.xSmallNormalPrimary,
             ),
           ),

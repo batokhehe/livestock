@@ -294,12 +294,15 @@ class DispatchFormNotifier extends StateNotifier<DispatchRequest> {
       return e.toRequest(downPayment: dp, additionalCost: additional);
     }).toList();
 
+    final shippingTotal = int.tryParse(detail.shippingCostTotal) ?? 0;
+
     state = state.copyWith(
       dispatchDate: DateTime.tryParse(detail.dispatchDate),
       vehicleNumber: detail.vehicleNumber,
       driverName: detail.driverName,
       downPayment: dp,
       additionalCost: additional,
+      shippingCostTotal: shippingTotal,
       farmLocationId: detail.farmLocationId,
       dispatchStatus: detail.dispatchStatus,
       items: items,

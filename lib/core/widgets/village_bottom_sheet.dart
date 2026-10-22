@@ -7,7 +7,8 @@ import '../theme/AppColors.dart';
 import '../theme/AppTypography.dart';
 
 class VillageBottomSheet extends ConsumerStatefulWidget {
-  const VillageBottomSheet({super.key, required String param});
+  final String param;
+  const VillageBottomSheet({super.key, required this.param});
 
   @override
   ConsumerState<VillageBottomSheet> createState() => _VillageBottomSheetState();
@@ -21,7 +22,9 @@ class _VillageBottomSheetState extends ConsumerState<VillageBottomSheet> {
     super.initState();
     searchCtrl = TextEditingController();
 
-    ref.read(villageSearchProvider.notifier).state = '';
+    Future.microtask(() {
+      ref.read(villageSearchProvider.notifier).state = '';
+    });
   }
 
   @override
@@ -32,7 +35,7 @@ class _VillageBottomSheetState extends ConsumerState<VillageBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final dataAsync = ref.watch(villageListProvider);
+    final dataAsync = ref.watch(villageListProvider(widget.param));
     final selectedItem = ref.watch(selectedVillageProvider);
     final keyword = ref.watch(villageSearchProvider);
 
@@ -40,7 +43,7 @@ class _VillageBottomSheetState extends ConsumerState<VillageBottomSheet> {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => Center(
         child: Text(
-          "Gagal memuat data kota\n$error",
+          "Gagal memuat data kelurahan\n$error",
           textAlign: TextAlign.center,
           style: AppTypography.smallNormalGrey,
         ),
@@ -58,7 +61,7 @@ class _VillageBottomSheetState extends ConsumerState<VillageBottomSheet> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Kota", style: AppTypography.mediumBoldBlack),
+                  const Text("Kelurahan / Desa", style: AppTypography.mediumBoldBlack),
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
@@ -68,7 +71,7 @@ class _VillageBottomSheetState extends ConsumerState<VillageBottomSheet> {
 
               // ===== SEARCH =====
               SearchBarCard(
-                hint: "Cari kota",
+                hint: "Cari kelurahan",
                 controller: searchCtrl,
                 onChanged: (value) {
                   ref.read(villageSearchProvider.notifier).state = value;

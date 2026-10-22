@@ -342,7 +342,7 @@ class _ProductInfoCard extends StatelessWidget {
                   style: AppTypography.xSmallBoldBlack,
                 ),
                 Text(
-                  "Rp ${formatPrice(data.subtotal ?? 0)}",
+                  "Rp ${formatPrice(((data.unitPrice ?? 0) * (data.qty ?? 1)) - (data.discount ?? 0))}",
                   style: AppTypography.smallBoldPrimary,
                 ),
               ],

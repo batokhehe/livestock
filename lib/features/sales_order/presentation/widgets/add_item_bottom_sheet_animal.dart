@@ -700,7 +700,7 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                                 qty: 1,
                                 unitPrice: _parsePrice(priceCtrl.text),
                                 discount: _parsePrice(discountCtrl.text),
-                                subtotal: _parsePrice(finalPriceCtrl.text),
+                                subtotal: _parsePrice(priceCtrl.text),
                                 dlvDate: deliveryDate,
                                 deliveryAddress: addressCtrl.text,
                                 shippingCost: _parsePrice(shippingCostCtrl.text),

@@ -101,6 +101,8 @@ class AddReceivingConfirmationPage extends ConsumerWidget {
                             final receiveDate = ref.read(receivingDateProvider);
                             final type = ref.read(receivingTabProvider);
                             final isAnimal = type == ReceivingTab.animal;
+                            final selectedEquipmentType =
+                                ref.read(receivingEquipmentTypeProvider);
 
                             // VALIDASI WAJIB
                             if (farmLocation == null || receiveDate == null) {
@@ -125,6 +127,18 @@ class AddReceivingConfirmationPage extends ConsumerWidget {
                               return;
                             }
 
+                            String? equipmentType;
+                            if (type == ReceivingTab.equipment &&
+                                selectedEquipmentType != null) {
+                              final lower =
+                                  selectedEquipmentType.trim().toLowerCase();
+                              equipmentType = (lower == 'perlengkapan' ||
+                                      lower == 'supply' ||
+                                      lower == 'supplies')
+                                  ? 'supply'
+                                  : 'equipment';
+                            }
+
                             await provider.submitReceiving(
                               api: api,
                               type: type,
@@ -132,6 +146,7 @@ class AddReceivingConfirmationPage extends ConsumerWidget {
                               farmAreaId: isAnimal ? farmArea!.id : 0,
                               receiveDate: receiveDate,
                               remarks: provider.remarks,
+                              equipmentType: equipmentType,
                             );
 
                             provider.reset();

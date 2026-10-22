@@ -9,6 +9,8 @@ import 'package:livestock/core/widgets/input_field_card.dart';
 import 'package:livestock/core/widgets/text_field_with_inner_counter.dart';
 import 'package:livestock/core/widgets/select_field.dart';
 import 'package:livestock/core/widgets/animal_bottom_sheet.dart';
+import 'package:livestock/core/widgets/farm_location_paginated_bottom_sheet.dart';
+import 'package:livestock/core/data/model/farm_location_model.dart';
 import 'package:livestock/core/helpers/utils.dart';
 import 'package:livestock/core/data/model/animal_profile_model.dart';
 import 'package:livestock/features/monitoring/monitoring_provider.dart';
@@ -28,6 +30,7 @@ class _AddItemBottomSheetWeightState
   final weightCtrl = TextEditingController();
   final noteCtrl = TextEditingController();
 
+  FarmLocation? selectedFarmLocation;
   AnimalProfile? selectedAnimal;
   int daysDiff = 0;
   double adgValue = 0.0;
@@ -40,7 +43,36 @@ class _AddItemBottomSheetWeightState
     super.dispose();
   }
 
+  void _openFarmLocationSheet() async {
+    final result = await showModalBottomSheet<FarmLocation?>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => FarmLocationPaginatedBottomSheet(
+        initialSelectedId: selectedFarmLocation?.id,
+      ),
+    );
+
+    if (result != null && result.id != selectedFarmLocation?.id) {
+      setState(() {
+        selectedFarmLocation = result;
+        selectedAnimal = null;
+        _calculateADG(weightCtrl.text);
+      });
+    }
+  }
+
   void _openAnimalSheet() async {
+    if (selectedFarmLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Silakan pilih lokasi peternakan terlebih dahulu"),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     ref.read(selectedAnimalProvider.notifier).state = selectedAnimal;
 
     final animal = await showModalBottomSheet<AnimalProfile>(
@@ -52,7 +84,10 @@ class _AddItemBottomSheetWeightState
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        child: AnimalBottomSheet(excludedIds: widget.excludedIds),
+        child: AnimalBottomSheet(
+          excludedIds: widget.excludedIds,
+          farmLocationId: selectedFarmLocation?.id,
+        ),
       ),
     );
 
@@ -134,6 +169,7 @@ class _AddItemBottomSheetWeightState
     }
 
     final isValid =
+        selectedFarmLocation != null &&
         selectedAnimal != null &&
         weightCtrl.text.isNotEmpty &&
         double.tryParse(weightCtrl.text) != null &&
@@ -167,6 +203,18 @@ class _AddItemBottomSheetWeightState
             ),
             const SizedBox(height: 20),
             SelectField(
+              label: "Lokasi Peternakan",
+              hint: selectedFarmLocation != null
+                  ? selectedFarmLocation!.name
+                  : "Pilih lokasi peternakan",
+              style: selectedFarmLocation != null
+                  ? AppTypography.smallNormalBlack
+                  : null,
+              icon: AppImages.icHomeHashTag,
+              onTap: _openFarmLocationSheet,
+            ),
+            const SizedBox(height: 12),
+            SelectField(
               label: "Hewan",
               hint: selectedAnimal != null
                   ? "${selectedAnimal!.animalCode} • ${selectedAnimal!.name}"
@@ -175,6 +223,7 @@ class _AddItemBottomSheetWeightState
                   ? AppTypography.smallNormalBlack
                   : null,
               icon: AppImages.icProduct,
+              enabled: selectedFarmLocation != null,
               onTap: _openAnimalSheet,
             ),
             const SizedBox(height: 12),

@@ -328,6 +328,10 @@ class _CreatePurchaseOrderInvoicePageState
                       "Rp ${formatPrice(widget.item.shippingCost)}",
                     ),
                     _rowSummary(
+                      "Biaya Lainnya",
+                      "Rp ${formatPrice(widget.item.additionalCost)}",
+                    ),
+                    _rowSummary(
                       "Total keseluruhan",
                       "Rp ${formatPrice(widget.item.amountTotal)}",
                     ),
