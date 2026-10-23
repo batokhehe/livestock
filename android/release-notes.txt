@@ -1,7 +1,22 @@
 📱 Release Notes
 🔧 Perbaikan & Peningkatan
 
+Module Penerimaan (Receiving)
+- Validasi kuantitas barang diterima agar sesuai dengan sisa atau kuantitas pesanan pembelian
+- Pengisian otomatis (auto-fill) nilai kuantitas diterima berdasarkan pesanan pembelian
+- Peningkatan penanganan dan parsing angka desimal pada kuantitas penerimaan barang
+
+Module Pembelian (Purchase Order)
+- Penambahan label dan badge status pembayaran (Lunas / Belum Lunas) pada kartu daftar pesanan pembelian
+- Penyesuaian label input dan pesan validasi menjadi "Harga Beli Satuan" pada formulir item pakan
+
 Module Monitoring
-- Penyesuaian filter area peternakan (farm area) agar tampil berdasarkan lokasi peternakan yang dipilih di seluruh formulir monitoring (Pakan, Kesehatan, dan Obat)
-- Dukungan input angka desimal pada kolom kuantitas pakan dan obat di formulir monitoring
-- Penyesuaian kalkulasi total harga dan pengiriman payload API untuk mendukung kuantitas desimal
+- Navigasi tombol "Tambah Monitoring" langsung diarahkan ke formulir penambahan sesuai filter aktif (Pakan, Obat, Kesehatan, atau Bobot)
+- Pemilihan karyawan kini terhubung langsung dengan lokasi peternakan yang dipilih serta reset otomatis saat lokasi diubah
+- Peningkatan kompatibilitas parsing data JSON pada daftar item monitoring
+
+Module Pemindahan (Transfer)
+- Navigasi tombol "Tambah Pemindahan" langsung diarahkan ke formulir penambahan sesuai filter aktif (Pakan atau Hewan)
+
+Module Profil Hewan (Animal Profile)
+- Penambahan filter ketersediaan, lokasi peternakan, dan area peternakan pada daftar kelas dan profil hewan
