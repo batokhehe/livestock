@@ -40,7 +40,7 @@ class ConfirmationItemDoubleCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
-                        "${item.count} ${item.subtitle}",
+                        "${item.count != null && item.count! % 1 == 0 ? item.count!.toInt() : (item.count ?? 0)} ${item.subtitle}",
                         style: AppTypography.xSmallNormalPrimary,
                       ),
                     ),

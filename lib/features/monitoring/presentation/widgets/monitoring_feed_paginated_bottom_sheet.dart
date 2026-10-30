@@ -127,7 +127,8 @@ class _MonitoringFeedPaginatedBottomSheetState
                               ),
                             ),
                             StatusChips(
-                              text: "${item.quantity} Kuantitas",
+                              text:
+                                  "${item.quantity % 1 == 0 ? item.quantity.toInt() : item.quantity} Kuantitas",
                               color: AppColors.success,
                             ),
                           ],

@@ -109,6 +109,12 @@ class _AddMonitoringFeedStep2PageState
   }
 
   Widget _itemCard(int index, MonitoringItem item) {
+    final stockNum = num.tryParse(item.stock?.replaceAll(',', '.') ?? '');
+    final stockStr = stockNum != null
+        ? (stockNum % 1 == 0 ? stockNum.toInt().toString() : stockNum.toString())
+        : (item.stock ?? '-');
+    final unitStr = item.unit?.isNotEmpty == true ? item.unit! : 'Karung';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -131,7 +137,7 @@ class _AddMonitoringFeedStep2PageState
                       style: AppTypography.smallBoldBlack,
                     ),
                     Text(
-                      "${item.code ?? '-'} • ${item.stock} Karung",
+                      "${item.code ?? '-'} • $stockStr $unitStr",
                       style: AppTypography.smallNormalGrey,
                     ),
                   ],
@@ -163,7 +169,7 @@ class _AddMonitoringFeedStep2PageState
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              "${item.quantity != null && item.quantity! % 1 == 0 ? item.quantity!.toInt() : (item.quantity ?? 0)} Pakan",
+              "${item.quantity != null && item.quantity! % 1 == 0 ? item.quantity!.toInt() : (item.quantity ?? 0)} ${item.unit?.isNotEmpty == true ? item.unit : 'Pakan'}",
               style: AppTypography.xSmallNormalPrimary,
             ),
           ),

@@ -37,7 +37,10 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
       final item = widget.itemToEdit!;
       nameCtrl.text = item.name ?? '';
       codeCtrl.text = item.code ?? '';
-      stockCtrl.text = item.stock ?? '0';
+      final s = num.tryParse(item.stock?.replaceAll(',', '.') ?? '');
+      stockCtrl.text = s != null
+          ? (s % 1 == 0 ? s.toInt().toString() : s.toString())
+          : (item.stock ?? '0');
       final q = item.quantity;
       qtyCtrl.text = q != null
           ? (q % 1 == 0 ? q.toInt().toString() : q.toString())
@@ -50,6 +53,15 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
 
     qtyCtrl.addListener(_calculateTotal);
     priceCtrl.addListener(_calculateTotal);
+  }
+
+  String _formatStock(String text) {
+    if (text.isEmpty) return "0";
+    final numVal = num.tryParse(text.replaceAll(',', '.'));
+    if (numVal != null) {
+      return numVal % 1 == 0 ? numVal.toInt().toString() : numVal.toString();
+    }
+    return text;
   }
 
   void _calculateTotal() {
@@ -73,7 +85,11 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
     }
 
     if (qtyChanged) {
-      final newText = qty % 1 == 0 ? qty.toInt().toString() : qty.toString();
+      final hasComma = qtyCtrl.text.contains(',');
+      String newText = qty % 1 == 0 ? qty.toInt().toString() : qty.toString();
+      if (hasComma) {
+        newText = newText.replaceAll('.', ',');
+      }
       qtyCtrl.value = TextEditingValue(
         text: newText,
         selection: TextSelection.collapsed(offset: newText.length),
@@ -157,7 +173,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                         const SizedBox(height: 12),
                         const Text("Kuantitas Tersedia", style: AppTypography.smallNormalGrey),
                         const SizedBox(height: 4),
-                        Text(stockCtrl.text.isEmpty ? "0" : stockCtrl.text, style: AppTypography.smallBoldBlack),
+                        Text(stockCtrl.text.isEmpty ? "0" : _formatStock(stockCtrl.text), style: AppTypography.smallBoldBlack),
                       ],
                     ),
                   ),
@@ -270,9 +286,12 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
         selectedFeed = result;
         nameCtrl.text = result.name;
         codeCtrl.text = result.code;
-        stockCtrl.text = result.quantity.toString();
+        stockCtrl.text = result.quantity % 1 == 0
+            ? result.quantity.toInt().toString()
+            : result.quantity.toString();
         priceCtrl.text = result.price.toString();
       });
+      _calculateTotal();
     }
   }
 }

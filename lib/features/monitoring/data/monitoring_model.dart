@@ -10,8 +10,8 @@ class Monitoring {
   final String? description;
   final String subtitle;
   final ItemStatus status;
-  final int total;
-  final int? count;
+  final num total;
+  final num? count;
   final DateTime? date;
   final List<MonitoringItem> items;
 

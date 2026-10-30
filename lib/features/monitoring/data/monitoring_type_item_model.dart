@@ -1,7 +1,7 @@
 class MonitoringTypeItemModel {
   final String name;
   final String code;
-  final int quantity;
+  final num quantity;
   final String uom;
   final int price;
 
@@ -31,7 +31,7 @@ class MonitoringTypeItemModel {
                 json['quantity']?.toString() ??
                 json['stock']?.toString() ??
                 '0',
-          )?.toInt() ??
+          ) ??
           0,
       uom: json['uom']?.toString() ?? '',
       price:
