@@ -296,6 +296,26 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                                 );
 
                             if (result != null) {
+                              final form = widget.isEdit
+                                  ? ref.read(editSalesOrderFormProvider)
+                                  : ref.read(salesOrderFormProvider);
+                              final category =
+                                  (form.category ?? 'kg').trim().toLowerCase();
+                              final isKelas = category == 'kelas';
+                              final isForecastEnabled =
+                                  category == 'kg' &&
+                                  (form.useForecast ?? true);
+
+                              final int targetPrice;
+                              if (isKelas && !(form.useForecast ?? true)) {
+                                targetPrice = (result.currentClassPrice != null &&
+                                        result.currentClassPrice! > 0)
+                                    ? result.currentClassPrice!
+                                    : result.refSalesPriceTotal;
+                              } else {
+                                targetPrice = result.refSalesPriceTotal;
+                              }
+
                               setState(() {
                                 selectedAnimal = result;
                                 animalWeightCtrl.text = result.weight
@@ -304,17 +324,10 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
                                   result.refSalesPrice,
                                 );
                                 priceCtrl.text = formatPrice(
-                                  result.refSalesPriceTotal,
+                                  targetPrice,
                                 );
                                 discountCtrl.text = '0';
                               });
-
-                              final form = widget.isEdit
-                                  ? ref.read(editSalesOrderFormProvider)
-                                  : ref.read(salesOrderFormProvider);
-                              final isForecastEnabled =
-                                  (form.category ?? 'kg') == 'kg' &&
-                                  (form.useForecast ?? true);
 
                               if (isForecastEnabled &&
                                   result.animalGroup != null) {
@@ -812,6 +825,15 @@ class _AddItemBottomSheetState extends ConsumerState<AddItemBottomSheetAnimal> {
             Text('Kelas Harga', style: AppTypography.smallBoldBlack),
             const SizedBox(height: 6),
             _infoField(animal.currentClassName ?? '-', AppImages.icMoneys),
+            if (!isForecastEnabled) ...[
+              const SizedBox(height: 14),
+              Text('Harga Kelas', style: AppTypography.smallBoldBlack),
+              const SizedBox(height: 6),
+              _infoField(
+                'Rp ${formatPrice(animal.currentClassPrice ?? 0)}',
+                AppImages.icMoneys,
+              ),
+            ],
             if (isForecastEnabled) ...[
               const SizedBox(height: 14),
               Text('Berat Minimum', style: AppTypography.smallBoldBlack),

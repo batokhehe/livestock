@@ -10,12 +10,19 @@ import 'package:livestock/features/sales_order/sales_order_provider.dart';
 
 class SalesOrderItemDetailBottomSheet extends ConsumerWidget {
   final SalesOrderItemRequest item;
+  final bool isEdit;
 
-  const SalesOrderItemDetailBottomSheet({super.key, required this.item});
+  const SalesOrderItemDetailBottomSheet({
+    super.key,
+    required this.item,
+    this.isEdit = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final request = ref.watch(salesOrderFormProvider);
+    final request = isEdit
+        ? ref.watch(editSalesOrderFormProvider)
+        : ref.watch(salesOrderFormProvider);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.85,
@@ -163,18 +170,26 @@ class SalesOrderItemDetailBottomSheet extends ConsumerWidget {
                     horizontal: 12.0,
                     vertical: 4.0,
                   ),
-                  child: _buildValueRow(
-                    label1: request.useForecast
-                        ? "Est. Harga Jual/kg"
-                        : "Harga Jual/kg",
-                    value1:
-                        "Rp ${formatPrice(item.animalProfile?.refSalesPrice ?? 0)}",
-                    label2: request.useForecast
-                        ? "Est. Harga Jual Total"
-                        : "Harga Jual Total",
-                    value2:
-                        "Rp ${formatPrice(item.animalProfile?.refSalesPriceTotal ?? 0)}",
-                  ),
+                  child: (request.category ?? '').toString().toLowerCase() == 'kelas'
+                      ? _buildValueRow(
+                          label1: "Kelas Hewan",
+                          value1: item.animalProfile?.currentClassName ?? '-',
+                          label2: "Harga Kelas",
+                          value2:
+                              "Rp ${formatPrice(item.animalProfile?.currentClassPrice ?? 0)}",
+                        )
+                      : _buildValueRow(
+                          label1: (request.useForecast ?? true)
+                              ? "Est. Harga Jual/kg"
+                              : "Harga Jual/kg",
+                          value1:
+                              "Rp ${formatPrice(item.animalProfile?.refSalesPrice ?? 0)}",
+                          label2: (request.useForecast ?? true)
+                              ? "Est. Harga Jual Total"
+                              : "Harga Jual Total",
+                          value2:
+                              "Rp ${formatPrice(item.animalProfile?.refSalesPriceTotal ?? 0)}",
+                        ),
                 ),
                 if (request.useForecast ?? true) ...[
                   const Divider(color: AppColors.fieldBorder),

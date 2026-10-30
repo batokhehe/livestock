@@ -58,7 +58,7 @@ class _EditSalesOrderStep2PageState
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => item.animalProfile != null
-          ? SalesOrderItemDetailBottomSheet(item: item)
+          ? SalesOrderItemDetailBottomSheet(item: item, isEdit: true)
           : SalesOrderFeedItemDetailBottomSheet(item: item),
     );
   }

@@ -110,8 +110,12 @@ class AnimalProfile {
       refSalesPriceTotal: json['ref_sales_price_total'] ?? 0,
 
       currentClassName: json['current_class_name'],
-      currentClassPrice: json['current_class_price'] ?? 0,
-      currentClassPriceId: json['current_class_price_id'] ?? 0,
+      currentClassPrice: (json['current_class_price'] is num)
+          ? (json['current_class_price'] as num).toInt()
+          : (int.tryParse(json['current_class_price']?.toString() ?? '') ?? 0),
+      currentClassPriceId: (json['current_class_price_id'] is num)
+          ? (json['current_class_price_id'] as num).toInt()
+          : (int.tryParse(json['current_class_price_id']?.toString() ?? '') ?? 0),
       currentClassMinWeight: (json['current_class_min_weight'] is num)
           ? (json['current_class_min_weight'] as num).toDouble()
           : double.tryParse(json['current_class_min_weight']?.toString() ?? ''),
