@@ -113,7 +113,7 @@ class AddMonitoringFeedConfirmationPage extends ConsumerWidget {
               const SizedBox(height: 12),
               _rowSummary(
                 "Total Keseluruhan",
-                "Rp ${formatPrice(items.fold<num>(0, (sum, item) => sum + ((item.quantity ?? 0) * (item.price ?? 0))).round())}",
+                "Rp ${formatPrice(items.fold<num>(0, (sum, item) => sum + ((item.quantity ?? 0) * (item.price ?? 0))))}",
                 isTotal: true,
               ),
             ],

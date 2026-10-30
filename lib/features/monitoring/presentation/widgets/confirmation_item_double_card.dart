@@ -9,6 +9,13 @@ class ConfirmationItemDoubleCard extends StatelessWidget {
 
   const ConfirmationItemDoubleCard({super.key, required this.item});
 
+  String _formatCount(num? count) {
+    if (count == null) return "0";
+    if (count % 1 == 0) return count.toInt().toString();
+    final fixed = count.toStringAsFixed(2);
+    return fixed.replaceAll(RegExp(r'\.?0+$'), '');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -40,7 +47,7 @@ class ConfirmationItemDoubleCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
-                        "${item.count != null && item.count! % 1 == 0 ? item.count!.toInt() : (item.count ?? 0)} ${item.subtitle}",
+                        "${_formatCount(item.count)} ${item.subtitle}",
                         style: AppTypography.xSmallNormalPrimary,
                       ),
                     ),

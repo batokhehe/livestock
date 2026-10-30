@@ -36,10 +36,16 @@ String monthName(int m) {
 }
 
 String formatPrice(num value) {
-  final str = value == value.toInt()
-      ? value.toInt().toString()
-      : value.toStringAsFixed(0);
-  return str.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.');
+  if (value % 1 == 0) {
+    final str = value.toInt().toString();
+    return str.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.');
+  } else {
+    final fixed = value.toStringAsFixed(2).replaceAll(RegExp(r'\.?0+$'), '');
+    final parts = fixed.split('.');
+    final intPart = parts[0].replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.');
+    final decPart = parts.length > 1 ? parts[1] : '';
+    return decPart.isEmpty ? intPart : '$intPart,$decPart';
+  }
 }
 
 bool equalsIgnoreCase(String? string1, String? string2) {

@@ -103,7 +103,7 @@ class AnimalHealthCheckDetailPage extends ConsumerWidget {
               ...data.details.map((item) {
                 return _rowSummary(
                   item.feedMedicine?.name ?? "-",
-                  "Rp ${formatPrice(item.total.toInt())}",
+                  "Rp ${formatPrice(item.total)}",
                 );
               }),
               const SizedBox(height: 4),
@@ -115,7 +115,7 @@ class AnimalHealthCheckDetailPage extends ConsumerWidget {
               const SizedBox(height: 12),
               _rowSummary(
                 "Total Keseluruhan",
-                "Rp ${formatPrice(data.totalCost.toInt())}",
+                "Rp ${formatPrice(data.totalCost)}",
                 isTotal: true,
               ),
             ],
